@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Intel GPU 的 ComfyUI 优化指南</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,'Segoe UI','Microsoft YaHei',sans-serif; color:#222; line-height:1.75; background:#f5f6f8; }
+.header { background:#1a2d5c; color:#fff; padding:28px 20px; text-align:center; }
+.header h1 { font-size:26px; font-weight:600; margin-bottom:6px; }
+.header p { font-size:13px; opacity:.8; }
+.download-btn { display:inline-block; margin-top:18px; background:#ff7a1a; color:#fff; text-decoration:none; padding:16px 40px; border-radius:10px; font-size:18px; font-weight:700; box-shadow:0 4px 16px rgba(255,122,26,.45); transition:transform .15s, background .15s; }
+.download-btn:hover { background:#e96a0a; transform:translateY(-2px); box-shadow:0 6px 20px rgba(255,122,26,.55); }
+.wrap { max-width:1720px; margin:0 auto; padding:24px 32px 60px; display:flex; gap:32px; align-items:flex-start; }
+.sidebar { flex:0 0 260px; position:sticky; top:20px; max-height:calc(100vh - 40px); overflow-y:auto; }
+.main { flex:1 1 auto; min-width:0; }
+.toc { background:#fff; border:1px solid #e3e6ea; border-radius:10px; padding:16px 20px; }
+.toc .toc-title { font-weight:600; font-size:15px; margin-bottom:8px; color:#1a2d5c; }
+.toc ul { list-style:none; padding-left:12px; margin:4px 0; }
+.toc a { color:#185fa5; text-decoration:none; font-size:12px; line-height:1.7; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.toc a:hover { text-decoration:underline; }
+.content { background:#fff; border:1px solid #e3e6ea; border-radius:10px; padding:28px 32px; }
+.content h2 { font-size:22px; margin:28px 0 12px; padding-bottom:8px; border-bottom:2px solid #1a2d5c; color:#1a2d5c; }
+.content h3 { font-size:17px; margin:22px 0 10px; color:#333; }
+.content h4 { font-size:15px; margin:18px 0 8px; }
+.content p { margin:10px 0; font-size:14.5px; }
+.content ul, .content ol { margin:10px 0 10px 22px; font-size:14.5px; }
+.content li { margin:4px 0; }
+.content blockquote { border-left:4px solid #ff7a1a; background:#fff7ef; padding:10px 14px; margin:12px 0; border-radius:0 6px 6px 0; font-size:14px; }
+.content blockquote p { margin:4px 0; }
+.content code { background:#f0f2f5; border-radius:4px; padding:1px 5px; font-size:13px; font-family:Consolas,monospace; }
+.content pre { background:#f6f8fa; border:1px solid #e3e6ea; border-radius:8px; padding:14px 16px; margin:12px 0; overflow-x:auto; }
+.content pre code { background:none; padding:0; font-size:13px; line-height:1.6; }
+.content table { border-collapse:collapse; margin:14px 0; width:100%; font-size:14px; }
+.content th { background:#1a2d5c; color:#fff; padding:8px 12px; text-align:left; }
+.content td { border:1px solid #e3e6ea; padding:8px 12px; }
+.content tr:nth-child(even) td { background:#f8f9fb; }
+hr { border:none; border-top:1px solid #e3e6ea; margin:28px 0; }
+@media (max-width:900px) {
+  .wrap { flex-direction:column; }
+  .sidebar { flex:none; position:static; max-height:none; }
+  .content { padding:18px 14px; }
+  .content h2 { font-size:19px; }
+}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Intel GPU 的 ComfyUI 优化指南</h1>
+  <p>Intel Arc 显卡 ComfyUI 加速方案 · 完整安装包与指南</p>
+  <a class="download-btn" href="https://pan.quark.cn/s/4e921b715ffc" target="_blank" rel="noopener">📦 下载完整安装包（夸克网盘）</a>
+</div>
+<div class="wrap">
+  <div class="sidebar">
+    <div class="toc">
+      <div class="toc-title">📖 目录</div>
+      <div class="toc">
+<ul>
+<li><a href="#_1">目录</a></li>
+<li><a href="#_2">第一部分：背景说明</a><ul>
+<li><a href="#intel-gpu-comfyui_1">为什么 Intel GPU 在 ComfyUI 下又慢又"不稳"</a></li>
+<li><a href="#intel-llm-scaler-omni">Intel llm-scaler-omni 的价值和问题</a></li>
+</ul>
+</li>
+<li><a href="#_3">第二部分：优化思路</a><ul>
+<li><a href="#omni_xpu_kernel-kitchen-xpu-comfyui-omnixpu">提速：omni_xpu_kernel + kitchen xpu + ComfyUI-OmniXPU</a></li>
+<li><a href="#comfy-aimdo-xpudynamicvram">稳定：comfy-aimdo XPU（DynamicVRAM）</a></li>
+</ul>
+</li>
+<li><a href="#_4">第三部分：安装</a><ul>
+<li><a href="#0-ai">0. 不熟悉命令行？让 AI 助手帮你装</a></li>
+<li><a href="#1">1. 环境要求</a></li>
+<li><a href="#2-omni_xpu_kernel">2. omni_xpu_kernel 安装</a></li>
+<li><a href="#3-comfyui-omnixpu">3. ComfyUI-OmniXPU 安装</a></li>
+<li><a href="#4-comfyui-kitchen-xpu">4. ComfyUI Kitchen XPU 安装（选装，谨慎！！）</a></li>
+<li><a href="#5-comfyui-aimdo-xpu">5. ComfyUI Aimdo XPU 安装（选装，测试版）</a></li>
+<li><a href="#6-comfyui-gguf-xpu-gguf">6. ComfyUI-GGUF-XPU 安装（选装，GGUF 用户强烈建议）</a></li>
+</ul>
+</li>
+<li><a href="#_5">第四部分：验证与故障排查</a><ul>
+<li><a href="#_6">验证清单（按顺序）</a></li>
+<li><a href="#_7">常见问题表</a></li>
+<li><a href="#comfyui">ComfyUI 内核升级后的标准动作（重要）</a></li>
+</ul>
+</li>
+<li><a href="#faq">第五部分：实测数据与 FAQ</a><ul>
+<li><a href="#arc-b580-torch-213-windows">实测数据（Arc B580 / torch 2.13 / Windows）</a></li>
+<li><a href="#faq_1">FAQ</a></li>
+</ul>
+</li>
+<li><a href="#_8">附录：文件清单对照</a></li>
+<li><a href="#_9">感谢</a><ul>
+<li><a href="#_10">特别感谢</a></li>
+<li><a href="#intel-gpu-comfyui_2">Intel GPU &amp; ComfyUI 折腾群</a></li>
+<li><a href="#_11">全部项目地址汇总</a></li>
+</ul>
+</li>
+</ul>
+</div>
+
+    </div>
+  </div>
+  <div class="main">
+    <div class="content">
+      <h1 id="intel-gpu-comfyui">Intel GPU 的 ComfyUI 优化指南</h1>
+<blockquote>
+<p>面向普通 Intel GPU 用户：让 ComfyUI 在 Intel Arc 显卡上<strong>更快、更稳</strong>的完整方案。
+本指南配套同目录下的安装文件包使用，版本：<strong>2026-08-14</strong></p>
+</blockquote>
+<hr />
+<h2 id="_1">目录</h2>
+<ul>
+<li><a href="#第一部分背景说明">第一部分：背景说明</a></li>
+<li><a href="#第二部分优化思路">第二部分：优化思路</a></li>
+<li><a href="#第三部分安装">第三部分：安装</a></li>
+<li><a href="#第四部分验证与故障排查">第四部分：验证与故障排查</a></li>
+<li><a href="#第五部分实测数据与-faq">第五部分：实测数据与 FAQ</a></li>
+<li><a href="#附录文件清单对照">附录：文件清单对照</a></li>
+</ul>
+<hr />
+<h2 id="_2">第一部分：背景说明</h2>
+<h3 id="intel-gpu-comfyui_1">为什么 Intel GPU 在 ComfyUI 下又慢又"不稳"</h3>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>根因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>慢</strong></td>
+<td>ComfyUI 的算子生态长期以 CUDA（NVIDIA）为中心，Intel 显卡只能走 PyTorch 通用路径（eager 逐算子执行），量化模型（GGUF/INT8/FP8）的解包、反量化大量在 CPU 或通用实现上完成</td>
+</tr>
+<tr>
+<td><strong>更慢</strong></td>
+<td>Intel GPU 没有成熟的"算子分发层"——装了量化模型也没有原生 kernel 可调，全部回退到慢速路径</td>
+</tr>
+<tr>
+<td><strong>不稳</strong></td>
+<td>消费级卡显存小（12–16GB）+ Windows WDDM 驱动调度开销大，大模型贴满显存时 OOM、卡死、花屏频发</td>
+</tr>
+<tr>
+<td><strong>生态</strong></td>
+<td><code>torch.xpu</code>（PyTorch 的 Intel GPU 后端）是后起之秀，周边配套（手写 kernel 库、显存管理）远不如 CUDA 成熟</td>
+</tr>
+</tbody>
+</table>
+<p><strong>一句话</strong>：Intel GPU 的瓶颈不在硬件，而在"软件生态没跟上"——量化算子和显存管理缺两条腿。</p>
+<h3 id="intel-llm-scaler-omni">Intel llm-scaler-omni 的价值和问题</h3>
+<p><strong>价值：官方为 ComfyUI 打造的 XPU 优化套件</strong></p>
+<p>Intel 官方仓库 <code>intel/llm-scaler</code> 的 omni 系列，把"两条腿"补上了：
+地址：https://github.com/intel/llm-scaler/tree/main/omni</p>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>omni_xpu_kernel</strong></td>
+<td>SYCL/ESIMD 手写内核库：norm（RMSNorm/LayerNorm）、rotary、INT8 FFN、FP8 GEMM、GGUF 解包、SVDQuant INT4</td>
+</tr>
+<tr>
+<td><strong>comfy-kitchen XPU fork</strong></td>
+<td>算子分发层：把量化算子（GGUF/rope/convrot…）路由到 omni_xpu_kernel 原生 kernel</td>
+</tr>
+<tr>
+<td><strong>ComfyUI-OmniXPU</strong></td>
+<td>接入节点：启动时自动 patch ComfyUI 的模型层，无需改工作流</td>
+</tr>
+<tr>
+<td><strong>comfy-aimdo XPU</strong></td>
+<td>DynamicVRAM 显存管理：按需换页（VBAR fault）、权重驱逐，防 OOM</td>
+</tr>
+</tbody>
+</table>
+<p>官方验证面：Arc Pro B70/B60 专业卡。</p>
+<p><strong>问题：官方套件的三个受限点</strong></p>
+<ol>
+<li><strong>专注 B 系列（BMG 架构）</strong>：官方内核只编译 <code>bmg</code> 目标（B580/B60/B70），<strong>A 系列（A770 等 DG2 架构）原版不支持</strong>——需社区手搓内核（见安装第 2 步）</li>
+<li><strong>优选专业卡</strong>：官方文档以 B60/B70 为基准验证，消费级 B580 部分场景（显存贴满）需要额外处理</li>
+<li><strong>Windows 支持度有限</strong>：官方 Windows 便携版只验证到 torch 2.12；torch 2.13 需本地适配编译（本包已为你编译好）；组件版本联动、升级后互相覆盖，维护门槛高</li>
+</ol>
+<hr />
+<h2 id="_3">第二部分：优化思路</h2>
+<h3 id="omni_xpu_kernel-kitchen-xpu-comfyui-omnixpu">提速：omni_xpu_kernel + kitchen xpu + ComfyUI-OmniXPU</h3>
+<pre><code>优化前: 量化算子 → eager 通用路径（CPU/慢速实现）
+优化后: 量化算子 → comfy-kitchen(xpu backend) → omni_xpu_kernel 原生 kernel
+</code></pre>
+<p>三个组件各司其职：</p>
+<pre><code>ComfyUI → OmniXPU 节点(自动 patch 模型层)
+              ├─ norm / FP8 / INT8-FFN → 直连 omni_xpu_kernel（不经 kitchen）
+              └─ GGUF/rope/convrot 等通用算子 → comfy-kitchen(xpu) → omni_xpu_kernel
+</code></pre>
+<p><strong>实测效果</strong>（Arc B580，Krea2 GGUF Q4_0，8 步）：</p>
+<table>
+<thead>
+<tr>
+<th>配置</th>
+<th style="text-align: right;">每步耗时</th>
+<th style="text-align: right;">提升</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>不优化（KJNodes 加载）</td>
+<td style="text-align: right;">4.00 s/it</td>
+<td style="text-align: right;">—</td>
+</tr>
+<tr>
+<td>三件套（UnetLoaderGGUF 加载）</td>
+<td style="text-align: right;">2.50 s/it</td>
+<td style="text-align: right;"><strong>快 37.5%</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="comfy-aimdo-xpudynamicvram">稳定：comfy-aimdo XPU（DynamicVRAM）</h3>
+<p>原理：显存贴满时，把不活跃的模型权重"换页"到系统内存（VBAR fault/驱逐），需要时再调回，避免 OOM。</p>
+<blockquote>
+<p>⚠️ <strong>重要提醒</strong>：本包内置的 aimdo 是 <strong>PR#4 测试版</strong>（上游 commit <code>323c0e0</code>，未合并稳定版），<strong>部分设备上存在已知问题</strong>：
+- 问题 A：模型总需求接近/超过显存时，显存无上限增长、驱逐不触发 → <strong>采样 step 1 卡死</strong>
+- 问题 B：与 omni_xpu_kernel 的 esimd 内核存在全局 hook 冲突 → <strong>开启后 norm 每次调用 ~200ms 卡死</strong></p>
+<p>→ <strong>普通用户建议暂不启用 aimdo</strong>；确需大模型显存管理，请关注上游 issue #3 的修复进展，等待稳定版。</p>
+</blockquote>
+<hr />
+<h2 id="_4">第三部分：安装</h2>
+<h3 id="0-ai">0. 不熟悉命令行？让 AI 助手帮你装</h3>
+<p>如果你不想手动执行命令、改配置文件，<strong>最简单的方式</strong>：</p>
+<blockquote>
+<p>把本文件夹（含本指南和全部安装包）直接交给一个 AI 助手（如 WorkBuddy / 其他支持读取本地文件的 agent），对它说：<strong>"请阅读《Intel GPU 的 ComfyUI 优化指南.md》,按我的显卡（A770 或 B 系列）帮我完成安装、配置和验证。"</strong></p>
+</blockquote>
+<p>AI 助手会替你完成以下全部工作：</p>
+<ul>
+<li>读取本指南 + 检查你的环境（显卡型号、torch 版本、ComfyUI 版本）</li>
+<li>安装对应的 kernel wheel（按 A/B 系列选对版本）</li>
+<li>部署 OmniXPU 节点 / GGUF-XPU 节点到 <code>custom_nodes\</code></li>
+<li>修改启动 bat 的环境变量（按你的显卡选对一组）</li>
+<li>按第四部分的清单验证是否生效</li>
+</ul>
+<blockquote>
+<p>💡 前提：AI 助手需要能访问本机文件（WorkBuddy 等桌面助手支持）。装完如有报错，直接把错误日志贴给助手即可。</p>
+</blockquote>
+<h3 id="1">1. 环境要求</h3>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>要求</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>显卡</td>
+<td><strong>B 系列</strong>：Arc B580 / B60 / B70（BMG 架构）<br><strong>A 系列</strong>：Arc A770 （DG2 架构）</td>
+</tr>
+<tr>
+<td>操作系统</td>
+<td>Windows 10/11 64 位</td>
+</tr>
+<tr>
+<td>Python</td>
+<td>3.13</td>
+</tr>
+<tr>
+<td>PyTorch</td>
+<td><strong>2.13.0+xpu</strong>（ComfyUI XPU版本自带）</td>
+</tr>
+<tr>
+<td>ComfyUI</td>
+<td>0.31 ~ 0.33.x</td>
+</tr>
+<tr>
+<td>显卡驱动</td>
+<td>Intel Arc 最新驱动</td>
+</tr>
+<tr>
+<td>oneAPI</td>
+<td><strong>仅编译需要</strong>；运行时不需要（本包 wheel 已编译好）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>先确认环境</strong>（命令行执行）：</p>
+<pre><code class="language-text">python -c &quot;import torch; print(torch.__version__, torch.xpu.is_available())&quot;
+:: 应输出: 2.13.0+xpu True
+</code></pre>
+<h3 id="2-omni_xpu_kernel">2. omni_xpu_kernel 安装</h3>
+<blockquote>
+<p><strong>内核 wheel 按显卡系列区分，选你对应的那个，不要混装。</strong>  </p>
+<p>⚠️ 官方版本内核也支持 Panther Lake H, 新一代酷睿 Ultra 200 系列集显，但必须在集显环境下编译才可使用，不能直接用下方内容</p>
+</blockquote>
+<h4 id="a770-dg2">A770 显卡安装（社区手搓内核，dg2）</h4>
+<p>A 系列官方原版不支持，使用社区维护者 Blackwood416 的 dg2 内核。同架构A750可能会报错。</p>
+<blockquote>
+<p>🔄 <strong>后续升级</strong>：从这个项目找更新包 → https://github.com/Blackwood416/omni-xpu-kernel</p>
+</blockquote>
+<ul>
+<li>安装文件（本包 <code>A770(dg2)/</code> 目录）：</li>
+</ul>
+<p><code>omni_xpu_kernel-0.2.0b1+torch213.dg2-cp313-cp313-win_amd64.whl</code></p>
+<ul>
+<li>安装方法：</li>
+</ul>
+<p><code>text
+  python -m pip install omni_xpu_kernel-0.2.0b1+torch213.dg2-cp313-cp313-win_amd64.whl</code></p>
+<h4 id="b-bmg">B 系列显卡安装（官方支持，bmg）</h4>
+<blockquote>
+<p>说明：bmg wheel 覆盖整个 BMG 系列（B580/B60/B70），内核运行时自动识别显卡型号。</p>
+<p>🔄 <strong>后续升级</strong>：B 系列官方内核来自 llm-scaler-omni 项目 → https://github.com/intel/llm-scaler/tree/main/omni/omni_xpu_kernel</p>
+</blockquote>
+<ul>
+<li>安装文件（本包 <code>B系列(bmg)/</code> 目录）：</li>
+</ul>
+<p><code>omni_xpu_kernel-0.2.0b1+torch213.bmg-cp313-cp313-win_amd64.whl</code></p>
+<ul>
+<li>安装方法：</li>
+</ul>
+<p><code>text
+  python -m pip install omni_xpu_kernel-0.2.0b1+torch213.bmg-cp313-cp313-win_amd64.whl</code></p>
+<h3 id="3-comfyui-omnixpu">3. ComfyUI-OmniXPU 安装</h3>
+<h4 id="a770">A770 用户</h4>
+<blockquote>
+<p>🔄 <strong>A770 节点后续升级</strong>：从这个项目找更新包 → https://github.com/Blackwood416/ComfyUI-OmniXPU</p>
+</blockquote>
+<p><strong>安装</strong>  </p>
+<p>解压 <code>A770(dg2)/ComfyUI-OmniXPU.A770-20260814.zip</code> 到 <code>ComfyUI\custom_nodes\</code>（解压后即得 <code>ComfyUI-OmniXPU</code> 文件夹）<br />
+重启 ComfyUI 后自动加载（日志出现 <code>[OmniXPU]</code> 即成功）。</p>
+<p><strong>A770的启动文件（bat）相关设置</strong>（esimd attention——A 系列社区内核特调）：</p>
+<p>在启动 bat 的 <code>python main.py ...</code> 之前加入环境变量：</p>
+<pre><code class="language-text">:: OMNIXPU加速相关（A770 / dg2）
+set OMNI_ATTN_BACKEND=esimd
+set OMNIXPU_ENABLE=1
+set OMNIXPU_ATTENTION=1
+</code></pre>
+<h4 id="b">B 系列用户</h4>
+<blockquote>
+<p>🔄 <strong>B 系列节点后续升级</strong>：官方节点来自 llm-scaler-omni 项目 → https://github.com/intel/llm-scaler/tree/main/omni/ComfyUI-OmniXPU</p>
+</blockquote>
+<p><strong>安装</strong>  </p>
+<p>解压 <code>B系列(bmg)/ComfyUI-OmniXPU.bmg-20260814.zip</code> 到 <code>ComfyUI\custom_nodes\</code>（解压后即得 <code>ComfyUI-OmniXPU</code> 文件夹）<br />
+重启 ComfyUI 后自动加载（日志出现 <code>[OmniXPU]</code> 即成功）。</p>
+<p><strong>B 系列启动文件（bat）相关设置</strong>（torch SDPA——官方 Windows 验证面）</p>
+<p>在启动 bat 的 <code>python main.py ...</code> 之前加入环境变量（<strong>按你的显卡选一组</strong>）：</p>
+<pre><code class="language-text">:: OMNIXPU加速相关（B系列 / bmg）
+set OMNIXPU_ENABLE=1
+set OMNI_ATTN_BACKEND=torch
+set OMNI_XPU_REQUIRE_CUTE=0
+</code></pre>
+<h3 id="4-comfyui-kitchen-xpu">4. ComfyUI Kitchen XPU 安装（选装，谨慎！！）</h3>
+<blockquote>
+<p>🔄 <strong>后续升级</strong>：从这个项目找更新包 → https://github.com/xiangyuT/comfy-kitchen-xpu</p>
+<p>⚠️ <strong>版本对齐提示</strong>：本包提供的 kitchen 是 <strong>0.2.31</strong>，与 <strong>ComfyUI 0.33.1</strong> 配套对齐（基于 0.2.28 XPU fork 手动合并官方 0.2.31 并修复官方 cuda 导入问题制作）。<strong>每次升级 ComfyUI 内核后，kitchen 都可能需要重新合并上游代码 + 打 XPU patch + 重新安装</strong>，维护成本较高——请评估后再决定是否安装。</p>
+<p>kitchen 不分显卡系列，一个 wheel 通用（在本包根目录）。</p>
+</blockquote>
+<p><strong>安装文件的下载与安装</strong></p>
+<pre><code class="language-text">python -m pip install comfy_kitchen-0.2.31-py3-none-any.whl
+</code></pre>
+<p><strong>ComfyUI 内核更新后原安装版本会失效——如何解决</strong></p>
+<p>ComfyUI 更新器会按 <code>requirements.txt</code> 重装 <code>comfy-kitchen</code>（官方版，无 xpu backend），把 XPU fork <strong>覆盖掉</strong>。症状：启动日志 <code>backends: [triton, hip, cuda, eager]</code>（没有 xpu）、GGUF 日志 <code>routing unavailable</code>。</p>
+<p><strong>解决</strong>：每次升级 ComfyUI 内核后，<strong>重新执行上面的安装命令</strong>即可（wheel 文件保留着）。</p>
+<p><strong>不安装 ComfyUI Kitchen XPU 的损失</strong></p>
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th>没有 kitchen 时</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>norm（RMSNorm/LayerNorm）</td>
+<td>✅ 不受影响（OmniXPU 直连内核）</td>
+</tr>
+<tr>
+<td>FP8 GEMM / INT8 FFN</td>
+<td>✅ 不受影响（直连）</td>
+</tr>
+<tr>
+<td><strong>GGUF 解包</strong>（Q4_0/Q8_0）</td>
+<td>❌ 回落 eager，<strong>丢失 ~37% 的加速</strong></td>
+</tr>
+<tr>
+<td>rms_rope / convrot 等通用量化算子</td>
+<td>❌ 回落 eager</td>
+</tr>
+</tbody>
+</table>
+<p><strong>结论</strong>：只跑 FP16/FP8 模型可不装；<strong>跑 GGUF 量化模型收益最大</strong>（~37%），但需接受"每次内核升级要重新合并/patch/安装"的维护成本——收益与成本请自行权衡。</p>
+<h3 id="5-comfyui-aimdo-xpu">5. ComfyUI Aimdo XPU 安装（选装，测试版）</h3>
+<blockquote>
+<p>🔄 <strong>后续升级</strong>：从这个项目找更新包 → https://github.com/xiangyuT/comfy-aimdo-xpu/</p>
+<p>⚠️ <strong>当前版本是 PR#4 测试构建</strong>（对应上游 <code>323c0e0</code>），含已知问题（见第二部分）。<strong>普通用户建议跳过本节</strong>，等待稳定版。</p>
+</blockquote>
+<p><strong>安装文件的下载与部署</strong></p>
+<p>把本包 <code>comfy_aimdo_xpu_win_pr4/</code> 整个文件夹放到 <strong>ComfyUI-aki 根目录</strong>（与 <code>python</code> 文件夹同级），<strong>双击运行 <code>deploy.bat</code></strong>：</p>
+<ul>
+<li>自动备份原 <code>comfy_aimdo</code> 包为 <code>comfy_aimdo.bak</code></li>
+<li>自动覆盖部署 6 个 py + <code>aimdo_xpu.dll</code></li>
+<li>提示手动添加启动参数</li>
+</ul>
+<p><strong>aimdo xpu 的开启与关闭</strong></p>
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>方法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>开启</strong></td>
+<td>启动 bat 的 <code>python main.py</code> 参数中加 <code>--enable-dynamic-vram</code></td>
+</tr>
+<tr>
+<td><strong>关闭</strong></td>
+<td>改成 <code>--disable-dynamic-vram</code>（保留其他参数）</td>
+</tr>
+</tbody>
+</table>
+<p>验证：启动日志出现 <code>DynamicVRAM support detected and enabled</code> 即开启成功。</p>
+<h3 id="6-comfyui-gguf-xpu-gguf">6. ComfyUI-GGUF-XPU 安装（选装，GGUF 用户强烈建议）</h3>
+<blockquote>
+<p>🔄 <strong>后续升级</strong>：从这个项目找更新包 → https://github.com/analytics-zoo/ComfyUI-GGUF-XPU</p>
+<p>GGUF 模型（Q4_0/Q8_0 等）想走 kernel 加速，加载器必须用 <strong>ComfyUI-GGUF-XPU 的 <code>UnetLoaderGGUF</code> 节点</strong>（走 <code>kitchen → omni_xpu_kernel.gguf</code>）。实测比普通加载方式快 ~37%。</p>
+</blockquote>
+<p><strong>安装文件的下载与部署</strong></p>
+<ul>
+<li>安装文件（本包根目录）：<code>ComfyUI-GGUF-XPU-20260814.zip</code></li>
+<li>安装方法：解压到 <code>ComfyUI\custom_nodes\</code>（解压后即得 <code>ComfyUI-GGUF-XPU</code> 文件夹），重启 ComfyUI</li>
+</ul>
+<p><strong>重要提醒：与官方原版 ComfyUI-GGUF 不冲突</strong></p>
+<p>两个插件都注册同名节点 <code>UnetLoaderGGUF</code>，同时安装时谁生效取决于加载顺序（字母序靠后的覆盖靠前的）。</p>
+<hr />
+<h2 id="_5">第四部分：验证与故障排查</h2>
+<h3 id="_6">验证清单（按顺序）</h3>
+<p><strong>① 内核就位</strong>：</p>
+<pre><code class="language-text">python -c &quot;import omni_xpu_kernel as o; print(o.__xpu_target__, o.is_available())&quot;
+:: 期望: bmg True（A770 则为 dg2 True）
+</code></pre>
+<p><strong>② kitchen xpu backend</strong>：</p>
+<pre><code class="language-text">python -c &quot;from comfy_kitchen import list_backends; b=list_backends()['xpu']; print('xpu:', b['available'], len(b['capabilities']))&quot;
+:: 期望: xpu: True 39
+</code></pre>
+<p><strong>③ 节点生效</strong>（重启 ComfyUI 后看启动日志）：</p>
+<pre><code>[OmniXPU] omni_xpu_kernel 0.2.0b1+torch213.bmg - available: norm, rotary, linear_fp8, int8
+[OmniXPU] norm_adapter: applied
+[OmniXPU] fp8_model_adapter: applied
+[OmniXPU] int8_ffn_adapter: applied
+ComfyUI-GGUF: Comfy Kitchen GGUF routing available
+</code></pre>
+<p><strong>④ 工作流实测</strong>：GGUF 模型请用 <strong>UnetLoaderGGUF</strong> 节点（不要用 GGUFLoaderKJ——不走内核加速），对比速度应有明显提升。</p>
+<h3 id="_7">常见问题表</h3>
+<table>
+<thead>
+<tr>
+<th>症状</th>
+<th>原因</th>
+<th>解决</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pip install</code> 报错版本不匹配</td>
+<td>wheel 与 torch/Python 不匹配</td>
+<td>确认 torch 2.13.0+xpu、Python 3.13</td>
+</tr>
+<tr>
+<td>启动日志 <code>backends</code> 里没有 xpu</td>
+<td>kitchen 被官方版覆盖（升级后）</td>
+<td>重装 <code>comfy_kitchen-0.2.31</code> wheel</td>
+</tr>
+<tr>
+<td>节点没加载（无 <code>[OmniXPU]</code> 日志）</td>
+<td>解压目录名不对/有 <code>__pycache__</code> 残留</td>
+<td>确认目录名为 <code>ComfyUI-OmniXPU</code>，删除 <code>__pycache__</code></td>
+</tr>
+<tr>
+<td>GGUF 没加速</td>
+<td>用了 GGUFLoaderKJ 节点</td>
+<td>改用 <strong>UnetLoaderGGUF</strong></td>
+</tr>
+<tr>
+<td>开启 aimdo 后卡死</td>
+<td>PR#4 测试版已知问题</td>
+<td><strong>关闭 aimdo</strong>（去掉 <code>--enable-dynamic-vram</code>）</td>
+</tr>
+<tr>
+<td>运行时报 DLL 加载错误</td>
+<td>oneAPI 运行时缺失（罕见）</td>
+<td>确认 torch 环境自带 <code>sycl9.dll</code>（<code>python\Library\bin</code>）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="comfyui">ComfyUI 内核升级后的标准动作（重要）</h3>
+<p>每次升级 ComfyUI 内核后，按顺序执行：</p>
+<ol>
+<li><strong>检查 kitchen</strong>：<code>backends</code> 是否还有 xpu → 没有就重装 kitchen wheel（第 4 步）</li>
+<li><strong>检查 torch</strong>：版本变了 → 内核 wheel 需要重新编译（联系包提供者）</li>
+<li><strong>检查节点</strong>：<code>[OmniXPU]</code> 日志的 adapter 是否 still applied</li>
+</ol>
+<hr />
+<h2 id="faq">第五部分：实测数据与 FAQ</h2>
+<h3 id="arc-b580-torch-213-windows">实测数据（Arc B580 / torch 2.13 / Windows）</h3>
+<table>
+<thead>
+<tr>
+<th>工作流</th>
+<th style="text-align: right;">优化前</th>
+<th style="text-align: right;">优化后</th>
+<th style="text-align: right;">提升</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Krea2 GGUF Q4_0（8 步）</td>
+<td style="text-align: right;">4.00 s/it</td>
+<td style="text-align: right;">2.50 s/it</td>
+<td style="text-align: right;"><strong>+37.5%</strong></td>
+</tr>
+<tr>
+<td>Lumina2 GGUF 混合量化</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">1.21 s/it</td>
+<td style="text-align: right;">正常水平</td>
+</tr>
+<tr>
+<td>Flux2 Klein FP8</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">3.16 s/it</td>
+<td style="text-align: right;">fp8_gemm 生效</td>
+</tr>
+</tbody>
+</table>
+<h3 id="faq_1">FAQ</h3>
+<p><strong>Q1：A 系列（A770）和 B 系列（B580/B70）区别？</strong>
+A：架构不同（DG2 vs BMG），内核 wheel 不通用。A 系列用本包 <code>A770(dg2)/</code>（社区内核），B 系列用 <code>B系列(bmg)/</code>（官方内核）。kitchen/节点/aimdo 通用不分卡。</p>
+<p><strong>Q2：需要安装 oneAPI 吗？</strong>
+A：<strong>不需要</strong>。oneAPI 只是编译内核时的工具；运行时的 DLL 依赖（sycl9 等）由 torch 2.13 环境自带。前提是 torch 必须是 2.13.0+xpu。</p>
+<p><strong>Q3：kitchen 和 OmniXPU 是重复的吗？</strong>
+A：不是。OmniXPU 负责"接进 ComfyUI"（patch 模型层），kitchen 负责"算子分发"（路由到内核）。两者配合才完整；GGUF 加速主要靠 kitchen。</p>
+<p><strong>Q4：aimdo 为什么是测试版？</strong>
+A：上游 PR#4 尚未合并稳定（显存驱逐策略 + 与内核 hook 冲突两个问题未闭环，见 issue #3）。正式版发布后再更新本包。</p>
+<hr />
+<h2 id="_8">附录：文件清单对照</h2>
+<pre><code>IntelGPU-ComfyUI-优化指南-20260814/
+├── 本指南.md                      ← 你现在看的
+├── A770(dg2)/                     ← A 系列（A770 等 DG2 架构）专用
+│   ├── omni_xpu_kernel-0.2.0b1+torch213.dg2-cp313-....whl
+│   └── ComfyUI-OmniXPU.A770-20260814.zip
+├── B系列(bmg)/                    ← B 系列（B580/B60/B70）专用
+│   ├── omni_xpu_kernel-0.2.0b1+torch213.bmg-cp313-....whl
+│   └── ComfyUI-OmniXPU.bmg-20260814.zip
+├── comfy_kitchen-0.2.31-py3-none-any.whl   ← kitchen（选装谨慎；与 ComfyUI 0.33.1 对齐）
+├── ComfyUI-GGUF-XPU-20260814.zip   ← GGUF 加速节点（选装，GGUF 用户强烈建议）
+└── comfy_aimdo_xpu_win_pr4/       ← aimdo（选装，PR#4 测试版）
+    ├── deploy.bat                 ← 一键部署脚本
+    └── README-DEPLOY-CN.md        ← 部署说明（含已知问题）
+</code></pre>
+<hr />
+<h2 id="_9">感谢</h2>
+<p>本指南涉及的所有项目与作者，感谢你们的付出：</p>
+<h3 id="_10">特别感谢</h3>
+<table>
+<thead>
+<tr>
+<th>作者</th>
+<th>项目</th>
+<th>贡献</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Blackwood</strong></td>
+<td><a href="https://github.com/Blackwood416/omni-xpu-kernel">Blackwood416/omni-xpu-kernel</a></td>
+<td><strong>A770 等 A 系列（DG2）内核</strong>——官方原版不支持 A 系列，是 Blackwood 手搓的 dg2 内核让 A 系列也能享受加速</td>
+</tr>
+<tr>
+<td><strong>xiangyuT</strong></td>
+<td><a href="https://github.com/intel/llm-scaler/tree/main/omni">intel/llm-scaler omni</a></td>
+<td><strong>官方 omni 项目负责人</strong>——omni_xpu_kernel、ComfyUI-OmniXPU 官方套件的核心作者，同时维护 XPU fork（kitchen/aimdo）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="intel-gpu-comfyui_2">Intel GPU &amp; ComfyUI 折腾群</h3>
+<blockquote>
+<p><strong>QQ 群号：220819365</strong> —— 欢迎加入交流 Intel GPU 上的 ComfyUI 折腾经验。</p>
+</blockquote>
+<h3 id="_11">全部项目地址汇总</h3>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>地址</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Intel llm-scaler（官方 omni）</strong></td>
+<td>https://github.com/intel/llm-scaler/tree/main/omni</td>
+<td>官方内核 + OmniXPU 节点</td>
+</tr>
+<tr>
+<td><strong>Blackwood416/omni-xpu-kernel</strong></td>
+<td>https://github.com/Blackwood416/omni-xpu-kernel</td>
+<td>A 系列（DG2）内核</td>
+</tr>
+<tr>
+<td><strong>Blackwood416/ComfyUI-OmniXPU</strong></td>
+<td>https://github.com/Blackwood416/ComfyUI-OmniXPU</td>
+<td>A 系列专用节点</td>
+</tr>
+<tr>
+<td><strong>xiangyuT/comfy-kitchen-xpu</strong></td>
+<td>https://github.com/xiangyuT/comfy-kitchen-xpu</td>
+<td>kitchen XPU fork（算子分发）</td>
+</tr>
+<tr>
+<td><strong>xiangyuT/comfy-aimdo-xpu</strong></td>
+<td>https://github.com/xiangyuT/comfy-aimdo-xpu/</td>
+<td>aimdo XPU（DynamicVRAM）</td>
+</tr>
+<tr>
+<td><strong>analytics-zoo/ComfyUI-GGUF-XPU</strong></td>
+<td>https://github.com/analytics-zoo/ComfyUI-GGUF-XPU</td>
+<td>GGUF 加速节点</td>
+</tr>
+<tr>
+<td><strong>Comfy-Org/comfy-kitchen（官方上游）</strong></td>
+<td>https://github.com/Comfy-Org/comfy-kitchen</td>
+<td>kitchen 官方源</td>
+</tr>
+</tbody>
+</table>
+<p><em>感谢所有为 Intel GPU 生态贡献代码的开发者们 🙏</em></p>
+<hr />
+<p><em>本指南由 Intel Arc 生态维护整理，随组件版本更新。如有问题，请携带上述验证输出反馈。</em></p>
+    </div>
+  </div>
+</div>
+</body>
+</html>
