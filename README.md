@@ -1,12 +1,9 @@
 # IntelGpu-ComfyUI-Collection
 
 
-本仓库收集作者**亲自验证过、日常正在使用**的 Intel GPU ComfyUI 组件与插件，按维护方式分为两类：
+本仓库收集作者**亲自验证过、日常正在使用**的 Intel GPU ComfyUI 组件与插件。
 
-- **📦 自编译包**：作者本地编译并验证的安装包 / 组件文件，提供直接下载
-- **🔗 活跃项目索引**：持续更新的上游项目，保留项目的索引导航与使用说明
-
-这些项目都来自 《Intel GPU & ComfyUI 折腾群》群友的作品，QQ群号：220819365 
+项目来自官方 和 社群《Intel GPU & ComfyUI 折腾群》的群友作品，QQ群号：220819365 
 
 <img width="240" height="240" alt="group_logo" src="https://github.com/user-attachments/assets/9ce95b55-f980-4b3e-bb23-e8d24f37aba7" />
 
@@ -14,12 +11,16 @@
 
 ## 📖 intel-comfyui-guide
 
+《Intel GPU 的 ComfyUI 优化指南》 该优化方案面向 Comfyui中工作流的执行速度和稳定性
+
 以 Intel **llm-scaler-omni** 官方优化方案为基础，补齐 **DG2 系列显卡**的支持缺口，并完善 **Windows 平台**的支持，整合为一份开箱即用的优化指南。
 
 | 资源 | 链接 |
 |---|---|
 | 📄 在线指南 | https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/intel-comfyui-guide/ |
 | 📦 优化安装包 | https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/releases/tag/guide |
+
+Tag: 社群
 
 ---
 
@@ -31,6 +32,8 @@ ComfyUI-XPUSYS-Monitor 是一款以 Intel Arc 为核心的 ComfyUI 硬件监控�
 
 作者：[@allanmeng](https://github.com/allanmeng)
 
+Tag: 社群
+
 ---
 
 ## 📖 llama-cpp-python-sycl-windows
@@ -40,6 +43,8 @@ ComfyUI-XPUSYS-Monitor 是一款以 Intel Arc 为核心的 ComfyUI 硬件监控�
 项目地址：https://github.com/allanmeng/llama-cpp-python-sycl-windows
 
 作者：[@allanmeng](https://github.com/allanmeng)
+
+Tag: 社群
 
 ---
 
@@ -51,6 +56,8 @@ ComfyUI-XPUSYS-Monitor 是一款以 Intel Arc 为核心的 ComfyUI 硬件监控�
 
 作者：[@allanmeng](https://github.com/allanmeng)
 
+Tag: 社群
+
 ---
 
 ## 📖 ComfyUI-Aila-XPU
@@ -60,6 +67,8 @@ ComfyUI-XPUSYS-Monitor 是一款以 Intel Arc 为核心的 ComfyUI 硬件监控�
 项目地址：https://github.com/allanmeng/ComfyUI-Aila-XPU
 
 作者：[@allanmeng](https://github.com/allanmeng)
+
+Tag: 社群
 
 ---
 
@@ -71,6 +80,8 @@ ComfyUI-XPUSYS-Monitor 是一款以 Intel Arc 为核心的 ComfyUI 硬件监控�
 
 作者：[@allanmeng](https://github.com/allanmeng)
 
+Tag: 社群,fork
+
 ---
 
 ## 📖 Aila
@@ -80,6 +91,8 @@ Blackwood416 开发的 **Intel Arc 原生推理引擎**：SYCL + oneDNN + Level 
 项目地址：https://github.com/Blackwood416/Aila
 
 作者：[@Blackwood416](https://github.com/Blackwood416)
+
+Tag: 社群
 
 ---
 
@@ -91,6 +104,8 @@ Intel llm-scaler-omni 官方套件的独立 fork，为 Arc A770 / DG2 补齐 RMS
 
 作者：[@Blackwood416](https://github.com/Blackwood416)
 
+Tag: 社群,fork
+
 ---
 
 ## 📖 omni-xpu-kernel [fork]
@@ -100,6 +115,8 @@ Intel llm-scaler 中 omni_xpu_kernel 的独立 fork，为 DG2（A770）增加 DP
 项目地址：https://github.com/Blackwood416/omni-xpu-kernel
 
 作者：[@Blackwood416](https://github.com/Blackwood416)
+
+Tag: 社群,fork
 
 ---
 
@@ -111,6 +128,8 @@ Intel llm-scaler 中 omni_xpu_kernel 的独立 fork，为 DG2（A770）增加 DP
 
 作者：[@JWLHS](https://github.com/JWLHS)
 
+Tag: 社群
+
 ---
 
 ## 📖 XeSS-Video-Enhancement-Suite
@@ -121,5 +140,32 @@ Intel llm-scaler 中 omni_xpu_kernel 的独立 fork，为 DG2（A770）增加 DP
 
 作者：[@gggz114514-oss](https://github.com/gggz114514-oss)
 
+Tag: 社群
+
 ---
 
+## 📖 LLM Scaler Omni
+
+LLM Scaler Omni 为生成式媒体（多媒体）工作负载提供Intel XPU 镜像。其默认镜像是一个单 XPU 的 ComfyUI 环境，其中集成了针对特定硬件目标优化的 omni_xpu_kernel 二进制文件、支持 XPU 加速的 Comfy Kitchen 后端，以及一个轻量级的 ComfyUI 接入/集成层。
+
+项目地址：https://github.com/intel/llm-scaler/tree/main/omni
+
+作者：[@xiangyuT](https://github.com/xiangyuT)
+
+Tag: 官方
+
+---
+
+## 📖 comfy-aimdo-xpu
+
+AI 模型动态卸载器 (AI Model Dynamic Offloader)该项目是一款 PyTorch 显存（VRAM）分配器。当 PyTorch 原生的显存分配器面临显存压力（不足）时，它能够实现模型权重的按需卸载（Offloading）。
+
+通过 Level Zero 后端在 Linux 和 Windows 上支持Intel XPU
+
+地址：https://github.com/xiangyuT/comfy-aimdo-xpu/
+
+作者：[@xiangyuT](https://github.com/xiangyuT)
+
+Tag: 官方,fork
+
+---
