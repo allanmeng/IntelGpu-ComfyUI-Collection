@@ -73,7 +73,7 @@ ComfyUI-XPUSYS-Monitor 是一款以 Intel Arc 为核心的 ComfyUI 硬件监控�
 
 ---
 
-## Aila
+## 📖 Aila
 
 Blackwood416 开发的 **Intel Arc 原生推理引擎**：SYCL + oneDNN + Level Zero 技术栈，从 kernel 层面针对 Arc 架构（A770 / B580 等）手写优化，支持 bitsandbytes NF4 4-bit 量化，推理性能优于 llama.cpp 等通用方案。是 ComfyUI-Aila-XPU 插件的推理后端。
 
