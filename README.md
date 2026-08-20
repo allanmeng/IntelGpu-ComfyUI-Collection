@@ -100,7 +100,7 @@ Tag: 社群
 
 ## 📖 ComfyUI-OmniXPU
 
-Intel llm-scaler-omni 官方套件的独立 fork，为 Arc A770 / DG2 补齐 RMS-RoPE 桥接、DG2 注意力路由、INT8 快速路径、DynamicVRAM 裁剪等兼容性。
+Intel llm-scaler-omni 官方套件的独立 fork，为 **Arc A770 / DG2** 补齐 RMS-RoPE 桥接、DG2 注意力路由、INT8 快速路径、DynamicVRAM 裁剪等兼容性。
 
 项目地址：https://github.com/Blackwood416/ComfyUI-OmniXPU
 
@@ -112,7 +112,7 @@ Tag: 社群,fork
 
 ## 📖 omni-xpu-kernel
 
-Intel llm-scaler 中 omni_xpu_kernel 的独立 fork，为 DG2（A770）增加 DPAS attention、ConvRot 融合量化、INT8 快速路径等原生内核，提供 Windows 预编译 wheel。
+Intel llm-scaler 中 omni_xpu_kernel 的独立 fork，为 **DG2（A770）** 增加 DPAS attention、ConvRot 融合量化、INT8 快速路径等原生内核，提供 Windows 预编译 wheel。
 
 项目地址：https://github.com/Blackwood416/omni-xpu-kernel
 
