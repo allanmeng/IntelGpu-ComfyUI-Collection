@@ -82,7 +82,7 @@ Tag: 社群
 
 作者：[@allanmeng](https://github.com/allanmeng)
 
-Tag: 社群,fork
+Tag: fork,社群
 
 ---
 
@@ -106,7 +106,7 @@ Intel llm-scaler-omni 官方套件的独立 fork，为 **Arc A770 / DG2** 补齐
 
 作者：[@Blackwood416](https://github.com/Blackwood416)
 
-Tag: 社群,fork
+Tag: fork,社群,指定卡
 
 ---
 
@@ -118,7 +118,7 @@ Intel llm-scaler 中 omni_xpu_kernel 的独立 fork，为 **DG2（A770）** 增�
 
 作者：[@Blackwood416](https://github.com/Blackwood416)
 
-Tag: 社群,fork
+Tag: fork,社群,指定卡
 
 ---
 
@@ -168,6 +168,6 @@ AI 模型动态卸载器 (AI Model Dynamic Offloader)该项目是一款 PyTorch 
 
 作者：[@xiangyuT](https://github.com/xiangyuT)
 
-Tag: 官方,fork
+Tag: fork,官方
 
 ---
