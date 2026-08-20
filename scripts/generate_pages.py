@@ -139,6 +139,20 @@ def repo_from_url(url):
     return ""
 
 
+def repo_path_from_url(url):
+    """Return (owner/repo, subpath) from a github.com URL.
+
+    'https://github.com/intel/llm-scaler/tree/main/omni' -> ('intel/llm-scaler', 'omni')
+    'https://github.com/Blackwood416/Aila'                -> ('Blackwood416/Aila', '')
+    """
+    m = re.match(r"https?://github\.com/([^/]+)/([^/#?]+)(?:/tree/[^/]+/(.+?))?(?:[/#?].*)?$", url or "")
+    if m:
+        repo = "%s/%s" % (m.group(1), m.group(2))
+        path = (m.group(3) or "").rstrip("/")
+        return repo, path
+    return "", ""
+
+
 def collect_desc(body, skip_prefixes):
     """Join body lines that are not address/author/tag/table lines into a paragraph."""
     parts = []
@@ -531,13 +545,15 @@ def build_index(readme_path, token):
         if not urls:
             continue
         link = urls[0][1]
-        repo = repo_from_url(link)
-        # 子目录项目（如 intel-comfyui-guide 是主仓库内的目录）：
+        repo, subpath = repo_path_from_url(link)
+        # 子目录项目（如 intel-comfyui-guide 是主仓库内的目录，或
+        # intel/llm-scaler/tree/main/omni 这类 /tree/ 路径）：
         # 无法用仓库级 API 拿到目录自己的更新时间，改用 commits?path= 查询
-        path = ""
         if "allanmeng.github.io" in link or repo in ("allanmeng/IntelGpu-ComfyUI-Collection", ""):
             repo = "allanmeng/IntelGpu-ComfyUI-Collection"
             path = name
+        else:
+            path = subpath
         items.append({
             "name": name,
             "desc": collect_desc(body, ("项目地址", "地址", "作者", "Tag")),
