@@ -15,3 +15,14 @@
 |---|---|
 | 📄 在线指南 | https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/intel-comfyui-guide/ |
 | 📦 优化安装包 | https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/releases/tag/guide |
+
+---
+
+## 📖 ComfyUI-XPUSYS-Monitor
+
+ComfyUI-XPUSYS-Monitor 是一款以 Intel Arc 为核心的 ComfyUI 硬件监控插件，在顶部菜单栏以胶囊形式实时展示 GPU、CPU、内存等关键指标，并提供独家的工作流执行成功率预测功能，让你在点击运行前就能预判本次工作流能否顺利完成。同时完整支持 NVIDIA (CUDA) 和 AMD (ROCm) 平台。
+
+项目地址：https://github.com/allanmeng/ComfyUI-XPUSYS-Monitor
+
+---
+
