@@ -184,6 +184,7 @@ def badge_html(tags):
         "官方": "badge-official",
         "社群": "badge-community",
         "fork": "badge-fork",
+        "指定卡": "badge-card",
     }
     return "".join(
         '<span class="badge %s">%s</span>' % (cls.get(t, "badge-fork"), t)
@@ -347,6 +348,7 @@ INDEX_HTML = """<!DOCTYPE html>
   .badge-official { background: #e8f1fb; color: #0c447c; border: 1px solid #c8e0f5; }
   .badge-community { background: #e6f4ea; color: #1a7f37; border: 1px solid #c3e6cb; }
   .badge-fork { background: var(--amber-bg); color: var(--amber-text); border: 1px solid #ead9b8; }
+  .badge-card { background: #fdecea; color: #b3261e; border: 1px solid #f5c6c2; }
   .updated {
     font-size: 12px; color: var(--text-muted); white-space: nowrap;
     background: #f3f4f6; border-radius: 6px; padding: 3px 8px;
