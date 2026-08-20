@@ -20,6 +20,8 @@
 | 📄 在线指南 | https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/intel-comfyui-guide/ |
 | 📦 优化安装包 | https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/releases/tag/guide |
 
+作者：[@allanmeng](https://github.com/allanmeng)
+
 Tag: 社群
 
 ---
