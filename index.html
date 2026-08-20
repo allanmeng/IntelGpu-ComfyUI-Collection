@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IntelGpu-ComfyUI-Collection - Intel GPU ComfyUI 项目集</title>
+<style>
+  :root {
+    --intel-blue: #0071c5;
+    --intel-blue-dark: #005a99;
+    --bg: #f6f8fa;
+    --card: #ffffff;
+    --text: #24292f;
+    --text-muted: #57606a;
+    --border: #d0d7de;
+    --amber-bg: #faf3e0;
+    --amber-text: #854f0b;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .container { max-width: 1100px; margin: 0 auto; padding: 24px 20px 48px; }
+
+  header { text-align: center; padding: 40px 0 24px; }
+  header h1 {
+    font-size: 30px; font-weight: 700; color: var(--text);
+    display: inline-flex; align-items: center; gap: 10px;
+  }
+  header h1 .logo {
+    width: 34px; height: 34px; border-radius: 8px;
+    background: var(--intel-blue);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 18px; font-weight: 700;
+  }
+  header .note {
+    margin-top: 12px; font-size: 14px; color: var(--text-muted);
+  }
+  .chips { margin-top: 14px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .chip {
+    font-size: 12px; padding: 5px 12px; border-radius: 999px;
+    background: #e8f1fb; color: var(--intel-blue-dark); border: 1px solid #c8e0f5;
+    cursor: pointer; text-decoration: none; display: inline-block;
+  }
+  .chip-active {
+    background: var(--intel-blue); color: #fff; border-color: var(--intel-blue);
+  }
+
+  .group-card {
+    margin: 20px auto 0; max-width: 520px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 14px;
+    box-shadow: 0 1px 3px rgba(31,35,40,0.06);
+  }
+  .group-card img {
+    width: 240px; height: 240px; border-radius: 12px; object-fit: cover;
+  }
+  .group-card .g-title { font-size: 15px; font-weight: 600; text-align: center; }
+  .group-card .g-sub { font-size: 13px; color: var(--text-muted); margin-top: 2px; text-align: center; }
+  .group-card .g-sub a { color: var(--intel-blue); text-decoration: none; font-weight: 600; }
+
+  .sort-banner {
+    margin: 28px 0 18px;
+    background: linear-gradient(90deg, #e8f1fb, #f0f7fd);
+    border: 1px solid #c8e0f5; border-radius: 10px;
+    padding: 10px 16px; font-size: 13px; color: var(--intel-blue-dark);
+    display: flex; align-items: center; gap: 8px; justify-content: center;
+  }
+  .sort-banner .dot {
+    width: 8px; height: 8px; border-radius: 50%; background: #2da44e; display: inline-block;
+  }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(460px, 1fr)); gap: 16px; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 18px 20px; display: flex; flex-direction: column; gap: 10px;
+    box-shadow: 0 1px 3px rgba(31,35,40,0.06);
+    transition: box-shadow 0.15s ease;
+  }
+  .card:hover { box-shadow: 0 4px 12px rgba(31,35,40,0.12); }
+
+  .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .card-name { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .card-name a { color: var(--text); text-decoration: none; }
+  .card-name a:hover { color: var(--intel-blue); }
+  .badge {
+    font-size: 11px; padding: 2px 8px; border-radius: 999px; font-weight: 500;
+    white-space: nowrap;
+  }
+  .badge-official { background: #e8f1fb; color: #0c447c; border: 1px solid #c8e0f5; }
+  .badge-community { background: #e6f4ea; color: #1a7f37; border: 1px solid #c3e6cb; }
+  .badge-fork { background: var(--amber-bg); color: var(--amber-text); border: 1px solid #ead9b8; }
+  .updated {
+    font-size: 12px; color: var(--text-muted); white-space: nowrap;
+    background: #f3f4f6; border-radius: 6px; padding: 3px 8px;
+  }
+  .card-desc { font-size: 13px; color: var(--text-muted); flex: 1; }
+
+  .card-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-top: 10px; border-top: 1px solid #eef0f2;
+  }
+  .author { font-size: 13px; color: var(--text-muted); }
+  .author a { color: var(--intel-blue); text-decoration: none; font-weight: 600; }
+  .links { display: flex; gap: 8px; }
+  .btn {
+    font-size: 12px; text-decoration: none; padding: 5px 12px; border-radius: 8px;
+    border: 1px solid var(--border); color: var(--text); background: #fff;
+    transition: all 0.12s ease;
+  }
+  .btn:hover { border-color: var(--intel-blue); color: var(--intel-blue); }
+  .btn-primary { background: var(--intel-blue); border-color: var(--intel-blue); color: #fff; }
+  .btn-primary:hover { background: var(--intel-blue-dark); color: #fff; }
+
+  footer { text-align: center; margin-top: 40px; font-size: 12px; color: var(--text-muted); }
+  footer a { color: var(--intel-blue); text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1><span class="logo">I</span>IntelGpu-ComfyUI-Collection</h1>
+    <p class="note">以下项目均来自官方和社群</p>
+    <div class="chips">
+      <span class="chip chip-active">项目收集</span>
+      <a class="chip" href="links.html">组件下载</a>
+    </div>
+    <div class="group-card">
+      <img alt="group_logo" src="https://github.com/user-attachments/assets/9ce95b55-f980-4b3e-bb23-e8d24f37aba7">
+      <div>
+        <div class="g-title">《Intel GPU &amp; ComfyUI 折腾群》</div>
+        <div class="g-sub">标记为<span class="badge badge-community">社群</span>的项目来自群友作品 · QQ群：<a href="https://qm.qq.com/q/gls9aI3lgA" target="_blank">220819365</a></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="sort-banner">
+    <span class="dot"></span> 项目按「最后更新时间」自动排序，每 6 小时刷新，下次刷新时间：<span id="next-refresh">—</span>
+  </div>
+
+  <div class="grid">
+
+    <article class="card" data-repo="Blackwood416/Aila" data-name="Aila">
+      <div class="card-top">
+        <div class="card-name"><a href="https://github.com/Blackwood416/Aila" target="_blank">📖 Aila</a><span class="badge badge-community">社群</span></div>
+        <span class="updated">更新：<span class="upd-time">2026/08/20-23:20:48</span></span>
+      </div>
+      <div class="card-desc">Blackwood416 开发的 <b>Intel Arc 原生推理引擎</b>：SYCL + oneDNN + Level Zero 技术栈，从 kernel 层面针对 Arc 架构（A770 / B580 等）手写优化，支持 bitsandbytes NF4 4-bit 量化，推理性能优于 llama.cpp 等通用方案。是 ComfyUI-Aila-XPU 插件的推理后端。</div>
+      <div class="card-footer">
+        <div class="author">作者：<a href="https://github.com/Blackwood416" target="_blank">@Blackwood416</a></div>
+        <div class="links">
+          <a class="btn btn-primary" href="https://github.com/Blackwood416/Aila" target="_blank">项目地址</a>
+        </div>
+      </div>
+    </article>
+
+    <article class="card" data-repo="Blackwood416/ComfyUI-OmniXPU" data-name="ComfyUI-OmniXPU">
+      <div class="card-top">
+        <div class="card-name"><a href="https://github.com/Blackwood416/ComfyUI-OmniXPU" target="_blank">📖 ComfyUI-OmniXPU</a><span class="badge badge-community">社群</span><span class="badge badge-fork">fork</span></div>
+        <span class="updated">更新：<span class="upd-time">2026/08/20-19:08:54</span></span>
+      </div>
+      <div class="card-desc">Intel llm-scaler-omni 官方套件的独立 fork，为 Arc A770 / DG2 补齐 RMS-RoPE 桥接、DG2 注意力路由、INT8 快速路径、DynamicVRAM 裁剪等兼容性。</div>
+      <div class="card-footer">
+        <div class="author">作者：<a href="https://github.com/Blackwood416" target="_blank">@Blackwood416</a></div>
+        <div class="links">
+          <a class="btn btn-primary" href="https://github.com/Blackwood416/ComfyUI-OmniXPU" target="_blank">项目地址</a>
+        </div>
+      </div>
+    </article>
+
+    <article class="card" data-repo="Blackwood416/omni-xpu-kernel" data-name="omni-xpu-kernel">
+      <div class="card-top">
+        <div class="card-name"><a href="https://github.com/Blackwood416/omni-xpu-kernel" target="_blank">📖 omni-xpu-kernel</a><span class="badge badge-community">社群</span><span class="badge badge-fork">fork</span></div>
+        <span class="updated">更新：<span class="upd-time">2026/08/20-19:08:54</span></span>
+      </div>
+      <div class="card-desc">Intel llm-scaler 中 omni_xpu_kernel 的独立 fork，为 DG2（A770）增加 DPAS attention、ConvRot 融合量化、INT8 快速路径等原生内核，提供 Windows 预编译 wheel。</div>
+      <div class="card-footer">
+        <div class="author">作者：<a href="https://github.com/Blackwood416" target="_blank">@Blackwood416</a></div>
+        <div class="links">
+          <a class="btn btn-primary" href="https://github.com/Blackwood416/omni-xpu-kernel" target="_blank">项目地址</a>
+        </div>
+      </div>
+    </article>
+
+    <article class="card" data-repo="gggz114514-oss/XeSS-Video-Enhancement-Suite" data-name="XeSS-Video-Enhancement-Suite">
+      <div class="card-top">
+        <div class="card-name"><a href="https://github.com/gggz114514-oss/XeSS-Video-Enhancement-Suite" target="_blank">📖 XeSS-Video-Enhancement-Suite</a><span class="badge badge-community">社群</span></div>
+        <span class="updated">更新：<span class="upd-time">2026/08/20-17:01:30</span></span>
+      </div>
+      <div class="card-desc">将游戏级 Intel XeSS 应用到视频的社区增强套件：光流 + AI 深度补齐运动矢量，实现视频超分（SR）与 2× 帧生成（FG），含 ComfyUI 中文节点。</div>
+      <div class="card-footer">
+        <div class="author">作者：<a href="https://github.com/gggz114514-oss" target="_blank">@gggz114514-oss</a></div>
+        <div class="links">
+          <a class="btn btn-primary" href="https://github.com/gggz114514-oss/XeSS-Video-Enhancement-Suite" target="_blank">项目地址</a>
+        </div>
+      </div>
+    </article>
+
+    <article class="card" data-repo="allanmeng/model-format-verifier" data-name="model-format-verifier">
+      <div class="card-top">
+        <div class="card-name"><a href="https://github.com/allanmeng/model-format-verifier" target="_blank">📖 model-format-verifier</a><span class="badge badge-community">社群</span></div>
+        <span class="updated">更新：<span class="upd-time">2026/08/20-15:19:56</span></span>
+      </div>
+      <div class="card-desc"><b>MFV</b> 模型权重量化与打包格式的无偏验证工具，以物理证据识别 ComfyUI INT4/INT8/FP8/NF4、torchao、GGUF 等量化格式。</div>
+      <div class="card-footer">
+        <div class="author">作者：<a href="https://github.com/allanmeng" target="_blank">@allanmeng</a></div>
+        <div class="links">
+          <a class="btn btn-primary" href="https://github.com/allanmeng/model-format-verifier" target="_blank">项目地址</a>
+        </div>
+      </div>
+    </article>
+
+    <article class="card" data-repo="intel/llm-scaler" data-name="LLM Scaler Omni">
+      <div class="card-top">
+        <div class="card-name"><a href="https://github.com/intel/llm-scaler/tree/main/omni" target="_blank">📖 LLM Scaler Omni</a><span class="badge badge-official">官方</span></div>
+        <span class="updated">更新：<span class="upd-time">2026/08/20-09:11:22</span></span>
+      </div>
+      <div class="card-desc">LLM Scaler Omni 为生成式媒体（多媒体）工作负载提供Intel XPU 镜像。其默认镜像是一个单 XPU 的 ComfyUI 环境，其中集成了针对特定硬件目标优化的 omni_xpu_kernel 二进制文件、支持 XPU 加速的 Comfy Kitchen 后端，以及一个轻量级的 ComfyUI 接入/集成层。</div>
+      <div class="card-footer">
+        <div class="author">作者：<a href="https://github.com/xiangyuT" target="_blank">@xiangyuT</a></div>
+        <div class="links">
+          <a class="btn btn-primary" href="https://github.com/intel/llm-scaler/tree/main/omni" target="_blank">项目地址</a>
+        </div>
+      </div>
+    </article>
+
+    <article class="card" data-repo="JWLHS/int4-omnixpu" data-name="int4-omnixpu">
+      <div class="card-top">
+        <div class="card-name"><a href="https://github.com/JWLHS/int4-omnixpu" target="_blank">📖 int4-omnixpu</a><span class="badge badge-community">社群</span></div>
+        <span class="updated">更新：<span class="upd-time">2026/08/20-08:39:58</span></span>
+      </div>
+      <div class="card-desc">面向 Arc XPU 的统一 INT4 模型加载器（wa4 + tint4 双格式），经 omni-xpu-kernel 的 oneDNN INT4 GEMM 原生加速，带安全回退阶梯与 LoRA GPU 缓存。</div>
+      <div class="card-footer">
+        <div class="author">作者：<a href="https://github.com/JWLHS" target="_blank">@JWLHS</a></div>
+        <div class="links">
+          <a class="btn btn-primary" href="https://github.com/JWLHS/int4-omnixpu" target="_blank">项目地址</a>
+        </div>
+      </div>
+    </article>
+
+    <article class="card" data-repo="allanmeng/IntelGpu-ComfyUI-Collection" data-name="intel-comfyui-guide">
+      <div class="card-top">
+        <div class="card-name"><a href="https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/intel-comfyui-guide/" target="_blank">📖 intel-comfyui-guide</a><span class="badge badge-community">社群</span></div>
+        <span class="updated">更新：<span class="upd-time">2026/08/19-11:26:50</span></span>
+      </div>
+      <div class="card-desc">《Intel GPU 的 ComfyUI 优化指南》 该优化方案面向 Comfyui中工作流的执行速度和稳定性以 Intel <b>llm-scaler-omni</b> 官方优化方案为基础，补齐 <b>DG2 系列显卡</b>的支持缺口，并完善 <b>Windows 平台</b>的支持，整合为一份开箱即用的优化指南。</div>
+      <div class="card-footer">
+        
+        <div class="links">
+          <a class="btn btn-primary" href="https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/intel-comfyui-guide/" target="_blank">项目地址</a>
+        </div>
+      </div>
+    </article>
+
+    <article class="card" data-repo="xiangyuT/comfy-aimdo-xpu" data-name="comfy-aimdo-xpu">
+      <div class="card-top">
+        <div class="card-name"><a href="https://github.com/xiangyuT/comfy-aimdo-xpu/" target="_blank">📖 comfy-aimdo-xpu</a><span class="badge badge-official">官方</span><span class="badge badge-fork">fork</span></div>
+        <span class="updated">更新：<span class="upd-time">2026/08/19-10:18:00</span></span>
+      </div>
+      <div class="card-desc">AI 模型动态卸载器 (AI Model Dynamic Offloader)该项目是一款 PyTorch 显存（VRAM）分配器。当 PyTorch 原生的显存分配器面临显存压力（不足）时，它能够实现模型权重的按需卸载（Offloading）。通过 Level Zero 后端在 Linux 和 Windows 上支持Intel XPU</div>
+      <div class="card-footer">
+        <div class="author">作者：<a href="https://github.com/xiangyuT" target="_blank">@xiangyuT</a></div>
+        <div class="links">
+          <a class="btn btn-primary" href="https://github.com/xiangyuT/comfy-aimdo-xpu/" target="_blank">项目地址</a>
+        </div>
+      </div>
+    </article>
+
+    <article class="card" data-repo="allanmeng/llama-cpp-python-sycl-windows" data-name="llama-cpp-python-sycl-windows">
+      <div class="card-top">
+        <div class="card-name"><a href="https://github.com/allanmeng/llama-cpp-python-sycl-windows" target="_blank">📖 llama-cpp-python-sycl-windows</a><span class="badge badge-community">社群</span></div>
+        <span class="updated">更新：<span class="upd-time">2026/08/16-14:53:41</span></span>
+      </div>
+      <div class="card-desc">为 Intel Arc（Alchemist / Battlemage）预编译的 <b>llama-cpp-python SYCL</b> wheel 集合，Windows 免编译直接安装，0.3.43+ 自带 oneAPI 运行时。</div>
+      <div class="card-footer">
+        <div class="author">作者：<a href="https://github.com/allanmeng" target="_blank">@allanmeng</a></div>
+        <div class="links">
+          <a class="btn btn-primary" href="https://github.com/allanmeng/llama-cpp-python-sycl-windows" target="_blank">项目地址</a>
+        </div>
+      </div>
+    </article>
+
+    <article class="card" data-repo="allanmeng/ComfyUI-Aila-XPU" data-name="ComfyUI-Aila-XPU">
+      <div class="card-top">
+        <div class="card-name"><a href="https://github.com/allanmeng/ComfyUI-Aila-XPU" target="_blank">📖 ComfyUI-Aila-XPU</a><span class="badge badge-community">社群</span></div>
+        <span class="updated">更新：<span class="upd-time">2026/08/08-14:33:01</span></span>
+      </div>
+      <div class="card-desc">基于 <b>Aila 推理引擎</b>（Arc 原生，SYCL/oneDNN/Level Zero/NF4）的 ComfyUI 插件，提供 VLM 提示词反推、LLM 问答、ASR 转录（可出 SRT）、TTS 合成四合一能力。</div>
+      <div class="card-footer">
+        <div class="author">作者：<a href="https://github.com/allanmeng" target="_blank">@allanmeng</a></div>
+        <div class="links">
+          <a class="btn btn-primary" href="https://github.com/allanmeng/ComfyUI-Aila-XPU" target="_blank">项目地址</a>
+        </div>
+      </div>
+    </article>
+
+    <article class="card" data-repo="allanmeng/comfyui-sg-llama-cpp" data-name="comfyui-sg-llama-cpp">
+      <div class="card-top">
+        <div class="card-name"><a href="https://github.com/allanmeng/comfyui-sg-llama-cpp" target="_blank">📖 comfyui-sg-llama-cpp</a><span class="badge badge-community">社群</span><span class="badge badge-fork">fork</span></div>
+        <span class="updated">更新：<span class="upd-time">2026/08/08-11:22:07</span></span>
+      </div>
+      <div class="card-desc">在 ComfyUI 中加载 GGUF 大模型的节点封装（SYCL 加速 fork），支持纯文本 / 视觉多模态与 JSON Schema 输出，配套 llama-cpp-python-sycl-windows 使用。</div>
+      <div class="card-footer">
+        <div class="author">作者：<a href="https://github.com/allanmeng" target="_blank">@allanmeng</a></div>
+        <div class="links">
+          <a class="btn btn-primary" href="https://github.com/allanmeng/comfyui-sg-llama-cpp" target="_blank">项目地址</a>
+        </div>
+      </div>
+    </article>
+
+    <article class="card" data-repo="allanmeng/ComfyUI-XPUSYS-Monitor" data-name="ComfyUI-XPUSYS-Monitor">
+      <div class="card-top">
+        <div class="card-name"><a href="https://github.com/allanmeng/ComfyUI-XPUSYS-Monitor" target="_blank">📖 ComfyUI-XPUSYS-Monitor</a><span class="badge badge-community">社群</span></div>
+        <span class="updated">更新：<span class="upd-time">2026/07/18-21:28:24</span></span>
+      </div>
+      <div class="card-desc">ComfyUI-XPUSYS-Monitor 是一款以 Intel Arc 为核心的 ComfyUI 硬件监控插件，在顶部菜单栏以胶囊形式实时展示 GPU、CPU、内存等关键指标，并提供独家的工作流执行成功率预测功能，让你在点击运行前就能预判本次工作流能否顺利完成。同时完整支持 NVIDIA (CUDA) 和 AMD (ROCm) 平台。</div>
+      <div class="card-footer">
+        <div class="author">作者：<a href="https://github.com/allanmeng" target="_blank">@allanmeng</a></div>
+        <div class="links">
+          <a class="btn btn-primary" href="https://github.com/allanmeng/ComfyUI-XPUSYS-Monitor" target="_blank">项目地址</a>
+        </div>
+      </div>
+    </article>
+
+  </div>
+
+  <footer>
+    由 <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection" target="_blank">IntelGpu-ComfyUI-Collection</a> 自动生成 ·
+    <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/README.md" target="_blank">README 源文件</a>
+  </footer>
+
+</div>
+<script>
+  (function () {
+    function pad(n) { return String(n).padStart(2, "0"); }
+    var now = new Date();
+    var next = new Date(now);
+    next.setHours(Math.floor(now.getHours() / 6) * 6 + 6, 0, 0, 0);
+    document.getElementById("next-refresh").textContent =
+      next.getFullYear() + "年" + pad(next.getMonth() + 1) + "月" + pad(next.getDate()) +
+      "日  " + pad(next.getHours()) + "时 : " + pad(next.getMinutes()) + "分 : " + pad(next.getSeconds()) + "秒";
+  })();
+</script>
+</body>
+</html>
