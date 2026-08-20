@@ -72,7 +72,7 @@ Tag: 社群
 
 ---
 
-## 📖 comfyui-sg-llama-cpp [fork]
+## 📖 comfyui-sg-llama-cpp
 
 在 ComfyUI 中加载 GGUF 大模型的节点封装（SYCL 加速 fork），支持纯文本 / 视觉多模态与 JSON Schema 输出，配套 llama-cpp-python-sycl-windows 使用。
 
@@ -96,7 +96,7 @@ Tag: 社群
 
 ---
 
-## 📖 ComfyUI-OmniXPU [fork]
+## 📖 ComfyUI-OmniXPU
 
 Intel llm-scaler-omni 官方套件的独立 fork，为 Arc A770 / DG2 补齐 RMS-RoPE 桥接、DG2 注意力路由、INT8 快速路径、DynamicVRAM 裁剪等兼容性。
 
@@ -108,7 +108,7 @@ Tag: 社群,fork
 
 ---
 
-## 📖 omni-xpu-kernel [fork]
+## 📖 omni-xpu-kernel
 
 Intel llm-scaler 中 omni_xpu_kernel 的独立 fork，为 DG2（A770）增加 DPAS attention、ConvRot 融合量化、INT8 快速路径等原生内核，提供 Windows 预编译 wheel。
 
