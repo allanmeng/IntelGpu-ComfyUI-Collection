@@ -5,7 +5,7 @@
 
 项目来自官方 和 社群《Intel GPU & ComfyUI 折腾群》的群友作品，QQ群号：220819365 
 
-<img width="240" height="240" alt="group_logo" src="https://github.com/user-attachments/assets/9ce95b55-f980-4b3e-bb23-e8d24f37aba7" />
+<img width="240" height="240" alt="group_logo" src="https://github.com/user-attachments/assets/40a6707f-a438-4139-8efa-c7248d0ccb9d" />
 
 ---
 
