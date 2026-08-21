@@ -64,7 +64,6 @@ OpenVINO 是一款开源工具包，用于在云端、AI PC、边缘设备以及
 LLM Scaler 是一款运行在英特尔® 锐炫™ Pro B60 和 B70 GPU（显卡）上的生成式人工智能（GenAI）解决方案，支持文本生成、图像生成以及视频生成等功能。
 LLM Scaler 充分利用了 vLLM、ComfyUI、SGLang Diffusion、Xinference 等行业标准框架，可确保最先进的（State-of-the-Art）生成式 AI 模型在锐炫™ Pro B60/B70 GPU 上运行时发挥出最佳性能。
 
-
 该项目支持 bmg 系列显卡，但开源社群基于官方版本，针对omnixpu-kernel，补齐了面向 dg2 (Intel Arc A 系列显卡的支持）
 
 地址：https://github.com/intel/llm-scaler
@@ -76,7 +75,6 @@ DG2（A770）的 omni-xpu-kernel 地址：https://github.com/Blackwood416/omni-x
 ## 📖 comfy-aimdo-xpu
 
 AI 模型动态卸载器 (AI Model Dynamic Offloader)该项目是一款 PyTorch 显存（VRAM）分配器。当 PyTorch 原生的显存分配器面临显存压力（不足）时，它能够实现模型权重的按需卸载（Offloading）。
-
 
 通过 Level Zero 后端在 Linux 和 Windows 上支持Intel XPU
 
