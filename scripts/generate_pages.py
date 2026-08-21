@@ -609,8 +609,13 @@ def build_index(readme_path, token):
         repo, subpath = repo_path_from_url(link)
         # 子目录项目（如 intel-comfyui-guide 是主仓库内的目录，或
         # intel/llm-scaler/tree/main/omni 这类 /tree/ 路径）：
-        # 无法用仓库级 API 拿到目录自己的更新时间，改用 commits?path= 查询
-        if "allanmeng.github.io" in link or repo in ("allanmeng/IntelGpu-ComfyUI-Collection", ""):
+        # 无法用仓库级 API 拿到目录自己的更新时间，改用 commits?path= 查询。
+        # 注意：path 必须是实际目录名，不能依赖标题（标题可能被改成中文）。
+        if "allanmeng.github.io" in link:
+            # pages URL 的最后一段就是实际子目录名（如 intel-comfyui-guide）
+            repo = "allanmeng/IntelGpu-ComfyUI-Collection"
+            path = link.rstrip("/").split("/")[-1]
+        elif repo in ("allanmeng/IntelGpu-ComfyUI-Collection", ""):
             repo = "allanmeng/IntelGpu-ComfyUI-Collection"
             path = name
         else:
