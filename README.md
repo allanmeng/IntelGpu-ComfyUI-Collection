@@ -149,7 +149,7 @@ Tag: 社群
 
 ## XeSS-Video-Enhancement-Suite
 
-将游戏级 Intel XeSS 应用到视频的社区增强套件：光流 + AI 深度补齐运动矢量，实现视频超分（SR）与 2× 帧生成（FG），含 ComfyUI 中文节点。
+基于 Intel XeSS 的 Windows 视频增强工具箱，提供 视频超分、双倍帧生成、中文 ComfyUI 节点及独立便携版。支持 AI 深度、光流、多帧融合和流式处理，并内置磁盘空间保护与自动安装脚本。
 
 项目地址：https://github.com/gggz114514-oss/XeSS-Video-Enhancement-Suite
 
