@@ -106,8 +106,15 @@ hr { border:none; border-top:1px solid #e3e6ea; margin:28px 0; }
       <h1 id="intel-gpu-comfyui">Intel GPU 的 ComfyUI 优化指南</h1>
 <blockquote>
 <p>面向普通 Intel GPU 用户：让 ComfyUI 在 Intel Arc 显卡上<strong>更快、更稳</strong>的完整方案。
-本指南配套同目录下的安装文件包使用，版本：<strong>2026-08-14</strong></p>
+本指南配套同目录下的安装文件包使用，版本：<strong>20260821</strong></p>
 </blockquote>
+<p><strong>📌 本版本更新说明（20260821）</strong>：</p>
+<ul>
+<li><strong>omni_xpu_kernel</strong>（A &amp; B 系列 wheel）：重新编译（版本号不变 <code>0.2.0b1+torch213.bmg</code>），新增 <strong>PR#622 SeedVR2 支持</strong>——<code>cat_pad_bmg</code> / <code>group_norm_seedvr_bmg</code> 专用 kernel + SeedVR 适配</li>
+<li><strong>ComfyUI-OmniXPU</strong>：更新至 <strong>PR#622 版</strong>，新增 4 个 SeedVR 适配器（seedvr_capacity / seedvr_cat_pad / seedvr_ada / large_video_preprocess）</li>
+<li><strong>comfy-kitchen</strong>：0.2.31 → <strong>0.2.31.post1</strong>，合入上游 <strong>PR#5</strong>（AdaLN 广播映射对齐修复）</li>
+<li><strong>comfy-aimdo</strong>：PR#4 → <strong>PR#7</strong>（已合并 master；改用 PyTorch native XPU caching allocator for Windows）</li>
+</ul>
 <hr />
 <h2 id="_1">目录</h2>
 <ul>
@@ -221,10 +228,10 @@ hr { border:none; border-top:1px solid #e3e6ea; margin:28px 0; }
 <h3 id="comfy-aimdo-xpudynamicvram">稳定：comfy-aimdo XPU（DynamicVRAM）</h3>
 <p>原理：显存贴满时，把不活跃的模型权重"换页"到系统内存（VBAR fault/驱逐），需要时再调回，避免 OOM。</p>
 <blockquote>
-<p>⚠️ <strong>重要提醒</strong>：本包内置的 aimdo 是 <strong>PR#4 测试版</strong>（上游 commit <code>323c0e0</code>，未合并稳定版），<strong>部分设备上存在已知问题</strong>：
+<p>⚠️ <strong>重要提醒</strong>：本包内置的 aimdo 是 <strong>PR#7 版</strong>（已合并 master，commit <code>abb2fc6d</code>，改用 PyTorch native XPU caching allocator），<strong>仍有已知问题</strong>：
 - 问题 A：模型总需求接近/超过显存时，显存无上限增长、驱逐不触发 → <strong>采样 step 1 卡死</strong>
-- 问题 B：与 omni_xpu_kernel 的 esimd 内核存在全局 hook 冲突 → <strong>开启后 norm 每次调用 ~200ms 卡死</strong></p>
-<p>→ <strong>普通用户建议暂不启用 aimdo</strong>；确需大模型显存管理，请关注上游 issue #3 的修复进展，等待稳定版。</p>
+- 问题 B：二次运行同一工作流时，每步退化至极慢（慢 60-80 倍），最终能完成但耗时不可接受（上游 issue #3 未闭环）</p>
+<p>→ <strong>普通用户建议暂不启用 aimdo</strong>；确需大模型显存管理，请关注上游 issue #3 的修复进展（PR#11/#12 在途），等待稳定版。</p>
 </blockquote>
 <hr />
 <h2 id="_4">第三部分：安装</h2>
@@ -340,7 +347,7 @@ set OMNIXPU_ATTENTION=1
 <p>🔄 <strong>B 系列节点后续升级</strong>：官方节点来自 llm-scaler-omni 项目 → https://github.com/intel/llm-scaler/tree/main/omni/ComfyUI-OmniXPU</p>
 </blockquote>
 <p><strong>安装</strong>  </p>
-<p>解压 <code>B系列(bmg)/ComfyUI-OmniXPU.bmg-20260814.zip</code> 到 <code>ComfyUI\custom_nodes\</code>（解压后即得 <code>ComfyUI-OmniXPU</code> 文件夹）<br />
+<p>解压 <code>B系列(bmg)/ComfyUI-OmniXPU.bmg-20260821.zip</code> 到 <code>ComfyUI\custom_nodes\</code>（解压后即得 <code>ComfyUI-OmniXPU</code> 文件夹）<br />
 重启 ComfyUI 后自动加载（日志出现 <code>[OmniXPU]</code> 即成功）。</p>
 <p><strong>B 系列启动文件（bat）相关设置</strong>（torch SDPA——官方 Windows 验证面）</p>
 <p>在启动 bat 的 <code>python main.py ...</code> 之前加入环境变量（<strong>按你的显卡选一组</strong>）：</p>
@@ -352,11 +359,11 @@ set OMNI_XPU_REQUIRE_CUTE=0
 <h3 id="4-comfyui-kitchen-xpu">4. ComfyUI Kitchen XPU 安装（选装，谨慎！！）</h3>
 <blockquote>
 <p>🔄 <strong>后续升级</strong>：从这个项目找更新包 → https://github.com/xiangyuT/comfy-kitchen-xpu</p>
-<p>⚠️ <strong>版本对齐提示</strong>：本包提供的 kitchen 是 <strong>0.2.31</strong>，与 <strong>ComfyUI 0.33.1</strong> 配套对齐（基于 0.2.28 XPU fork 手动合并官方 0.2.31 并修复官方 cuda 导入问题制作）。<strong>每次升级 ComfyUI 内核后，kitchen 都可能需要重新合并上游代码 + 打 XPU patch + 重新安装</strong>，维护成本较高——请评估后再决定是否安装。</p>
+<p>⚠️ <strong>版本对齐提示</strong>：本包提供的 kitchen 是 <strong>0.2.31.post1</strong>，与 <strong>ComfyUI 0.33.2</strong> 配套对齐（官方 0.2.31 + 合入上游 PR#5 AdaLN 修复）。<strong>每次升级 ComfyUI 内核后，kitchen 都可能被官方版覆盖</strong>（升级脚本重装依赖），请确认 <code>backends</code> 里有 <code>xpu</code> 目录；维护成本较高——请评估后再决定是否安装。</p>
 <p>kitchen 不分显卡系列，一个 wheel 通用（在本包根目录）。</p>
 </blockquote>
 <p><strong>安装文件的下载与安装</strong></p>
-<pre><code class="language-text">python -m pip install comfy_kitchen-0.2.31-py3-none-any.whl
+<pre><code class="language-text">python -m pip install comfy_kitchen-0.2.31.post1-py3-none-any.whl
 </code></pre>
 <p><strong>ComfyUI 内核更新后原安装版本会失效——如何解决</strong></p>
 <p>ComfyUI 更新器会按 <code>requirements.txt</code> 重装 <code>comfy-kitchen</code>（官方版，无 xpu backend），把 XPU fork <strong>覆盖掉</strong>。症状：启动日志 <code>backends: [triton, hip, cuda, eager]</code>（没有 xpu）、GGUF 日志 <code>routing unavailable</code>。</p>
@@ -392,10 +399,10 @@ set OMNI_XPU_REQUIRE_CUTE=0
 <h3 id="5-comfyui-aimdo-xpu">5. ComfyUI Aimdo XPU 安装（选装，测试版）</h3>
 <blockquote>
 <p>🔄 <strong>后续升级</strong>：从这个项目找更新包 → https://github.com/xiangyuT/comfy-aimdo-xpu/</p>
-<p>⚠️ <strong>当前版本是 PR#4 测试构建</strong>（对应上游 <code>323c0e0</code>），含已知问题（见第二部分）。<strong>普通用户建议跳过本节</strong>，等待稳定版。</p>
+<p>⚠️ <strong>当前版本是 PR#7 构建</strong>（已合并 master，对应上游 <code>abb2fc6d</code>），仍含已知问题（见第二部分）。<strong>普通用户建议跳过本节</strong>，等待稳定版。</p>
 </blockquote>
 <p><strong>安装文件的下载与部署</strong></p>
-<p>把本包 <code>comfy_aimdo_xpu_win_pr4/</code> 整个文件夹放到 <strong>ComfyUI-aki 根目录</strong>（与 <code>python</code> 文件夹同级），<strong>双击运行 <code>deploy.bat</code></strong>：</p>
+<p>把本包 <code>comfy_aimdo_xpu_win_pr7/</code> 整个文件夹放到 <strong>ComfyUI-aki 根目录</strong>（与 <code>python</code> 文件夹同级），<strong>双击运行 <code>deploy.bat</code></strong>：</p>
 <ul>
 <li>自动备份原 <code>comfy_aimdo</code> 包为 <code>comfy_aimdo.bak</code></li>
 <li>自动覆盖部署 6 个 py + <code>aimdo_xpu.dll</code></li>
@@ -428,7 +435,7 @@ set OMNI_XPU_REQUIRE_CUTE=0
 </blockquote>
 <p><strong>安装文件的下载与部署</strong></p>
 <ul>
-<li>安装文件（本包根目录）：<code>ComfyUI-GGUF-XPU-20260814.zip</code></li>
+<li>安装文件（本包根目录）：<code>ComfyUI-GGUF-XPU-20260821.zip</code></li>
 <li>安装方法：解压到 <code>ComfyUI\custom_nodes\</code>（解压后即得 <code>ComfyUI-GGUF-XPU</code> 文件夹），重启 ComfyUI</li>
 </ul>
 <p><strong>重要提醒：与官方原版 ComfyUI-GGUF 不冲突</strong></p>
@@ -470,7 +477,7 @@ ComfyUI-GGUF: Comfy Kitchen GGUF routing available
 <tr>
 <td>启动日志 <code>backends</code> 里没有 xpu</td>
 <td>kitchen 被官方版覆盖（升级后）</td>
-<td>重装 <code>comfy_kitchen-0.2.31</code> wheel</td>
+<td>重装 <code>comfy_kitchen-0.2.31.post1</code> wheel</td>
 </tr>
 <tr>
 <td>节点没加载（无 <code>[OmniXPU]</code> 日志）</td>
@@ -483,8 +490,8 @@ ComfyUI-GGUF: Comfy Kitchen GGUF routing available
 <td>改用 <strong>UnetLoaderGGUF</strong></td>
 </tr>
 <tr>
-<td>开启 aimdo 后卡死</td>
-<td>PR#4 测试版已知问题</td>
+<td>开启 aimdo 后卡死/极慢</td>
+<td>PR#7 版已知问题（issue #3 未闭环）</td>
 <td><strong>关闭 aimdo</strong>（去掉 <code>--enable-dynamic-vram</code>）</td>
 </tr>
 <tr>
@@ -542,20 +549,20 @@ A：<strong>不需要</strong>。oneAPI 只是编译内核时的工具；运行�
 <p><strong>Q3：kitchen 和 OmniXPU 是重复的吗？</strong>
 A：不是。OmniXPU 负责"接进 ComfyUI"（patch 模型层），kitchen 负责"算子分发"（路由到内核）。两者配合才完整；GGUF 加速主要靠 kitchen。</p>
 <p><strong>Q4：aimdo 为什么是测试版？</strong>
-A：上游 PR#4 尚未合并稳定（显存驱逐策略 + 与内核 hook 冲突两个问题未闭环，见 issue #3）。正式版发布后再更新本包。</p>
+A：上游 PR#7 已合并 master（native XPU caching allocator），但 issue #3 的"二次运行每步极慢"仍未闭环（PR#11/#12 在途）。正式修复发布后再更新本包。</p>
 <hr />
 <h2 id="_8">附录：文件清单对照</h2>
-<pre><code>IntelGPU-ComfyUI-优化指南-20260814/
+<pre><code>IntelGPU-ComfyUI-优化指南-20260821/
 ├── 本指南.md                      ← 你现在看的
 ├── A770(dg2)/                     ← A 系列（A770 等 DG2 架构）专用
 │   ├── omni_xpu_kernel-0.2.0b1+torch213.dg2-cp313-....whl
 │   └── ComfyUI-OmniXPU.A770-20260814.zip
 ├── B系列(bmg)/                    ← B 系列（B580/B60/B70）专用
-│   ├── omni_xpu_kernel-0.2.0b1+torch213.bmg-cp313-....whl
-│   └── ComfyUI-OmniXPU.bmg-20260814.zip
-├── comfy_kitchen-0.2.31-py3-none-any.whl   ← kitchen（选装谨慎；与 ComfyUI 0.33.1 对齐）
-├── ComfyUI-GGUF-XPU-20260814.zip   ← GGUF 加速节点（选装，GGUF 用户强烈建议）
-└── comfy_aimdo_xpu_win_pr4/       ← aimdo（选装，PR#4 测试版）
+│   ├── omni_xpu_kernel-0.2.0b1+torch213.bmg-cp313-....whl   ← 重新编译（含 PR#622 SeedVR2 支持）
+│   └── ComfyUI-OmniXPU.bmg-20260821.zip
+├── comfy_kitchen-0.2.31.post1-py3-none-any.whl   ← kitchen（选装谨慎；含 PR#5 AdaLN 修复）
+├── ComfyUI-GGUF-XPU-20260821.zip   ← GGUF 加速节点（选装，GGUF 用户强烈建议）
+└── comfy_aimdo_xpu_win_pr7/       ← aimdo（选装，PR#7 测试版）
     ├── deploy.bat                 ← 一键部署脚本
     └── README-DEPLOY-CN.md        ← 部署说明（含已知问题）
 </code></pre>
