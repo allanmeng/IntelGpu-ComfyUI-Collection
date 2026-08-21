@@ -9,9 +9,9 @@
 
 ---
 
-## intel-comfyui-guide
+## IntelGPU的ComfyUI优化指南
 
-《Intel GPU 的 ComfyUI 优化指南》 该优化方案面向 Comfyui中工作流的执行速度和稳定性。以 Intel **llm-scaler-omni** 官方优化方案（bmg显卡）为基础，补齐 **DG2 系列显卡**的支持缺口，并完善 **Windows 平台**的支持，整合为一份开箱即用的优化指南。
+该优化的 B系列(BMG)显卡,来自官方的**llm-scaler-omni**官方項目；由社区补齐了**A770(DG2) 系列显卡**的支持缺口，针对Comfyui中工作流的执行速度和稳定性，提供了**Windows 平台**的支持，并整合为一份开箱即用的优化指南。建议Agent协助安装
 
 
 【[安装包](https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/releases?q=intel-comfyui-guide&expanded=true)】
