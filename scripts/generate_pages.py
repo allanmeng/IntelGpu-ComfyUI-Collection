@@ -100,11 +100,21 @@ def clean_name(title):
 
 
 def extract_author(body):
-    """Find '作者：[@name](url)' -> (name, url) or None."""
+    """Find author line -> (name, url, label) or None.
+
+    Supports '作者：' and '维护者：', both linked ('[@name](url)')
+    and plain ('@name' -> url='').
+    """
     for line in body:
-        m = re.match(r"^\s*作者[：:]\s*\[@([^\]]+)\]\(([^)]+)\)\s*$", line)
+        m = re.match(r"^\s*(作者|维护者)[：:]\s*(.+?)\s*$", line)
         if m:
-            return m.group(1), m.group(2)
+            label = m.group(1)
+            content = m.group(2)
+            m2 = re.match(r"\[@([^\]]+)\]\(([^)]+)\)", content)
+            if m2:
+                return m2.group(1), m2.group(2), label
+            if content.startswith("@"):
+                return content[1:], "", label
     return None
 
 
@@ -180,7 +190,7 @@ def render_desc(body):
             continue
         if s.startswith("|"):
             continue
-        if re.match(r"^\s*(项目地址|地址|作者|Tag)\s*[：:]", s):
+        if re.match(r"^\s*(项目地址|地址|作者|维护者|Tag)\s*[：:]", s):
             continue
         if re.match(r"^[^：:\s][^：:]*?[：:]\s*https?://\S+$", s):
             continue
@@ -195,6 +205,24 @@ def render_desc(body):
 # ---------------------------------------------------------------------------
 # Card HTML builders
 # ---------------------------------------------------------------------------
+
+NAV_TABS = [
+    ("index.html", "项目收集"),
+    ("links.html", "组件下载"),
+    ("cloud_drive_collection.html", "网盘聚合"),
+]
+
+
+def nav_html(active):
+    """Chips navigation, 'active' highlighted."""
+    out = []
+    for href, label in NAV_TABS:
+        if href == active:
+            out.append('      <span class="chip chip-active">%s</span>' % label)
+        else:
+            out.append('      <a class="chip" href="%s">%s</a>' % (href, label))
+    return "\n".join(out)
+
 
 def badge_html(tags):
     cls = {
@@ -214,9 +242,12 @@ def index_card(item):
     updated = item.get("updated") or "—"
     author_html = ""
     if item.get("author"):
-        name, url = item["author"]
-        author_html = ('<div class="author">作者：<a href="%s" target="_blank">@%s</a></div>'
-                       % (url, name))
+        name, url, label = item["author"]
+        if url:
+            author_html = ('<div class="author">%s：<a href="%s" target="_blank">@%s</a></div>'
+                           % (label, url, name))
+        else:
+            author_html = '<div class="author">%s：@%s</div>' % (label, name)
     return """    <article class="card" data-repo="%(repo)s" data-name="%(name)s">
       <div class="card-top">
         <div class="card-name"><a href="%(link)s" target="_blank">%(display)s</a>%(badges)s</div>
@@ -244,9 +275,12 @@ def index_card(item):
 def links_card(item):
     author_html = ""
     if item.get("author"):
-        name, url = item["author"]
-        author_html = ('<div class="author-row">作者：<a href="%s" target="_blank">@%s</a></div>'
-                       % (url, name))
+        name, url, label = item["author"]
+        if url:
+            author_html = ('<div class="author-row">%s：<a href="%s" target="_blank">@%s</a></div>'
+                           % (label, url, name))
+        else:
+            author_html = '<div class="author-row">%s：@%s</div>' % (label, name)
     addr_rows = "".join(
         '<div class="addr-row"><span class="label">%s：</span><a href="%s" target="_blank">%s</a></div>'
         % (label, url, url)
@@ -403,8 +437,7 @@ INDEX_HTML = """<!DOCTYPE html>
     <h1><span class="logo">I</span>IntelGpu-ComfyUI-Collection</h1>
     <p class="note">以下项目多数来自社群，少量官方提供</p>
     <div class="chips">
-      <span class="chip chip-active">项目收集</span>
-      <a class="chip" href="links.html">组件下载</a>
+__NAV__
     </div>
     <div class="group-card">
       <img alt="group_logo" src="https://github.com/user-attachments/assets/9ce95b55-f980-4b3e-bb23-e8d24f37aba7">
@@ -534,8 +567,7 @@ LINKS_HTML = """<!DOCTYPE html>
     <h1><span class="logo">I</span>IntelGpu-ComfyUI-Collection</h1>
     <p class="note">Intel XPU 重要组件下载地址</p>
     <div class="chips">
-      <a class="chip" href="index.html">项目收集</a>
-      <span class="chip chip-active">组件下载</span>
+__NAV__
     </div>
   </header>
 
@@ -594,7 +626,9 @@ def build_index(readme_path, token):
         it["updated"] = fmt_cn(fetch_repo_updated(it["repo"], it["path"], token))
     items.sort(key=lambda x: x["updated"], reverse=True)
     cards = "\n\n".join(index_card(it) for it in items)
-    return INDEX_HTML.replace("__CARDS__", cards)
+    return (INDEX_HTML
+            .replace("__NAV__", nav_html("index.html"))
+            .replace("__CARDS__", cards))
 
 
 def build_links(links_path):
@@ -614,13 +648,45 @@ def build_links(links_path):
             "author": extract_author(body),
         })
     cards = "\n\n".join(links_card(it) for it in items)
-    return LINKS_HTML.replace("__CARDS__", cards)
+    return (LINKS_HTML
+            .replace("__NAV__", nav_html("links.html"))
+            .replace("__CARDS__", cards))
+
+
+def build_cloud_drive(cloud_path):
+    """cloud_drive_collection.html: same style/logic as links.html."""
+    with open(cloud_path, encoding="utf-8") as f:
+        md = f.read()
+    items = []
+    for title, body in split_sections(md):
+        name = clean_name(title)
+        urls = [(lbl or "地址", u) for lbl, u in extract_urls(body)]
+        if not urls:
+            continue
+        items.append({
+            "name": name,
+            "display": clean_title(title),
+            "desc": render_desc(body),
+            "urls": urls,
+            "author": extract_author(body),
+        })
+    cards = "\n\n".join(links_card(it) for it in items)
+    html = (LINKS_HTML
+            .replace("<title>IntelGpu-ComfyUI-Collection - Intel XPU 组件下载</title>",
+                     "<title>IntelGpu-ComfyUI-Collection - Intel XPU 网盘聚合</title>")
+            .replace('<p class="note">Intel XPU 重要组件下载地址</p>',
+                     '<p class="note">Intel XPU 网盘聚合</p>')
+            .replace("links.md 源文件", "cloud_drive_collection.md 源文件")
+            .replace("__NAV__", nav_html("cloud_drive_collection.html"))
+            .replace("__CARDS__", cards))
+    return html
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--index", action="store_true", help="generate index.html from README.md")
     ap.add_argument("--links", action="store_true", help="generate links.html from links.md")
+    ap.add_argument("--cloud-drive", action="store_true", help="generate cloud_drive_collection.html from cloud_drive_collection.md")
     ap.add_argument("--token", default="", help="GitHub token for API queries")
     ap.add_argument("--out-dir", default="", help="output directory (default: repo root)")
     args = ap.parse_args()
@@ -629,6 +695,7 @@ def main():
     os.makedirs(out_dir, exist_ok=True)
     readme_path = os.path.join(ROOT, "README.md")
     links_path = os.path.join(ROOT, "links.md")
+    cloud_path = os.path.join(ROOT, "cloud_drive_collection.md")
 
     if args.index:
         html = build_index(readme_path, args.token)
@@ -641,6 +708,12 @@ def main():
         with open(os.path.join(out_dir, "links.html"), "w", encoding="utf-8") as f:
             f.write(html)
         print("[ok] links.html written (%d bytes)" % len(html.encode("utf-8")))
+
+    if args.cloud_drive:
+        html = build_cloud_drive(cloud_path)
+        with open(os.path.join(out_dir, "cloud_drive_collection.html"), "w", encoding="utf-8") as f:
+            f.write(html)
+        print("[ok] cloud_drive_collection.html written (%d bytes)" % len(html.encode("utf-8")))
 
 
 if __name__ == "__main__":

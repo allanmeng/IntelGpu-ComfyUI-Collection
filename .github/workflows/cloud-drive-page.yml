@@ -1,0 +1,34 @@
+name: Generate cloud_drive_collection.html
+
+on:
+  push:
+    branches: [main]
+    paths: ['cloud_drive_collection.md']
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Generate cloud_drive_collection.html
+        run: python scripts/generate_pages.py --cloud-drive
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add cloud_drive_collection.html
+          if git diff --cached --quiet; then
+            echo "No changes to cloud_drive_collection.html"
+            exit 0
+          fi
+          git commit -m "chore: regenerate cloud_drive_collection.html"
+          git push

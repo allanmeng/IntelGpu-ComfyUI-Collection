@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IntelGpu-ComfyUI-Collection - Intel XPU 网盘聚合</title>
+<style>
+  :root {
+    --intel-blue: #0071c5;
+    --intel-blue-dark: #005a99;
+    --bg: #f6f8fa;
+    --card: #ffffff;
+    --text: #24292f;
+    --text-muted: #57606a;
+    --border: #d0d7de;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .container { max-width: 1100px; margin: 0 auto; padding: 24px 20px 48px; }
+
+  header { text-align: center; padding: 40px 0 24px; }
+  header h1 {
+    font-size: 30px; font-weight: 700; color: var(--text);
+    display: inline-flex; align-items: center; gap: 10px;
+  }
+  header h1 .logo {
+    width: 34px; height: 34px; border-radius: 8px;
+    background: var(--intel-blue);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 18px; font-weight: 700;
+  }
+  header .note {
+    margin-top: 12px; font-size: 14px; color: var(--text-muted);
+  }
+  .chips { margin-top: 14px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .chip {
+    font-size: 12px; padding: 5px 12px; border-radius: 999px;
+    background: #e8f1fb; color: var(--intel-blue-dark); border: 1px solid #c8e0f5;
+    cursor: pointer; text-decoration: none; display: inline-block;
+  }
+  .chip-active {
+    background: var(--intel-blue); color: #fff; border-color: var(--intel-blue);
+  }
+
+  .grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 18px 20px; display: flex; flex-direction: column; gap: 10px;
+    box-shadow: 0 1px 3px rgba(31,35,40,0.06);
+    transition: box-shadow 0.15s ease;
+  }
+  .card:hover { box-shadow: 0 4px 12px rgba(31,35,40,0.12); }
+
+  .card-name { font-size: 16px; font-weight: 600; }
+  .card-name a { color: var(--text); text-decoration: none; }
+  .card-name a:hover { color: var(--intel-blue); }
+  .card-desc { font-size: 13px; color: var(--text-muted); }
+  .card-desc a { color: var(--intel-blue); text-decoration: none; }
+  .card-desc a:hover { text-decoration: underline; }
+
+  .card-meta {
+    display: flex; flex-direction: column; gap: 4px;
+    padding-top: 10px; border-top: 1px solid #eef0f2;
+  }
+  .addr-row { font-size: 13px; color: var(--text-muted); word-break: break-all; }
+  .addr-row .label { color: var(--text); margin-right: 4px; }
+  .addr-row a { color: var(--intel-blue); text-decoration: none; word-break: break-all; }
+  .addr-row a:hover { text-decoration: underline; }
+  .author-row { font-size: 13px; color: var(--text-muted); }
+  .author-row a { color: var(--intel-blue); text-decoration: none; font-weight: 600; }
+
+  footer { text-align: center; margin-top: 40px; font-size: 12px; color: var(--text-muted); }
+  footer a { color: var(--intel-blue); text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1><span class="logo">I</span>IntelGpu-ComfyUI-Collection</h1>
+    <p class="note">Intel XPU 网盘聚合</p>
+    <div class="chips">
+      <a class="chip" href="index.html">项目收集</a>
+      <a class="chip" href="links.html">组件下载</a>
+      <span class="chip chip-active">网盘聚合</span>
+    </div>
+  </header>
+
+  <div class="grid">
+
+    <article class="card">
+      <div class="card-name"><a href="https://pan.quark.cn/s/0f9b1816831c?pwd=S5HC" target="_blank">📖 Minimax-H3 ComfyUI 便携整合包 (Intel Arc A770 专属优化版)</a></div>
+      <div class="card-desc">提供面向 A770（dg2）加速的 ComfyUI 整合包，包含 模型、工作流、组件、插件，针对 H3 工作流有完善支持。<br>（H3的工作流、模型和插件 也适用于 A770之外的 Intel GPU）</div>
+      <div class="card-meta">
+<div class="addr-row"><span class="label">地址：</span><a href="https://pan.quark.cn/s/0f9b1816831c?pwd=S5HC" target="_blank">https://pan.quark.cn/s/0f9b1816831c?pwd=S5HC</a></div><div class="author-row">维护者：<a href="https://github.com/Blackwood416" target="_blank">@Blackwood416</a></div>      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-name"><a href="https://pan.quark.cn/s/f15076f4f9d0" target="_blank">📖 ComfyUI-Intel 显卡相关</a></div>
+      <div class="card-desc">各种 ComfyUI-Intel项目的资源备份，基础组件整合包，包含：<br>- IntelGPU-ComfyUI-优化指南<br>- llama-cpp-python-sycl-win 编译包<br>- ComfyUI-Aila-XPU 插件+模型<br>- 《折腾成功！Intel Arc + SYCL》视频附件<br>- ComfyUI-秋叶版-Intel显卡组件整合包<br>- oneAPI 环境<br>- ComfyUI-XPUSYS-Monitor 插件</div>
+      <div class="card-meta">
+<div class="addr-row"><span class="label">地址：</span><a href="https://pan.quark.cn/s/f15076f4f9d0" target="_blank">https://pan.quark.cn/s/f15076f4f9d0</a></div><div class="author-row">维护者：<a href="https://github.com/allanmeng" target="_blank">@allanmeng</a></div>      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-name"><a href="https://share.weiyun.com/uxLroWWe" target="_blank">📖 ComfyUI_XPU 插件</a></div>
+      <div class="card-desc">各种 ComfyUI-Intel项目的资源备份，基础组件整合包，包含：<br>- seedvr2_videoupscaler_xpu(v2.5.22)<br>- ComfyUI-Crytools不依赖xpu-smi版<br>- ComfyUI-HunyuanVideo-Foley.zip<br>- ComfyUI-TD-Qwen3TTS.zip<br>- ComfyUI-WanVideoWrapper（修复）<br>- Flux模型分层加载插件<br>- HeartMuLa_ComfyUI<br>- Wan视频流块交换插件(适用官方工作流）<br>- comfyuieasy-sam3_xpu(V1.0.4)<br>- comfyuisegment-anything-2<br>- llama_cpp_python_vulkan版</div>
+      <div class="card-meta">
+<div class="addr-row"><span class="label">地址：</span><a href="https://share.weiyun.com/uxLroWWe" target="_blank">https://share.weiyun.com/uxLroWWe</a></div><div class="author-row">维护者：@弧</div>      </div>
+    </article>
+
+  </div>
+
+  <footer>
+    由 <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection" target="_blank">IntelGpu-ComfyUI-Collection</a> 自动生成 ·
+    <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/links.md" target="_blank">cloud_drive_collection.md 源文件</a>
+  </footer>
+
+</div>
+</body>
+</html>
