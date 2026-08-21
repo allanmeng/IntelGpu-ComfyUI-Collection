@@ -87,8 +87,13 @@ def split_sections(md_text):
     return sections
 
 
+def clean_title(title):
+    """Display title: keep leading icon (📖) exactly as in README, strip [fork]."""
+    return re.sub(r"\s*\[fork\]\s*$", "", title).strip()
+
+
 def clean_name(title):
-    """'📖 ComfyUI-XPUSYS-Monitor' -> 'ComfyUI-XPUSYS-Monitor'; drop [fork] suffix."""
+    """Pure name for data-name: strip icon and [fork]."""
     name = re.sub(r"^📖\s*", "", title).strip()
     name = re.sub(r"\s*\[fork\]\s*$", "", name).strip()
     return name
@@ -159,7 +164,8 @@ MD_LINK_RE = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
 def render_desc(body):
     """Render description body lines as HTML.
 
-    - keeps line breaks (newlines and blank lines)
+    - line breaks: each non-blank line separated by <br> (blank lines skipped,
+      so md paragraph spacing renders as a single line break)
     - converts [text](url) to clickable links
     - converts **bold** to <b>
     - skips special lines: 项目地址/地址/作者/Tag, table rows, bare-url rows
@@ -168,7 +174,6 @@ def render_desc(body):
     for line in body:
         s = line.strip()
         if not s:
-            lines.append("<br>")
             continue
         if s.startswith("|"):
             continue
@@ -179,9 +184,7 @@ def render_desc(body):
         h = MD_LINK_RE.sub(r'<a href="\2" target="_blank">\1</a>', s)
         h = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", h)
         lines.append(h)
-    text = "<br>".join(lines)
-    text = re.sub(r"^(<br>)+|(<br>)+$", "", text)
-    return text
+    return "<br>".join(lines)
 
 
 # ---------------------------------------------------------------------------
@@ -211,7 +214,7 @@ def index_card(item):
                        % (url, name))
     return """    <article class="card" data-repo="%(repo)s" data-name="%(name)s">
       <div class="card-top">
-        <div class="card-name"><a href="%(link)s" target="_blank">📖 %(name)s</a>%(badges)s</div>
+        <div class="card-name"><a href="%(link)s" target="_blank">%(display)s</a>%(badges)s</div>
         <span class="updated">更新：<span class="upd-time">%(updated)s</span></span>
       </div>
       <div class="card-desc">%(desc)s</div>
@@ -224,6 +227,7 @@ def index_card(item):
     </article>""" % {
         "repo": item["repo"],
         "name": item["name"],
+        "display": item["display"],
         "link": item["link"],
         "badges": badge_html(tags),
         "updated": updated,
@@ -244,12 +248,13 @@ def links_card(item):
         for label, url in item["urls"]
     )
     return """    <article class="card">
-      <div class="card-name"><a href="%(link)s" target="_blank">📖 %(name)s</a></div>
+      <div class="card-name"><a href="%(link)s" target="_blank">%(display)s</a></div>
       <div class="card-desc">%(desc)s</div>
       <div class="card-meta">
 %(addr)s%(author)s      </div>
     </article>""" % {
         "link": item["urls"][0][1] if item["urls"] else "#",
+        "display": item["display"],
         "name": item["name"],
         "desc": item["desc"],
         "addr": addr_rows,
@@ -571,6 +576,7 @@ def build_index(readme_path, token):
             path = subpath
         items.append({
             "name": name,
+            "display": clean_title(title),
             "desc": render_desc(body),
             "link": link,
             "repo": repo,
@@ -597,6 +603,7 @@ def build_links(links_path):
             continue
         items.append({
             "name": name,
+            "display": clean_title(title),
             "desc": render_desc(body),
             "urls": urls,
             "author": extract_author(body),
