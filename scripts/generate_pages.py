@@ -153,31 +153,40 @@ def repo_path_from_url(url):
     return "", ""
 
 
-def collect_desc(body, skip_prefixes):
-    """Join body lines that are not address/author/tag/table lines into a paragraph."""
-    parts = []
+MD_LINK_RE = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
+
+
+def render_desc(body):
+    """Render description body lines as HTML.
+
+    - keeps line breaks (newlines and blank lines)
+    - converts [text](url) to clickable links
+    - converts **bold** to <b>
+    - skips special lines: 项目地址/地址/作者/Tag, table rows, bare-url rows
+    """
+    lines = []
     for line in body:
         s = line.strip()
         if not s:
+            lines.append("<br>")
             continue
         if s.startswith("|"):
             continue
         if re.match(r"^\s*(项目地址|地址|作者|Tag)\s*[：:]", s):
             continue
-        if re.match(r"^[^：:\s][^：:]*?[：:]\s*https?://", s):
+        if re.match(r"^[^：:\s][^：:]*?[：:]\s*https?://\S+$", s):
             continue
-        parts.append(s)
-    return "".join(parts)
+        h = MD_LINK_RE.sub(r'<a href="\2" target="_blank">\1</a>', s)
+        h = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", h)
+        lines.append(h)
+    text = "<br>".join(lines)
+    text = re.sub(r"^(<br>)+|(<br>)+$", "", text)
+    return text
 
 
 # ---------------------------------------------------------------------------
 # Card HTML builders
 # ---------------------------------------------------------------------------
-
-def md_inline(text):
-    """Convert **bold** markdown to <b> tags."""
-    return re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", text)
-
 
 def badge_html(tags):
     cls = {
@@ -218,7 +227,7 @@ def index_card(item):
         "link": item["link"],
         "badges": badge_html(tags),
         "updated": updated,
-        "desc": md_inline(item["desc"]),
+        "desc": item["desc"],
         "author": author_html,
     }
 
@@ -242,7 +251,7 @@ def links_card(item):
     </article>""" % {
         "link": item["urls"][0][1] if item["urls"] else "#",
         "name": item["name"],
-        "desc": md_inline(item["desc"]),
+        "desc": item["desc"],
         "addr": addr_rows,
         "author": author_html,
     }
@@ -354,6 +363,8 @@ INDEX_HTML = """<!DOCTYPE html>
     background: #f3f4f6; border-radius: 6px; padding: 3px 8px;
   }
   .card-desc { font-size: 13px; color: var(--text-muted); flex: 1; }
+  .card-desc a { color: var(--intel-blue); text-decoration: none; }
+  .card-desc a:hover { text-decoration: underline; }
 
   .card-footer {
     display: flex; align-items: center; justify-content: space-between;
@@ -488,6 +499,8 @@ LINKS_HTML = """<!DOCTYPE html>
   .card-name a { color: var(--text); text-decoration: none; }
   .card-name a:hover { color: var(--intel-blue); }
   .card-desc { font-size: 13px; color: var(--text-muted); }
+  .card-desc a { color: var(--intel-blue); text-decoration: none; }
+  .card-desc a:hover { text-decoration: underline; }
 
   .card-meta {
     display: flex; flex-direction: column; gap: 4px;
@@ -558,7 +571,7 @@ def build_index(readme_path, token):
             path = subpath
         items.append({
             "name": name,
-            "desc": collect_desc(body, ("项目地址", "地址", "作者", "Tag")),
+            "desc": render_desc(body),
             "link": link,
             "repo": repo,
             "path": path,
@@ -584,7 +597,7 @@ def build_links(links_path):
             continue
         items.append({
             "name": name,
-            "desc": collect_desc(body, ("地址", "作者")),
+            "desc": render_desc(body),
             "urls": urls,
             "author": extract_author(body),
         })
