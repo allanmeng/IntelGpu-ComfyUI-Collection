@@ -179,8 +179,11 @@ def render_desc(body):
     (address/author/tag metadata) is handled separately and excluded here.
 
     Line-break rule (matches md editor semantics):
-      every blank line inside the description area produces exactly one <br>
-      (N blank lines -> N <br), strict 1:1, nothing trimmed.
+      every source newline maps to one <br> — each non-blank line is followed
+      by a <br>, and every blank line produces one extra <br>
+      ("item + blank line + item" -> 2 <br between items).
+      Leading/trailing <br> (blank line after title / before special rows)
+      are trimmed.
     Also converts [text](url) to links and **bold** to <b>.
     """
     parts = []
@@ -197,8 +200,10 @@ def render_desc(body):
             break
         h = MD_LINK_RE.sub(r'<a href="\2" target="_blank">\1</a>', s)
         h = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", h)
-        parts.append(h)
-    return "".join(parts)
+        parts.append(h + "<br>")
+    text = "".join(parts)
+    text = re.sub(r"^(<br>)+|(<br>)+$", "", text)
+    return text
 
 
 # ---------------------------------------------------------------------------
