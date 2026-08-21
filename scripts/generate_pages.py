@@ -164,16 +164,19 @@ MD_LINK_RE = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
 def render_desc(body):
     """Render description body lines as HTML.
 
-    - line breaks: each non-blank line separated by <br> (blank lines skipped,
-      so md paragraph spacing renders as a single line break)
-    - converts [text](url) to clickable links
-    - converts **bold** to <b>
-    - skips special lines: 项目地址/地址/作者/Tag, table rows, bare-url rows
+    Line-break rule (matches md editor semantics):
+      each blank line in the source produces exactly one <br>;
+      N blank lines -> N <br>. Non-blank lines are joined directly.
+    Also:
+      - converts [text](url) to clickable links
+      - converts **bold** to <b>
+      - skips special lines: 项目地址/地址/作者/Tag, table rows, bare-url rows
     """
-    lines = []
+    parts = []
     for line in body:
         s = line.strip()
         if not s:
+            parts.append("<br>")
             continue
         if s.startswith("|"):
             continue
@@ -183,8 +186,10 @@ def render_desc(body):
             continue
         h = MD_LINK_RE.sub(r'<a href="\2" target="_blank">\1</a>', s)
         h = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", h)
-        lines.append(h)
-    return "<br>".join(lines)
+        parts.append(h)
+    text = "".join(parts)
+    text = re.sub(r"^(<br>)+|(<br>)+$", "", text)
+    return text
 
 
 # ---------------------------------------------------------------------------
