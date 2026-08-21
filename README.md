@@ -15,10 +15,9 @@
 
 以 Intel **llm-scaler-omni** 官方优化方案（bmg显卡）为基础，补齐 **DG2 系列显卡**的支持缺口，并完善 **Windows 平台**的支持，整合为一份开箱即用的优化指南。
 
-| 资源 | 链接 |
-|---|---|
-| 📄 在线指南 | https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/intel-comfyui-guide/ |
-| 📦 优化安装包 | https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/releases/tag/guide |
+关联网盘：[安装包](https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/releases/tag/guide)
+
+项目地址：https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/intel-comfyui-guide/
 
 作者：[@allanmeng](https://github.com/allanmeng)
 
