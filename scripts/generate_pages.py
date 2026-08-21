@@ -444,7 +444,7 @@ INDEX_HTML = """<!DOCTYPE html>
 __NAV__
     </div>
     <div class="group-card">
-      <img alt="group_logo" src="https://github.com/user-attachments/assets/9ce95b55-f980-4b3e-bb23-e8d24f37aba7">
+      <img alt="group_logo" src="https://github.com/user-attachments/assets/40a6707f-a438-4139-8efa-c7248d0ccb9d">
       <div>
         <div class="g-title">《Intel GPU &amp; ComfyUI 折腾群》</div>
         <div class="g-sub">标记为<span class="badge badge-community">社群</span>的项目来自群友作品 · QQ群：<a href="https://qm.qq.com/q/gls9aI3lgA" target="_blank">220819365</a></div>
