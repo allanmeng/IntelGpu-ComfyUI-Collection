@@ -675,7 +675,8 @@ def build_cloud_drive(cloud_path):
                      "<title>IntelGpu-ComfyUI-Collection - Intel XPU 网盘聚合</title>")
             .replace('<p class="note">Intel XPU 重要组件下载地址</p>',
                      '<p class="note">Intel XPU 网盘聚合</p>')
-            .replace("links.md 源文件", "cloud_drive_collection.md 源文件")
+            .replace('<a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/links.md" target="_blank">links.md 源文件</a>',
+                     '<a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/cloud_drive_collection.md" target="_blank">cloud_drive_collection.md 源文件</a>')
             .replace("__NAV__", nav_html("cloud_drive_collection.html"))
             .replace("__CARDS__", cards))
     return html
