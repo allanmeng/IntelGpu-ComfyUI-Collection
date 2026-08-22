@@ -715,7 +715,8 @@ def build_group():
                      "<title>IntelGpu-ComfyUI-Collection - 互助社群</title>")
             .replace('<p class="note">Intel XPU 重要组件下载地址</p>',
                      '<p class="note">Intel GPU &amp; ComfyUI 互助社群</p>')
-            .replace("links.md 源文件", "group 页面（静态，内容由 generate_pages.py 维护）")
+            .replace('<a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/links.md" target="_blank">links.md 源文件</a>',
+                     "group 页面（静态）")
             .replace("  footer {", GROUP_CSS + "  footer {")
             .replace("__NAV__", nav_html("group.html"))
             .replace("__CARDS__", GROUP_CARD_HTML))
