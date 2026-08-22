@@ -214,6 +214,7 @@ NAV_TABS = [
     ("index.html", "项目收集"),
     ("links.html", "组件下载"),
     ("cloud_drive_collection.html", "网盘聚合"),
+    ("group.html", "互助社群"),
 ]
 
 
@@ -358,19 +359,6 @@ INDEX_HTML = """<!DOCTYPE html>
     background: var(--intel-blue); color: #fff; border-color: var(--intel-blue);
   }
 
-  .group-card {
-    margin: 20px auto 0; max-width: 520px;
-    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
-    padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 14px;
-    box-shadow: 0 1px 3px rgba(31,35,40,0.06);
-  }
-  .group-card img {
-    width: 240px; height: 240px; border-radius: 12px; object-fit: cover;
-  }
-  .group-card .g-title { font-size: 15px; font-weight: 600; text-align: center; }
-  .group-card .g-sub { font-size: 13px; color: var(--text-muted); margin-top: 2px; text-align: center; }
-  .group-card .g-sub a { color: var(--intel-blue); text-decoration: none; font-weight: 600; }
-
   .sort-banner {
     margin: 28px 0 18px;
     background: linear-gradient(90deg, #e8f1fb, #f0f7fd);
@@ -440,13 +428,6 @@ INDEX_HTML = """<!DOCTYPE html>
     <p class="note">以下项目多数来自社群，少量官方提供</p>
     <div class="chips">
 __NAV__
-    </div>
-    <div class="group-card">
-      <img alt="group_logo" src="https://github.com/user-attachments/assets/40a6707f-a438-4139-8efa-c7248d0ccb9d">
-      <div>
-        <div class="g-title">《Intel GPU &amp; ComfyUI 折腾群》</div>
-        <div class="g-sub">标记为<span class="badge badge-community">社群</span>的项目来自群友作品 · QQ群：<a href="https://qm.qq.com/q/gls9aI3lgA" target="_blank">220819365</a></div>
-      </div>
     </div>
   </header>
 
@@ -690,11 +671,51 @@ def build_cloud_drive(cloud_path):
     return html
 
 
+GROUP_CARD_HTML = """    <div class="group-hero">
+      <img alt="group_logo" src="https://github.com/user-attachments/assets/40a6707f-a438-4139-8efa-c7248d0ccb9d">
+      <h2>《Intel GPU &amp; ComfyUI 折腾群》</h2>
+      <p>标记为<span class="badge badge-community">社群</span>的项目来自群友作品</p>
+      <p>QQ群：<a href="https://qm.qq.com/q/gls9aI3lgA" target="_blank">220819365</a></p>
+      <a class="btn btn-primary btn-lg" href="https://qm.qq.com/q/gls9aI3lgA" target="_blank">加入群聊</a>
+    </div>"""
+
+GROUP_CSS = """  .group-hero {
+    max-width: 520px; margin: 40px auto; text-align: center;
+    background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+    padding: 32px 28px; box-shadow: 0 1px 3px rgba(31,35,40,0.06);
+  }
+  .group-hero img { width: 220px; height: 220px; border-radius: 12px; object-fit: cover; }
+  .group-hero h2 { margin: 16px 0 8px; font-size: 20px; }
+  .group-hero p { font-size: 14px; color: var(--text-muted); margin: 6px 0; }
+  .group-hero p a { color: var(--intel-blue); text-decoration: none; font-weight: 600; }
+  .group-hero .btn-lg { display: inline-block; margin-top: 14px; padding: 10px 32px; font-size: 15px; }
+  .btn { font-size: 13px; text-decoration: none; padding: 5px 12px; border-radius: 8px; border: 1px solid var(--border); color: var(--text); background: #fff; }
+  .btn:hover { border-color: var(--intel-blue); color: var(--intel-blue); }
+  .btn-primary { background: var(--intel-blue); border-color: var(--intel-blue); color: #fff; }
+  .btn-primary:hover { background: var(--intel-blue-dark); color: #fff; }
+"""
+
+
+def build_group():
+    """group.html: static community page (QQ group info)."""
+    html = (LINKS_HTML
+            .replace("<title>IntelGpu-ComfyUI-Collection - Intel XPU 组件下载</title>",
+                     "<title>IntelGpu-ComfyUI-Collection - 互助社群</title>")
+            .replace('<p class="note">Intel XPU 重要组件下载地址</p>',
+                     '<p class="note">Intel GPU &amp; ComfyUI 互助社群</p>')
+            .replace("links.md 源文件", "group 页面（静态，内容由 generate_pages.py 维护）")
+            .replace("  footer {", GROUP_CSS + "  footer {")
+            .replace("__NAV__", nav_html("group.html"))
+            .replace("__CARDS__", GROUP_CARD_HTML))
+    return html
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--index", action="store_true", help="generate index.html from README.md")
     ap.add_argument("--links", action="store_true", help="generate links.html from links.md")
     ap.add_argument("--cloud-drive", action="store_true", help="generate cloud_drive_collection.html from cloud_drive_collection.md")
+    ap.add_argument("--group", action="store_true", help="generate group.html (static)")
     ap.add_argument("--token", default="", help="GitHub token for API queries")
     ap.add_argument("--out-dir", default="", help="output directory (default: repo root)")
     args = ap.parse_args()
@@ -722,6 +743,12 @@ def main():
         with open(os.path.join(out_dir, "cloud_drive_collection.html"), "w", encoding="utf-8") as f:
             f.write(html)
         print("[ok] cloud_drive_collection.html written (%d bytes)" % len(html.encode("utf-8")))
+
+    if args.group:
+        html = build_group()
+        with open(os.path.join(out_dir, "group.html"), "w", encoding="utf-8") as f:
+            f.write(html)
+        print("[ok] group.html written (%d bytes)" % len(html.encode("utf-8")))
 
 
 if __name__ == "__main__":

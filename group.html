@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IntelGpu-ComfyUI-Collection - Intel XPU 网盘聚合</title>
+<title>IntelGpu-ComfyUI-Collection - 互助社群</title>
 <style>
   :root {
     --intel-blue: #0071c5;
@@ -73,6 +73,20 @@
   .author-row { font-size: 13px; color: var(--text-muted); }
   .author-row a { color: var(--intel-blue); text-decoration: none; font-weight: 600; }
 
+  .group-hero {
+    max-width: 520px; margin: 40px auto; text-align: center;
+    background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+    padding: 32px 28px; box-shadow: 0 1px 3px rgba(31,35,40,0.06);
+  }
+  .group-hero img { width: 220px; height: 220px; border-radius: 12px; object-fit: cover; }
+  .group-hero h2 { margin: 16px 0 8px; font-size: 20px; }
+  .group-hero p { font-size: 14px; color: var(--text-muted); margin: 6px 0; }
+  .group-hero p a { color: var(--intel-blue); text-decoration: none; font-weight: 600; }
+  .group-hero .btn-lg { display: inline-block; margin-top: 14px; padding: 10px 32px; font-size: 15px; }
+  .btn { font-size: 13px; text-decoration: none; padding: 5px 12px; border-radius: 8px; border: 1px solid var(--border); color: var(--text); background: #fff; }
+  .btn:hover { border-color: var(--intel-blue); color: var(--intel-blue); }
+  .btn-primary { background: var(--intel-blue); border-color: var(--intel-blue); color: #fff; }
+  .btn-primary:hover { background: var(--intel-blue-dark); color: #fff; }
   footer { text-align: center; margin-top: 40px; font-size: 12px; color: var(--text-muted); }
   footer a { color: var(--intel-blue); text-decoration: none; }
 </style>
@@ -82,43 +96,30 @@
 
   <header>
     <h1><img class="logo" src="assets/Intel_Graphics_logo.png" alt="Intel Graphics">IntelGpu-ComfyUI-Collection</h1>
-    <p class="note">Intel XPU 网盘聚合</p>
+    <p class="note">Intel GPU &amp; ComfyUI 互助社群</p>
     <div class="chips">
       <a class="chip" href="index.html">项目收集</a>
       <a class="chip" href="links.html">组件下载</a>
-      <span class="chip chip-active">网盘聚合</span>
-      <a class="chip" href="group.html">互助社群</a>
+      <a class="chip" href="cloud_drive_collection.html">网盘聚合</a>
+      <span class="chip chip-active">互助社群</span>
     </div>
   </header>
 
   <div class="grid">
 
-    <article class="card">
-      <div class="card-name"><a href="https://pan.quark.cn/s/0f9b1816831c?pwd=S5HC" target="_blank">📖 Minimax-H3 ComfyUI 便携整合包 (Intel Arc A770 专属优化版)</a></div>
-      <div class="card-desc">提供面向 A770（dg2）加速的 ComfyUI 整合包，包含 模型、工作流、组件、插件，针对 H3 工作流有完善支持。<br><br>（H3的工作流、模型和插件 也适用于 A770之外的 Intel GPU）</div>
-      <div class="card-meta">
-<div class="addr-row"><span class="label">地址：</span><a href="https://pan.quark.cn/s/0f9b1816831c?pwd=S5HC" target="_blank">https://pan.quark.cn/s/0f9b1816831c?pwd=S5HC</a></div><div class="author-row">维护者：<a href="https://github.com/Blackwood416" target="_blank">@Blackwood416</a></div>      </div>
-    </article>
-
-    <article class="card">
-      <div class="card-name"><a href="https://pan.quark.cn/s/f15076f4f9d0" target="_blank">📖 ComfyUI-Intel 显卡相关</a></div>
-      <div class="card-desc">各种 ComfyUI-Intel项目的资源备份，基础组件整合包，包含：<br><br>- IntelGPU-ComfyUI-优化指南<br><br>- llama-cpp-python-sycl-win 编译包<br><br>- ComfyUI-Aila-XPU 插件+模型<br><br>- 《折腾成功！Intel Arc + SYCL》视频附件<br><br>- ComfyUI-秋叶版-Intel显卡组件整合包<br><br>- oneAPI 环境<br><br>- ComfyUI-XPUSYS-Monitor 插件</div>
-      <div class="card-meta">
-<div class="addr-row"><span class="label">地址：</span><a href="https://pan.quark.cn/s/f15076f4f9d0" target="_blank">https://pan.quark.cn/s/f15076f4f9d0</a></div><div class="author-row">维护者：<a href="https://github.com/allanmeng" target="_blank">@allanmeng</a></div>      </div>
-    </article>
-
-    <article class="card">
-      <div class="card-name"><a href="https://share.weiyun.com/uxLroWWe" target="_blank">📖 ComfyUI_XPU 插件</a></div>
-      <div class="card-desc">各种 ComfyUI-Intel项目的资源备份，基础组件整合包，包含：<br><br>- seedvr2_videoupscaler_xpu(v2.5.22)<br><br>- ComfyUI-Crytools不依赖xpu-smi版<br><br>- ComfyUI-HunyuanVideo-Foley.zip<br><br>- ComfyUI-TD-Qwen3TTS.zip<br><br>- ComfyUI-WanVideoWrapper（修复）<br><br>- Flux模型分层加载插件<br><br>- HeartMuLa_ComfyUI<br><br>- Wan视频流块交换插件(适用官方工作流）<br><br>- comfyuieasy-sam3_xpu(V1.0.4)<br><br>- comfyuisegment-anything-2<br><br>- llama_cpp_python_vulkan版</div>
-      <div class="card-meta">
-<div class="addr-row"><span class="label">地址：</span><a href="https://share.weiyun.com/uxLroWWe" target="_blank">https://share.weiyun.com/uxLroWWe</a></div><div class="author-row">维护者：@弧</div>      </div>
-    </article>
+    <div class="group-hero">
+      <img alt="group_logo" src="https://github.com/user-attachments/assets/40a6707f-a438-4139-8efa-c7248d0ccb9d">
+      <h2>《Intel GPU &amp; ComfyUI 折腾群》</h2>
+      <p>标记为<span class="badge badge-community">社群</span>的项目来自群友作品</p>
+      <p>QQ群：<a href="https://qm.qq.com/q/gls9aI3lgA" target="_blank">220819365</a></p>
+      <a class="btn btn-primary btn-lg" href="https://qm.qq.com/q/gls9aI3lgA" target="_blank">加入群聊</a>
+    </div>
 
   </div>
 
   <footer>
     由 <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection" target="_blank">IntelGpu-ComfyUI-Collection</a> 自动生成 ·
-    <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/links.md" target="_blank">cloud_drive_collection.md 源文件</a>
+    <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/links.md" target="_blank">group 页面（静态，内容由 generate_pages.py 维护）</a>
   </footer>
 
 </div>
