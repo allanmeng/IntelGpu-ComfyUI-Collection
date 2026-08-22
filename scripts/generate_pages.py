@@ -689,6 +689,8 @@ GROUP_CSS = """  .group-hero {
   .group-hero p { font-size: 14px; color: var(--text-muted); margin: 6px 0; }
   .group-hero p a { color: var(--intel-blue); text-decoration: none; font-weight: 600; }
   .group-hero .btn-lg { display: inline-block; margin-top: 14px; padding: 10px 32px; font-size: 15px; }
+  .badge { font-size: 11px; padding: 2px 8px; border-radius: 999px; font-weight: 500; white-space: nowrap; }
+  .badge-community { background: #e6f4ea; color: #1a7f37; border: 1px solid #c3e6cb; }
   .btn { font-size: 13px; text-decoration: none; padding: 5px 12px; border-radius: 8px; border: 1px solid var(--border); color: var(--text); background: #fff; }
   .btn:hover { border-color: var(--intel-blue); color: var(--intel-blue); }
   .btn-primary { background: var(--intel-blue); border-color: var(--intel-blue); color: #fff; }
