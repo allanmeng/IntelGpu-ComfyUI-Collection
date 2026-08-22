@@ -472,8 +472,11 @@ __CARDS__
   (function () {
     function pad(n) { return String(n).padStart(2, "0"); }
     var now = new Date();
-    var next = new Date(now);
-    next.setHours(Math.floor(now.getHours() / 6) * 6 + 6, 0, 0, 0);
+    // cron 计划: UTC 00/06/12/18 (每 6 小时, GitHub Actions 用 UTC)。
+    // getTime() 本身就是 UTC 时间戳，用 getUTC* 计算下一个刷新点，
+    // Date.UTC 构造出绝对时间，再用本地 get* 显示（自动转本地时区）。
+    var nextUtcHour = Math.floor(now.getUTCHours() / 6) * 6 + 6;
+    var next = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), nextUtcHour));
     document.getElementById("next-refresh").textContent =
       next.getFullYear() + "年" + pad(next.getMonth() + 1) + "月" + pad(next.getDate()) +
       "日  " + pad(next.getHours()) + "时 : " + pad(next.getMinutes()) + "分 : " + pad(next.getSeconds()) + "秒";
