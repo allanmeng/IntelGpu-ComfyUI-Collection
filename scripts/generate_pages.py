@@ -342,10 +342,8 @@ INDEX_HTML = """<!DOCTYPE html>
     display: inline-flex; align-items: center; gap: 10px;
   }
   header h1 .logo {
-    width: 34px; height: 34px; border-radius: 8px;
-    background: var(--intel-blue);
-    display: inline-flex; align-items: center; justify-content: center;
-    color: #fff; font-size: 18px; font-weight: 700;
+    width: 34px; height: 34px; border-radius: 6px;
+    object-fit: contain; display: inline-block;
   }
   header .note {
     margin-top: 12px; font-size: 14px; color: var(--text-muted);
@@ -438,7 +436,7 @@ INDEX_HTML = """<!DOCTYPE html>
 <div class="container">
 
   <header>
-    <h1><span class="logo">I</span>IntelGpu-ComfyUI-Collection</h1>
+    <h1><img class="logo" src="assets/Intel_Graphics_logo.jpg" alt="Intel Graphics">IntelGpu-ComfyUI-Collection</h1>
     <p class="note">以下项目多数来自社群，少量官方提供</p>
     <div class="chips">
 __NAV__
@@ -517,10 +515,8 @@ LINKS_HTML = """<!DOCTYPE html>
     display: inline-flex; align-items: center; gap: 10px;
   }
   header h1 .logo {
-    width: 34px; height: 34px; border-radius: 8px;
-    background: var(--intel-blue);
-    display: inline-flex; align-items: center; justify-content: center;
-    color: #fff; font-size: 18px; font-weight: 700;
+    width: 34px; height: 34px; border-radius: 6px;
+    object-fit: contain; display: inline-block;
   }
   header .note {
     margin-top: 12px; font-size: 14px; color: var(--text-muted);
@@ -571,7 +567,7 @@ LINKS_HTML = """<!DOCTYPE html>
 <div class="container">
 
   <header>
-    <h1><span class="logo">I</span>IntelGpu-ComfyUI-Collection</h1>
+    <h1><img class="logo" src="assets/Intel_Graphics_logo.jpg" alt="Intel Graphics">IntelGpu-ComfyUI-Collection</h1>
     <p class="note">Intel XPU 重要组件下载地址</p>
     <div class="chips">
 __NAV__

@@ -31,10 +31,8 @@
     display: inline-flex; align-items: center; gap: 10px;
   }
   header h1 .logo {
-    width: 34px; height: 34px; border-radius: 8px;
-    background: var(--intel-blue);
-    display: inline-flex; align-items: center; justify-content: center;
-    color: #fff; font-size: 18px; font-weight: 700;
+    width: 34px; height: 34px; border-radius: 6px;
+    object-fit: contain; display: inline-block;
   }
   header .note {
     margin-top: 12px; font-size: 14px; color: var(--text-muted);
@@ -127,7 +125,7 @@
 <div class="container">
 
   <header>
-    <h1><span class="logo">I</span>IntelGpu-ComfyUI-Collection</h1>
+    <h1><img class="logo" src="assets/Intel_Graphics_logo.jpg" alt="Intel Graphics">IntelGpu-ComfyUI-Collection</h1>
     <p class="note">以下项目多数来自社群，少量官方提供</p>
     <div class="chips">
       <span class="chip chip-active">项目收集</span>
@@ -149,16 +147,44 @@
 
   <div class="grid">
 
-    <article class="card" data-repo="allanmeng/llama-cpp-python-sycl-windows" data-name="llama-cpp-python-sycl-windows">
+    <article class="card" data-repo="gggz114514-oss/XeSS-Video-Enhancement-Suite" data-name="XeSS-Video-Enhancement-Suite">
       <div class="card-top">
-        <div class="card-name"><a href="https://github.com/allanmeng/llama-cpp-python-sycl-windows" target="_blank">llama-cpp-python-sycl-windows</a><span class="badge badge-community">社群</span></div>
-        <span class="updated">更新：<span class="upd-time">2026/08/22-18:00:55</span></span>
+        <div class="card-name"><a href="https://github.com/gggz114514-oss/XeSS-Video-Enhancement-Suite" target="_blank">XeSS-Video-Enhancement-Suite</a><span class="badge badge-community">社群</span></div>
+        <span class="updated">更新：<span class="upd-time">2026/08/23-00:47:34</span></span>
       </div>
-      <div class="card-desc">为 Intel Arc（Alchemist / Battlemage）预编译的 <b>llama-cpp-python SYCL</b> wheel 集合，Windows 免编译直接安装。</div>
+      <div class="card-desc">基于 Intel XeSS 的 Windows 视频增强工具箱，提供 视频超分、双倍帧生成、中文 ComfyUI 节点及独立便携版。支持 AI 深度、光流、多帧融合和流式处理，并内置磁盘空间保护与自动安装脚本。</div>
       <div class="card-footer">
-        <div class="author">作者：<a href="https://github.com/allanmeng" target="_blank">@allanmeng</a></div>
+        <div class="author">作者：<a href="https://github.com/gggz114514-oss" target="_blank">@gggz114514-oss</a></div>
         <div class="links">
-          <a class="btn btn-primary" href="https://github.com/allanmeng/llama-cpp-python-sycl-windows" target="_blank">项目地址</a>
+          <a class="btn btn-primary" href="https://github.com/gggz114514-oss/XeSS-Video-Enhancement-Suite" target="_blank">项目地址</a>
+        </div>
+      </div>
+    </article>
+
+    <article class="card" data-repo="JWLHS/int4-omnixpu" data-name="int4-omnixpu">
+      <div class="card-top">
+        <div class="card-name"><a href="https://github.com/JWLHS/int4-omnixpu" target="_blank">int4-omnixpu</a><span class="badge badge-community">社群</span></div>
+        <span class="updated">更新：<span class="upd-time">2026/08/23-00:00:18</span></span>
+      </div>
+      <div class="card-desc">面向 Arc XPU 的统一 INT4 模型加载器（wa4 + tint4 双格式），经 omni-xpu-kernel 的 oneDNN INT4 GEMM 原生加速，带安全回退阶梯与 LoRA GPU 缓存。</div>
+      <div class="card-footer">
+        <div class="author">作者：<a href="https://github.com/JWLHS" target="_blank">@JWLHS</a></div>
+        <div class="links">
+          <a class="btn btn-primary" href="https://github.com/JWLHS/int4-omnixpu" target="_blank">项目地址</a>
+        </div>
+      </div>
+    </article>
+
+    <article class="card" data-repo="Blackwood416/ComfyUI-OmniXPU" data-name="ComfyUI-OmniXPU">
+      <div class="card-top">
+        <div class="card-name"><a href="https://github.com/Blackwood416/ComfyUI-OmniXPU" target="_blank">ComfyUI-OmniXPU</a><span class="badge badge-fork">fork</span><span class="badge badge-community">社群</span><span class="badge badge-card">指定卡</span></div>
+        <span class="updated">更新：<span class="upd-time">2026/08/22-22:45:56</span></span>
+      </div>
+      <div class="card-desc">Intel llm-scaler-omni 官方套件的独立 fork，为 <b>Arc A770 / DG2</b> 补齐 RMS-RoPE 桥接、DG2 注意力路由、INT8 快速路径、DynamicVRAM 裁剪等兼容性。<br><br><br>【<a href="https://pan.quark.cn/s/0f9b1816831c?pwd=S5HC" target="_blank">A770专用_ComfyUI_MinMaxH3_整合包</a>】    【<a href="https://www.bilibili.com/video/BV19Wbi6eEMi" target="_blank">关联视频</a>】</div>
+      <div class="card-footer">
+        <div class="author">作者：<a href="https://github.com/Blackwood416" target="_blank">@Blackwood416</a></div>
+        <div class="links">
+          <a class="btn btn-primary" href="https://github.com/Blackwood416/ComfyUI-OmniXPU" target="_blank">项目地址</a>
         </div>
       </div>
     </article>
@@ -166,7 +192,7 @@
     <article class="card" data-repo="allanmeng/comfyui-sg-llama-cpp" data-name="comfyui-sg-llama-cpp">
       <div class="card-top">
         <div class="card-name"><a href="https://github.com/allanmeng/comfyui-sg-llama-cpp" target="_blank">comfyui-sg-llama-cpp</a><span class="badge badge-fork">fork</span><span class="badge badge-community">社群</span></div>
-        <span class="updated">更新：<span class="upd-time">2026/08/22-16:23:46</span></span>
+        <span class="updated">更新：<span class="upd-time">2026/08/22-20:03:03</span></span>
       </div>
       <div class="card-desc">在 ComfyUI 中加载 GGUF 大模型的节点封装（SYCL 加速 fork），支持纯文本 / 视觉多模态与 JSON Schema 输出，配套 llama-cpp-python-sycl-windows 使用。</div>
       <div class="card-footer">
@@ -177,16 +203,16 @@
       </div>
     </article>
 
-    <article class="card" data-repo="gggz114514-oss/XeSS-Video-Enhancement-Suite" data-name="XeSS-Video-Enhancement-Suite">
+    <article class="card" data-repo="allanmeng/llama-cpp-python-sycl-windows" data-name="llama-cpp-python-sycl-windows">
       <div class="card-top">
-        <div class="card-name"><a href="https://github.com/gggz114514-oss/XeSS-Video-Enhancement-Suite" target="_blank">XeSS-Video-Enhancement-Suite</a><span class="badge badge-community">社群</span></div>
-        <span class="updated">更新：<span class="upd-time">2026/08/21-23:01:46</span></span>
+        <div class="card-name"><a href="https://github.com/allanmeng/llama-cpp-python-sycl-windows" target="_blank">llama-cpp-python-sycl-windows</a><span class="badge badge-community">社群</span></div>
+        <span class="updated">更新：<span class="upd-time">2026/08/22-18:00:55</span></span>
       </div>
-      <div class="card-desc">基于 Intel XeSS 的 Windows 视频增强工具箱，提供 视频超分、双倍帧生成、中文 ComfyUI 节点及独立便携版。支持 AI 深度、光流、多帧融合和流式处理，并内置磁盘空间保护与自动安装脚本。</div>
+      <div class="card-desc">为 Intel Arc（Alchemist / Battlemage）预编译的 <b>llama-cpp-python SYCL</b> wheel 集合，Windows 免编译直接安装。</div>
       <div class="card-footer">
-        <div class="author">作者：<a href="https://github.com/gggz114514-oss" target="_blank">@gggz114514-oss</a></div>
+        <div class="author">作者：<a href="https://github.com/allanmeng" target="_blank">@allanmeng</a></div>
         <div class="links">
-          <a class="btn btn-primary" href="https://github.com/gggz114514-oss/XeSS-Video-Enhancement-Suite" target="_blank">项目地址</a>
+          <a class="btn btn-primary" href="https://github.com/allanmeng/llama-cpp-python-sycl-windows" target="_blank">项目地址</a>
         </div>
       </div>
     </article>
@@ -233,20 +259,6 @@
       </div>
     </article>
 
-    <article class="card" data-repo="Blackwood416/ComfyUI-OmniXPU" data-name="ComfyUI-OmniXPU">
-      <div class="card-top">
-        <div class="card-name"><a href="https://github.com/Blackwood416/ComfyUI-OmniXPU" target="_blank">ComfyUI-OmniXPU</a><span class="badge badge-fork">fork</span><span class="badge badge-community">社群</span><span class="badge badge-card">指定卡</span></div>
-        <span class="updated">更新：<span class="upd-time">2026/08/20-19:08:54</span></span>
-      </div>
-      <div class="card-desc">Intel llm-scaler-omni 官方套件的独立 fork，为 <b>Arc A770 / DG2</b> 补齐 RMS-RoPE 桥接、DG2 注意力路由、INT8 快速路径、DynamicVRAM 裁剪等兼容性。<br><br><br>【<a href="https://pan.quark.cn/s/0f9b1816831c?pwd=S5HC" target="_blank">A770专用_ComfyUI_MinMaxH3_整合包</a>】    【<a href="https://www.bilibili.com/video/BV19Wbi6eEMi" target="_blank">关联视频</a>】</div>
-      <div class="card-footer">
-        <div class="author">作者：<a href="https://github.com/Blackwood416" target="_blank">@Blackwood416</a></div>
-        <div class="links">
-          <a class="btn btn-primary" href="https://github.com/Blackwood416/ComfyUI-OmniXPU" target="_blank">项目地址</a>
-        </div>
-      </div>
-    </article>
-
     <article class="card" data-repo="allanmeng/model-format-verifier" data-name="model-format-verifier">
       <div class="card-top">
         <div class="card-name"><a href="https://github.com/allanmeng/model-format-verifier" target="_blank">model-format-verifier</a><span class="badge badge-community">社群</span></div>
@@ -257,20 +269,6 @@
         <div class="author">作者：<a href="https://github.com/allanmeng" target="_blank">@allanmeng</a></div>
         <div class="links">
           <a class="btn btn-primary" href="https://github.com/allanmeng/model-format-verifier" target="_blank">项目地址</a>
-        </div>
-      </div>
-    </article>
-
-    <article class="card" data-repo="JWLHS/int4-omnixpu" data-name="int4-omnixpu">
-      <div class="card-top">
-        <div class="card-name"><a href="https://github.com/JWLHS/int4-omnixpu" target="_blank">int4-omnixpu</a><span class="badge badge-community">社群</span></div>
-        <span class="updated">更新：<span class="upd-time">2026/08/20-08:39:58</span></span>
-      </div>
-      <div class="card-desc">面向 Arc XPU 的统一 INT4 模型加载器（wa4 + tint4 双格式），经 omni-xpu-kernel 的 oneDNN INT4 GEMM 原生加速，带安全回退阶梯与 LoRA GPU 缓存。</div>
-      <div class="card-footer">
-        <div class="author">作者：<a href="https://github.com/JWLHS" target="_blank">@JWLHS</a></div>
-        <div class="links">
-          <a class="btn btn-primary" href="https://github.com/JWLHS/int4-omnixpu" target="_blank">项目地址</a>
         </div>
       </div>
     </article>
