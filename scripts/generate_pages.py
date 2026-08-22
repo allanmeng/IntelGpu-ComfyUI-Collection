@@ -346,6 +346,10 @@ INDEX_HTML = """<!DOCTYPE html>
     width: 100px; height: 100px; border-radius: 6px;
     object-fit: contain; display: inline-block;
   }
+  header h1 .logo-group {
+    width: 60px; height: 60px; border-radius: 6px;
+    object-fit: contain; display: inline-block;
+  }
   header .note {
     margin-top: 12px; font-size: 14px; color: var(--text-muted);
   }
@@ -424,7 +428,7 @@ INDEX_HTML = """<!DOCTYPE html>
 <div class="container">
 
   <header>
-    <h1><img class="logo" src="assets/Intel_Graphics_logo.png" alt="Intel Graphics">IntelGpu-ComfyUI-Collection<img class="logo" src="assets/group_logo_150.jpg" alt="Group"></h1>
+    <h1><img class="logo" src="assets/Intel_Graphics_logo.png" alt="Intel Graphics">IntelGpu-ComfyUI-Collection<img class="logo-group" src="assets/group_logo_80.png" alt="Group"></h1>
     <p class="note">以下项目多数来自社群，少量官方提供</p>
     <div class="chips">
 __NAV__
@@ -499,6 +503,10 @@ LINKS_HTML = """<!DOCTYPE html>
     width: 100px; height: 100px; border-radius: 6px;
     object-fit: contain; display: inline-block;
   }
+  header h1 .logo-group {
+    width: 60px; height: 60px; border-radius: 6px;
+    object-fit: contain; display: inline-block;
+  }
   header .note {
     margin-top: 12px; font-size: 14px; color: var(--text-muted);
   }
@@ -548,7 +556,7 @@ LINKS_HTML = """<!DOCTYPE html>
 <div class="container">
 
   <header>
-    <h1><img class="logo" src="assets/Intel_Graphics_logo.png" alt="Intel Graphics">IntelGpu-ComfyUI-Collection<img class="logo" src="assets/group_logo_150.jpg" alt="Group"></h1>
+    <h1><img class="logo" src="assets/Intel_Graphics_logo.png" alt="Intel Graphics">IntelGpu-ComfyUI-Collection<img class="logo-group" src="assets/group_logo_80.png" alt="Group"></h1>
     <p class="note">Intel XPU 重要组件下载地址</p>
     <div class="chips">
 __NAV__
