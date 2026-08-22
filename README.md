@@ -137,7 +137,10 @@ Tag: fork,社群,指定卡
 
 ## int4-omnixpu
 
-面向 Arc XPU 的统一 INT4 模型加载器（wa4 + tint4 双格式），经 omni-xpu-kernel 的 oneDNN INT4 GEMM 原生加速，带安全回退阶梯与 LoRA GPU 缓存。
+面向 Intel Arc XPU 的统一 INT4 模型加载器：同时支持 wa4 格式与 tint4(torchao) 后端量化的非对称 INT4 格式（tint4），经 omni_xpu_kernel 的 oneDNN INT4 GEMM 原生加速。当前正式版主打 w4a16 后端（int4 权重 + 16bit 激活）。
+
+
+【[wa4 模型下载](https://pan.baidu.com/s/5OWmgfWfYzBzb1R5C7WWPMw)】         【[tint4 / torchao 模型下载](https://pan.quark.cn/s/a324b2c9881b)】
 
 项目地址：https://github.com/JWLHS/int4-omnixpu
 
