@@ -753,6 +753,7 @@ def build_cloud_drive(cloud_path):
 
 CLOUD_CSS = """  .sub-block {
     border-top: 1px solid var(--border); margin-top: 14px; padding-top: 12px;
+    padding-left: 16px;
   }
   .sub-block:first-child { border-top: none; margin-top: 0; padding-top: 0; }
   .sub-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
