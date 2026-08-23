@@ -32,9 +32,7 @@ ComfyUI这个工作台项目的更新频率很快，很多情况是 Comfyui的�
 
 我们建议是选择一个合适的整合包或者官方提供基础包作为一个“基线”，在此基础上，结合你的具体情况，由使用者主动优化五个部分，后续你要继续跟进升级自己的 ComfyUI 软件包。
 
-那么关于推荐的软件包，你可以移步到【资源汇聚】-【ComfyUI软件包】的章节
-
-地址：https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/cloud_drive_collection.html
+那么关于推荐的软件包，你可以移步到 [资源汇聚-ComfyUI软件包](https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/cloud_drive_collection.md#-comfyui-%E8%BD%AF%E4%BB%B6%E5%8C%85) 的章节
 
 ---
 
