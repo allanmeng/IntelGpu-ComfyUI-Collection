@@ -1,4 +1,4 @@
-# Intel GPU 的 ComfyUI 优化指南
+# Intel GPU 的 ComfyUI 系统优化指南
 
 > 面向普通 Intel GPU 用户：让 ComfyUI 在 Intel Arc 显卡上**更快、更稳**的完整方案。
 > 本指南配套同目录下的安装文件包使用，版本：**20260821**
@@ -106,7 +106,7 @@ ComfyUI → OmniXPU 节点(自动 patch 模型层)
 
 如果你不想手动执行命令、改配置文件，**最简单的方式**：
 
-> 把本文件夹（含本指南和全部安装包）直接交给一个 AI 助手（如 WorkBuddy / 其他支持读取本地文件的 agent），对它说：**"请阅读《Intel GPU 的 ComfyUI 优化指南.md》,按我的显卡（A770 或 B 系列）帮我完成安装、配置和验证。"**
+> 把本文件夹（含本指南和全部安装包）直接交给一个 AI 助手（如 WorkBuddy / 其他支持读取本地文件的 agent），对它说：**"请阅读《Intel GPU 的 ComfyUI 系统优化指南.md》,按我的显卡（A770 或 B 系列）帮我完成安装、配置和验证。"**
 
 AI 助手会替你完成以下全部工作：
 
@@ -133,7 +133,7 @@ AI 助手会替你完成以下全部工作：
 
 **先确认环境**（命令行执行）：
 
-```text
+```python
 python -c "import torch; print(torch.__version__, torch.xpu.is_available())"
 :: 应输出: 2.13.0+xpu True
 ```
@@ -159,7 +159,7 @@ A 系列官方原版不支持，使用社区维护者 Blackwood416 的 dg2 内�
 
 - 安装方法：
 
-  ```text
+  ```python
   python -m pip install omni_xpu_kernel-0.2.0b1+torch213.dg2-cp313-cp313-win_amd64.whl
   ```
 
@@ -177,7 +177,7 @@ A 系列官方原版不支持，使用社区维护者 Blackwood416 的 dg2 内�
 
 - 安装方法：
 
-  ```text
+  ```python
   python -m pip install omni_xpu_kernel-0.2.0b1+torch213.bmg-cp313-cp313-win_amd64.whl
   ```
 
@@ -238,7 +238,7 @@ set OMNI_XPU_REQUIRE_CUTE=0
 
 **安装文件的下载与安装**
 
-```text
+```python
 python -m pip install comfy_kitchen-0.2.31.post1-py3-none-any.whl
 ```
 
@@ -315,7 +315,7 @@ ComfyUI 更新器会按 `requirements.txt` 重装 `comfy-kitchen`（官方版，
 
 **① 内核就位**：
 
-```text
+```python
 python -c "import omni_xpu_kernel as o; print(o.__xpu_target__, o.is_available())"
 :: 期望: bmg True（A770 则为 dg2 True）
 ```
@@ -323,7 +323,7 @@ python -c "import omni_xpu_kernel as o; print(o.__xpu_target__, o.is_available()
 
 **② kitchen xpu backend**：
 
-```text
+```python
 python -c "from comfy_kitchen import list_backends; b=list_backends()['xpu']; print('xpu:', b['available'], len(b['capabilities']))"
 :: 期望: xpu: True 39
 ```

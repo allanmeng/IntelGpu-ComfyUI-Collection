@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Intel GPU 的 ComfyUI 优化指南</title>
+<title>Intel GPU 的 ComfyUI 系统优化指南</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
 body { font-family:-apple-system,'Segoe UI','Microsoft YaHei',sans-serif; color:#222; line-height:1.75; background:#f5f6f8; }
@@ -47,7 +47,7 @@ hr { border:none; border-top:1px solid #e3e6ea; margin:28px 0; }
 </head>
 <body>
 <div class="header">
-  <h1>Intel GPU 的 ComfyUI 优化指南</h1>
+  <h1>Intel GPU 的 ComfyUI 系统优化指南</h1>
   <p>Intel Arc 显卡 ComfyUI 加速方案 · 完整安装包与指南</p>
   <a class="download-btn" href="https://pan.quark.cn/s/ba0d8aa09638" target="_blank" rel="noopener">📦 下载完整安装包（夸克网盘）</a>
 </div>
@@ -103,7 +103,7 @@ hr { border:none; border-top:1px solid #e3e6ea; margin:28px 0; }
   </div>
   <div class="main">
     <div class="content">
-      <h1 id="intel-gpu-comfyui">Intel GPU 的 ComfyUI 优化指南</h1>
+      <h1 id="intel-gpu-comfyui">Intel GPU 的 ComfyUI 系统优化指南</h1>
 <blockquote>
 <p>面向普通 Intel GPU 用户：让 ComfyUI 在 Intel Arc 显卡上<strong>更快、更稳</strong>的完整方案。
 本指南配套同目录下的安装文件包使用，版本：<strong>20260821</strong></p>
@@ -238,7 +238,7 @@ hr { border:none; border-top:1px solid #e3e6ea; margin:28px 0; }
 <h3 id="0-ai">0. 不熟悉命令行？让 AI 助手帮你装</h3>
 <p>如果你不想手动执行命令、改配置文件，<strong>最简单的方式</strong>：</p>
 <blockquote>
-<p>把本文件夹（含本指南和全部安装包）直接交给一个 AI 助手（如 WorkBuddy / 其他支持读取本地文件的 agent），对它说：<strong>"请阅读《Intel GPU 的 ComfyUI 优化指南.md》,按我的显卡（A770 或 B 系列）帮我完成安装、配置和验证。"</strong></p>
+<p>把本文件夹（含本指南和全部安装包）直接交给一个 AI 助手（如 WorkBuddy / 其他支持读取本地文件的 agent），对它说：<strong>"请阅读《Intel GPU 的 ComfyUI 系统优化指南.md》,按我的显卡（A770 或 B 系列）帮我完成安装、配置和验证。"</strong></p>
 </blockquote>
 <p>AI 助手会替你完成以下全部工作：</p>
 <ul>
@@ -291,7 +291,7 @@ hr { border:none; border-top:1px solid #e3e6ea; margin:28px 0; }
 </tbody>
 </table>
 <p><strong>先确认环境</strong>（命令行执行）：</p>
-<pre><code class="language-text">python -c &quot;import torch; print(torch.__version__, torch.xpu.is_available())&quot;
+<pre><code class="language-python">python -c &quot;import torch; print(torch.__version__, torch.xpu.is_available())&quot;
 :: 应输出: 2.13.0+xpu True
 </code></pre>
 <h3 id="2-omni_xpu_kernel">2. omni_xpu_kernel 安装</h3>
@@ -311,7 +311,7 @@ hr { border:none; border-top:1px solid #e3e6ea; margin:28px 0; }
 <ul>
 <li>安装方法：</li>
 </ul>
-<p><code>text
+<p><code>python
   python -m pip install omni_xpu_kernel-0.2.0b1+torch213.dg2-cp313-cp313-win_amd64.whl</code></p>
 <h4 id="b-bmg">B 系列显卡安装（官方支持，bmg）</h4>
 <blockquote>
@@ -325,7 +325,7 @@ hr { border:none; border-top:1px solid #e3e6ea; margin:28px 0; }
 <ul>
 <li>安装方法：</li>
 </ul>
-<p><code>text
+<p><code>python
   python -m pip install omni_xpu_kernel-0.2.0b1+torch213.bmg-cp313-cp313-win_amd64.whl</code></p>
 <h3 id="3-comfyui-omnixpu">3. ComfyUI-OmniXPU 安装</h3>
 <h4 id="a770">A770 用户</h4>
@@ -363,7 +363,7 @@ set OMNI_XPU_REQUIRE_CUTE=0
 <p>kitchen 不分显卡系列，一个 wheel 通用（在本包根目录）。</p>
 </blockquote>
 <p><strong>安装文件的下载与安装</strong></p>
-<pre><code class="language-text">python -m pip install comfy_kitchen-0.2.31.post1-py3-none-any.whl
+<pre><code class="language-python">python -m pip install comfy_kitchen-0.2.31.post1-py3-none-any.whl
 </code></pre>
 <p><strong>ComfyUI 内核更新后原安装版本会失效——如何解决</strong></p>
 <p>ComfyUI 更新器会按 <code>requirements.txt</code> 重装 <code>comfy-kitchen</code>（官方版，无 xpu backend），把 XPU fork <strong>覆盖掉</strong>。症状：启动日志 <code>backends: [triton, hip, cuda, eager]</code>（没有 xpu）、GGUF 日志 <code>routing unavailable</code>。</p>
@@ -444,11 +444,11 @@ set OMNI_XPU_REQUIRE_CUTE=0
 <h2 id="_5">第四部分：验证与故障排查</h2>
 <h3 id="_6">验证清单（按顺序）</h3>
 <p><strong>① 内核就位</strong>：</p>
-<pre><code class="language-text">python -c &quot;import omni_xpu_kernel as o; print(o.__xpu_target__, o.is_available())&quot;
+<pre><code class="language-python">python -c &quot;import omni_xpu_kernel as o; print(o.__xpu_target__, o.is_available())&quot;
 :: 期望: bmg True（A770 则为 dg2 True）
 </code></pre>
 <p><strong>② kitchen xpu backend</strong>：</p>
-<pre><code class="language-text">python -c &quot;from comfy_kitchen import list_backends; b=list_backends()['xpu']; print('xpu:', b['available'], len(b['capabilities']))&quot;
+<pre><code class="language-python">python -c &quot;from comfy_kitchen import list_backends; b=list_backends()['xpu']; print('xpu:', b['available'], len(b['capabilities']))&quot;
 :: 期望: xpu: True 39
 </code></pre>
 <p><strong>③ 节点生效</strong>（重启 ComfyUI 后看启动日志）：</p>
