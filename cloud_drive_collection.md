@@ -1,4 +1,4 @@
-# Intel XPU 网盘聚合
+# Intel XPU 资源聚合
 
 ---
 
@@ -21,7 +21,7 @@ ComfyUI Portable 是一个独立打包、下载就能用的 Windows 完整版 Co
 
 选择秋叶版本作为基底，是因为秋叶启动器很好的支持了 Comfyui的内核 以及 插件的维护升级。
 
-作者也优化了ComfyUI的启动文件（bat），让Intel GPU适应更多的工作流压力
+作者也优化了ComfyUI的 [启动文件bat](https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/comfyui-start/Stable_Start_IntelArc.md)，让Intel GPU适应更多的工作流压力
 
 地址：https://pan.quark.cn/s/8263a7da1db6
 
