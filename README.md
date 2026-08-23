@@ -188,3 +188,16 @@ AI 模型动态卸载器 (AI Model Dynamic Offloader)该项目是一款 PyTorch 
 Tag: fork,官方
 
 ---
+
+## InferRef
+
+InferRef 是一个面向推理引擎开发的参考验证框架（Apache-2.0，核心 Python + 头文件-only C++），它用 PyTorch dispatcher 级 tracer 把一次模型执行固化为稳定、机器可读的参考规范（Trace IR + .irtensor 二进制张量载荷），自动识别 RoPE / Attention / RMSNorm 等语义区域并切出自包含的最小复现 testcase，让你的自定义推理引擎（CUDA / SYCL / ROCm / CPU，包括 Intel XPU）在不依赖 PyTorch、甚至不依赖 Python 的情况下，只读取 .irtensor 输入、吐出 .irtensor 输出，再通过插件化数值比较精确报告首个数值分歧点（张量名、producer 算子、模块路径、源码行与具体元素），从而解决"自写引擎算得对不对"这一核心难题；它进一步提供 doctor --device xpu 的 XPU 就绪检查、原生 C++/SYCL 引擎与确定性 XPU 测试集、可直接进 CI 的 inferref_compare（PASS=0/FAIL=1）、多适配器矩阵 suite、状态链 scenario，以及供编码 Agent 自动修复与盲评的 MCP 协议与基准，既能在升级 oneDNN / PyTorch XPU 或改动 kernel 后快速捕获数值回归，也适合作为 Intel Arc XPU 推理后端（如 omni_xpu_kernel、ComfyUI-OmniXPU）的数值回归护城河。
+
+项目地址：https://github.com/Blackwood416/InferRef
+
+作者：[@Blackwood416](https://github.com/Blackwood416)
+
+Tag: 社群
+
+---
+
