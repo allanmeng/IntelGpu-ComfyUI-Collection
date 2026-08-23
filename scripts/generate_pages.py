@@ -235,7 +235,7 @@ def render_desc(body):
 NAV_TABS = [
     ("index.html", "项目收集"),
     ("links.html", "组件下载"),
-    ("cloud_drive_collection.html", "网盘聚合"),
+    ("cloud_drive_collection.html", "资源聚合"),
     ("group.html", "互助社群"),
 ]
 
