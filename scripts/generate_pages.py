@@ -87,6 +87,28 @@ def split_sections(md_text):
     return sections
 
 
+def split_subsections(body):
+    """Split a section body into (subtitle, subbody) blocks on '### ' lines.
+
+    Returns [] when the body has no '###' lines.
+    """
+    subs = []
+    cur_title = None
+    cur = []
+    for line in body:
+        m = re.match(r"^###\s+(.*)$", line)
+        if m:
+            if cur_title is not None or any(cur):
+                subs.append((cur_title, cur))
+            cur_title = m.group(1).strip()
+            cur = []
+        else:
+            cur.append(line)
+    if cur_title is not None or any(cur):
+        subs.append((cur_title, cur))
+    return subs
+
+
 def clean_title(title):
     """Display title: keep leading icon (📖) exactly as in README, strip [fork]."""
     return re.sub(r"\s*\[fork\]\s*$", "", title).strip()
@@ -303,6 +325,46 @@ def links_card(item):
         "desc": item["desc"],
         "addr": addr_rows,
         "author": author_html,
+    }
+
+
+def cloud_sub_block(sub):
+    """One '### ' subsection inside a '## ' box: title + desc + addr + author."""
+    title, body = sub
+    desc = render_desc(body)
+    urls = extract_urls(body)
+    author = extract_author(body)
+    addr_rows = "".join(
+        '<div class="addr-row"><span class="label">%s：</span><a href="%s" target="_blank">%s</a></div>'
+        % (label, url, url)
+        for label, url in urls
+    )
+    author_html = ""
+    if author:
+        name, url, label = author
+        if url:
+            author_html = ('<div class="author-row">%s：<a href="%s" target="_blank">@%s</a></div>'
+                           % (label, url, name))
+        else:
+            author_html = '<div class="author-row">%s：@%s</div>' % (label, name)
+    return ('<div class="sub-block">'
+            '<div class="sub-title">%s</div>'
+            '<div class="card-desc">%s</div>'
+            '<div class="card-meta">%s%s</div>'
+            '</div>') % (title, desc, addr_rows, author_html)
+
+
+def cloud_card(item):
+    """cloud page card: plain links-card style, or a '## ' box with '### ' subs."""
+    if not item.get("subs"):
+        return links_card(item)
+    subs_html = "".join(cloud_sub_block(s) for s in item["subs"])
+    return """    <article class="card">
+      <div class="card-name">%(display)s</div>
+      %(subs)s
+    </article>""" % {
+        "display": item["display"],
+        "subs": subs_html,
     }
 
 
@@ -653,23 +715,29 @@ def build_links(links_path):
 
 
 def build_cloud_drive(cloud_path):
-    """cloud_drive_collection.html: same style/logic as links.html."""
+    """cloud_drive_collection.html: links-style, supports '### ' subsections inside a '## ' box."""
     with open(cloud_path, encoding="utf-8") as f:
         md = f.read()
     items = []
     for title, body in split_sections(md):
         name = clean_name(title)
+        display = clean_title(title)
+        subs = split_subsections(body)
+        if subs and subs[0][0] is not None:
+            # '## ' box containing multiple '### ' subsections
+            items.append({"name": name, "display": display, "subs": subs})
+            continue
         urls = [(lbl or "地址", u) for lbl, u in extract_urls(body)]
         if not urls:
             continue
         items.append({
             "name": name,
-            "display": clean_title(title),
+            "display": display,
             "desc": render_desc(body),
             "urls": urls,
             "author": extract_author(body),
         })
-    cards = "\n\n".join(links_card(it) for it in items)
+    cards = "\n\n".join(cloud_card(it) for it in items)
     html = (LINKS_HTML
             .replace("<title>IntelGpu-ComfyUI-Collection - Intel XPU 组件下载</title>",
                      "<title>IntelGpu-ComfyUI-Collection - Intel XPU 网盘聚合</title>")
@@ -677,9 +745,19 @@ def build_cloud_drive(cloud_path):
                      '<p class="note">Intel XPU 网盘聚合</p>')
             .replace('<a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/links.md" target="_blank">links.md 源文件</a>',
                      '<a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/cloud_drive_collection.md" target="_blank">cloud_drive_collection.md 源文件</a>')
+            .replace("  footer {", CLOUD_CSS + "  footer {")
             .replace("__NAV__", nav_html("cloud_drive_collection.html"))
             .replace("__CARDS__", cards))
     return html
+
+
+CLOUD_CSS = """  .sub-block {
+    border-top: 1px solid var(--border); margin-top: 14px; padding-top: 12px;
+  }
+  .sub-block:first-child { border-top: none; margin-top: 0; padding-top: 0; }
+  .sub-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+  .sub-block .card-meta { margin-top: 8px; }
+"""
 
 
 GROUP_CARD_HTML = """    <div class="group-hero">
