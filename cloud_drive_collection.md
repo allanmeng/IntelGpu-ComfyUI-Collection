@@ -2,7 +2,7 @@
 
 ---
 
-## 📖 ComfyUI 整合包聚合
+## 📖 ComfyUI 软件包
 
 ### ComfyUI 官方安装包 ~ 社区版
 
