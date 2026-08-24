@@ -16,10 +16,6 @@ ComfyUI这个工作台项目的更新频率很快，很多情况是 Comfyui的�
 
 不同用户对于ComfyUI的需求不同，有些偏向生图，有些偏向视频创作；这些用户的硬件环境也不同，有些显存、内存、SSD 不同；这也导致了上述五个部分的优化，在实际使用的时候侧重不同。
 
-同时，我们不建议过渡依赖整合包。整合包是Comfyui某个时刻的“快照”，肯定不能满足五部分的迭代、用户自己的物理环境情况、以及具体的工作太需求差异很大。
-
-所以，我们建议最多是将整合包或者官方提供基础包作为一个“基线”，在此基础上，结合你的具体情况，由使用者主动优化五个部分，升级自己的 ComfyUI工作台项目
-
 以下会对ComfyUI软件和这五个部分的优化展开讲述，并提供对应的关联资源。
 
 ---
@@ -97,7 +93,7 @@ ComfyUI这个工作台项目的更新频率很快，很多情况是 Comfyui的�
 
 ---
 
-## ComfyUI 系统优化（涉及系统优化指南）
+## ComfyUI 系统优化
 
 这里的"系统"指的是 **ComfyUI 在 Intel GPU 上的内核与运行时体系**——例如内核（omni-xpu-kernel）、XPU 适配的运行时（kitchen-xpu）、配合内核使用的集成插件（ComfyUI-OmniXPU）、动态显存管理（aimdo-xpu）等。它们共同构成 ComfyUI 在 Arc 显卡上真正"跑起来"的那套底层系统，是前面各层优化能否兑现的关键一环。
 
@@ -108,5 +104,5 @@ ComfyUI这个工作台项目的更新频率很快，很多情况是 Comfyui的�
 - **形成协同的整体**：内核 + 配套插件 + 显存管理（动态加载/卸载）是成套配合的，单独优化其中一块收益有限，整体成套才发挥最大效果——这也是"系统"二字的含义。
 - **解锁 Intel GPU 专属能力**：这套系统里往往包含针对 Arc 架构专门调优的实现（如 esimd 注意力、动态显存等），用上之后能获得通用方案给不了的性能与稳定性。
 
-地址：https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/intel-comfyui-guide/
+地址：【[IntelGPU的ComfyUI系统优化指南](https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/intel-comfyui-guide/)】
 
