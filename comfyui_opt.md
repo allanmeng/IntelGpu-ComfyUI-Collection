@@ -32,7 +32,7 @@ ComfyUI这个工作台项目的更新频率很快，很多情况是 Comfyui的�
 
 我们建议是选择一个合适的整合包或者官方提供基础包作为一个“基线”，在此基础上，结合你的具体情况，由使用者主动优化五个部分，后续你要继续跟进升级自己的 ComfyUI 软件包。
 
-那么关于推荐的软件包，你可以移步到 [资源汇聚-ComfyUI软件包](https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/cloud_drive_collection.md#-comfyui-%E8%BD%AF%E4%BB%B6%E5%8C%85) 的章节
+地址：[资源汇聚-ComfyUI软件包](https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/cloud_drive_collection.md#-comfyui-%E8%BD%AF%E4%BB%B6%E5%8C%85) 
 
 ---
 
@@ -47,6 +47,10 @@ ComfyUI这个工作台项目的更新频率很快，很多情况是 Comfyui的�
 - **启动更快、更稳定**：合理的参数能减少初始化时间、规避启动期的资源冲突，降低"打开即失败"的概率。
 - **资源分配更聪明**：通过 bat 可以约束显存/内存/线程行为，让 ComfyUI 在工作流执行时把算力集中在真正需要的环节上。
 
+地址：https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/comfyui-start/Stable_Start_IntelArc.md
+
+---
+
 ## ComfyUI 组件的优化
 
 组件（Component）是 ComfyUI 的**地基**——运行时、推理后端、加速库都在这层。地基不稳，上层再优化也是事倍功半。
@@ -57,7 +61,11 @@ ComfyUI这个工作台项目的更新频率很快，很多情况是 Comfyui的�
 - **兼容性与稳定性的根基**：Intel GPU 场景下，组件之间的版本匹配（如 PyTorch XPU 与 oneAPI 的配套）是能否正常出图的前提，匹配得当才能避免莫名其妙的报错和崩溃。
 - **为插件优化提供支撑**：很多第三方插件的加速能力依赖底层组件的能力，组件层升级后，上层插件能解锁的功能和性能是立竿见影的。
 
-## ComfyUI 插件的优化（用效果更好的第三方插件替换官方插件）
+地址：https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/links.html
+
+---
+
+## ComfyUI 插件的优化
 
 插件层决定了你**能用什么工具干活**。官方插件追求通用覆盖，而第三方插件往往针对特定硬件（尤其是 Intel Arc）做了专门适配，替换后体验提升最直观。
 
@@ -67,6 +75,12 @@ ComfyUI这个工作台项目的更新频率很快，很多情况是 Comfyui的�
 - **功能更贴合需求**：替换不只是"更快"，还可能是"更顺手"——更符合工作流的操作方式、更少的显存压力、更完整的硬件特性支持。
 - **避开通用实现的短板**：官方插件为了兼容所有硬件，常常走最保守的路径；第三方替代品可以激进地利用 Intel GPU 的特性，把硬件性能真正发挥出来。
 - **替换成本低、回退容易**：插件是独立模块，替换不影响其他部分，试错成本低，是性价比最高的优化手段之一。
+
+建议去使用、去拆解别人的工作流，把好用的插件做一个累积。这里提供群友做的一些插件项目。不要什么插件都装，先理解、再尝试、最后判断保留或删除。
+
+地址：【[群友的插件项目](https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/index.html)】
+
+---
 
 ## ComfyUI 模型的优化
 
@@ -79,13 +93,20 @@ ComfyUI这个工作台项目的更新频率很快，很多情况是 Comfyui的�
 - **释放硬件潜能**：Intel GPU 场景下，针对性的模型格式与参数设置能让 Arc 显卡的算力被充分利用，避免"好显卡配了不合适的模型"。
 - **一次选择，长期受益**：模型的优化大多是选型层面的工作，确定下来后每次运行都受益，是投入产出比很高的环节。
 
+地址：【[模型检测工具(model-format-verifier)](https://github.com/allanmeng/model-format-verifier)】【[魔塔社区（国内）](https://www.modelscope.cn/models)】【[Huggingface（国外）](https://huggingface.co/)】【[Civitai（国外）](https://civitai.com)】
+
+---
+
 ## ComfyUI 系统优化（涉及系统优化指南）
 
-系统层是**最容易被忽视、却最影响体验**的一环。工作流跑得慢、卡顿、掉帧，很多时候不是 ComfyUI 的问题，而是操作系统和硬件环境没有为它让路。
+这里的"系统"指的是 **ComfyUI 在 Intel GPU 上的内核与运行时体系**——例如内核（omni-xpu-kernel）、XPU 适配的运行时（kitchen-xpu）、配合内核使用的集成插件（ComfyUI-OmniXPU）、动态显存管理（aimdo-xpu）等。它们共同构成 ComfyUI 在 Arc 显卡上真正"跑起来"的那套底层系统，是前面各层优化能否兑现的关键一环。
 
 优化它的价值和意义：
 
-- **消除隐性瓶颈**：驱动、电源策略、虚拟内存、后台进程等系统因素，会在你无感知的情况下拖慢一切计算任务，系统优化是把这些隐性损耗找出来并关掉。
-- **让硬件工作在最佳状态**：Intel GPU 的调度、供电、散热策略都受系统层面控制，系统配合好了，显卡才能持续高负载稳定输出，而不是"跑一会就降频"。
-- **提升整体稳定性**：系统层面的清理与调优能显著减少运行中的随机崩溃、卡死和资源泄漏，让长时间跑大图、批量出图成为可能。
-- **一步到位，长期受益**：系统优化通常是一次性的投入，改完就不再需要反复调整，是四步中"复利"最高的一步。
+- **算力释放的最后一公里**：内核（kernel）直接决定 XPU 设备上算子与注意力等核心运算的执行效率，是前面组件层放出来的算力能否真正被榨干的决定性环节。
+- **让上层优化真正生效**：组件和插件提供的能力，最终都要经过这套运行时系统来调度执行；内核/运行时没配好，前面所有的优化都可能打折扣甚至白做。
+- **形成协同的整体**：内核 + 配套插件 + 显存管理（动态加载/卸载）是成套配合的，单独优化其中一块收益有限，整体成套才发挥最大效果——这也是"系统"二字的含义。
+- **解锁 Intel GPU 专属能力**：这套系统里往往包含针对 Arc 架构专门调优的实现（如 esimd 注意力、动态显存等），用上之后能获得通用方案给不了的性能与稳定性。
+
+地址：https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/intel-comfyui-guide/
+
