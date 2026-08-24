@@ -153,15 +153,15 @@ A 系列官方原版不支持，使用社区维护者 Blackwood416 的 dg2 内�
 
 - 安装文件（本包 `A770(dg2)/` 目录）：
 
-  ```
-  omni_xpu_kernel-0.2.0b1+torch213.dg2-cp313-cp313-win_amd64.whl
-  ```
+```
+omni_xpu_kernel-0.2.0b1+torch213.dg2-cp313-cp313-win_amd64.whl
+```
 
 - 安装方法：
 
-  ```python
-  python -m pip install omni_xpu_kernel-0.2.0b1+torch213.dg2-cp313-cp313-win_amd64.whl
-  ```
+```python
+python -m pip install omni_xpu_kernel-0.2.0b1+torch213.dg2-cp313-cp313-win_amd64.whl
+```
 
 
 #### B 系列显卡安装（官方支持，bmg）
@@ -171,15 +171,15 @@ A 系列官方原版不支持，使用社区维护者 Blackwood416 的 dg2 内�
 
 - 安装文件（本包 `B系列(bmg)/` 目录）：
 
-  ```
-  omni_xpu_kernel-0.2.0b1+torch213.bmg-cp313-cp313-win_amd64.whl
-  ```
+```
+omni_xpu_kernel-0.2.0b1+torch213.bmg-cp313-cp313-win_amd64.whl
+```
 
 - 安装方法：
 
-  ```python
-  python -m pip install omni_xpu_kernel-0.2.0b1+torch213.bmg-cp313-cp313-win_amd64.whl
-  ```
+```python
+python -m pip install omni_xpu_kernel-0.2.0b1+torch213.bmg-cp313-cp313-win_amd64.whl
+```
 
 
 
