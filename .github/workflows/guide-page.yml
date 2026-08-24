@@ -13,18 +13,44 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
+      # 只在「最新日期的指南 md」被本轮推送/修改时生成；
+      # 旧版指南 md 或其他 md 的推送不触发（生成的 index.html 不变）。
+      - name: Check latest guide md changed
+        id: check
+        run: |
+          LATEST=$(python - <<'EOF'
+          import glob, os, re
+          mds = sorted(glob.glob('intel-comfyui-guide/Intel GPU 的 ComfyUI 系统优化指南-*.md'),
+                       key=lambda p: re.search(r'-(\d{8})\.md$', p).group(1))
+          print(os.path.basename(mds[-1]))
+          EOF
+          )
+          CHANGED=$(git diff --name-only "${{ github.event.before }}" "${{ github.event.after }}")
+          echo "latest=$LATEST"
+          echo "changed=$CHANGED"
+          if echo "$CHANGED" | grep -qF "$LATEST"; then
+            echo "run_generate=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run_generate=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Install markdown
+        if: steps.check.outputs.run_generate == 'true'
         run: pip install markdown
 
       - name: Generate index.html (latest dated md)
+        if: steps.check.outputs.run_generate == 'true'
         run: python intel-comfyui-guide/build_site.py
 
       - name: Commit and push
+        if: steps.check.outputs.run_generate == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
