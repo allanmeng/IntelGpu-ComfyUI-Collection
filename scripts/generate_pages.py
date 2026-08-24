@@ -273,7 +273,7 @@ NAV_TABS = [
     ("index.html", "项目收集"),
     ("links.html", "组件下载"),
     ("cloud_drive_collection.html", "资源聚合"),
-    ("comfyui_opt.html", "平台优化"),
+    ("comfyui_opt.html", "工作台优化"),
     ("group.html", "互助社群"),
 ]
 
@@ -861,7 +861,7 @@ def build_comfyui_opt(opt_path):
     cards = "\n\n".join(cloud_card(it) for it in items)
     html = (LINKS_HTML
             .replace("<title>IntelGpu-ComfyUI-Collection - Intel XPU 组件下载</title>",
-                     "<title>IntelGpu-ComfyUI-Collection - 平台优化</title>")
+                     "<title>IntelGpu-ComfyUI-Collection - 工作台优化</title>")
             .replace('<p class="note">Intel XPU 重要组件下载地址</p>',
                      '<p class="note">面向 Intel GPU ComfyUI 的优化建议</p>')
             .replace('<a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/links.md" target="_blank">links.md 源文件</a>',
