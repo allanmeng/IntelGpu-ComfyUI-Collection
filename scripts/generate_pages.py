@@ -164,10 +164,12 @@ def extract_urls(body):
                 for u in URL_RE.findall(cell):
                     pairs.append(("", u, u, False))
             continue
-        m = re.match(r"^([^：:\s][^：:]*?)\s*[：:]\s*(.+?)\s*$", s)
+        m = re.match(r"^([^：:\s\[【][^：:]*?)\s*[：:]\s*(.+?)\s*$", s)
         if not m:
             continue
         label = m.group(1).strip()
+        if label.startswith(("作者", "维护者", "Tag")):
+            continue
         val = m.group(2).strip()
         links = MD_LINK_RE.findall(val)
         if links:
