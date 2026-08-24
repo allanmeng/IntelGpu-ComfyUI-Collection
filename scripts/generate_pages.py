@@ -150,7 +150,11 @@ def extract_tags(body):
 
 
 def extract_urls(body):
-    """Collect (label, url) pairs from body lines: 'label：url' or '| 📄 在线指南 | url |'."""
+    """Collect (label, url, text, bracket) tuples from body lines.
+
+    bracket=True when the line wraps links in 【】 (rendered inline as
+    【text】 groups on one row); False for bare-URL / table rows.
+    """
     pairs = []
     for line in body:
         s = line.strip()
@@ -158,14 +162,45 @@ def extract_urls(body):
             cells = [c.strip() for c in s.strip("|").split("|")]
             for cell in cells:
                 for u in URL_RE.findall(cell):
-                    pairs.append(("", u))
+                    pairs.append(("", u, u, False))
             continue
-        m = re.match(r"^([^：:\s][^：:]*?)\s*[：:]\s*(https?://\S+)\s*$", s)
-        if m:
-            label = m.group(1).strip()
-            url = m.group(2).strip().rstrip("，。,")
-            pairs.append((label, url))
+        m = re.match(r"^([^：:\s][^：:]*?)\s*[：:]\s*(.+?)\s*$", s)
+        if not m:
+            continue
+        label = m.group(1).strip()
+        val = m.group(2).strip()
+        links = MD_LINK_RE.findall(val)
+        if links:
+            bracket = "【" in val
+            for i, (text, url) in enumerate(links):
+                pairs.append((label if i == 0 else "", url, text, bracket))
+        elif val.startswith("http"):
+            pairs.append((label, val.rstrip("，。,"), val.rstrip("，。,"), False))
     return pairs
+
+
+def render_addr_rows(urls):
+    """Render (label, url, text, bracket) rows.
+
+    【】-style links are grouped inline on one row as 【text】;
+    bare-URL rows render one per line with an optional label.
+    """
+    rows = []
+    bracket_lbl = next((lbl for lbl, u, t, b in urls if b and lbl), "")
+    bracket = [(u, t) for lbl, u, t, b in urls if b]
+    plain = [(lbl, u, t) for lbl, u, t, b in urls if not b]
+    if bracket:
+        inner = "".join(
+            '<a href="%s" target="_blank">【%s】</a>' % (u, t)
+            for u, t in bracket
+        )
+        label_span = '<span class="label">%s：</span>' % bracket_lbl if bracket_lbl else ""
+        rows.append('<div class="addr-row">%s%s</div>' % (label_span, inner))
+    for lbl, u, t in plain:
+        label_span = '<span class="label">%s：</span>' % lbl if lbl else ""
+        rows.append('<div class="addr-row">%s<a href="%s" target="_blank">%s</a></div>'
+                    % (label_span, u, t))
+    return "".join(rows)
 
 
 def repo_from_url(url):
@@ -236,6 +271,7 @@ NAV_TABS = [
     ("index.html", "项目收集"),
     ("links.html", "组件下载"),
     ("cloud_drive_collection.html", "资源聚合"),
+    ("comfyui_opt.html", "平台优化"),
     ("group.html", "互助社群"),
 ]
 
@@ -308,11 +344,7 @@ def links_card(item):
                            % (label, url, name))
         else:
             author_html = '<div class="author-row">%s：@%s</div>' % (label, name)
-    addr_rows = "".join(
-        '<div class="addr-row"><span class="label">%s：</span><a href="%s" target="_blank">%s</a></div>'
-        % (label, url, url)
-        for label, url in item["urls"]
-    )
+    addr_rows = render_addr_rows(item["urls"])
     return """    <article class="card">
       <div class="card-name"><a href="%(link)s" target="_blank">%(display)s</a></div>
       <div class="card-desc">%(desc)s</div>
@@ -334,11 +366,7 @@ def cloud_sub_block(sub):
     desc = render_desc(body)
     urls = extract_urls(body)
     author = extract_author(body)
-    addr_rows = "".join(
-        '<div class="addr-row"><span class="label">%s：</span><a href="%s" target="_blank">%s</a></div>'
-        % (label, url, url)
-        for label, url in urls
-    )
+    addr_rows = render_addr_rows(urls)
     author_html = ""
     if author:
         name, url, label = author
@@ -698,13 +726,14 @@ def build_links(links_path):
     items = []
     for title, body in split_sections(md):
         name = clean_name(title)
-        urls = [(lbl or "地址", u) for lbl, u in extract_urls(body)]
-        if not urls:
+        desc = render_desc(body)
+        urls = [(lbl, u, t, b) for lbl, u, t, b in extract_urls(body)]
+        if not urls and not desc:
             continue
         items.append({
             "name": name,
             "display": clean_title(title),
-            "desc": render_desc(body),
+            "desc": desc,
             "urls": urls,
             "author": extract_author(body),
         })
@@ -727,13 +756,14 @@ def build_cloud_drive(cloud_path):
             # '## ' box containing multiple '### ' subsections
             items.append({"name": name, "display": display, "subs": subs})
             continue
-        urls = [(lbl or "地址", u) for lbl, u in extract_urls(body)]
-        if not urls:
+        desc = render_desc(body)
+        urls = [(lbl, u, t, b) for lbl, u, t, b in extract_urls(body)]
+        if not urls and not desc:
             continue
         items.append({
             "name": name,
             "display": display,
-            "desc": render_desc(body),
+            "desc": desc,
             "urls": urls,
             "author": extract_author(body),
         })
@@ -803,12 +833,50 @@ def build_group():
     return html
 
 
+def build_comfyui_opt(opt_path):
+    """comfyui_opt.html: platform optimization page, one card per '## ' section."""
+    with open(opt_path, encoding="utf-8") as f:
+        md = f.read()
+    items = []
+    for title, body in split_sections(md):
+        name = clean_name(title)
+        display = clean_title(title)
+        subs = split_subsections(body)
+        if subs and subs[0][0] is not None:
+            items.append({"name": name, "display": display, "subs": subs})
+            continue
+        desc = render_desc(body)
+        urls = [(lbl, u, t, b) for lbl, u, t, b in extract_urls(body)]
+        if not urls and not desc:
+            continue
+        items.append({
+            "name": name,
+            "display": display,
+            "desc": desc,
+            "urls": urls,
+            "author": extract_author(body),
+        })
+    cards = "\n\n".join(cloud_card(it) for it in items)
+    html = (LINKS_HTML
+            .replace("<title>IntelGpu-ComfyUI-Collection - Intel XPU 组件下载</title>",
+                     "<title>IntelGpu-ComfyUI-Collection - 平台优化</title>")
+            .replace('<p class="note">Intel XPU 重要组件下载地址</p>',
+                     '<p class="note">面向 Intel GPU ComfyUI 的优化建议</p>')
+            .replace('<a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/links.md" target="_blank">links.md 源文件</a>',
+                     '<a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/comfyui_opt.md" target="_blank">comfyui_opt.md 源文件</a>')
+            .replace("  footer {", CLOUD_CSS + "  footer {")
+            .replace("__NAV__", nav_html("comfyui_opt.html"))
+            .replace("__CARDS__", cards))
+    return html
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--index", action="store_true", help="generate index.html from README.md")
     ap.add_argument("--links", action="store_true", help="generate links.html from links.md")
     ap.add_argument("--cloud-drive", action="store_true", help="generate cloud_drive_collection.html from cloud_drive_collection.md")
     ap.add_argument("--group", action="store_true", help="generate group.html (static)")
+    ap.add_argument("--opt", action="store_true", help="generate comfyui_opt.html from comfyui_opt.md")
     ap.add_argument("--token", default="", help="GitHub token for API queries")
     ap.add_argument("--out-dir", default="", help="output directory (default: repo root)")
     args = ap.parse_args()
@@ -818,6 +886,7 @@ def main():
     readme_path = os.path.join(ROOT, "README.md")
     links_path = os.path.join(ROOT, "links.md")
     cloud_path = os.path.join(ROOT, "cloud_drive_collection.md")
+    opt_path = os.path.join(ROOT, "comfyui_opt.md")
 
     if args.index:
         html = build_index(readme_path, args.token)
@@ -842,6 +911,12 @@ def main():
         with open(os.path.join(out_dir, "group.html"), "w", encoding="utf-8") as f:
             f.write(html)
         print("[ok] group.html written (%d bytes)" % len(html.encode("utf-8")))
+
+    if args.opt:
+        html = build_comfyui_opt(opt_path)
+        with open(os.path.join(out_dir, "comfyui_opt.html"), "w", encoding="utf-8") as f:
+            f.write(html)
+        print("[ok] comfyui_opt.html written (%d bytes)" % len(html.encode("utf-8")))
 
 
 if __name__ == "__main__":

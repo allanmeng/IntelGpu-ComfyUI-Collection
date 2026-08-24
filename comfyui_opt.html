@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IntelGpu-ComfyUI-Collection - 平台优化</title>
+<style>
+  :root {
+    --intel-blue: #0071c5;
+    --intel-blue-dark: #005a99;
+    --bg: #f6f8fa;
+    --card: #ffffff;
+    --text: #24292f;
+    --text-muted: #57606a;
+    --border: #d0d7de;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .container { max-width: 1100px; margin: 0 auto; padding: 24px 20px 48px; }
+
+  header { text-align: center; padding: 40px 0 24px; }
+  header h1 {
+    font-size: 30px; font-weight: 700; color: var(--text);
+    display: inline-flex; align-items: center; gap: 10px;
+  }
+  header h1 .logo {
+    width: 100px; height: 100px; border-radius: 6px;
+    object-fit: contain; display: inline-block; vertical-align: middle;
+  }
+  header h1 .logo-group {
+    width: 100px; height: 100px; border-radius: 6px;
+    object-fit: contain; display: inline-block; vertical-align: middle;
+  }
+  header h1 .logo-link { display: inline-flex; align-items: center; }
+  header .note {
+    margin-top: 12px; font-size: 14px; color: var(--text-muted);
+  }
+  .chips { margin-top: 14px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .chip {
+    font-size: 12px; padding: 5px 12px; border-radius: 999px;
+    background: #e8f1fb; color: var(--intel-blue-dark); border: 1px solid #c8e0f5;
+    cursor: pointer; text-decoration: none; display: inline-block;
+  }
+  .chip-active {
+    background: var(--intel-blue); color: #fff; border-color: var(--intel-blue);
+  }
+
+  .grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 18px 20px; display: flex; flex-direction: column; gap: 10px;
+    box-shadow: 0 1px 3px rgba(31,35,40,0.06);
+    transition: box-shadow 0.15s ease;
+  }
+  .card:hover { box-shadow: 0 4px 12px rgba(31,35,40,0.12); }
+
+  .card-name { font-size: 16px; font-weight: 600; }
+  .card-name a { color: var(--text); text-decoration: none; }
+  .card-name a:hover { color: var(--intel-blue); }
+  .card-desc { font-size: 13px; color: var(--text-muted); }
+  .card-desc a { color: var(--intel-blue); text-decoration: none; }
+  .card-desc a:hover { text-decoration: underline; }
+
+  .card-meta {
+    display: flex; flex-direction: column; gap: 4px;
+    padding-top: 10px; border-top: 1px solid #eef0f2;
+  }
+  .addr-row { font-size: 13px; color: var(--text-muted); word-break: break-all; }
+  .addr-row .label { color: var(--text); margin-right: 4px; }
+  .addr-row a { color: var(--intel-blue); text-decoration: none; word-break: break-all; }
+  .addr-row a:hover { text-decoration: underline; }
+  .author-row { font-size: 13px; color: var(--text-muted); }
+  .author-row a { color: var(--intel-blue); text-decoration: none; font-weight: 600; }
+
+  .sub-block {
+    border-top: 1px solid var(--border); margin-top: 14px; padding-top: 12px;
+    padding-left: 16px;
+  }
+  .sub-block:first-child { border-top: none; margin-top: 0; padding-top: 0; }
+  .sub-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+  .sub-block .card-meta { margin-top: 8px; }
+  footer { text-align: center; margin-top: 40px; font-size: 12px; color: var(--text-muted); }
+  footer a { color: var(--intel-blue); text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1><a class="logo-link" href="group.html"><img class="logo-group" src="assets/group_logo_150.png" alt="Group"></a>IntelGpu-ComfyUI-Collection<img class="logo" src="assets/Intel_Graphics_logo.png" alt="Intel Graphics"></h1>
+    <p class="note">面向 Intel GPU ComfyUI 的优化建议</p>
+    <div class="chips">
+      <a class="chip" href="index.html">项目收集</a>
+      <a class="chip" href="links.html">组件下载</a>
+      <a class="chip" href="cloud_drive_collection.html">资源聚合</a>
+      <span class="chip chip-active">平台优化</span>
+      <a class="chip" href="group.html">互助社群</a>
+    </div>
+  </header>
+
+  <div class="grid">
+
+    <article class="card">
+      <div class="card-name"><a href="#" target="_blank">概述</a></div>
+      <div class="card-desc">ComfyUI 在 Intel GPU 上的性能，是由 ComfyUI工作台 的「启动，组件，插件，模型，系统」五个部分共同决定。<br><br>这五个部分有些是侧重速度提升、有些是侧重稳定性改善；有些做简单的文本/文件夹的替换、有些需要编译/安装 whl 实现。<br><br>宏观上五个部分没什么相关性，你单独优化哪一块，在结果是体感上，都有改善的可能。但某一部分不能太短板，导致其他部分的优化效果被抵消。<br><br>微观上五个部分有一些先后顺序，比如某些插件依赖组件的版本，启动文件中的环境变量设置，有需要某些插件存在才可以。所以你动了某一个部分，可能连锁反应到其他部分的变化与升级。<br><br>这五个部分的功能涉及到众多git项目，这些项目的迭代速度是不一致的，所以实际无法保持 ComfyUI 平台状态的最新、最好。<br><br>ComfyUI这个工作台项目的更新频率很快，很多情况是 Comfyui的更新，引起连锁反应，导致 启动、组件、插件、模型、系统 被动更新。<br><br>不同用户对于ComfyUI的需求不同，有些偏向生图，有些偏向视频创作；这些用户的硬件环境也不同，有些显存、内存、SSD 不同；这也导致了上述五个部分的优化，在实际使用的时候侧重不同。<br><br>同时，我们不建议过渡依赖整合包。整合包是Comfyui某个时刻的“快照”，肯定不能满足五部分的迭代、用户自己的物理环境情况、以及具体的工作太需求差异很大。<br><br>所以，我们建议最多是将整合包或者官方提供基础包作为一个“基线”，在此基础上，结合你的具体情况，由使用者主动优化五个部分，升级自己的 ComfyUI工作台项目<br><br>以下会对ComfyUI软件和这五个部分的优化展开讲述，并提供对应的关联资源。</div>
+      <div class="card-meta">
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-name"><a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/cloud_drive_collection.md#-comfyui-%E8%BD%AF%E4%BB%B6%E5%8C%85" target="_blank">ComfyUI 软件包的选择</a></div>
+      <div class="card-desc">网上有很多ComfyUI的整合包，其实就是把上述「启动，组件，插件，模型，系统」这五个部分，根据需求安装在ComfyUI软件包，并打包、分发。<br><br>我们不建议过渡依赖整合包。整合包是Comfyui某个时刻的“快照”，肯定不能满足五部分的迭代、用户自己的物理环境情况、以及具体的工作太需求差异很大。<br><br>我们建议是选择一个合适的整合包或者官方提供基础包作为一个“基线”，在此基础上，结合你的具体情况，由使用者主动优化五个部分，后续你要继续跟进升级自己的 ComfyUI 软件包。</div>
+      <div class="card-meta">
+<div class="addr-row"><span class="label">地址：</span><a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/cloud_drive_collection.md#-comfyui-%E8%BD%AF%E4%BB%B6%E5%8C%85" target="_blank">资源汇聚-ComfyUI软件包</a></div>      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-name"><a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/comfyui-start/Stable_Start_IntelArc.md" target="_blank">ComfyUI 启动文件（bat）的优化</a></div>
+      <div class="card-desc">启动文件是整个 ComfyUI 运行的<b>入口和总开关</b>。它决定了进程以什么参数启动、加载哪些环境、把哪些硬件能力暴露给运行时，也决定了你的电脑在跑工作流时 CPU/GPU/内存如何分工。<br><br>优化它的价值和意义：<br><br>- <b>一次配置，处处生效</b>：所有环境变量、性能开关、路径设置都集中在 bat 里，改一次就作用于之后的每一次启动，是最低成本的收益来源。<br>- <b>让 Intel GPU 以正确的方式被使用</b>：Intel Arc 的加速路径（XPU / SYCL / oneAPI 等）需要特定的启动参数才能激活，bat 是唯一能在进程创建前就完成这些设置的地方。<br>- <b>启动更快、更稳定</b>：合理的参数能减少初始化时间、规避启动期的资源冲突，降低"打开即失败"的概率。<br>- <b>资源分配更聪明</b>：通过 bat 可以约束显存/内存/线程行为，让 ComfyUI 在工作流执行时把算力集中在真正需要的环节上。</div>
+      <div class="card-meta">
+<div class="addr-row"><span class="label">地址：</span><a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/comfyui-start/Stable_Start_IntelArc.md" target="_blank">https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/comfyui-start/Stable_Start_IntelArc.md</a></div>      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-name"><a href="https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/links.html" target="_blank">ComfyUI 组件的优化</a></div>
+      <div class="card-desc">组件（Component）是 ComfyUI 的<b>地基</b>——运行时、推理后端、加速库都在这层。地基不稳，上层再优化也是事倍功半。<br><br>优化它的价值和意义：<br><br>- <b>决定性能天花板</b>：组件的版本和构建方式直接决定了 Intel GPU 的算力能被压榨到什么程度，这是其他任何优化都无法替代的基础层。<br>- <b>兼容性与稳定性的根基</b>：Intel GPU 场景下，组件之间的版本匹配（如 PyTorch XPU 与 oneAPI 的配套）是能否正常出图的前提，匹配得当才能避免莫名其妙的报错和崩溃。<br>- <b>为插件优化提供支撑</b>：很多第三方插件的加速能力依赖底层组件的能力，组件层升级后，上层插件能解锁的功能和性能是立竿见影的。</div>
+      <div class="card-meta">
+<div class="addr-row"><span class="label">地址：</span><a href="https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/links.html" target="_blank">https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/links.html</a></div>      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-name"><a href="https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/index.html" target="_blank">ComfyUI 插件的优化</a></div>
+      <div class="card-desc">插件层决定了你<b>能用什么工具干活</b>。官方插件追求通用覆盖，而第三方插件往往针对特定硬件（尤其是 Intel Arc）做了专门适配，替换后体验提升最直观。<br><br>优化它的价值和意义：<br><br>- <b>针对性更强</b>：面向 Intel GPU 场景深度优化的第三方插件，在加载速度、显存占用、执行效率上通常显著优于通用实现。<br>- <b>功能更贴合需求</b>：替换不只是"更快"，还可能是"更顺手"——更符合工作流的操作方式、更少的显存压力、更完整的硬件特性支持。<br>- <b>避开通用实现的短板</b>：官方插件为了兼容所有硬件，常常走最保守的路径；第三方替代品可以激进地利用 Intel GPU 的特性，把硬件性能真正发挥出来。<br>- <b>替换成本低、回退容易</b>：插件是独立模块，替换不影响其他部分，试错成本低，是性价比最高的优化手段之一。<br><br>建议去使用、去拆解别人的工作流，把好用的插件做一个累积。这里提供群友做的一些插件项目。不要什么插件都装，先理解、再尝试、最后判断保留或删除。</div>
+      <div class="card-meta">
+<div class="addr-row"><span class="label">地址：</span><a href="https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/index.html" target="_blank">【群友的插件项目】</a></div>      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-name"><a href="https://github.com/allanmeng/model-format-verifier" target="_blank">ComfyUI 模型的优化</a></div>
+      <div class="card-desc">模型是工作流里<b>算力消耗最大、也是决定出图质量上限</b>的部分。同样的硬件，模型的选择与使用方式不同，性能和效果可以相差很大。<br><br>优化它的价值和意义：<br><br>- <b>直接决定出图质量</b>：模型是内容生成的源头，选对模型、用对格式，才能在同样算力下获得更好的效果。<br>- <b>显著影响速度与显存</b>：模型的大小、精度（量化方式）直接决定加载时间和显存占用，优化后能让大模型跑得动、跑得快，而不是频繁爆显存。<br>- <b>释放硬件潜能</b>：Intel GPU 场景下，针对性的模型格式与参数设置能让 Arc 显卡的算力被充分利用，避免"好显卡配了不合适的模型"。<br>- <b>一次选择，长期受益</b>：模型的优化大多是选型层面的工作，确定下来后每次运行都受益，是投入产出比很高的环节。</div>
+      <div class="card-meta">
+<div class="addr-row"><span class="label">地址：</span><a href="https://github.com/allanmeng/model-format-verifier" target="_blank">【模型检测工具(model-format-verifier)】</a><a href="https://www.modelscope.cn/models" target="_blank">【魔塔社区（国内）】</a><a href="https://huggingface.co/" target="_blank">【Huggingface（国外）】</a><a href="https://civitai.com" target="_blank">【Civitai（国外）】</a></div>      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-name"><a href="https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/intel-comfyui-guide/" target="_blank">ComfyUI 系统优化（涉及系统优化指南）</a></div>
+      <div class="card-desc">这里的"系统"指的是 <b>ComfyUI 在 Intel GPU 上的内核与运行时体系</b>——例如内核（omni-xpu-kernel）、XPU 适配的运行时（kitchen-xpu）、配合内核使用的集成插件（ComfyUI-OmniXPU）、动态显存管理（aimdo-xpu）等。它们共同构成 ComfyUI 在 Arc 显卡上真正"跑起来"的那套底层系统，是前面各层优化能否兑现的关键一环。<br><br>优化它的价值和意义：<br><br>- <b>算力释放的最后一公里</b>：内核（kernel）直接决定 XPU 设备上算子与注意力等核心运算的执行效率，是前面组件层放出来的算力能否真正被榨干的决定性环节。<br>- <b>让上层优化真正生效</b>：组件和插件提供的能力，最终都要经过这套运行时系统来调度执行；内核/运行时没配好，前面所有的优化都可能打折扣甚至白做。<br>- <b>形成协同的整体</b>：内核 + 配套插件 + 显存管理（动态加载/卸载）是成套配合的，单独优化其中一块收益有限，整体成套才发挥最大效果——这也是"系统"二字的含义。<br>- <b>解锁 Intel GPU 专属能力</b>：这套系统里往往包含针对 Arc 架构专门调优的实现（如 esimd 注意力、动态显存等），用上之后能获得通用方案给不了的性能与稳定性。</div>
+      <div class="card-meta">
+<div class="addr-row"><span class="label">地址：</span><a href="https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/intel-comfyui-guide/" target="_blank">https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/intel-comfyui-guide/</a></div>      </div>
+    </article>
+
+  </div>
+
+  <footer>
+    由 <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection" target="_blank">IntelGpu-ComfyUI-Collection</a> 自动生成 ·
+    <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/comfyui_opt.md" target="_blank">comfyui_opt.md 源文件</a>
+  </footer>
+
+</div>
+</body>
+</html>
