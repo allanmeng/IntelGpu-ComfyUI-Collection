@@ -2,7 +2,7 @@
 
 ---
 
-## 📖 ComfyUI 整合包聚合
+## 📖 ComfyUI 软件包
 
 ### ComfyUI 官方安装包 ~ 社区版
 
@@ -43,7 +43,7 @@ ComfyUI Portable 是一个独立打包、下载就能用的 Windows 完整版 Co
 
 ### 备注
 
-如果你已经有自己的Comfyui，完全不需要抛弃原来的版本，你可以直接借鉴启动文件（bat），或者通过[Intel GPU 的 ComfyUI 优化指南](https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/intel-comfyui-guide/) 来完成对于你原有系统的调整，而且我们鼓励这种做法。
+如果你已经有自己的Comfyui，完全不需要抛弃原来的版本，你可以直接借鉴启动文件（bat），或者通过[Intel GPU 的 ComfyUI 系统优化指南](https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/intel-comfyui-guide/) 来完成对于你原有系统的调整，而且我们鼓励这种做法。
 
 ---
 
@@ -51,7 +51,7 @@ ComfyUI Portable 是一个独立打包、下载就能用的 Windows 完整版 Co
 
 各种 ComfyUI-Intel项目的资源备份，基础组件整合包，包含：
 
-- IntelGPU-ComfyUI-优化指南
+- IntelGPU-ComfyUI-系统优化指南
 
 - llama-cpp-python-sycl-win 编译包
 
