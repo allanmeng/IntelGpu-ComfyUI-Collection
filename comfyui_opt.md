@@ -89,7 +89,7 @@ ComfyUI这个工作台项目的更新频率很快，很多情况是 Comfyui的�
 - **释放硬件潜能**：Intel GPU 场景下，针对性的模型格式与参数设置能让 Arc 显卡的算力被充分利用，避免"好显卡配了不合适的模型"。
 - **一次选择，长期受益**：模型的优化大多是选型层面的工作，确定下来后每次运行都受益，是投入产出比很高的环节。
 
-地址：【[模型检测工具(model-format-verifier)](https://github.com/allanmeng/model-format-verifier)】【[魔塔社区（国内）](https://www.modelscope.cn/models)】【[Huggingface（国外）](https://huggingface.co/)】【[Civitai（国外）](https://civitai.com)】
+地址：【[模型格式验证工具(model-format-verifier)](https://github.com/allanmeng/model-format-verifier)】【[魔塔社区（国内）](https://www.modelscope.cn/models)】【[Huggingface（国外）](https://huggingface.co/)】【[Civitai（国外）](https://civitai.com)】
 
 ---
 
