@@ -108,7 +108,7 @@
 
     <article class="card">
       <div class="card-name"><a href="#" target="_blank">概述</a></div>
-      <div class="card-desc">ComfyUI 在 Intel GPU 上的性能，是由 ComfyUI工作台 的「启动，组件，插件，模型，系统」五个部分共同决定。<br><br>这五个部分有些是侧重速度提升、有些是侧重稳定性改善；有些做简单的文本/文件夹的替换、有些需要编译/安装 whl 实现。<br><br>宏观上五个部分没什么相关性，你单独优化哪一块，在结果是体感上，都有改善的可能。但某一部分不能太短板，导致其他部分的优化效果被抵消。<br><br>微观上五个部分有一些先后顺序，比如某些插件依赖组件的版本，启动文件中的环境变量设置，有需要某些插件存在才可以。所以你动了某一个部分，可能连锁反应到其他部分的变化与升级。<br><br>这五个部分的功能涉及到众多git项目，这些项目的迭代速度是不一致的，所以实际无法保持 ComfyUI 平台状态的最新、最好。<br><br>ComfyUI这个工作台项目的更新频率很快，很多情况是 Comfyui的更新，引起连锁反应，导致 启动、组件、插件、模型、系统 被动更新。<br><br>不同用户对于ComfyUI的需求不同，有些偏向生图，有些偏向视频创作；这些用户的硬件环境也不同，有些显存、内存、SSD 不同；这也导致了上述五个部分的优化，在实际使用的时候侧重不同。<br><br>同时，我们不建议过渡依赖整合包。整合包是Comfyui某个时刻的“快照”，肯定不能满足五部分的迭代、用户自己的物理环境情况、以及具体的工作太需求差异很大。<br><br>所以，我们建议最多是将整合包或者官方提供基础包作为一个“基线”，在此基础上，结合你的具体情况，由使用者主动优化五个部分，升级自己的 ComfyUI工作台项目<br><br>以下会对ComfyUI软件和这五个部分的优化展开讲述，并提供对应的关联资源。</div>
+      <div class="card-desc">ComfyUI 在 Intel GPU 上的性能，是由 ComfyUI工作台 的「启动，组件，插件，模型，系统」五个部分共同决定。<br><br>这五个部分有些是侧重速度提升、有些是侧重稳定性改善；有些做简单的文本/文件夹的替换、有些需要编译/安装 whl 实现。<br><br>宏观上五个部分没什么相关性，你单独优化哪一块，在结果是体感上，都有改善的可能。但某一部分不能太短板，导致其他部分的优化效果被抵消。<br><br>微观上五个部分有一些先后顺序，比如某些插件依赖组件的版本，启动文件中的环境变量设置，有需要某些插件存在才可以。所以你动了某一个部分，可能连锁反应到其他部分的变化与升级。<br><br>这五个部分的功能涉及到众多git项目，这些项目的迭代速度是不一致的，所以实际无法保持 ComfyUI 平台状态的最新、最好。<br><br>ComfyUI这个工作台项目的更新频率很快，很多情况是 Comfyui的更新，引起连锁反应，导致 启动、组件、插件、模型、系统 被动更新。<br><br>不同用户对于ComfyUI的需求不同，有些偏向生图，有些偏向视频创作；这些用户的硬件环境也不同，有些显存、内存、SSD 不同；这也导致了上述五个部分的优化，在实际使用的时候侧重不同。<br><br>以下会对ComfyUI软件和这五个部分的优化展开讲述，并提供对应的关联资源。</div>
       <div class="card-meta">
       </div>
     </article>
@@ -149,10 +149,10 @@
     </article>
 
     <article class="card">
-      <div class="card-name"><a href="https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/intel-comfyui-guide/" target="_blank">ComfyUI 系统优化（涉及系统优化指南）</a></div>
+      <div class="card-name"><a href="https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/intel-comfyui-guide/" target="_blank">ComfyUI 系统优化</a></div>
       <div class="card-desc">这里的"系统"指的是 <b>ComfyUI 在 Intel GPU 上的内核与运行时体系</b>——例如内核（omni-xpu-kernel）、XPU 适配的运行时（kitchen-xpu）、配合内核使用的集成插件（ComfyUI-OmniXPU）、动态显存管理（aimdo-xpu）等。它们共同构成 ComfyUI 在 Arc 显卡上真正"跑起来"的那套底层系统，是前面各层优化能否兑现的关键一环。<br><br>优化它的价值和意义：<br><br>- <b>算力释放的最后一公里</b>：内核（kernel）直接决定 XPU 设备上算子与注意力等核心运算的执行效率，是前面组件层放出来的算力能否真正被榨干的决定性环节。<br>- <b>让上层优化真正生效</b>：组件和插件提供的能力，最终都要经过这套运行时系统来调度执行；内核/运行时没配好，前面所有的优化都可能打折扣甚至白做。<br>- <b>形成协同的整体</b>：内核 + 配套插件 + 显存管理（动态加载/卸载）是成套配合的，单独优化其中一块收益有限，整体成套才发挥最大效果——这也是"系统"二字的含义。<br>- <b>解锁 Intel GPU 专属能力</b>：这套系统里往往包含针对 Arc 架构专门调优的实现（如 esimd 注意力、动态显存等），用上之后能获得通用方案给不了的性能与稳定性。</div>
       <div class="card-meta">
-<div class="addr-row"><span class="label">地址：</span><a href="https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/intel-comfyui-guide/" target="_blank">https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/intel-comfyui-guide/</a></div>      </div>
+<div class="addr-row"><span class="label">地址：</span><a href="https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/intel-comfyui-guide/" target="_blank">【IntelGPU的ComfyUI系统优化指南】</a></div>      </div>
     </article>
 
   </div>
