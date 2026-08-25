@@ -201,3 +201,14 @@ Tag: 社群
 
 ---
 
+## comfy-kitchen-xpu
+
+Intel XPU 集成适用于 Comfy-Org/comfy-kitchen，并由可选的 omni_xpu_kernel 原生包提供支持。该仓库保留了 Comfy Kitchen 的公共 API 和后端调度模型，并在此基础上添加了一个实验性的 Intel XPU 后端、QuantizedTensor（量化张量）集成、目标感知型伴生轮子（companion-wheel）工具，以及针对 Intel BMG 和 PTL-H GPU 的设备验证。xpu 后端代码里没有任何架构判断（搜 bmg/dg2/a770/arch 全部无匹配）——架构无关的纯 Python 适配层，它只通过 kernel 的 Python API 加速。
+
+项目地址：https://github.com/xiangyuT/comfy-kitchen-xpu
+
+作者：[@xiangyuT](https://github.com/xiangyuT)
+
+Tag: fork,官方
+
+---
