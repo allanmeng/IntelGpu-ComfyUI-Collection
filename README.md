@@ -112,6 +112,8 @@ Intel llm-scaler-omni 官方套件的独立 fork，为 **Arc A770 / DG2** 补齐
 
 【[A770专用_ComfyUI_MinMaxH3_整合包](https://pan.quark.cn/s/0f9b1816831c?pwd=S5HC)】    【[关联视频](https://www.bilibili.com/video/BV19Wbi6eEMi)】
 
+如果你找B系列（bmg）适配，请查阅[系统优化指南](https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/intel-comfyui-guide/)
+
 项目地址：https://github.com/Blackwood416/ComfyUI-OmniXPU
 
 作者：[@Blackwood416](https://github.com/Blackwood416)
@@ -126,6 +128,8 @@ Intel llm-scaler 中 omni_xpu_kernel 的独立 fork，为 **DG2（A770）** 增�
 
 
 【[A770专用_ComfyUI_MinMaxH3_整合包](https://pan.quark.cn/s/0f9b1816831c?pwd=S5HC)】    【[关联视频](https://www.bilibili.com/video/BV19Wbi6eEMi)】
+
+如果你找B系列（bmg）适配，请查阅[系统优化指南](https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/intel-comfyui-guide/)
 
 项目地址：https://github.com/Blackwood416/omni-xpu-kernel
 
