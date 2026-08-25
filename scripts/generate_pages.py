@@ -1,13 +1,21 @@
 #!/usr/bin/env python3
 """Generate static pages from Markdown sources.
 
-- index.html  <- README.md   (sorted by repo pushed_at, every repo queried via GitHub API)
-- links.html  <- links.md    (same order as source, no sorting)
+每页独立生成规则（2026-08-25 Allan 要求）：
+- index.html              <- README.md                (GitHub API 更新时间, 倒序)
+- links.html              <- links.md                 (源顺序)
+- cloud_drive_collection.html <- cloud_drive_collection.md (## box + ### 子节)
+- comfyui_opt.html        <- comfyui_opt.md           (## box + 【】链接行)
+- group.html              <- 静态
+
+每页的解析/渲染函数独立私有（_index_*/_links_*/_cloud_*/_opt_*），
+页面间不互相调用"页面语义"级函数；共享仅限纯工具
+（正则、分节、URL 提取、导航/badge 生成等无状态工具）。
 
 Usage:
   python generate_pages.py --index [--token GH_TOKEN] [--out-dir DIR]
   python generate_pages.py --links [--out-dir DIR]
-  python generate_pages.py --index --links
+  python generate_pages.py --index --links --cloud-drive --opt --group
 """
 import argparse
 import json
@@ -20,10 +28,13 @@ from datetime import datetime, timedelta, timezone
 TZ_CN = timezone(timedelta(hours=8))
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# ---------------------------------------------------------------------------
+# 纯工具（共享，无页面语义）
+# ---------------------------------------------------------------------------
 
-# ---------------------------------------------------------------------------
-# GitHub API helpers
-# ---------------------------------------------------------------------------
+URL_RE = re.compile(r"https?://[^\s)\]]+")
+MD_LINK_RE = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
+
 
 def fetch_repo_updated(repo, path, token):
     """Last default-branch commit time for a repo, optionally restricted to a path.
@@ -60,13 +71,6 @@ def fmt_cn(iso):
         return ""
 
 
-# ---------------------------------------------------------------------------
-# Markdown parsing
-# ---------------------------------------------------------------------------
-
-URL_RE = re.compile(r"https?://[^\s)\]]+")
-
-
 def split_sections(md_text):
     """Split markdown into sections starting at '## ' headers."""
     sections = []
@@ -87,28 +91,6 @@ def split_sections(md_text):
     return sections
 
 
-def split_subsections(body):
-    """Split a section body into (subtitle, subbody) blocks on '### ' lines.
-
-    Returns [] when the body has no '###' lines.
-    """
-    subs = []
-    cur_title = None
-    cur = []
-    for line in body:
-        m = re.match(r"^###\s+(.*)$", line)
-        if m:
-            if cur_title is not None or any(cur):
-                subs.append((cur_title, cur))
-            cur_title = m.group(1).strip()
-            cur = []
-        else:
-            cur.append(line)
-    if cur_title is not None or any(cur):
-        subs.append((cur_title, cur))
-    return subs
-
-
 def clean_title(title):
     """Display title: keep leading icon (📖) exactly as in README, strip [fork]."""
     return re.sub(r"\s*\[fork\]\s*$", "", title).strip()
@@ -121,90 +103,6 @@ def clean_name(title):
     return name
 
 
-def extract_author(body):
-    """Find author line -> (name, url, label) or None.
-
-    Supports '作者：' and '维护者：', both linked ('[@name](url)')
-    and plain ('@name' -> url='').
-    """
-    for line in body:
-        m = re.match(r"^\s*(作者|维护者)[：:]\s*(.+?)\s*$", line)
-        if m:
-            label = m.group(1)
-            content = m.group(2)
-            m2 = re.match(r"\[@([^\]]+)\]\(([^)]+)\)", content)
-            if m2:
-                return m2.group(1), m2.group(2), label
-            if content.startswith("@"):
-                return content[1:], "", label
-    return None
-
-
-def extract_tags(body):
-    """Find 'Tag: 官方,fork' -> ['官方', 'fork']."""
-    for line in body:
-        m = re.match(r"^\s*Tag\s*[：:]\s*(.+?)\s*$", line)
-        if m:
-            return [t.strip() for t in m.group(1).split(",") if t.strip()]
-    return []
-
-
-def extract_urls(body):
-    """Collect (label, url, text, bracket) tuples from body lines.
-
-    bracket=True when the line wraps links in 【】 (rendered inline as
-    【text】 groups on one row); False for bare-URL / table rows.
-    """
-    pairs = []
-    for line in body:
-        s = line.strip()
-        if s.startswith("|") and s.endswith("|"):
-            cells = [c.strip() for c in s.strip("|").split("|")]
-            for cell in cells:
-                for u in URL_RE.findall(cell):
-                    pairs.append(("", u, u, False))
-            continue
-        m = re.match(r"^([^：:\s\[【][^：:]*?)\s*[：:]\s*(.+?)\s*$", s)
-        if not m:
-            continue
-        label = m.group(1).strip()
-        if label.startswith(("作者", "维护者", "Tag")):
-            continue
-        val = m.group(2).strip()
-        links = MD_LINK_RE.findall(val)
-        if links:
-            bracket = "【" in val
-            for i, (text, url) in enumerate(links):
-                pairs.append((label if i == 0 else "", url, text, bracket))
-        elif val.startswith("http"):
-            pairs.append((label, val.rstrip("，。,"), val.rstrip("，。,"), False))
-    return pairs
-
-
-def render_addr_rows(urls):
-    """Render (label, url, text, bracket) rows.
-
-    【】-style links are grouped inline on one row as 【text】;
-    bare-URL rows render one per line with an optional label.
-    """
-    rows = []
-    bracket_lbl = next((lbl for lbl, u, t, b in urls if b and lbl), "")
-    bracket = [(u, t) for lbl, u, t, b in urls if b]
-    plain = [(lbl, u, t) for lbl, u, t, b in urls if not b]
-    if bracket:
-        inner = "".join(
-            '<a href="%s" target="_blank">【%s】</a>' % (u, t)
-            for u, t in bracket
-        )
-        label_span = '<span class="label">%s：</span>' % bracket_lbl if bracket_lbl else ""
-        rows.append('<div class="addr-row">%s%s</div>' % (label_span, inner))
-    for lbl, u, t in plain:
-        label_span = '<span class="label">%s：</span>' % lbl if lbl else ""
-        rows.append('<div class="addr-row">%s<a href="%s" target="_blank">%s</a></div>'
-                    % (label_span, u, t))
-    return "".join(rows)
-
-
 def repo_from_url(url):
     """Extract 'owner/repo' from a github.com URL ('/tree/...' stripped)."""
     m = re.match(r"https?://github\.com/([^/]+)/([^/#?]+)", url or "")
@@ -214,11 +112,7 @@ def repo_from_url(url):
 
 
 def repo_path_from_url(url):
-    """Return (owner/repo, subpath) from a github.com URL.
-
-    'https://github.com/intel/llm-scaler/tree/main/omni' -> ('intel/llm-scaler', 'omni')
-    'https://github.com/Blackwood416/Aila'                -> ('Blackwood416/Aila', '')
-    """
+    """Return (owner/repo, subpath) from a github.com URL."""
     m = re.match(r"https?://github\.com/([^/]+)/([^/#?]+)(?:/tree/[^/]+/(.+?))?(?:[/#?].*)?$", url or "")
     if m:
         repo = "%s/%s" % (m.group(1), m.group(2))
@@ -226,48 +120,6 @@ def repo_path_from_url(url):
         return repo, path
     return "", ""
 
-
-MD_LINK_RE = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
-
-
-def render_desc(body):
-    """Render the description area of a section as HTML.
-
-    The description area ends at the first special line
-    (项目地址/地址/作者/维护者/Tag or a bare-url row); everything after it
-    (address/author/tag metadata) is handled separately and excluded here.
-
-    Line-break rule (matches md editor semantics):
-      every source newline maps to one <br> — each non-blank line is followed
-      by a <br>, and every blank line produces one extra <br>
-      ("item + blank line + item" -> 2 <br between items).
-      Leading/trailing <br> (blank line after title / before special rows)
-      are trimmed.
-    Also converts [text](url) to links and **bold** to <b>.
-    """
-    parts = []
-    for line in body:
-        s = line.strip()
-        if not s:
-            parts.append("<br>")
-            continue
-        if s.startswith("|"):
-            continue
-        if re.match(r"^\s*(项目地址|地址|作者|维护者|Tag)\s*[：:]", s):
-            break
-        if re.match(r"^[^：:\s][^：:]*?[：:]\s*https?://\S+$", s):
-            break
-        h = MD_LINK_RE.sub(r'<a href="\2" target="_blank">\1</a>', s)
-        h = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", h)
-        parts.append(h + "<br>")
-    text = "".join(parts)
-    text = re.sub(r"^(<br>)+|(<br>)+$", "", text)
-    return text
-
-
-# ---------------------------------------------------------------------------
-# Card HTML builders
-# ---------------------------------------------------------------------------
 
 NAV_TABS = [
     ("index.html", "项目收集"),
@@ -302,7 +154,81 @@ def badge_html(tags):
     )
 
 
-def index_card(item):
+# ---------------------------------------------------------------------------
+# index.html —— README.md 独立规则
+# ---------------------------------------------------------------------------
+
+def _index_extract_author(body):
+    """'作者：'/'维护者：' 行 -> (name, url, label) 或 None（index 页私有）。"""
+    for line in body:
+        m = re.match(r"^\s*(作者|维护者)[：:]\s*(.+?)\s*$", line)
+        if m:
+            label = m.group(1)
+            content = m.group(2)
+            m2 = re.match(r"\[@([^\]]+)\]\(([^)]+)\)", content)
+            if m2:
+                return m2.group(1), m2.group(2), label
+            if content.startswith("@"):
+                return content[1:], "", label
+    return None
+
+
+def _index_extract_tags(body):
+    """'Tag: 官方,fork' -> ['官方', 'fork']（index 页私有）。"""
+    for line in body:
+        m = re.match(r"^\s*Tag\s*[：:]\s*(.+?)\s*$", line)
+        if m:
+            return [t.strip() for t in m.group(1).split(",") if t.strip()]
+    return []
+
+
+def _index_extract_urls(body):
+    """index 页地址提取：裸 URL 行（'label：https://...'）与表格行。
+
+    注意：README 描述区可能含 【链接】 行（如 '【[网盘](url)】'），
+    这类行不属于地址行，绝不能被提取（否则会污染项目地址链接）。
+    """
+    pairs = []
+    for line in body:
+        s = line.strip()
+        if s.startswith("|") and s.endswith("|"):
+            cells = [c.strip() for c in s.strip("|").split("|")]
+            for cell in cells:
+                for u in URL_RE.findall(cell):
+                    pairs.append(("", u))
+            continue
+        m = re.match(r"^([^：:\s\[【][^：:]*?)\s*[：:]\s*(https?://\S+)\s*$", s)
+        if m:
+            label = m.group(1).strip()
+            if label.startswith(("作者", "维护者", "Tag")):
+                continue
+            pairs.append((label, m.group(2).strip().rstrip("，。,")))
+    return pairs
+
+
+def _index_render_desc(body):
+    """index 页描述区渲染：到第一个特殊行（项目地址/地址/作者/维护者/Tag/裸URL）截止。"""
+    parts = []
+    for line in body:
+        s = line.strip()
+        if not s:
+            parts.append("<br>")
+            continue
+        if s.startswith("|"):
+            continue
+        if re.match(r"^\s*(项目地址|地址|作者|维护者|Tag)\s*[：:]", s):
+            break
+        if re.match(r"^[^：:\s][^：:]*?[：:]\s*https?://\S+$", s):
+            break
+        h = MD_LINK_RE.sub(r'<a href="\2" target="_blank">\1</a>', s)
+        h = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", h)
+        parts.append(h + "<br>")
+    text = "".join(parts)
+    text = re.sub(r"^(<br>)+|(<br>)+$", "", text)
+    return text
+
+
+def _index_card(item):
     tags = item["tags"]
     updated = item.get("updated") or "—"
     author_html = ""
@@ -336,71 +262,6 @@ def index_card(item):
         "author": author_html,
     }
 
-
-def links_card(item):
-    author_html = ""
-    if item.get("author"):
-        name, url, label = item["author"]
-        if url:
-            author_html = ('<div class="author-row">%s：<a href="%s" target="_blank">@%s</a></div>'
-                           % (label, url, name))
-        else:
-            author_html = '<div class="author-row">%s：@%s</div>' % (label, name)
-    addr_rows = render_addr_rows(item["urls"])
-    return """    <article class="card">
-      <div class="card-name"><a href="%(link)s" target="_blank">%(display)s</a></div>
-      <div class="card-desc">%(desc)s</div>
-      <div class="card-meta">
-%(addr)s%(author)s      </div>
-    </article>""" % {
-        "link": item["urls"][0][1] if item["urls"] else "#",
-        "display": item["display"],
-        "name": item["name"],
-        "desc": item["desc"],
-        "addr": addr_rows,
-        "author": author_html,
-    }
-
-
-def cloud_sub_block(sub):
-    """One '### ' subsection inside a '## ' box: title + desc + addr + author."""
-    title, body = sub
-    desc = render_desc(body)
-    urls = extract_urls(body)
-    author = extract_author(body)
-    addr_rows = render_addr_rows(urls)
-    author_html = ""
-    if author:
-        name, url, label = author
-        if url:
-            author_html = ('<div class="author-row">%s：<a href="%s" target="_blank">@%s</a></div>'
-                           % (label, url, name))
-        else:
-            author_html = '<div class="author-row">%s：@%s</div>' % (label, name)
-    return ('<div class="sub-block">'
-            '<div class="sub-title">%s</div>'
-            '<div class="card-desc">%s</div>'
-            '<div class="card-meta">%s%s</div>'
-            '</div>') % (title, desc, addr_rows, author_html)
-
-
-def cloud_card(item):
-    """cloud page card: plain links-card style, or a '## ' box with '### ' subs."""
-    if not item.get("subs"):
-        return links_card(item)
-    subs_html = "".join(cloud_sub_block(s) for s in item["subs"])
-    return """    <article class="card">
-      <div class="card-name">%(display)s</div>
-      %(subs)s
-    </article>""" % {
-        "display": item["display"],
-        "subs": subs_html,
-    }
-
-
-# ---------------------------------------------------------------------------
-# Page templates
-# ---------------------------------------------------------------------------
 
 INDEX_HTML = """<!DOCTYPE html>
 <html lang="zh-CN">
@@ -562,6 +423,147 @@ __CARDS__
 </html>
 """
 
+
+def build_index(readme_path, token):
+    with open(readme_path, encoding="utf-8") as f:
+        md = f.read()
+    items = []
+    for title, body in split_sections(md):
+        name = clean_name(title)
+        urls = _index_extract_urls(body)
+        if not urls:
+            continue
+        link = urls[0][1]
+        repo, subpath = repo_path_from_url(link)
+        # 子目录项目（如 intel-comfyui-guide 是主仓库内的目录，或
+        # intel/llm-scaler/tree/main/omni 这类 /tree/ 路径）：
+        # 无法用仓库级 API 拿到目录自己的更新时间，改用 commits?path= 查询。
+        # 注意：path 必须是实际目录名，不能依赖标题（标题可能被改成中文）。
+        if "allanmeng.github.io" in link:
+            # pages URL 的最后一段就是实际子目录名（如 intel-comfyui-guide）
+            repo = "allanmeng/IntelGpu-ComfyUI-Collection"
+            path = link.rstrip("/").split("/")[-1]
+        elif repo in ("allanmeng/IntelGpu-ComfyUI-Collection", ""):
+            repo = "allanmeng/IntelGpu-ComfyUI-Collection"
+            path = name
+        else:
+            path = subpath
+        items.append({
+            "name": name,
+            "display": clean_title(title),
+            "desc": _index_render_desc(body),
+            "link": link,
+            "repo": repo,
+            "path": path,
+            "author": _index_extract_author(body),
+            "tags": _index_extract_tags(body),
+            "updated": "",
+        })
+    for it in items:
+        it["updated"] = fmt_cn(fetch_repo_updated(it["repo"], it["path"], token))
+    items.sort(key=lambda x: x["updated"], reverse=True)
+    cards = "\n\n".join(_index_card(it) for it in items)
+    return (INDEX_HTML
+            .replace("__NAV__", nav_html("index.html"))
+            .replace("__CARDS__", cards))
+
+
+# ---------------------------------------------------------------------------
+# links.html —— links.md 独立规则
+# ---------------------------------------------------------------------------
+
+def _links_extract_author(body):
+    for line in body:
+        m = re.match(r"^\s*(作者|维护者)[：:]\s*(.+?)\s*$", line)
+        if m:
+            label = m.group(1)
+            content = m.group(2)
+            m2 = re.match(r"\[@([^\]]+)\]\(([^)]+)\)", content)
+            if m2:
+                return m2.group(1), m2.group(2), label
+            if content.startswith("@"):
+                return content[1:], "", label
+    return None
+
+
+def _links_extract_urls(body):
+    """links 页地址提取：'label：url[ 说明文字]' 行与表格行（独立规则）。
+
+    注意 links.md 存在 '夸克网盘下载地址：https://...  （目录：...）'
+    这类 URL 后带说明文字的地址行，必须整体提取（保留 URL）。
+    """
+    pairs = []
+    for line in body:
+        s = line.strip()
+        if s.startswith("|") and s.endswith("|"):
+            cells = [c.strip() for c in s.strip("|").split("|")]
+            for cell in cells:
+                for u in URL_RE.findall(cell):
+                    pairs.append(("", u, u))
+            continue
+        m = re.match(r"^([^：:\s\[【][^：:]*?)\s*[：:]\s*(.+?)\s*$", s)
+        if not m:
+            continue
+        label = m.group(1).strip()
+        if label.startswith(("作者", "维护者", "Tag")):
+            continue
+        val = m.group(2).strip()
+        if val.startswith("http"):
+            u = val.rstrip("，。,")
+            pairs.append((label, u, u))
+    return pairs
+
+
+def _links_render_desc(body):
+    parts = []
+    for line in body:
+        s = line.strip()
+        if not s:
+            parts.append("<br>")
+            continue
+        if s.startswith("|"):
+            continue
+        if re.match(r"^\s*(项目地址|地址|作者|维护者|Tag)\s*[：:]", s):
+            break
+        if re.match(r"^[^：:\s][^：:]*?[：:]\s*https?://\S+$", s):
+            break
+        h = MD_LINK_RE.sub(r'<a href="\2" target="_blank">\1</a>', s)
+        h = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", h)
+        parts.append(h + "<br>")
+    text = "".join(parts)
+    text = re.sub(r"^(<br>)+|(<br>)+$", "", text)
+    return text
+
+
+def _links_card(item):
+    author_html = ""
+    if item.get("author"):
+        name, url, label = item["author"]
+        if url:
+            author_html = ('<div class="author-row">%s：<a href="%s" target="_blank">@%s</a></div>'
+                           % (label, url, name))
+        else:
+            author_html = '<div class="author-row">%s：@%s</div>' % (label, name)
+    addr_rows = "".join(
+        '<div class="addr-row">%s<a href="%s" target="_blank">%s</a></div>'
+        % ('<span class="label">%s：</span>' % lbl if lbl else "", u, t)
+        for lbl, u, t in item["urls"]
+    )
+    return """    <article class="card">
+      <div class="card-name"><a href="%(link)s" target="_blank">%(display)s</a></div>
+      <div class="card-desc">%(desc)s</div>
+      <div class="card-meta">
+%(addr)s%(author)s      </div>
+    </article>""" % {
+        "link": item["urls"][0][1] if item["urls"] else "#",
+        "display": item["display"],
+        "name": item["name"],
+        "desc": item["desc"],
+        "addr": addr_rows,
+        "author": author_html,
+    }
+
+
 LINKS_HTML = """<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -674,62 +676,14 @@ __CARDS__
 """
 
 
-# ---------------------------------------------------------------------------
-# Page builders
-# ---------------------------------------------------------------------------
-
-def build_index(readme_path, token):
-    with open(readme_path, encoding="utf-8") as f:
-        md = f.read()
-    items = []
-    for title, body in split_sections(md):
-        name = clean_name(title)
-        urls = extract_urls(body)
-        if not urls:
-            continue
-        link = urls[0][1]
-        repo, subpath = repo_path_from_url(link)
-        # 子目录项目（如 intel-comfyui-guide 是主仓库内的目录，或
-        # intel/llm-scaler/tree/main/omni 这类 /tree/ 路径）：
-        # 无法用仓库级 API 拿到目录自己的更新时间，改用 commits?path= 查询。
-        # 注意：path 必须是实际目录名，不能依赖标题（标题可能被改成中文）。
-        if "allanmeng.github.io" in link:
-            # pages URL 的最后一段就是实际子目录名（如 intel-comfyui-guide）
-            repo = "allanmeng/IntelGpu-ComfyUI-Collection"
-            path = link.rstrip("/").split("/")[-1]
-        elif repo in ("allanmeng/IntelGpu-ComfyUI-Collection", ""):
-            repo = "allanmeng/IntelGpu-ComfyUI-Collection"
-            path = name
-        else:
-            path = subpath
-        items.append({
-            "name": name,
-            "display": clean_title(title),
-            "desc": render_desc(body),
-            "link": link,
-            "repo": repo,
-            "path": path,
-            "author": extract_author(body),
-            "tags": extract_tags(body),
-            "updated": "",
-        })
-    for it in items:
-        it["updated"] = fmt_cn(fetch_repo_updated(it["repo"], it["path"], token))
-    items.sort(key=lambda x: x["updated"], reverse=True)
-    cards = "\n\n".join(index_card(it) for it in items)
-    return (INDEX_HTML
-            .replace("__NAV__", nav_html("index.html"))
-            .replace("__CARDS__", cards))
-
-
 def build_links(links_path):
     with open(links_path, encoding="utf-8") as f:
         md = f.read()
     items = []
     for title, body in split_sections(md):
         name = clean_name(title)
-        desc = render_desc(body)
-        urls = [(lbl, u, t, b) for lbl, u, t, b in extract_urls(body)]
+        desc = _links_render_desc(body)
+        urls = _links_extract_urls(body)
         if not urls and not desc:
             continue
         items.append({
@@ -737,29 +691,200 @@ def build_links(links_path):
             "display": clean_title(title),
             "desc": desc,
             "urls": urls,
-            "author": extract_author(body),
+            "author": _links_extract_author(body),
         })
-    cards = "\n\n".join(links_card(it) for it in items)
+    cards = "\n\n".join(_links_card(it) for it in items)
     return (LINKS_HTML
             .replace("__NAV__", nav_html("links.html"))
             .replace("__CARDS__", cards))
 
 
+# ---------------------------------------------------------------------------
+# cloud_drive_collection.html —— cloud_drive_collection.md 独立规则
+# ---------------------------------------------------------------------------
+
+def _cloud_split_subsections(body):
+    """cloud 页：按 '### ' 拆子节（独立规则）。"""
+    subs = []
+    cur_title = None
+    cur = []
+    for line in body:
+        m = re.match(r"^###\s+(.*)$", line)
+        if m:
+            if cur_title is not None or any(cur):
+                subs.append((cur_title, cur))
+            cur_title = m.group(1).strip()
+            cur = []
+        else:
+            cur.append(line)
+    if cur_title is not None or any(cur):
+        subs.append((cur_title, cur))
+    return subs
+
+
+def _cloud_extract_author(body):
+    for line in body:
+        m = re.match(r"^\s*(作者|维护者)[：:]\s*(.+?)\s*$", line)
+        if m:
+            label = m.group(1)
+            content = m.group(2)
+            m2 = re.match(r"\[@([^\]]+)\]\(([^)]+)\)", content)
+            if m2:
+                return m2.group(1), m2.group(2), label
+            if content.startswith("@"):
+                return content[1:], "", label
+    return None
+
+
+def _cloud_extract_urls(body):
+    """cloud 页地址提取：裸 URL / [text](url) / 【[a](u1)】【[b](u2)】（独立规则）。"""
+    pairs = []
+    for line in body:
+        s = line.strip()
+        if s.startswith("|") and s.endswith("|"):
+            cells = [c.strip() for c in s.strip("|").split("|")]
+            for cell in cells:
+                for u in URL_RE.findall(cell):
+                    pairs.append(("", u, u, False))
+            continue
+        m = re.match(r"^([^：:\s\[【][^：:]*?)\s*[：:]\s*(.+?)\s*$", s)
+        if not m:
+            continue
+        label = m.group(1).strip()
+        if label.startswith(("作者", "维护者", "Tag")):
+            continue
+        val = m.group(2).strip()
+        links = MD_LINK_RE.findall(val)
+        if links:
+            bracket = "【" in val
+            for i, (text, url) in enumerate(links):
+                pairs.append((label if i == 0 else "", url, text, bracket))
+        elif val.startswith("http"):
+            pairs.append((label, val.rstrip("，。,"), val.rstrip("，。,"), False))
+    return pairs
+
+
+def _cloud_render_desc(body):
+    parts = []
+    for line in body:
+        s = line.strip()
+        if not s:
+            parts.append("<br>")
+            continue
+        if s.startswith("|"):
+            continue
+        if re.match(r"^\s*(项目地址|地址|作者|维护者|Tag)\s*[：:]", s):
+            break
+        if re.match(r"^[^：:\s][^：:]*?[：:]\s*https?://\S+$", s):
+            break
+        h = MD_LINK_RE.sub(r'<a href="\2" target="_blank">\1</a>', s)
+        h = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", h)
+        parts.append(h + "<br>")
+    text = "".join(parts)
+    text = re.sub(r"^(<br>)+|(<br>)+$", "", text)
+    return text
+
+
+def _cloud_render_addr_rows(urls):
+    """cloud 页地址行渲染：裸 URL 逐行；【】链接合并成一行【a】【b】（独立规则）。"""
+    rows = []
+    bracket_lbl = next((lbl for lbl, u, t, b in urls if b and lbl), "")
+    bracket = [(u, t) for lbl, u, t, b in urls if b]
+    plain = [(lbl, u, t) for lbl, u, t, b in urls if not b]
+    if bracket:
+        inner = "".join(
+            '<a href="%s" target="_blank">【%s】</a>' % (u, t)
+            for u, t in bracket
+        )
+        label_span = '<span class="label">%s：</span>' % bracket_lbl if bracket_lbl else ""
+        rows.append('<div class="addr-row">%s%s</div>' % (label_span, inner))
+    for lbl, u, t in plain:
+        label_span = '<span class="label">%s：</span>' % lbl if lbl else ""
+        rows.append('<div class="addr-row">%s<a href="%s" target="_blank">%s</a></div>'
+                    % (label_span, u, t))
+    return "".join(rows)
+
+
+def _cloud_sub_block(sub):
+    """cloud 页：'### ' 子节渲染（独立规则）。"""
+    title, body = sub
+    desc = _cloud_render_desc(body)
+    urls = _cloud_extract_urls(body)
+    author = _cloud_extract_author(body)
+    addr_rows = _cloud_render_addr_rows(urls)
+    author_html = ""
+    if author:
+        name, url, label = author
+        if url:
+            author_html = ('<div class="author-row">%s：<a href="%s" target="_blank">@%s</a></div>'
+                           % (label, url, name))
+        else:
+            author_html = '<div class="author-row">%s：@%s</div>' % (label, name)
+    return ('<div class="sub-block">'
+            '<div class="sub-title">%s</div>'
+            '<div class="card-desc">%s</div>'
+            '<div class="card-meta">%s%s</div>'
+            '</div>') % (title, desc, addr_rows, author_html)
+
+
+def _cloud_card(item):
+    """cloud 页卡片：普通卡或 '## ' box 含 '### ' 子节（独立规则）。"""
+    if not item.get("subs"):
+        author_html = ""
+        if item.get("author"):
+            name, url, label = item["author"]
+            if url:
+                author_html = ('<div class="author-row">%s：<a href="%s" target="_blank">@%s</a></div>'
+                               % (label, url, name))
+            else:
+                author_html = '<div class="author-row">%s：@%s</div>' % (label, name)
+        addr_rows = _cloud_render_addr_rows(item["urls"])
+        return """    <article class="card">
+      <div class="card-name"><a href="%(link)s" target="_blank">%(display)s</a></div>
+      <div class="card-desc">%(desc)s</div>
+      <div class="card-meta">
+%(addr)s%(author)s      </div>
+    </article>""" % {
+            "link": item["urls"][0][1] if item["urls"] else "#",
+            "display": item["display"],
+            "desc": item["desc"],
+            "addr": addr_rows,
+            "author": author_html,
+        }
+    subs_html = "".join(_cloud_sub_block(s) for s in item["subs"])
+    return """    <article class="card">
+      <div class="card-name">%(display)s</div>
+      %(subs)s
+    </article>""" % {
+        "display": item["display"],
+        "subs": subs_html,
+    }
+
+
+CLOUD_CSS = """  .sub-block {
+    border-top: 1px solid var(--border); margin-top: 14px; padding-top: 12px;
+    padding-left: 16px;
+  }
+  .sub-block:first-child { border-top: none; margin-top: 0; padding-top: 0; }
+  .sub-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+  .sub-block .card-meta { margin-top: 8px; }
+"""
+
+
 def build_cloud_drive(cloud_path):
-    """cloud_drive_collection.html: links-style, supports '### ' subsections inside a '## ' box."""
+    """cloud_drive_collection.html：links 样式 + '### ' 子节 box（独立规则）。"""
     with open(cloud_path, encoding="utf-8") as f:
         md = f.read()
     items = []
     for title, body in split_sections(md):
         name = clean_name(title)
         display = clean_title(title)
-        subs = split_subsections(body)
+        subs = _cloud_split_subsections(body)
         if subs and subs[0][0] is not None:
-            # '## ' box containing multiple '### ' subsections
             items.append({"name": name, "display": display, "subs": subs})
             continue
-        desc = render_desc(body)
-        urls = [(lbl, u, t, b) for lbl, u, t, b in extract_urls(body)]
+        desc = _cloud_render_desc(body)
+        urls = _cloud_extract_urls(body)
         if not urls and not desc:
             continue
         items.append({
@@ -767,9 +892,9 @@ def build_cloud_drive(cloud_path):
             "display": display,
             "desc": desc,
             "urls": urls,
-            "author": extract_author(body),
+            "author": _cloud_extract_author(body),
         })
-    cards = "\n\n".join(cloud_card(it) for it in items)
+    cards = "\n\n".join(_cloud_card(it) for it in items)
     html = (LINKS_HTML
             .replace("<title>IntelGpu-ComfyUI-Collection - Intel XPU 组件下载</title>",
                      "<title>IntelGpu-ComfyUI-Collection - Intel XPU 网盘聚合</title>")
@@ -783,7 +908,169 @@ def build_cloud_drive(cloud_path):
     return html
 
 
-CLOUD_CSS = """  .sub-block {
+# ---------------------------------------------------------------------------
+# comfyui_opt.html —— comfyui_opt.md 独立规则
+# ---------------------------------------------------------------------------
+
+def _opt_split_subsections(body):
+    """opt 页：按 '### ' 拆子节（独立规则，与 cloud 互不影响）。"""
+    subs = []
+    cur_title = None
+    cur = []
+    for line in body:
+        m = re.match(r"^###\s+(.*)$", line)
+        if m:
+            if cur_title is not None or any(cur):
+                subs.append((cur_title, cur))
+            cur_title = m.group(1).strip()
+            cur = []
+        else:
+            cur.append(line)
+    if cur_title is not None or any(cur):
+        subs.append((cur_title, cur))
+    return subs
+
+
+def _opt_extract_author(body):
+    for line in body:
+        m = re.match(r"^\s*(作者|维护者)[：:]\s*(.+?)\s*$", line)
+        if m:
+            label = m.group(1)
+            content = m.group(2)
+            m2 = re.match(r"\[@([^\]]+)\]\(([^)]+)\)", content)
+            if m2:
+                return m2.group(1), m2.group(2), label
+            if content.startswith("@"):
+                return content[1:], "", label
+    return None
+
+
+def _opt_extract_urls(body):
+    """opt 页地址提取：裸 URL / [text](url) / 【】多链接（独立规则）。"""
+    pairs = []
+    for line in body:
+        s = line.strip()
+        if s.startswith("|") and s.endswith("|"):
+            cells = [c.strip() for c in s.strip("|").split("|")]
+            for cell in cells:
+                for u in URL_RE.findall(cell):
+                    pairs.append(("", u, u, False))
+            continue
+        m = re.match(r"^([^：:\s\[【][^：:]*?)\s*[：:]\s*(.+?)\s*$", s)
+        if not m:
+            continue
+        label = m.group(1).strip()
+        if label.startswith(("作者", "维护者", "Tag")):
+            continue
+        val = m.group(2).strip()
+        links = MD_LINK_RE.findall(val)
+        if links:
+            bracket = "【" in val
+            for i, (text, url) in enumerate(links):
+                pairs.append((label if i == 0 else "", url, text, bracket))
+        elif val.startswith("http"):
+            pairs.append((label, val.rstrip("，。,"), val.rstrip("，。,"), False))
+    return pairs
+
+
+def _opt_render_desc(body):
+    parts = []
+    for line in body:
+        s = line.strip()
+        if not s:
+            parts.append("<br>")
+            continue
+        if s.startswith("|"):
+            continue
+        if re.match(r"^\s*(项目地址|地址|作者|维护者|Tag)\s*[：:]", s):
+            break
+        if re.match(r"^[^：:\s][^：:]*?[：:]\s*https?://\S+$", s):
+            break
+        h = MD_LINK_RE.sub(r'<a href="\2" target="_blank">\1</a>', s)
+        h = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", h)
+        parts.append(h + "<br>")
+    text = "".join(parts)
+    text = re.sub(r"^(<br>)+|(<br>)+$", "", text)
+    return text
+
+
+def _opt_render_addr_rows(urls):
+    """opt 页地址行渲染：【】链接合并一行 + 保留 '地址：' 标签（独立规则）。"""
+    rows = []
+    bracket_lbl = next((lbl for lbl, u, t, b in urls if b and lbl), "")
+    bracket = [(u, t) for lbl, u, t, b in urls if b]
+    plain = [(lbl, u, t) for lbl, u, t, b in urls if not b]
+    if bracket:
+        inner = "".join(
+            '<a href="%s" target="_blank">【%s】</a>' % (u, t)
+            for u, t in bracket
+        )
+        label_span = '<span class="label">%s：</span>' % bracket_lbl if bracket_lbl else ""
+        rows.append('<div class="addr-row">%s%s</div>' % (label_span, inner))
+    for lbl, u, t in plain:
+        label_span = '<span class="label">%s：</span>' % lbl if lbl else ""
+        rows.append('<div class="addr-row">%s<a href="%s" target="_blank">%s</a></div>'
+                    % (label_span, u, t))
+    return "".join(rows)
+
+
+def _opt_sub_block(sub):
+    """opt 页：'### ' 子节渲染（独立规则）。"""
+    title, body = sub
+    desc = _opt_render_desc(body)
+    urls = _opt_extract_urls(body)
+    author = _opt_extract_author(body)
+    addr_rows = _opt_render_addr_rows(urls)
+    author_html = ""
+    if author:
+        name, url, label = author
+        if url:
+            author_html = ('<div class="author-row">%s：<a href="%s" target="_blank">@%s</a></div>'
+                           % (label, url, name))
+        else:
+            author_html = '<div class="author-row">%s：@%s</div>' % (label, name)
+    return ('<div class="sub-block">'
+            '<div class="sub-title">%s</div>'
+            '<div class="card-desc">%s</div>'
+            '<div class="card-meta">%s%s</div>'
+            '</div>') % (title, desc, addr_rows, author_html)
+
+
+def _opt_card(item):
+    """opt 页卡片：普通卡或 '## ' box 含 '### ' 子节（独立规则）。"""
+    if not item.get("subs"):
+        author_html = ""
+        if item.get("author"):
+            name, url, label = item["author"]
+            if url:
+                author_html = ('<div class="author-row">%s：<a href="%s" target="_blank">@%s</a></div>'
+                               % (label, url, name))
+            else:
+                author_html = '<div class="author-row">%s：@%s</div>' % (label, name)
+        addr_rows = _opt_render_addr_rows(item["urls"])
+        return """    <article class="card">
+      <div class="card-name"><a href="%(link)s" target="_blank">%(display)s</a></div>
+      <div class="card-desc">%(desc)s</div>
+      <div class="card-meta">
+%(addr)s%(author)s      </div>
+    </article>""" % {
+            "link": item["urls"][0][1] if item["urls"] else "#",
+            "display": item["display"],
+            "desc": item["desc"],
+            "addr": addr_rows,
+            "author": author_html,
+        }
+    subs_html = "".join(_opt_sub_block(s) for s in item["subs"])
+    return """    <article class="card">
+      <div class="card-name">%(display)s</div>
+      %(subs)s
+    </article>""" % {
+        "display": item["display"],
+        "subs": subs_html,
+    }
+
+
+OPT_CSS = """  .sub-block {
     border-top: 1px solid var(--border); margin-top: 14px; padding-top: 12px;
     padding-left: 16px;
   }
@@ -792,6 +1079,47 @@ CLOUD_CSS = """  .sub-block {
   .sub-block .card-meta { margin-top: 8px; }
 """
 
+
+def build_comfyui_opt(opt_path):
+    """comfyui_opt.html：工作台优化页，每个 '## ' 一个 box（独立规则）。"""
+    with open(opt_path, encoding="utf-8") as f:
+        md = f.read()
+    items = []
+    for title, body in split_sections(md):
+        name = clean_name(title)
+        display = clean_title(title)
+        subs = _opt_split_subsections(body)
+        if subs and subs[0][0] is not None:
+            items.append({"name": name, "display": display, "subs": subs})
+            continue
+        desc = _opt_render_desc(body)
+        urls = _opt_extract_urls(body)
+        if not urls and not desc:
+            continue
+        items.append({
+            "name": name,
+            "display": display,
+            "desc": desc,
+            "urls": urls,
+            "author": _opt_extract_author(body),
+        })
+    cards = "\n\n".join(_opt_card(it) for it in items)
+    html = (LINKS_HTML
+            .replace("<title>IntelGpu-ComfyUI-Collection - Intel XPU 组件下载</title>",
+                     "<title>IntelGpu-ComfyUI-Collection - 工作台优化</title>")
+            .replace('<p class="note">Intel XPU 重要组件下载地址</p>',
+                     '<p class="note">面向 Intel GPU ComfyUI 的优化建议</p>')
+            .replace('<a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/links.md" target="_blank">links.md 源文件</a>',
+                     '<a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/comfyui_opt.md" target="_blank">comfyui_opt.md 源文件</a>')
+            .replace("  footer {", OPT_CSS + "  footer {")
+            .replace("__NAV__", nav_html("comfyui_opt.html"))
+            .replace("__CARDS__", cards))
+    return html
+
+
+# ---------------------------------------------------------------------------
+# group.html —— 静态页独立规则
+# ---------------------------------------------------------------------------
 
 GROUP_CARD_HTML = """    <div class="group-hero">
       <img alt="group_logo" src="https://github.com/user-attachments/assets/40a6707f-a438-4139-8efa-c7248d0ccb9d">
@@ -821,7 +1149,7 @@ GROUP_CSS = """  .group-hero {
 
 
 def build_group():
-    """group.html: static community page (QQ group info)."""
+    """group.html：静态社群页（独立规则，无数据源）。"""
     html = (LINKS_HTML
             .replace("<title>IntelGpu-ComfyUI-Collection - Intel XPU 组件下载</title>",
                      "<title>IntelGpu-ComfyUI-Collection - 互助社群</title>")
@@ -835,42 +1163,9 @@ def build_group():
     return html
 
 
-def build_comfyui_opt(opt_path):
-    """comfyui_opt.html: platform optimization page, one card per '## ' section."""
-    with open(opt_path, encoding="utf-8") as f:
-        md = f.read()
-    items = []
-    for title, body in split_sections(md):
-        name = clean_name(title)
-        display = clean_title(title)
-        subs = split_subsections(body)
-        if subs and subs[0][0] is not None:
-            items.append({"name": name, "display": display, "subs": subs})
-            continue
-        desc = render_desc(body)
-        urls = [(lbl, u, t, b) for lbl, u, t, b in extract_urls(body)]
-        if not urls and not desc:
-            continue
-        items.append({
-            "name": name,
-            "display": display,
-            "desc": desc,
-            "urls": urls,
-            "author": extract_author(body),
-        })
-    cards = "\n\n".join(cloud_card(it) for it in items)
-    html = (LINKS_HTML
-            .replace("<title>IntelGpu-ComfyUI-Collection - Intel XPU 组件下载</title>",
-                     "<title>IntelGpu-ComfyUI-Collection - 工作台优化</title>")
-            .replace('<p class="note">Intel XPU 重要组件下载地址</p>',
-                     '<p class="note">面向 Intel GPU ComfyUI 的优化建议</p>')
-            .replace('<a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/links.md" target="_blank">links.md 源文件</a>',
-                     '<a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/comfyui_opt.md" target="_blank">comfyui_opt.md 源文件</a>')
-            .replace("  footer {", CLOUD_CSS + "  footer {")
-            .replace("__NAV__", nav_html("comfyui_opt.html"))
-            .replace("__CARDS__", cards))
-    return html
-
+# ---------------------------------------------------------------------------
+# Entry
+# ---------------------------------------------------------------------------
 
 def main():
     ap = argparse.ArgumentParser()
