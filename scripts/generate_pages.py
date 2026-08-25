@@ -488,10 +488,12 @@ def _links_extract_urls(body):
             continue
         val = m.group(2).strip()
         if val.startswith("http"):
-            # href 必须是纯 URL；显示文字保留"URL + 说明"（如"（目录：...）"）
+            # href/文字都是纯 URL；说明文字（如"（目录：...）"）放在链接外
             u = URL_RE.search(val)
             if u:
-                pairs.append((label, u.group(0), val.rstrip("，。,")))
+                url = u.group(0)
+                suffix = val[len(url):].strip()
+                pairs.append((label, url, url, suffix))
     return pairs
 
 
@@ -526,9 +528,10 @@ def _links_card(item):
         else:
             author_html = '<div class="author-row">%s：@%s</div>' % (label, name)
     addr_rows = "".join(
-        '<div class="addr-row">%s<a href="%s" target="_blank">%s</a></div>'
-        % ('<span class="label">%s：</span>' % lbl if lbl else "", u, t)
-        for lbl, u, t in item["urls"]
+        '<div class="addr-row">%s<a href="%s" target="_blank">%s</a>%s</div>'
+        % ('<span class="label">%s：</span>' % lbl if lbl else "", u, t,
+           (" " + suf) if suf else "")
+        for lbl, u, t, suf in item["urls"]
     )
     return """    <article class="card">
       <div class="card-name"><a href="%(link)s" target="_blank">%(display)s</a></div>
