@@ -522,7 +522,7 @@ INDEX_HTML = """<!DOCTYPE html>
 
   <header>
     <h1><a class="logo-link" href="group.html"><img class="logo-group" src="assets/group_logo_150.png" alt="Group"></a>IntelGpu-ComfyUI-Collection<img class="logo" src="assets/Intel_Graphics_logo.png" alt="Intel Graphics"></h1>
-    <p class="note">以下项目多数来自社群，少量官方提供</p>
+    <p class="note">以下项目多数由社群中作者维护，少量是Intel官方维护（官方的这几个项目需要紧盯）</p>
     <div class="chips">
 __NAV__
     </div>
