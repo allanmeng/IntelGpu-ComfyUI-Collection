@@ -53,7 +53,7 @@ Tag: 社群
 
 ## model-format-verifier
 
-**MFV** 模型权重量化与打包格式的无偏验证工具，以物理证据识别 ComfyUI INT4/INT8/FP8/NF4、torchao、GGUF 等量化格式。
+MFV（Model Format Verifier）是一个无偏、交叉验证的模型量化格式逆向分析工具。 它的核心立场是"不信任文件名、不信任元数据、不信任直方图"——只以文件物理尺寸、张量结构与解包特征为硬证据，通过 nibble 缺失判据、字节 unique 组合、形状自洽性验证等交叉手段，准确识别各种模型，内置的文件名审计会逐段核验文件名声称与文件证据的一致性，并给出保留作者身份的标准化命名建议；同时提供激活位宽（W×A）推导参考。项目既是一个可直接运行的 CLI 工具，也是以五步分析范式组织的 Agent Skill 包，配套案例库与回归测试脚本。
 
 项目地址：https://github.com/allanmeng/model-format-verifier
 
