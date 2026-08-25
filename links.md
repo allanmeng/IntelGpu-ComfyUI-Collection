@@ -71,15 +71,3 @@ LLM Scaler 充分利用了 vLLM、ComfyUI、SGLang Diffusion、Xinference 等行
 DG2（A770）的 omni-xpu-kernel 地址：https://github.com/Blackwood416/omni-xpu-kernel
 
 ---
-
-## 📖 comfy-aimdo-xpu
-
-AI 模型动态卸载器 (AI Model Dynamic Offloader)该项目是一款 PyTorch 显存（VRAM）分配器。当 PyTorch 原生的显存分配器面临显存压力（不足）时，它能够实现模型权重的按需卸载（Offloading）。
-
-通过 Level Zero 后端在 Linux 和 Windows 上支持Intel XPU
-
-地址：https://github.com/xiangyuT/comfy-aimdo-xpu/
-
-作者：[@xiangyuT](https://github.com/xiangyuT)
-
----
