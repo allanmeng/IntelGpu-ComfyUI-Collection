@@ -488,8 +488,10 @@ def _links_extract_urls(body):
             continue
         val = m.group(2).strip()
         if val.startswith("http"):
-            u = val.rstrip("，。,")
-            pairs.append((label, u, u))
+            # href 必须是纯 URL；显示文字保留"URL + 说明"（如"（目录：...）"）
+            u = URL_RE.search(val)
+            if u:
+                pairs.append((label, u.group(0), val.rstrip("，。,")))
     return pairs
 
 
