@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
 """Generate static pages from Markdown sources.
 
-每页独立生成规则（2026-08-25 Allan 要求）：
-- index.html              <- README.md                (GitHub API 更新时间, 倒序)
-- links.html              <- links.md                 (源顺序)
+每页独立生成规则 + 每页独立模板（2026-08-25 Allan 要求）：
+- index.html                <- README.md                (GitHub API 更新时间, 倒序)
+- links.html                <- links.md                 (源顺序)
 - cloud_drive_collection.html <- cloud_drive_collection.md (## box + ### 子节)
-- comfyui_opt.html        <- comfyui_opt.md           (## box + 【】链接行)
-- group.html              <- 静态
+- comfyui_opt.html          <- comfyui_opt.md           (## box + 【】链接行)
+- group.html                <- 静态
 
-每页的解析/渲染函数独立私有（_index_*/_links_*/_cloud_*/_opt_*），
-页面间不互相调用"页面语义"级函数；共享仅限纯工具
-（正则、分节、URL 提取、导航/badge 生成等无状态工具）。
+每页的解析/渲染函数独立私有（_index_*/_links_*/_cloud_*/_opt_*）；
+每页的 HTML 模板完全独立（INDEX_HTML / LINKS_HTML / CLOUD_HTML / OPT_HTML / GROUP_HTML），
+调整某页的结构不影响其他页的生成。共享仅限纯工具
+（正则、split_sections、URL 提取、nav_html/badge_html）。
 
 Usage:
   python generate_pages.py --index [--token GH_TOKEN] [--out-dir DIR]
@@ -37,12 +38,7 @@ MD_LINK_RE = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
 
 
 def fetch_repo_updated(repo, path, token):
-    """Last default-branch commit time for a repo, optionally restricted to a path.
-
-    path=''      -> whole repo (latest commit on default branch)
-    path='dir/'  -> latest commit that touched that directory
-    Returns ISO string ('' on failure).
-    """
+    """Last default-branch commit time for a repo, optionally restricted to a path."""
     url = "https://api.github.com/repos/%s/commits?per_page=1" % repo
     if path:
         url += "&path=%s" % path
@@ -155,11 +151,10 @@ def badge_html(tags):
 
 
 # ---------------------------------------------------------------------------
-# index.html —— README.md 独立规则
+# index.html —— README.md 独立规则 + 独立模板 INDEX_HTML
 # ---------------------------------------------------------------------------
 
 def _index_extract_author(body):
-    """'作者：'/'维护者：' 行 -> (name, url, label) 或 None（index 页私有）。"""
     for line in body:
         m = re.match(r"^\s*(作者|维护者)[：:]\s*(.+?)\s*$", line)
         if m:
@@ -174,7 +169,6 @@ def _index_extract_author(body):
 
 
 def _index_extract_tags(body):
-    """'Tag: 官方,fork' -> ['官方', 'fork']（index 页私有）。"""
     for line in body:
         m = re.match(r"^\s*Tag\s*[：:]\s*(.+?)\s*$", line)
         if m:
@@ -183,11 +177,7 @@ def _index_extract_tags(body):
 
 
 def _index_extract_urls(body):
-    """index 页地址提取：裸 URL 行（'label：https://...'）与表格行。
-
-    注意：README 描述区可能含 【链接】 行（如 '【[网盘](url)】'），
-    这类行不属于地址行，绝不能被提取（否则会污染项目地址链接）。
-    """
+    """index 页地址提取：裸 URL 行与表格行；描述区【链接】行绝不提取。"""
     pairs = []
     for line in body:
         s = line.strip()
@@ -207,7 +197,6 @@ def _index_extract_urls(body):
 
 
 def _index_render_desc(body):
-    """index 页描述区渲染：到第一个特殊行（项目地址/地址/作者/维护者/Tag/裸URL）截止。"""
     parts = []
     for line in body:
         s = line.strip()
@@ -373,7 +362,6 @@ INDEX_HTML = """<!DOCTYPE html>
   .btn:hover { border-color: var(--intel-blue); color: var(--intel-blue); }
   .btn-primary { background: var(--intel-blue); border-color: var(--intel-blue); color: #fff; }
   .btn-primary:hover { background: var(--intel-blue-dark); color: #fff; }
-
   footer { text-align: center; margin-top: 40px; font-size: 12px; color: var(--text-muted); }
   footer a { color: var(--intel-blue); text-decoration: none; }
 </style>
@@ -435,12 +423,7 @@ def build_index(readme_path, token):
             continue
         link = urls[0][1]
         repo, subpath = repo_path_from_url(link)
-        # 子目录项目（如 intel-comfyui-guide 是主仓库内的目录，或
-        # intel/llm-scaler/tree/main/omni 这类 /tree/ 路径）：
-        # 无法用仓库级 API 拿到目录自己的更新时间，改用 commits?path= 查询。
-        # 注意：path 必须是实际目录名，不能依赖标题（标题可能被改成中文）。
         if "allanmeng.github.io" in link:
-            # pages URL 的最后一段就是实际子目录名（如 intel-comfyui-guide）
             repo = "allanmeng/IntelGpu-ComfyUI-Collection"
             path = link.rstrip("/").split("/")[-1]
         elif repo in ("allanmeng/IntelGpu-ComfyUI-Collection", ""):
@@ -469,7 +452,7 @@ def build_index(readme_path, token):
 
 
 # ---------------------------------------------------------------------------
-# links.html —— links.md 独立规则
+# links.html —— links.md 独立规则 + 独立模板 LINKS_HTML
 # ---------------------------------------------------------------------------
 
 def _links_extract_author(body):
@@ -487,11 +470,7 @@ def _links_extract_author(body):
 
 
 def _links_extract_urls(body):
-    """links 页地址提取：'label：url[ 说明文字]' 行与表格行（独立规则）。
-
-    注意 links.md 存在 '夸克网盘下载地址：https://...  （目录：...）'
-    这类 URL 后带说明文字的地址行，必须整体提取（保留 URL）。
-    """
+    """links 页地址提取：'label：url[ 说明文字]' 行与表格行（URL 后可能带说明）。"""
     pairs = []
     for line in body:
         s = line.strip()
@@ -700,11 +679,10 @@ def build_links(links_path):
 
 
 # ---------------------------------------------------------------------------
-# cloud_drive_collection.html —— cloud_drive_collection.md 独立规则
+# cloud_drive_collection.html —— 独立规则 + 独立模板 CLOUD_HTML
 # ---------------------------------------------------------------------------
 
 def _cloud_split_subsections(body):
-    """cloud 页：按 '### ' 拆子节（独立规则）。"""
     subs = []
     cur_title = None
     cur = []
@@ -737,7 +715,7 @@ def _cloud_extract_author(body):
 
 
 def _cloud_extract_urls(body):
-    """cloud 页地址提取：裸 URL / [text](url) / 【[a](u1)】【[b](u2)】（独立规则）。"""
+    """cloud 页地址提取：裸 URL / [text](url) / 【[a](u1)】【[b](u2)】。"""
     pairs = []
     for line in body:
         s = line.strip()
@@ -786,7 +764,7 @@ def _cloud_render_desc(body):
 
 
 def _cloud_render_addr_rows(urls):
-    """cloud 页地址行渲染：裸 URL 逐行；【】链接合并成一行【a】【b】（独立规则）。"""
+    """cloud 页地址行渲染：裸 URL 逐行；【】链接合并成一行【a】【b】。"""
     rows = []
     bracket_lbl = next((lbl for lbl, u, t, b in urls if b and lbl), "")
     bracket = [(u, t) for lbl, u, t, b in urls if b]
@@ -806,7 +784,7 @@ def _cloud_render_addr_rows(urls):
 
 
 def _cloud_sub_block(sub):
-    """cloud 页：'### ' 子节渲染（独立规则）。"""
+    """cloud 页：'### ' 子节渲染。"""
     title, body = sub
     desc = _cloud_render_desc(body)
     urls = _cloud_extract_urls(body)
@@ -828,7 +806,7 @@ def _cloud_sub_block(sub):
 
 
 def _cloud_card(item):
-    """cloud 页卡片：普通卡或 '## ' box 含 '### ' 子节（独立规则）。"""
+    """cloud 页卡片：普通卡或 '## ' box 含 '### ' 子节。"""
     if not item.get("subs"):
         author_html = ""
         if item.get("author"):
@@ -861,18 +839,127 @@ def _cloud_card(item):
     }
 
 
-CLOUD_CSS = """  .sub-block {
+CLOUD_HTML = """<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IntelGpu-ComfyUI-Collection - Intel XPU 网盘聚合</title>
+<style>
+  :root {
+    --intel-blue: #0071c5;
+    --intel-blue-dark: #005a99;
+    --bg: #f6f8fa;
+    --card: #ffffff;
+    --text: #24292f;
+    --text-muted: #57606a;
+    --border: #d0d7de;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .container { max-width: 1100px; margin: 0 auto; padding: 24px 20px 48px; }
+
+  header { text-align: center; padding: 40px 0 24px; }
+  header h1 {
+    font-size: 30px; font-weight: 700; color: var(--text);
+    display: inline-flex; align-items: center; gap: 10px;
+  }
+  header h1 .logo {
+    width: 100px; height: 100px; border-radius: 6px;
+    object-fit: contain; display: inline-block; vertical-align: middle;
+  }
+  header h1 .logo-group {
+    width: 100px; height: 100px; border-radius: 6px;
+    object-fit: contain; display: inline-block; vertical-align: middle;
+  }
+  header h1 .logo-link { display: inline-flex; align-items: center; }
+  header .note {
+    margin-top: 12px; font-size: 14px; color: var(--text-muted);
+  }
+  .chips { margin-top: 14px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .chip {
+    font-size: 12px; padding: 5px 12px; border-radius: 999px;
+    background: #e8f1fb; color: var(--intel-blue-dark); border: 1px solid #c8e0f5;
+    cursor: pointer; text-decoration: none; display: inline-block;
+  }
+  .chip-active {
+    background: var(--intel-blue); color: #fff; border-color: var(--intel-blue);
+  }
+
+  .grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 18px 20px; display: flex; flex-direction: column; gap: 10px;
+    box-shadow: 0 1px 3px rgba(31,35,40,0.06);
+    transition: box-shadow 0.15s ease;
+  }
+  .card:hover { box-shadow: 0 4px 12px rgba(31,35,40,0.12); }
+
+  .card-name { font-size: 16px; font-weight: 600; }
+  .card-name a { color: var(--text); text-decoration: none; }
+  .card-name a:hover { color: var(--intel-blue); }
+  .card-desc { font-size: 13px; color: var(--text-muted); }
+  .card-desc a { color: var(--intel-blue); text-decoration: none; }
+  .card-desc a:hover { text-decoration: underline; }
+
+  .card-meta {
+    display: flex; flex-direction: column; gap: 4px;
+    padding-top: 10px; border-top: 1px solid #eef0f2;
+  }
+  .addr-row { font-size: 13px; color: var(--text-muted); word-break: break-all; }
+  .addr-row .label { color: var(--text); margin-right: 4px; }
+  .addr-row a { color: var(--intel-blue); text-decoration: none; word-break: break-all; }
+  .addr-row a:hover { text-decoration: underline; }
+  .author-row { font-size: 13px; color: var(--text-muted); }
+  .author-row a { color: var(--intel-blue); text-decoration: none; font-weight: 600; }
+
+  .sub-block {
     border-top: 1px solid var(--border); margin-top: 14px; padding-top: 12px;
     padding-left: 16px;
   }
   .sub-block:first-child { border-top: none; margin-top: 0; padding-top: 0; }
   .sub-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
   .sub-block .card-meta { margin-top: 8px; }
+  footer { text-align: center; margin-top: 40px; font-size: 12px; color: var(--text-muted); }
+  footer a { color: var(--intel-blue); text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1><a class="logo-link" href="group.html"><img class="logo-group" src="assets/group_logo_150.png" alt="Group"></a>IntelGpu-ComfyUI-Collection<img class="logo" src="assets/Intel_Graphics_logo.png" alt="Intel Graphics"></h1>
+    <p class="note">Intel XPU 网盘聚合</p>
+    <div class="chips">
+__NAV__
+    </div>
+  </header>
+
+  <div class="grid">
+
+__CARDS__
+
+  </div>
+
+  <footer>
+    由 <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection" target="_blank">IntelGpu-ComfyUI-Collection</a> 自动生成 ·
+    <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/cloud_drive_collection.md" target="_blank">cloud_drive_collection.md 源文件</a>
+  </footer>
+
+</div>
+</body>
+</html>
 """
 
 
 def build_cloud_drive(cloud_path):
-    """cloud_drive_collection.html：links 样式 + '### ' 子节 box（独立规则）。"""
+    """cloud_drive_collection.html（独立模板 CLOUD_HTML，结构与其他页无关）。"""
     with open(cloud_path, encoding="utf-8") as f:
         md = f.read()
     items = []
@@ -895,25 +982,16 @@ def build_cloud_drive(cloud_path):
             "author": _cloud_extract_author(body),
         })
     cards = "\n\n".join(_cloud_card(it) for it in items)
-    html = (LINKS_HTML
-            .replace("<title>IntelGpu-ComfyUI-Collection - Intel XPU 组件下载</title>",
-                     "<title>IntelGpu-ComfyUI-Collection - Intel XPU 网盘聚合</title>")
-            .replace('<p class="note">Intel XPU 重要组件下载地址</p>',
-                     '<p class="note">Intel XPU 网盘聚合</p>')
-            .replace('<a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/links.md" target="_blank">links.md 源文件</a>',
-                     '<a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/cloud_drive_collection.md" target="_blank">cloud_drive_collection.md 源文件</a>')
-            .replace("  footer {", CLOUD_CSS + "  footer {")
+    return (CLOUD_HTML
             .replace("__NAV__", nav_html("cloud_drive_collection.html"))
             .replace("__CARDS__", cards))
-    return html
 
 
 # ---------------------------------------------------------------------------
-# comfyui_opt.html —— comfyui_opt.md 独立规则
+# comfyui_opt.html —— 独立规则 + 独立模板 OPT_HTML
 # ---------------------------------------------------------------------------
 
 def _opt_split_subsections(body):
-    """opt 页：按 '### ' 拆子节（独立规则，与 cloud 互不影响）。"""
     subs = []
     cur_title = None
     cur = []
@@ -995,7 +1073,7 @@ def _opt_render_desc(body):
 
 
 def _opt_render_addr_rows(urls):
-    """opt 页地址行渲染：【】链接合并一行 + 保留 '地址：' 标签（独立规则）。"""
+    """opt 页地址行渲染：【】链接合并一行 + 保留 '地址：' 标签。"""
     rows = []
     bracket_lbl = next((lbl for lbl, u, t, b in urls if b and lbl), "")
     bracket = [(u, t) for lbl, u, t, b in urls if b]
@@ -1015,7 +1093,7 @@ def _opt_render_addr_rows(urls):
 
 
 def _opt_sub_block(sub):
-    """opt 页：'### ' 子节渲染（独立规则）。"""
+    """opt 页：'### ' 子节渲染。"""
     title, body = sub
     desc = _opt_render_desc(body)
     urls = _opt_extract_urls(body)
@@ -1037,7 +1115,7 @@ def _opt_sub_block(sub):
 
 
 def _opt_card(item):
-    """opt 页卡片：普通卡或 '## ' box 含 '### ' 子节（独立规则）。"""
+    """opt 页卡片：普通卡或 '## ' box 含 '### ' 子节。"""
     if not item.get("subs"):
         author_html = ""
         if item.get("author"):
@@ -1070,18 +1148,127 @@ def _opt_card(item):
     }
 
 
-OPT_CSS = """  .sub-block {
+OPT_HTML = """<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IntelGpu-ComfyUI-Collection - 工作台优化</title>
+<style>
+  :root {
+    --intel-blue: #0071c5;
+    --intel-blue-dark: #005a99;
+    --bg: #f6f8fa;
+    --card: #ffffff;
+    --text: #24292f;
+    --text-muted: #57606a;
+    --border: #d0d7de;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .container { max-width: 1100px; margin: 0 auto; padding: 24px 20px 48px; }
+
+  header { text-align: center; padding: 40px 0 24px; }
+  header h1 {
+    font-size: 30px; font-weight: 700; color: var(--text);
+    display: inline-flex; align-items: center; gap: 10px;
+  }
+  header h1 .logo {
+    width: 100px; height: 100px; border-radius: 6px;
+    object-fit: contain; display: inline-block; vertical-align: middle;
+  }
+  header h1 .logo-group {
+    width: 100px; height: 100px; border-radius: 6px;
+    object-fit: contain; display: inline-block; vertical-align: middle;
+  }
+  header h1 .logo-link { display: inline-flex; align-items: center; }
+  header .note {
+    margin-top: 12px; font-size: 14px; color: var(--text-muted);
+  }
+  .chips { margin-top: 14px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .chip {
+    font-size: 12px; padding: 5px 12px; border-radius: 999px;
+    background: #e8f1fb; color: var(--intel-blue-dark); border: 1px solid #c8e0f5;
+    cursor: pointer; text-decoration: none; display: inline-block;
+  }
+  .chip-active {
+    background: var(--intel-blue); color: #fff; border-color: var(--intel-blue);
+  }
+
+  .grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 18px 20px; display: flex; flex-direction: column; gap: 10px;
+    box-shadow: 0 1px 3px rgba(31,35,40,0.06);
+    transition: box-shadow 0.15s ease;
+  }
+  .card:hover { box-shadow: 0 4px 12px rgba(31,35,40,0.12); }
+
+  .card-name { font-size: 16px; font-weight: 600; }
+  .card-name a { color: var(--text); text-decoration: none; }
+  .card-name a:hover { color: var(--intel-blue); }
+  .card-desc { font-size: 13px; color: var(--text-muted); }
+  .card-desc a { color: var(--intel-blue); text-decoration: none; }
+  .card-desc a:hover { text-decoration: underline; }
+
+  .card-meta {
+    display: flex; flex-direction: column; gap: 4px;
+    padding-top: 10px; border-top: 1px solid #eef0f2;
+  }
+  .addr-row { font-size: 13px; color: var(--text-muted); word-break: break-all; }
+  .addr-row .label { color: var(--text); margin-right: 4px; }
+  .addr-row a { color: var(--intel-blue); text-decoration: none; word-break: break-all; }
+  .addr-row a:hover { text-decoration: underline; }
+  .author-row { font-size: 13px; color: var(--text-muted); }
+  .author-row a { color: var(--intel-blue); text-decoration: none; font-weight: 600; }
+
+  .sub-block {
     border-top: 1px solid var(--border); margin-top: 14px; padding-top: 12px;
     padding-left: 16px;
   }
   .sub-block:first-child { border-top: none; margin-top: 0; padding-top: 0; }
   .sub-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
   .sub-block .card-meta { margin-top: 8px; }
+  footer { text-align: center; margin-top: 40px; font-size: 12px; color: var(--text-muted); }
+  footer a { color: var(--intel-blue); text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1><a class="logo-link" href="group.html"><img class="logo-group" src="assets/group_logo_150.png" alt="Group"></a>IntelGpu-ComfyUI-Collection<img class="logo" src="assets/Intel_Graphics_logo.png" alt="Intel Graphics"></h1>
+    <p class="note">面向 Intel GPU ComfyUI 的优化建议</p>
+    <div class="chips">
+__NAV__
+    </div>
+  </header>
+
+  <div class="grid">
+
+__CARDS__
+
+  </div>
+
+  <footer>
+    由 <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection" target="_blank">IntelGpu-ComfyUI-Collection</a> 自动生成 ·
+    <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/comfyui_opt.md" target="_blank">comfyui_opt.md 源文件</a>
+  </footer>
+
+</div>
+</body>
+</html>
 """
 
 
 def build_comfyui_opt(opt_path):
-    """comfyui_opt.html：工作台优化页，每个 '## ' 一个 box（独立规则）。"""
+    """comfyui_opt.html（独立模板 OPT_HTML，结构与其他页无关）。"""
     with open(opt_path, encoding="utf-8") as f:
         md = f.read()
     items = []
@@ -1104,21 +1291,13 @@ def build_comfyui_opt(opt_path):
             "author": _opt_extract_author(body),
         })
     cards = "\n\n".join(_opt_card(it) for it in items)
-    html = (LINKS_HTML
-            .replace("<title>IntelGpu-ComfyUI-Collection - Intel XPU 组件下载</title>",
-                     "<title>IntelGpu-ComfyUI-Collection - 工作台优化</title>")
-            .replace('<p class="note">Intel XPU 重要组件下载地址</p>',
-                     '<p class="note">面向 Intel GPU ComfyUI 的优化建议</p>')
-            .replace('<a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/links.md" target="_blank">links.md 源文件</a>',
-                     '<a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/comfyui_opt.md" target="_blank">comfyui_opt.md 源文件</a>')
-            .replace("  footer {", OPT_CSS + "  footer {")
+    return (OPT_HTML
             .replace("__NAV__", nav_html("comfyui_opt.html"))
             .replace("__CARDS__", cards))
-    return html
 
 
 # ---------------------------------------------------------------------------
-# group.html —— 静态页独立规则
+# group.html —— 静态页独立规则 + 独立模板 GROUP_HTML
 # ---------------------------------------------------------------------------
 
 GROUP_CARD_HTML = """    <div class="group-hero">
@@ -1129,7 +1308,88 @@ GROUP_CARD_HTML = """    <div class="group-hero">
       <a class="btn btn-primary btn-lg" href="https://qm.qq.com/q/gls9aI3lgA" target="_blank">加入群聊</a>
     </div>"""
 
-GROUP_CSS = """  .group-hero {
+
+GROUP_HTML = """<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IntelGpu-ComfyUI-Collection - 互助社群</title>
+<style>
+  :root {
+    --intel-blue: #0071c5;
+    --intel-blue-dark: #005a99;
+    --bg: #f6f8fa;
+    --card: #ffffff;
+    --text: #24292f;
+    --text-muted: #57606a;
+    --border: #d0d7de;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .container { max-width: 1100px; margin: 0 auto; padding: 24px 20px 48px; }
+
+  header { text-align: center; padding: 40px 0 24px; }
+  header h1 {
+    font-size: 30px; font-weight: 700; color: var(--text);
+    display: inline-flex; align-items: center; gap: 10px;
+  }
+  header h1 .logo {
+    width: 100px; height: 100px; border-radius: 6px;
+    object-fit: contain; display: inline-block; vertical-align: middle;
+  }
+  header h1 .logo-group {
+    width: 100px; height: 100px; border-radius: 6px;
+    object-fit: contain; display: inline-block; vertical-align: middle;
+  }
+  header h1 .logo-link { display: inline-flex; align-items: center; }
+  header .note {
+    margin-top: 12px; font-size: 14px; color: var(--text-muted);
+  }
+  .chips { margin-top: 14px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .chip {
+    font-size: 12px; padding: 5px 12px; border-radius: 999px;
+    background: #e8f1fb; color: var(--intel-blue-dark); border: 1px solid #c8e0f5;
+    cursor: pointer; text-decoration: none; display: inline-block;
+  }
+  .chip-active {
+    background: var(--intel-blue); color: #fff; border-color: var(--intel-blue);
+  }
+
+  .grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 18px 20px; display: flex; flex-direction: column; gap: 10px;
+    box-shadow: 0 1px 3px rgba(31,35,40,0.06);
+    transition: box-shadow 0.15s ease;
+  }
+  .card:hover { box-shadow: 0 4px 12px rgba(31,35,40,0.12); }
+
+  .card-name { font-size: 16px; font-weight: 600; }
+  .card-name a { color: var(--text); text-decoration: none; }
+  .card-name a:hover { color: var(--intel-blue); }
+  .card-desc { font-size: 13px; color: var(--text-muted); }
+  .card-desc a { color: var(--intel-blue); text-decoration: none; }
+  .card-desc a:hover { text-decoration: underline; }
+
+  .card-meta {
+    display: flex; flex-direction: column; gap: 4px;
+    padding-top: 10px; border-top: 1px solid #eef0f2;
+  }
+  .addr-row { font-size: 13px; color: var(--text-muted); word-break: break-all; }
+  .addr-row .label { color: var(--text); margin-right: 4px; }
+  .addr-row a { color: var(--intel-blue); text-decoration: none; word-break: break-all; }
+  .addr-row a:hover { text-decoration: underline; }
+  .author-row { font-size: 13px; color: var(--text-muted); }
+  .author-row a { color: var(--intel-blue); text-decoration: none; font-weight: 600; }
+
+  .group-hero {
     max-width: 520px; margin: 40px auto; text-align: center;
     background: var(--card); border: 1px solid var(--border); border-radius: 16px;
     padding: 32px 28px; box-shadow: 0 1px 3px rgba(31,35,40,0.06);
@@ -1145,22 +1405,43 @@ GROUP_CSS = """  .group-hero {
   .btn:hover { border-color: var(--intel-blue); color: var(--intel-blue); }
   .btn-primary { background: var(--intel-blue); border-color: var(--intel-blue); color: #fff; }
   .btn-primary:hover { background: var(--intel-blue-dark); color: #fff; }
+  footer { text-align: center; margin-top: 40px; font-size: 12px; color: var(--text-muted); }
+  footer a { color: var(--intel-blue); text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1><a class="logo-link" href="group.html"><img class="logo-group" src="assets/group_logo_150.png" alt="Group"></a>IntelGpu-ComfyUI-Collection<img class="logo" src="assets/Intel_Graphics_logo.png" alt="Intel Graphics"></h1>
+    <p class="note">Intel GPU &amp; ComfyUI 互助社群</p>
+    <div class="chips">
+__NAV__
+    </div>
+  </header>
+
+  <div class="grid">
+
+__CARDS__
+
+  </div>
+
+  <footer>
+    由 <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection" target="_blank">IntelGpu-ComfyUI-Collection</a> 自动生成 ·
+    group 页面（静态）
+  </footer>
+
+</div>
+</body>
+</html>
 """
 
 
 def build_group():
-    """group.html：静态社群页（独立规则，无数据源）。"""
-    html = (LINKS_HTML
-            .replace("<title>IntelGpu-ComfyUI-Collection - Intel XPU 组件下载</title>",
-                     "<title>IntelGpu-ComfyUI-Collection - 互助社群</title>")
-            .replace('<p class="note">Intel XPU 重要组件下载地址</p>',
-                     '<p class="note">Intel GPU &amp; ComfyUI 互助社群</p>')
-            .replace('<a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/links.md" target="_blank">links.md 源文件</a>',
-                     "group 页面（静态）")
-            .replace("  footer {", GROUP_CSS + "  footer {")
+    """group.html：静态社群页（独立模板 GROUP_HTML，结构与其他页无关）。"""
+    return (GROUP_HTML
             .replace("__NAV__", nav_html("group.html"))
             .replace("__CARDS__", GROUP_CARD_HTML))
-    return html
 
 
 # ---------------------------------------------------------------------------
