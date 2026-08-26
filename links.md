@@ -6,7 +6,9 @@
 
 此下载将安装适用于 Intel Arc B 系列显卡、Intel Arc A 系列显卡以及配备 Intel Arc 显卡的 Intel Core Ultra 处理器的 Intel® 显卡驱动程序。
 
-地址：https://www.intel.cn/content/www/cn/zh/download/785597/intel-arc-graphics-windows.html
+国际站：https://www.intel.com/content/www/us/en/download/785597/intel-arc-graphics-windows.html
+
+中国站：https://www.intel.cn/content/www/cn/zh/download/785597/intel-arc-graphics-windows.html
 
 ---
 
