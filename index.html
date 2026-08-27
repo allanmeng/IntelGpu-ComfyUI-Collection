@@ -128,7 +128,7 @@
   </header>
 
   <div class="sort-banner">
-    <span class="dot"></span> 项目按「最后更新时间」自动排序，每 6 小时刷新，下次刷新时间：<span id="next-refresh">—</span>
+    <span class="dot"></span> 项目按「最后更新时间」自动排序，每 2 小时刷新，下次刷新时间：<span id="next-refresh">—</span>
   </div>
 
   <div class="grid">
@@ -355,10 +355,10 @@
   (function () {
     function pad(n) { return String(n).padStart(2, "0"); }
     var now = new Date();
-    // cron 计划: UTC 00/06/12/18 (每 6 小时, GitHub Actions 用 UTC)。
+    // cron 计划: UTC 00/02/04/.../22 (每 2 小时, GitHub Actions 用 UTC)。
     // getTime() 本身就是 UTC 时间戳，用 getUTC* 计算下一个刷新点，
     // Date.UTC 构造出绝对时间，再用本地 get* 显示（自动转本地时区）。
-    var nextUtcHour = Math.floor(now.getUTCHours() / 6) * 6 + 6;
+    var nextUtcHour = Math.floor(now.getUTCHours() / 2) * 2 + 2;
     var next = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), nextUtcHour));
     document.getElementById("next-refresh").textContent =
       next.getFullYear() + "年" + pad(next.getMonth() + 1) + "月" + pad(next.getDate()) +
