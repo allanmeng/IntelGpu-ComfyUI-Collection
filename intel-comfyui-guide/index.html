@@ -89,11 +89,20 @@ hr { border:none; border-top:1px solid #e3e6ea; margin:28px 0; }
 <li><a href="#faq_1">FAQ</a></li>
 </ul>
 </li>
-<li><a href="#_8">附录：文件清单对照</a></li>
-<li><a href="#_9">感谢</a><ul>
-<li><a href="#_10">特别感谢</a></li>
+<li><a href="#_8">第六部分：内核升级后的组件检查与恢复</a><ul>
+<li><a href="#61">6.1 总览</a></li>
+<li><a href="#62-omni_xpu_kernel">6.2 omni_xpu_kernel：通常不用管</a></li>
+<li><a href="#63-comfy-kitchen">6.3 comfy-kitchen：每次升级必被覆盖</a></li>
+<li><a href="#64-comfyui-omnixpu">6.4 ComfyUI-OmniXPU：目录安全，看启动日志</a></li>
+<li><a href="#65-comfy-aimdo">6.5 comfy-aimdo：另一套部署方式</a></li>
+<li><a href="#66">6.6 升级后标准动作</a></li>
+</ul>
+</li>
+<li><a href="#_9">附录：文件清单对照</a></li>
+<li><a href="#_10">感谢</a><ul>
+<li><a href="#_11">特别感谢</a></li>
 <li><a href="#intel-gpu-comfyui_2">Intel GPU &amp; ComfyUI 折腾群</a></li>
-<li><a href="#_11">全部项目地址汇总</a></li>
+<li><a href="#_12">全部项目地址汇总</a></li>
 </ul>
 </li>
 </ul>
@@ -123,6 +132,7 @@ hr { border:none; border-top:1px solid #e3e6ea; margin:28px 0; }
 <li><a href="#第三部分安装">第三部分：安装</a></li>
 <li><a href="#第四部分验证与故障排查">第四部分：验证与故障排查</a></li>
 <li><a href="#第五部分实测数据与-faq">第五部分：实测数据与 FAQ</a></li>
+<li><a href="#第六部分内核升级后的组件检查与恢复">第六部分：内核升级后的组件检查与恢复</a></li>
 <li><a href="#附录文件清单对照">附录：文件清单对照</a></li>
 </ul>
 <hr />
@@ -238,7 +248,7 @@ hr { border:none; border-top:1px solid #e3e6ea; margin:28px 0; }
 <h3 id="0-ai">0. 不熟悉命令行？让 AI 助手帮你装</h3>
 <p>如果你不想手动执行命令、改配置文件，<strong>最简单的方式</strong>：</p>
 <blockquote>
-<p>把本文件夹（含本指南和全部安装包）直接交给一个 AI 助手（如 WorkBuddy / 其他支持读取本地文件的 agent），对它说：<strong>"请阅读《Intel GPU 的 ComfyUI 系统优化指南.md》,按我的显卡（A770 或 B 系列）帮我完成安装、配置和验证。"</strong></p>
+<p>把本文件夹（含本指南和全部安装包）直接交给一个 AI 助手（如 WorkBuddy / 其他支持读取本地文件的 agent），对它说：<strong>"请阅读《Intel GPU 的 ComfyUI 优化指南.md》,按我的显卡（A770 或 B 系列）帮我完成安装、配置和验证。"</strong></p>
 </blockquote>
 <p>AI 助手会替你完成以下全部工作：</p>
 <ul>
@@ -291,7 +301,7 @@ hr { border:none; border-top:1px solid #e3e6ea; margin:28px 0; }
 </tbody>
 </table>
 <p><strong>先确认环境</strong>（命令行执行）：</p>
-<pre><code class="language-python">python -c &quot;import torch; print(torch.__version__, torch.xpu.is_available())&quot;
+<pre><code class="language-text">python -c &quot;import torch; print(torch.__version__, torch.xpu.is_available())&quot;
 :: 应输出: 2.13.0+xpu True
 </code></pre>
 <h3 id="2-omni_xpu_kernel">2. omni_xpu_kernel 安装</h3>
@@ -307,13 +317,12 @@ hr { border:none; border-top:1px solid #e3e6ea; margin:28px 0; }
 <ul>
 <li>安装文件（本包 <code>A770(dg2)/</code> 目录）：</li>
 </ul>
-<pre><code>omni_xpu_kernel-0.2.0b1+torch213.dg2-cp313-cp313-win_amd64.whl
-</code></pre>
+<p><code>omni_xpu_kernel-0.2.0b1+torch213.dg2-cp313-cp313-win_amd64.whl</code></p>
 <ul>
 <li>安装方法：</li>
 </ul>
-<pre><code class="language-python">python -m pip install omni_xpu_kernel-0.2.0b1+torch213.dg2-cp313-cp313-win_amd64.whl
-</code></pre>
+<p><code>text
+  python -m pip install omni_xpu_kernel-0.2.0b1+torch213.dg2-cp313-cp313-win_amd64.whl</code></p>
 <h4 id="b-bmg">B 系列显卡安装（官方支持，bmg）</h4>
 <blockquote>
 <p>说明：bmg wheel 覆盖整个 BMG 系列（B580/B60/B70），内核运行时自动识别显卡型号。</p>
@@ -322,13 +331,12 @@ hr { border:none; border-top:1px solid #e3e6ea; margin:28px 0; }
 <ul>
 <li>安装文件（本包 <code>B系列(bmg)/</code> 目录）：</li>
 </ul>
-<pre><code>omni_xpu_kernel-0.2.0b1+torch213.bmg-cp313-cp313-win_amd64.whl
-</code></pre>
+<p><code>omni_xpu_kernel-0.2.0b1+torch213.bmg-cp313-cp313-win_amd64.whl</code></p>
 <ul>
 <li>安装方法：</li>
 </ul>
-<pre><code class="language-python">python -m pip install omni_xpu_kernel-0.2.0b1+torch213.bmg-cp313-cp313-win_amd64.whl
-</code></pre>
+<p><code>text
+  python -m pip install omni_xpu_kernel-0.2.0b1+torch213.bmg-cp313-cp313-win_amd64.whl</code></p>
 <h3 id="3-comfyui-omnixpu">3. ComfyUI-OmniXPU 安装</h3>
 <h4 id="a770">A770 用户</h4>
 <blockquote>
@@ -365,7 +373,7 @@ set OMNI_XPU_REQUIRE_CUTE=0
 <p>kitchen 不分显卡系列，一个 wheel 通用（在本包根目录）。</p>
 </blockquote>
 <p><strong>安装文件的下载与安装</strong></p>
-<pre><code class="language-python">python -m pip install comfy_kitchen-0.2.31.post1-py3-none-any.whl
+<pre><code class="language-text">python -m pip install comfy_kitchen-0.2.31.post1-py3-none-any.whl
 </code></pre>
 <p><strong>ComfyUI 内核更新后原安装版本会失效——如何解决</strong></p>
 <p>ComfyUI 更新器会按 <code>requirements.txt</code> 重装 <code>comfy-kitchen</code>（官方版，无 xpu backend），把 XPU fork <strong>覆盖掉</strong>。症状：启动日志 <code>backends: [triton, hip, cuda, eager]</code>（没有 xpu）、GGUF 日志 <code>routing unavailable</code>。</p>
@@ -446,11 +454,11 @@ set OMNI_XPU_REQUIRE_CUTE=0
 <h2 id="_5">第四部分：验证与故障排查</h2>
 <h3 id="_6">验证清单（按顺序）</h3>
 <p><strong>① 内核就位</strong>：</p>
-<pre><code class="language-python">python -c &quot;import omni_xpu_kernel as o; print(o.__xpu_target__, o.is_available())&quot;
+<pre><code class="language-text">python -c &quot;import omni_xpu_kernel as o; print(o.__xpu_target__, o.is_available())&quot;
 :: 期望: bmg True（A770 则为 dg2 True）
 </code></pre>
 <p><strong>② kitchen xpu backend</strong>：</p>
-<pre><code class="language-python">python -c &quot;from comfy_kitchen import list_backends; b=list_backends()['xpu']; print('xpu:', b['available'], len(b['capabilities']))&quot;
+<pre><code class="language-text">python -c &quot;from comfy_kitchen import list_backends; b=list_backends()['xpu']; print('xpu:', b['available'], len(b['capabilities']))&quot;
 :: 期望: xpu: True 39
 </code></pre>
 <p><strong>③ 节点生效</strong>（重启 ComfyUI 后看启动日志）：</p>
@@ -553,7 +561,108 @@ A：不是。OmniXPU 负责"接进 ComfyUI"（patch 模型层），kitchen 负�
 <p><strong>Q4：aimdo 为什么是测试版？</strong>
 A：上游 PR#7 已合并 master（native XPU caching allocator），但 issue #3 的"二次运行每步极慢"仍未闭环（PR#11/#12 在途）。正式修复发布后再更新本包。</p>
 <hr />
-<h2 id="_8">附录：文件清单对照</h2>
+<h2 id="_8">第六部分：内核升级后的组件检查与恢复</h2>
+<blockquote>
+<p>升级 ComfyUI 内核后（如 0.33.x → 0.34.x），按本部分检查 XPU 加速组件是否受影响、如何恢复。
+本部分为通用方法，不依赖具体版本号；恢复时以<strong>本包内提供的文件</strong>为准（版本以本包为准）。</p>
+</blockquote>
+<h3 id="61">6.1 总览</h3>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>升级会被覆盖吗</th>
+<th>恢复方式</th>
+<th>需要重新编译吗</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>omni_xpu_kernel</td>
+<td>❌ 不会（requirements 无声明）</td>
+<td>通常无需操作</td>
+<td>仅当 torch 升级时</td>
+</tr>
+<tr>
+<td>comfy-kitchen</td>
+<td>⚠️ <strong>会</strong>（requirements 固定官方版）</td>
+<td>重装本包 xpu wheel</td>
+<td>否（纯 python）</td>
+</tr>
+<tr>
+<td>ComfyUI-OmniXPU</td>
+<td>❌ 不会（custom_nodes 不被动）</td>
+<td>一般无需</td>
+<td>否</td>
+</tr>
+<tr>
+<td>comfy-aimdo</td>
+<td>❌ 不会（deploy.bat 部署）</td>
+<td>deploy.bat 重部署</td>
+<td>否（zip 含编译好的 dll）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="62-omni_xpu_kernel">6.2 omni_xpu_kernel：通常不用管</h3>
+<ul>
+<li><strong>为什么安全</strong>：<code>ComfyUI\requirements.txt</code> 里没有 kernel 条目 → 升级脚本不会重装</li>
+<li><strong>检查</strong>（可选）：</li>
+</ul>
+<pre><code class="language-python">F:\ComfyUI-aki-v3\python\python.exe -c &quot;import torch; torch.xpu.init(); import omni_xpu_kernel; print(omni_xpu_kernel.__version__, omni_xpu_kernel.is_available())&quot;
+</code></pre>
+<ul>
+<li>期望：当前版本号 + <code>True</code></li>
+<li>⚠️ <strong>唯一例外</strong>：torch 版本变了（kernel 按特定 torch ABI 编译）：</li>
+</ul>
+<pre><code class="language-python">F:\ComfyUI-aki-v3\python\python.exe -c &quot;import torch; print(torch.__version__)&quot;
+</code></pre>
+<ul>
+<li>torch 未变 → 不用管；torch 变了 → kernel 加载失败，需<strong>按新 torch 重新编译</strong>（参考内核编译说明）</li>
+</ul>
+<h3 id="63-comfy-kitchen">6.3 comfy-kitchen：每次升级必被覆盖</h3>
+<ul>
+<li><strong>原因</strong>：<code>requirements.txt</code> 固定了官方 kitchen 版本 → 升级时被官方纯版覆盖（xpu 后端丢失）</li>
+<li><strong>检查</strong>（最可靠判据是 xpu 目录是否存在）：</li>
+</ul>
+<pre><code class="language-text">查看 site-packages\comfy_kitchen\backends 目录
+</code></pre>
+<ul>
+<li>有 <code>xpu</code> 目录 → 正常；只剩 cuda/hip/eager/triton → 已被覆盖</li>
+<li><strong>恢复</strong>（重装本包 xpu wheel，无需编译）：</li>
+</ul>
+<pre><code class="language-python">F:\ComfyUI-aki-v3\python\python.exe -m pip install --force-reinstall --no-deps 本包根目录\comfy_kitchen-&lt;版本&gt;.whl
+</code></pre>
+<ul>
+<li><strong>验证</strong>：</li>
+</ul>
+<pre><code class="language-python">F:\ComfyUI-aki-v3\python\python.exe -c &quot;import torch; torch.xpu.init(); import comfy_kitchen as ck; x=ck.list_backends().get('xpu',{}); print(x.get('available'), len(x.get('capabilities') or []))&quot;
+</code></pre>
+<ul>
+<li>期望：<code>True</code> + capabilities 数量 &gt; 0</li>
+</ul>
+<h3 id="64-comfyui-omnixpu">6.4 ComfyUI-OmniXPU：目录安全，看启动日志</h3>
+<ul>
+<li>custom_nodes 目录由用户手工管理，升级脚本不碰</li>
+<li><strong>检查</strong>：<code>custom_nodes\ComfyUI-OmniXPU\adapters</code> 目录完整（含 seedvr 等最新适配器）</li>
+<li><strong>验证</strong>：启动日志应见 <code>[OmniXPU] adapter applied</code>（norm/fp8/int8_ffn/seedvr_* 等）；若缺失或报 patch 目标找不到 → 内核 API 变了，需等插件更新</li>
+<li><strong>恢复</strong>：插件丢失/损坏时，重新解压本包 <code>B系列(bmg)\ComfyUI-OmniXPU...zip</code> 到 <code>custom_nodes\</code></li>
+</ul>
+<h3 id="65-comfy-aimdo">6.5 comfy-aimdo：另一套部署方式</h3>
+<ul>
+<li>通过 <code>deploy.bat</code> 部署到 <code>site-packages\comfy_aimdo</code>，<strong>非 pip 包 → 不会被覆盖</strong></li>
+<li><strong>检查</strong>：<code>site-packages\comfy_aimdo</code> 存在 + 启动 bat 里有 <code>--enable-dynamic-vram</code></li>
+<li><strong>更新</strong>：用最新版 zip 内的 <code>deploy.bat</code> 重新部署（自动备份旧包）</li>
+<li><strong>注意</strong>：内核升级后需<strong>实测工作流</strong>（aimdo 与 ComfyUI 接口联动，验证无回归）</li>
+</ul>
+<h3 id="66">6.6 升级后标准动作</h3>
+<ol>
+<li><strong>查 torch 版本</strong> → 决定 kernel 是否需要重编译</li>
+<li><strong>重装 kitchen</strong>（必做）→ 检测 xpu 后端 → 重装本包 wheel → 验证</li>
+<li><strong>看 OmniXPU 启动日志</strong> → adapter applied 是否完整</li>
+<li><strong>实测 aimdo</strong> → deploy 状态 + 工作流验证</li>
+</ol>
+<hr />
+<h2 id="_9">附录：文件清单对照</h2>
 <pre><code>IntelGPU-ComfyUI-优化指南-20260821/
 ├── 本指南.md                      ← 你现在看的
 ├── A770(dg2)/                     ← A 系列（A770 等 DG2 架构）专用
@@ -569,9 +678,9 @@ A：上游 PR#7 已合并 master（native XPU caching allocator），但 issue #
     └── README-DEPLOY-CN.md        ← 部署说明（含已知问题）
 </code></pre>
 <hr />
-<h2 id="_9">感谢</h2>
+<h2 id="_10">感谢</h2>
 <p>本指南涉及的所有项目与作者，感谢你们的付出：</p>
-<h3 id="_10">特别感谢</h3>
+<h3 id="_11">特别感谢</h3>
 <table>
 <thead>
 <tr>
@@ -597,7 +706,7 @@ A：上游 PR#7 已合并 master（native XPU caching allocator），但 issue #
 <blockquote>
 <p><strong>QQ 群号：220819365</strong> —— 欢迎加入交流 Intel GPU 上的 ComfyUI 折腾经验。</p>
 </blockquote>
-<h3 id="_11">全部项目地址汇总</h3>
+<h3 id="_12">全部项目地址汇总</h3>
 <table>
 <thead>
 <tr>
