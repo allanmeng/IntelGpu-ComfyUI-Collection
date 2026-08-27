@@ -27,8 +27,11 @@ jobs:
         run: |
           LATEST=$(python - <<'EOF'
           import glob, os, re
+          def date_key(p):
+              m = re.search(r'-(\d{8})\.md$', p)
+              return m.group(1) if m else '0'
           mds = sorted(glob.glob('intel-comfyui-guide/Intel GPU 的 ComfyUI 系统优化指南-*.md'),
-                       key=lambda p: re.search(r'-(\d{8})\.md$', p).group(1))
+                       key=date_key)
           print(os.path.basename(mds[-1]))
           EOF
           )
