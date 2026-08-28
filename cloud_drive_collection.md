@@ -43,9 +43,13 @@ ComfyUI Portable 是一个独立打包、下载就能用的 Windows 完整版 Co
 
 ### 备注
 
-不管使用哪个整合包，强烈建议安装独立的 [oneAPI环境](https://pan.quark.cn/s/f15076f4f9d0)
+- 以上三个安装包之间的关系
+  > <img width="1800" alt="514b26f8e76608ddc1791e37324b6d32" src="https://github.com/user-attachments/assets/ba3db49e-d834-41bc-a903-e7ffe5103657" />
 
-如果你已经有自己的Comfyui，完全不需要抛弃原来的版本，你可以直接借鉴启动文件（bat），或者通过[Intel GPU 的 ComfyUI 系统优化指南](https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/intel-comfyui-guide/) 来完成对于你原有系统的调整，而且我们鼓励这种做法。
+
+- 不管使用哪个整合包，强烈建议安装独立的 [oneAPI环境](https://pan.quark.cn/s/f15076f4f9d0)
+
+- 如果你已经有自己的Comfyui，完全不需要抛弃原来的版本，你可以直接借鉴启动文件（bat），或者通过[Intel GPU 的 ComfyUI 系统优化指南](https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/intel-comfyui-guide/) 来完成对于你原有系统的调整，而且我们鼓励这种做法。
 
 ---
 
