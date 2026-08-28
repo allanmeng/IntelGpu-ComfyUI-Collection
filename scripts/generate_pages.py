@@ -925,6 +925,7 @@ CLOUD_HTML = """<!DOCTYPE html>
     border-left: 3px solid var(--intel-blue); background: #f0f6fc;
     margin: 6px 0; padding: 6px 10px; border-radius: 6px;
   }
+  .card-desc img { width: 1200px; max-width: 100%; height: auto; }
 
   .card-meta {
     display: flex; flex-direction: column; gap: 4px;
