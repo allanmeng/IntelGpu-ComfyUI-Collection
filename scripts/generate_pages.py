@@ -771,11 +771,6 @@ def _cloud_render_desc(body):
             else:
                 parts.append('<blockquote>%s</blockquote><br>' % content)
             continue
-        # 列表项：'- xxx' 转 .cloud-li（圆点符号）
-        ml = re.match(r"^-\s+(.+)$", h)
-        if ml:
-            parts.append('<div class="cloud-li">%s</div><br>' % ml.group(1))
-            continue
         parts.append(h + "<br>")
     text = "".join(parts)
     text = re.sub(r"^(<br>)+|(<br>)+$", "", text)
@@ -930,9 +925,6 @@ CLOUD_HTML = """<!DOCTYPE html>
     border-left: 3px solid var(--intel-blue); background: #f0f6fc;
     margin: 6px 0; padding: 6px 10px; border-radius: 6px;
   }
-  .cloud-li { padding-left: 2px; }
-  .cloud-li::before { content: "\2022 "; color: var(--intel-blue); }
-  .card-desc img { max-width: 100%; height: auto; }
 
   .card-meta {
     display: flex; flex-direction: column; gap: 4px;
