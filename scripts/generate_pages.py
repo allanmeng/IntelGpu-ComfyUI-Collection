@@ -767,6 +767,10 @@ def _cloud_render_desc(body):
         if mq:
             content = mq.group(1).strip()
             if content.startswith("<img"):
+                # 点击图片 -> 新标签页打开全尺寸原图
+                mimg = re.search(r"src=\"([^\"]+)\"", content)
+                if mimg:
+                    content = '<a href="%s" target="_blank" class="img-link">%s</a>' % (mimg.group(1), content)
                 parts.append(content + "<br>")
             else:
                 parts.append('<blockquote>%s</blockquote><br>' % content)
@@ -926,6 +930,8 @@ CLOUD_HTML = """<!DOCTYPE html>
     margin: 6px 0; padding: 6px 10px; border-radius: 6px;
   }
   .card-desc img { width: 1200px; max-width: 100%; height: auto; }
+  .card-desc .img-link img { cursor: zoom-in; }
+  .card-desc .img-link img:hover { opacity: 0.92; }
 
   .card-meta {
     display: flex; flex-direction: column; gap: 4px;
