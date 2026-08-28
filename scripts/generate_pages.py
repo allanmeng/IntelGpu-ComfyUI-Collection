@@ -932,18 +932,7 @@ CLOUD_HTML = """<!DOCTYPE html>
   }
   .cloud-li { padding-left: 2px; }
   .cloud-li::before { content: "\2022 "; color: var(--intel-blue); }
-  .card-desc blockquote {
-    border-left: 3px solid var(--intel-blue); background: #f0f6fc;
-    margin: 6px 0; padding: 6px 10px; border-radius: 6px;
-  }
-  .cloud-li { padding-left: 2px; }
-  .cloud-li::before { content: "\2022 "; color: var(--intel-blue); }
-  .card-desc blockquote {
-    border-left: 3px solid var(--intel-blue); background: #f0f6fc;
-    margin: 6px 0; padding: 6px 10px; border-radius: 6px;
-  }
-  .cloud-li { padding-left: 2px; }
-  .cloud-li::before { content: "\2022 "; color: var(--intel-blue); }
+  .card-desc img { max-width: 100%; height: auto; }
 
   .card-meta {
     display: flex; flex-direction: column; gap: 4px;
