@@ -762,6 +762,20 @@ def _cloud_render_desc(body):
             break
         h = MD_LINK_RE.sub(r'<a href="\2" target="_blank">\1</a>', s)
         h = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", h)
+        # 引用块：' > <img ...>' 图片直接显示（去引用前缀）；' > 文本' 转 blockquote
+        mq = re.match(r"^>\s*(.+)$", h)
+        if mq:
+            content = mq.group(1).strip()
+            if content.startswith("<img"):
+                parts.append(content + "<br>")
+            else:
+                parts.append('<blockquote>%s</blockquote><br>' % content)
+            continue
+        # 列表项：'- xxx' 转 .cloud-li（圆点符号）
+        ml = re.match(r"^-\s+(.+)$", h)
+        if ml:
+            parts.append('<div class="cloud-li">%s</div><br>' % ml.group(1))
+            continue
         parts.append(h + "<br>")
     text = "".join(parts)
     text = re.sub(r"^(<br>)+|(<br>)+$", "", text)
@@ -912,6 +926,24 @@ CLOUD_HTML = """<!DOCTYPE html>
   .card-desc { font-size: 13px; color: var(--text-muted); }
   .card-desc a { color: var(--intel-blue); text-decoration: none; }
   .card-desc a:hover { text-decoration: underline; }
+  .card-desc blockquote {
+    border-left: 3px solid var(--intel-blue); background: #f0f6fc;
+    margin: 6px 0; padding: 6px 10px; border-radius: 6px;
+  }
+  .cloud-li { padding-left: 2px; }
+  .cloud-li::before { content: "\2022 "; color: var(--intel-blue); }
+  .card-desc blockquote {
+    border-left: 3px solid var(--intel-blue); background: #f0f6fc;
+    margin: 6px 0; padding: 6px 10px; border-radius: 6px;
+  }
+  .cloud-li { padding-left: 2px; }
+  .cloud-li::before { content: "\2022 "; color: var(--intel-blue); }
+  .card-desc blockquote {
+    border-left: 3px solid var(--intel-blue); background: #f0f6fc;
+    margin: 6px 0; padding: 6px 10px; border-radius: 6px;
+  }
+  .cloud-li { padding-left: 2px; }
+  .cloud-li::before { content: "\2022 "; color: var(--intel-blue); }
 
   .card-meta {
     display: flex; flex-direction: column; gap: 4px;
