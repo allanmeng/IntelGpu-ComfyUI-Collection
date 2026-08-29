@@ -389,7 +389,8 @@ __CARDS__
 
   <footer>
     由 <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection" target="_blank">IntelGpu-ComfyUI-Collection</a> 自动生成 ·
-    <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/README.md" target="_blank">README 源文件</a>
+    <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/README.md" target="_blank">README 源文件</a> ·
+    最新生成时间：__GEN_TIME__
   </footer>
 
 </div>
@@ -446,9 +447,11 @@ def build_index(readme_path, token):
         it["updated"] = fmt_cn(fetch_repo_updated(it["repo"], it["path"], token))
     items.sort(key=lambda x: x["updated"], reverse=True)
     cards = "\n\n".join(_index_card(it) for it in items)
+    gen_time = datetime.now(TZ_CN).strftime("%Y%m%d %H%M%S")
     return (INDEX_HTML
             .replace("__NAV__", nav_html("index.html"))
-            .replace("__CARDS__", cards))
+            .replace("__CARDS__", cards)
+            .replace("__GEN_TIME__", gen_time))
 
 
 # ---------------------------------------------------------------------------
