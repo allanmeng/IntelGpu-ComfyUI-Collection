@@ -1,8 +1,7 @@
 name: Generate index.html
 
 on:
-  schedule:
-    - cron: '0 */2 * * *'
+  # 定时触发由 cron-job.org 外部 dispatch 承担（GitHub schedule 漏跑严重已废弃，2026-08-29）
   push:
     branches: [main]
     paths: ['README.md']
