@@ -107,4 +107,23 @@ ComfyUI Portable 是一个独立打包、下载就能用的 Windows 完整版 Co
 
 维护者：@弧
 
+---
+
+## 📖 IntelAI
+
+- intel显卡安装Comfyui
+
+- ComfyUI-aki Ultra核显（密码：bilibili-秋葉aaaki）
+
+- GPT-SoVITS-Intel GPU版
+
+- LoRA训练器(Intel GPU整合包)
+
+- RVC整合包(I卡)
+
+- SD-Arc-AI绘画
+
+地址：https://pan.quark.cn/s/0b0dc9223c59
+
+维护者：@Jianmiao坚喵
 
