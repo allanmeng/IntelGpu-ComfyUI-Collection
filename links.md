@@ -36,7 +36,7 @@ ggml-org 的 llama.cpp 库的高效 Python 绑定。
 
 llama-cpp-python-sycl-win：https://github.com/allanmeng/llama-cpp-python-sycl-windows 
 
-夸克网盘下载地址：https://pan.quark.cn/s/54c6d54f48b8  （目录：llama-cpp-python-sycl-win 编译包）
+夸克网盘下载地址：https://pan.quark.cn/s/e20e16cb7c4f  （目录：llama-cpp-python-sycl-win 编译包）
 
 
 ---
