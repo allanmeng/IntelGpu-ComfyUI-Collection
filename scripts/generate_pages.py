@@ -365,6 +365,8 @@ INDEX_HTML = """<!DOCTYPE html>
   footer { text-align: center; margin-top: 40px; font-size: 12px; color: var(--text-muted); }
   footer a { color: var(--intel-blue); text-decoration: none; }
 </style>
+
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "f0680eba26ee45eda7de7340d6dfde65"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
 <body>
 <div class="container">
@@ -634,6 +636,8 @@ LINKS_HTML = """<!DOCTYPE html>
   footer { text-align: center; margin-top: 40px; font-size: 12px; color: var(--text-muted); }
   footer a { color: var(--intel-blue); text-decoration: none; }
 </style>
+
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "f0680eba26ee45eda7de7340d6dfde65"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
 <body>
 <div class="container">
@@ -957,6 +961,8 @@ CLOUD_HTML = """<!DOCTYPE html>
   footer { text-align: center; margin-top: 40px; font-size: 12px; color: var(--text-muted); }
   footer a { color: var(--intel-blue); text-decoration: none; }
 </style>
+
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "f0680eba26ee45eda7de7340d6dfde65"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
 <body>
 <div class="container">
@@ -1266,6 +1272,8 @@ OPT_HTML = """<!DOCTYPE html>
   footer { text-align: center; margin-top: 40px; font-size: 12px; color: var(--text-muted); }
   footer a { color: var(--intel-blue); text-decoration: none; }
 </style>
+
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "f0680eba26ee45eda7de7340d6dfde65"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
 <body>
 <div class="container">
@@ -1436,6 +1444,8 @@ GROUP_HTML = """<!DOCTYPE html>
   footer { text-align: center; margin-top: 40px; font-size: 12px; color: var(--text-muted); }
   footer a { color: var(--intel-blue); text-decoration: none; }
 </style>
+
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "f0680eba26ee45eda7de7340d6dfde65"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
 <body>
 <div class="container">
