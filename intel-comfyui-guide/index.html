@@ -95,7 +95,7 @@ hr { border:none; border-top:1px solid #e3e6ea; margin:28px 0; }
 <li><a href="#62-omni_xpu_kernel">6.2 omni_xpu_kernel：通常不用管</a></li>
 <li><a href="#63-comfy-kitchen">6.3 comfy-kitchen：每次升级必被覆盖</a></li>
 <li><a href="#64-comfyui-omnixpu">6.4 ComfyUI-OmniXPU：目录安全，看启动日志</a></li>
-<li><a href="#65-comfyui-solattn-b">6.5 ComfyUI-SolAttn：仅 B 系列，检查内核能力</a></li>
+<li><a href="#65-comfyui-solattncomfyui-b">6.5 ComfyUI-SolAttn：ComfyUI 升级后的验证与恢复（仅 B 系列）</a></li>
 <li><a href="#66-comfy-aimdo">6.6 comfy-aimdo：另一套部署方式</a></li>
 <li><a href="#67">6.7 升级后标准动作</a></li>
 </ul>
@@ -124,7 +124,7 @@ hr { border:none; border-top:1px solid #e3e6ea; margin:28px 0; }
 <li><strong>omni_xpu_kernel</strong>：0.2.0b1 → <strong>0.2.0b2+torch213.bmg</strong>（重大更新，PR#659）——<strong>Windows 首次支持 CUTE FMHA + Sol-Attn</strong>（4 个注意力算子全启用：d128 / Wan 2.2 cross / MiniMax H3 VAE / sparse Sol-Attn）。<strong>⚠️ CUTE / Sol-Attn 为 BMG（B 系列）专用，A770（DG2）用户不可用</strong>（A770 请继续使用社区 A 系列内核）</li>
 <li><strong>ComfyUI-OmniXPU</strong>：更新至官方最新版（PR#659 后）——完整 <strong>CUTE 路由</strong>（<code>OMNI_ATTN_BACKEND=cute</code>）+ runtime bootstrap</li>
 <li><strong>ComfyUI-SolAttn</strong>（新增插件）：<strong>Patch Sol-Attn</strong> 稀疏注意力节点（配合 kernel 的 <code>cute.sol_attn</code>，需 <code>SOL_ATTN_XPU_EXPERIMENTAL=1</code>）</li>
-<li><strong>comfy-aimdo</strong>：PR#7 → <strong>PR#15</strong>（master a19b0b1，含 PR#12 + PR#15）</li>
+<li><strong>comfy-aimdo</strong>：更新至 <strong>PR#17</strong>（master 最新，含 PR#12 vbar budget + PR#15 + PR#17）</li>
 <li><strong>配套内核</strong>：ComfyUI 0.34.2（kitchen 保持 0.2.31.post1 不变）</li>
 </ul>
 <hr />
@@ -241,10 +241,9 @@ hr { border:none; border-top:1px solid #e3e6ea; margin:28px 0; }
 <h3 id="comfy-aimdo-xpudynamicvram">稳定：comfy-aimdo XPU（DynamicVRAM）</h3>
 <p>原理：显存贴满时，把不活跃的模型权重"换页"到系统内存（VBAR fault/驱逐），需要时再调回，避免 OOM。</p>
 <blockquote>
-<p>⚠️ <strong>重要提醒</strong>：本包内置的 aimdo 是 <strong>PR#7 版</strong>（已合并 master，commit <code>abb2fc6d</code>，改用 PyTorch native XPU caching allocator），<strong>仍有已知问题</strong>：
-- 问题 A：模型总需求接近/超过显存时，显存无上限增长、驱逐不触发 → <strong>采样 step 1 卡死</strong>
-- 问题 B：二次运行同一工作流时，每步退化至极慢（慢 60-80 倍），最终能完成但耗时不可接受（上游 issue #3 未闭环）</p>
-<p>→ <strong>普通用户建议暂不启用 aimdo</strong>；确需大模型显存管理，请关注上游 issue #3 的修复进展（PR#11/#12 在途），等待稳定版。</p>
+<p>⚠️ <strong>重要提醒</strong>：本包内置的 aimdo 为 <strong>PR#17 版</strong>（master 最新），<strong>仍属测试性质</strong>：
+- 历史已知问题（PR#7 时代的 issue #3：二次运行每步极慢）是否在新版闭环，<strong>请以实际工作流测试为准</strong></p>
+<p>→ <strong>普通用户建议暂不启用 aimdo</strong>；确需大模型显存管理，请先实测本包版本再决定。</p>
 </blockquote>
 <hr />
 <h2 id="_4">第三部分：安装</h2>
@@ -436,10 +435,10 @@ set SOL_ATTN_XPU_EXPERIMENTAL=1
 <h3 id="6-comfyui-aimdo-xpu">6. ComfyUI Aimdo XPU 安装（选装，测试版）</h3>
 <blockquote>
 <p>🔄 <strong>后续升级</strong>：从这个项目找更新包 → https://github.com/xiangyuT/comfy-aimdo-xpu/</p>
-<p>⚠️ <strong>当前版本是 PR#7 构建</strong>（已合并 master，对应上游 <code>abb2fc6d</code>），仍含已知问题（见第二部分）。<strong>普通用户建议跳过本节</strong>，等待稳定版。</p>
+<p>⚠️ <strong>当前版本是 PR#17 构建</strong>（master 最新），仍属测试性质（历史已知问题是否闭环见第二部分提醒）。<strong>普通用户建议跳过本节</strong>，等待稳定版。</p>
 </blockquote>
 <p><strong>安装文件的下载与部署</strong></p>
-<p>把本包 <code>comfy_aimdo_xpu_win_pr7/</code> 整个文件夹放到 <strong>ComfyUI-aki 根目录</strong>（与 <code>python</code> 文件夹同级），<strong>双击运行 <code>deploy.bat</code></strong>：</p>
+<p>解压本包 <code>comfy_aimdo_xpu_win_PR17.zip</code>（解压后得 <code>comfy_aimdo_xpu_win_pr17/</code> 文件夹），把整个文件夹放到 <strong>ComfyUI-aki 根目录</strong>（与 <code>python</code> 文件夹同级），<strong>双击运行 <code>deploy.bat</code></strong>：</p>
 <ul>
 <li>自动备份原 <code>comfy_aimdo</code> 包为 <code>comfy_aimdo.bak</code></li>
 <li>自动覆盖部署 6 个 py + <code>aimdo_xpu.dll</code></li>
@@ -528,7 +527,7 @@ ComfyUI-GGUF: Comfy Kitchen GGUF routing available
 </tr>
 <tr>
 <td>开启 aimdo 后卡死/极慢</td>
-<td>PR#7 版已知问题（issue #3 未闭环）</td>
+<td>aimdo 测试版已知问题（issue #3）</td>
 <td><strong>关闭 aimdo</strong>（去掉 <code>--enable-dynamic-vram</code>）</td>
 </tr>
 <tr>
@@ -586,7 +585,7 @@ A：<strong>不需要</strong>。oneAPI 只是编译内核时的工具；运行�
 <p><strong>Q3：kitchen 和 OmniXPU 是重复的吗？</strong>
 A：不是。OmniXPU 负责"接进 ComfyUI"（patch 模型层），kitchen 负责"算子分发"（路由到内核）。两者配合才完整；GGUF 加速主要靠 kitchen。</p>
 <p><strong>Q4：aimdo 为什么是测试版？</strong>
-A：上游 PR#7 已合并 master（native XPU caching allocator），但 issue #3 的"二次运行每步极慢"仍未闭环（PR#11/#12 在途）。正式修复发布后再更新本包。</p>
+A：aimdo 整体仍属测试性质——历史问题（issue #3"二次运行每步极慢"）是否在新版（PR#17）闭环<strong>需实测确认</strong>。普通用户建议暂不启用。</p>
 <p><strong>Q5：Sol-Attn 是什么？支持哪些工作流？</strong>
 A：训练无关的<strong>稀疏注意力</strong>（arXiv 2607.24027，NVlabs Sana 团队）——只计算部分 token 对，加速<strong>长序列</strong>自注意力。<strong>不限于 H3/Wan</strong>：任何 D128 长序列生图工作流（Flux / Qwen-Image / Sana / 高分辨率 DiT）都能挂 Patch Sol-Attn 试，不匹配的注意力形状自动回退 dense（安全无副作用）。</p>
 <p><strong>Q6：Sol-Attn 只有 B 系列能用？A770 行吗？</strong>
@@ -635,6 +634,12 @@ A：可以试——bf16 + D128 + 长序列（实测 seq=4224）匹配，cross-at
 <td>❌ 不会（custom_nodes 不被动）</td>
 <td>一般无需</td>
 <td>否</td>
+</tr>
+<tr>
+<td>ComfyUI-SolAttn（B 系列）</td>
+<td>❌ 不会（custom_nodes 不被动）</td>
+<td>一般无需；插件丢失时重解压本包 zip</td>
+<td>否（纯 python）</td>
 </tr>
 <tr>
 <td>comfy-aimdo</td>
@@ -688,15 +693,18 @@ A：可以试——bf16 + D128 + 长序列（实测 seq=4224）匹配，cross-at
 <li><strong>验证</strong>：启动日志应见 <code>[OmniXPU] adapter applied</code>（norm/fp8/int8_ffn/seedvr_* 等）；若缺失或报 patch 目标找不到 → 内核 API 变了，需等插件更新</li>
 <li><strong>恢复</strong>：插件丢失/损坏时，重新解压本包 <code>B系列(bmg)\ComfyUI-OmniXPU...zip</code> 到 <code>custom_nodes\</code></li>
 </ul>
-<h3 id="65-comfyui-solattn-b">6.5 ComfyUI-SolAttn：仅 B 系列，检查内核能力</h3>
+<h3 id="65-comfyui-solattncomfyui-b">6.5 ComfyUI-SolAttn：ComfyUI 升级后的验证与恢复（仅 B 系列）</h3>
 <ul>
-<li><strong>仅限 B 系列（BMG）</strong>——依赖内核 <code>cute.sol_attn</code>，A770（DG2）不支持</li>
-<li><strong>检查</strong>：</li>
-<li><code>custom_nodes\ComfyUI-SolAttn</code> 存在（节点 <strong>Patch Sol-Attn</strong> 在列表）</li>
-<li>内核能力：<code>python -c "from omni_xpu_kernel import cute; print(cute.supports_sol_attn())"</code> → 期望 <code>True</code>（b2 内核）</li>
-<li>启动 bat 有 <code>SOL_ATTN_XPU_EXPERIMENTAL=1</code></li>
-<li><strong>验证</strong>：运行含 Patch Sol-Attn 的工作流，用 <strong>SolAttnBlockProbe</strong> 节点查看统计（<code>sparse</code> 命中数 &gt; 0 才算生效；<code>dense_fallback</code> 增长 = 形状不匹配，自动回退属正常）</li>
-<li><strong>恢复</strong>：插件丢失时重新解压本包 <code>B系列(bmg)\ComfyUI-SolAttn-20260901.zip</code> 到 <code>custom_nodes\</code></li>
+<li><strong>仅限 B 系列（BMG）</strong>——Sol-Attn 稀疏注意力依赖内核的 <code>cute.sol_attn</code> 算子，A770（DG2）不支持</li>
+<li><strong>ComfyUI 升级影响</strong>：插件本体在 <code>custom_nodes</code> <strong>不会被覆盖</strong>（升级脚本不碰自定义节点）；但 ComfyUI 升级可能改变 attention 接口，需验证插件 patch 兼容性</li>
+<li><strong>验证（ComfyUI 升级后）</strong>：</li>
+<li>节点加载：重启后节点列表有 <strong>Patch Sol-Attn</strong>（无 import 报错）</li>
+<li>patch 生效：跑含 Patch Sol-Attn 的工作流，用 <strong>SolAttnBlockProbe</strong> 看统计——<code>sparse</code> &gt; 0 才算生效（<code>dense_fallback</code> 增长 = 注意力形状不匹配自动回退，属正常）</li>
+<li>启动 bat 里 <code>SOL_ATTN_XPU_EXPERIMENTAL=1</code> 还在</li>
+<li><strong>恢复</strong>：</li>
+<li>插件丢失/损坏 → 重新解压本包 <code>B系列(bmg)\ComfyUI-SolAttn-20260901.zip</code> 到 <code>custom_nodes\</code></li>
+<li>ComfyUI 接口变化导致节点报错/patch 失效 → 等插件作者更新（https://github.com/xiangyuT/ComfyUI-SolAttn_xpu）</li>
+<li>实验开关丢失 → 启动 bat 补回 <code>set SOL_ATTN_XPU_EXPERIMENTAL=1</code></li>
 </ul>
 <h3 id="66-comfy-aimdo">6.6 comfy-aimdo：另一套部署方式</h3>
 <ul>
@@ -726,8 +734,8 @@ A：可以试——bf16 + D128 + 长序列（实测 seq=4224）匹配，cross-at
 │   └── ComfyUI-SolAttn-20260901.zip                         ← Patch Sol-Attn 稀疏注意力节点（新增）
 ├── comfy_kitchen-0.2.31.post1-py3-none-any.whl   ← kitchen（选装谨慎；含 PR#5 AdaLN 修复）
 ├── ComfyUI-GGUF-XPU-20260821.zip   ← GGUF 加速节点（选装，GGUF 用户强烈建议）
-└── comfy_aimdo_xpu_win_pr15.zip    ← aimdo（选装，PR#15：master a19b0b1 含 PR#12+PR#15）
-    └── 解压后含 deploy.bat + README-DEPLOY-CN.md
+└── comfy_aimdo_xpu_win_PR17.zip    ← aimdo（选装，PR#17：master 最新含 PR#12+PR#15+PR#17）
+    └── 解压后得 comfy_aimdo_xpu_win_pr17/，含 deploy.bat + README-DEPLOY-CN.md
 </code></pre>
 <hr />
 <h2 id="_10">感谢</h2>
