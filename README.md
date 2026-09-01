@@ -43,6 +43,9 @@ Tag: 社群
 
 为 Intel Arc（Alchemist / Battlemage）预编译的 **llama-cpp-python SYCL** wheel 集合，Windows 免编译直接安装。
 
+
+【[网盘下载](https://pan.quark.cn/s/e20e16cb7c4f) 】
+
 项目地址：https://github.com/allanmeng/llama-cpp-python-sycl-windows
 
 作者：[@allanmeng](https://github.com/allanmeng)
