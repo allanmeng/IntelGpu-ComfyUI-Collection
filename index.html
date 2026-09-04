@@ -135,6 +135,20 @@
 
   <div class="grid">
 
+    <article class="card" data-repo="Blackwood416/InferRef" data-name="InferRef">
+      <div class="card-top">
+        <div class="card-name"><a href="https://github.com/Blackwood416/InferRef" target="_blank">InferRef</a><span class="badge badge-community">社群</span></div>
+        <span class="updated">更新：<span class="upd-time">2026/09/04-14:23:35</span></span>
+      </div>
+      <div class="card-desc">这是一个面向推理引擎开发的参考验证框架（核心 Python + 头文件-only C++），它把一次 PyTorch 模型执行固化为机器可读的参考规范（Trace IR + .irtensor 张量载荷），自动切出自包含的最小复现 testcase，让你的自定义引擎（CUDA / SYCL / ROCm / CPU，含 Intel XPU）在不依赖 PyTorch 甚至 Python 的情况下，仅读取 .irtensor 输入、吐出输出，再通过数值比较精确报告首个分歧点；它提供 doctor --device xpu 的 XPU 检查、原生 C++/SYCL 引擎、可进 CI 的 inferref_compare（PASS=0/FAIL=1）与 Agent 盲评基准，适合作为 Intel Arc XPU 推理后端的数值回归护城河。</div>
+      <div class="card-footer">
+        <div class="author">作者：<a href="https://github.com/Blackwood416" target="_blank">@Blackwood416</a></div>
+        <div class="links">
+          <a class="btn btn-primary" href="https://github.com/Blackwood416/InferRef" target="_blank">项目地址</a>
+        </div>
+      </div>
+    </article>
+
     <article class="card" data-repo="allanmeng/ComfyUI-Aila-XPU" data-name="ComfyUI-Aila-XPU">
       <div class="card-top">
         <div class="card-name"><a href="https://github.com/allanmeng/ComfyUI-Aila-XPU" target="_blank">ComfyUI-Aila-XPU</a><span class="badge badge-community">社群</span></div>
@@ -303,20 +317,6 @@
       </div>
     </article>
 
-    <article class="card" data-repo="Blackwood416/InferRef" data-name="InferRef">
-      <div class="card-top">
-        <div class="card-name"><a href="https://github.com/Blackwood416/InferRef" target="_blank">InferRef</a><span class="badge badge-community">社群</span></div>
-        <span class="updated">更新：<span class="upd-time">2026/08/22-23:14:23</span></span>
-      </div>
-      <div class="card-desc">这是一个面向推理引擎开发的参考验证框架（核心 Python + 头文件-only C++），它把一次 PyTorch 模型执行固化为机器可读的参考规范（Trace IR + .irtensor 张量载荷），自动切出自包含的最小复现 testcase，让你的自定义引擎（CUDA / SYCL / ROCm / CPU，含 Intel XPU）在不依赖 PyTorch 甚至 Python 的情况下，仅读取 .irtensor 输入、吐出输出，再通过数值比较精确报告首个分歧点；它提供 doctor --device xpu 的 XPU 检查、原生 C++/SYCL 引擎、可进 CI 的 inferref_compare（PASS=0/FAIL=1）与 Agent 盲评基准，适合作为 Intel Arc XPU 推理后端的数值回归护城河。</div>
-      <div class="card-footer">
-        <div class="author">作者：<a href="https://github.com/Blackwood416" target="_blank">@Blackwood416</a></div>
-        <div class="links">
-          <a class="btn btn-primary" href="https://github.com/Blackwood416/InferRef" target="_blank">项目地址</a>
-        </div>
-      </div>
-    </article>
-
     <article class="card" data-repo="Blackwood416/ComfyUI-OmniXPU" data-name="ComfyUI-OmniXPU">
       <div class="card-top">
         <div class="card-name"><a href="https://github.com/Blackwood416/ComfyUI-OmniXPU" target="_blank">ComfyUI-OmniXPU</a><span class="badge badge-fork">fork</span><span class="badge badge-community">社群</span><span class="badge badge-card">指定卡</span></div>
@@ -350,7 +350,7 @@
   <footer>
     由 <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection" target="_blank">IntelGpu-ComfyUI-Collection</a> 自动生成 ·
     <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/README.md" target="_blank">README 源文件</a> ·
-    最新生成时间：2026/09/04 14:00:37
+    最新生成时间：2026/09/04 16:00:39
   </footer>
 
 </div>
