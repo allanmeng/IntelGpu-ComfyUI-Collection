@@ -125,15 +125,22 @@ NAV_TABS = [
     ("group.html", "互助社群"),
 ]
 
+# 站外导航（chips 末尾追加，新标签页打开）
+EXTERNAL_NAV = [
+    ("生态日报", "https://blog.blackwood.cv/news/latest"),
+]
+
 
 def nav_html(active):
-    """Chips navigation, 'active' highlighted."""
+    """Chips navigation, 'active' highlighted; 站内 tab + 站外链接（新标签页）。"""
     out = []
     for href, label in NAV_TABS:
         if href == active:
             out.append('      <span class="chip chip-active">%s</span>' % label)
         else:
             out.append('      <a class="chip" href="%s">%s</a>' % (href, label))
+    for label, url in EXTERNAL_NAV:
+        out.append('      <a class="chip" href="%s" target="_blank" rel="noopener">%s ↗</a>' % (url, label))
     return "\n".join(out)
 
 
