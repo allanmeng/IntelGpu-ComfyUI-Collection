@@ -14,7 +14,7 @@ Stable_Start_IntelArc.bat，如果直接使用：
 
 ```
 @echo off
-:: 强制 Python 使用 UTF-8 编码处理所有文件读写，强制 Windows 控制台也使用 UTF-8
+:: 强制 Python 文件读写与控制台输出使用 UTF-8
 chcp 65001
 set PYTHONUTF8=1
 set PYTHONIOENCODING=utf-8
@@ -25,42 +25,42 @@ net session >nul 2>&1
 if %errorLevel% == 0 (
     goto :admin_start
 ) else (
-    echo [权限检查] 正在请求管理员权限并关闭当前窗口...
-    :: 启动新窗口（管理员）
+    echo [PERM] Requesting admin rights, closing current window...
+    :: 以管理员身份重新启动（提权）
     powershell -Command "Start-Process '%~f0' -Verb RunAs"
-    :: 【核心修改】这里直接用 exit，强制关闭当前的非管理员窗口
+    :: 关键：exit 故意关闭当前非管理员窗口
     exit
 )
 
 :admin_start
-:: 只有管理员窗口能看到这里
+:: 只有提权窗口才会执行到这里
 cd /d "%~dp0"
-echo [成功] 权限已提升，开始配置运行环境...
+echo [OK] Elevated. Configuring runtime environment...
 
 
-:: 自动设置路径（无需手动修改盘符）
+:: 自动识别路径（无需手动修改盘符）
 set "PYTHON_PATH=%~dp0python"
 set "COMFYUI_PATH=%~dp0ComfyUI"
 
 
-echo [环境] 当前运行盘符：%~d0
+echo [ENV] Current drive: %~d0
 
-:: 验证 python.exe 路径是否存在
+:: 验证 python.exe 是否存在
 if not exist "%PYTHON_PATH%\python.exe" (
-    echo [错误] 找不到 python.exe，请确认整合包配置的安装路径
-    echo [环境] 自动识别 Python 路径：%PYTHON_PATH%
+    echo [ERROR] python.exe not found - check the launcher python path
+    echo [ENV] Auto-detected Python: %PYTHON_PATH%
     pause
     exit /b
 )else (
-    echo [环境] Python 环境验证通过："%PYTHON_PATH%\python.exe"
+    echo [ENV] Python verified: "%PYTHON_PATH%\python.exe"
 )
 
-:: 安全挂载 Git
+:: 安全挂载整合包内置 Git
 if exist "%~dp0git\cmd\git.exe" (
     set "PATH=%~dp0git\cmd;%PATH%"
-    echo [环境] 成功挂载内置 Git："%~dp0git\cmd\git.exe"
+    echo [ENV] Bundled Git mounted: "%~dp0git\cmd\git.exe"
 ) else (
-    echo [警告] 没找到 git\cmd，Manager 可能会报错！
+    echo [WARN] git\cmd not found - ComfyUI-Manager may fail!
 )
 
 :: ===== 用户配置区域，修改这里 =======
@@ -71,14 +71,14 @@ set "ONEAPI_PATH=F:\Intel-oneAPI"
 
 :: ==================================
 
-::VSStudio路径  
+:: VS Studio 路径
 set "VS2022INSTALLDIR=D:\Microsoft Visual Studio\2022\BuildTools"
 
 :: 验证 vcvars64 路径是否存在
 if exist "%VS2022INSTALLDIR%\VC\Auxiliary\Build\vcvars64.bat" (
     call "%VS2022INSTALLDIR%\VC\Auxiliary\Build\vcvars64.bat"
 ) else (
-    echo [警告] 未找到 vcvars64，未能加载C++环境基础
+    echo [WARN] vcvars64 not found - C++ env not loaded
 )
 
 
@@ -86,78 +86,135 @@ if exist "%VS2022INSTALLDIR%\VC\Auxiliary\Build\vcvars64.bat" (
 if exist "%ONEAPI_PATH%\setvars.bat" (
     call "%ONEAPI_PATH%\setvars.bat" intel64
 ) else (
-    echo [警告] 未找到 oneAPI，跳过 SYCL 环境激活，将使用 CPU 推理
+    echo [WARN] oneAPI not found - skipping SYCL env, CPU inference only
 )
 
 
 
 
-:: 针对 Arc 显存管理的最后一道防线：允许部分显存越级（防止 12GB 报错溢出）
+:: Arc 显存安全网：允许显存超量分配（防止 12GB 溢出报错）
 set SYCL_PI_LEVEL_ZERO_TRACK_INDIRECT_ACCESS_MEMORY=1
 
 
-:: 启用线程组合管理器，防止 CPU 核心过度竞争，提升 Intel 硬件下的运行效率
+:: 启用线程管理器，减少 Intel 平台 CPU 核心竞争
 set TCM_ENABLE=1
 
-:: 强制禁止显卡进入“休眠”或“深度省电”状态
+:: 强制显卡保持唤醒（阻止休眠 / 深度省电状态）
 set ZE_DEVICE_SLEEP=0
 
-:: 设置 SYCL 缓存（避免每次重新编译 GPU 内核，加快启动速度）
+:: SYCL 缓存：避免每次启动重新编译 GPU 内核
 ::set SYCL_CACHE_PERSISTENT=1
 
-:: 指定使用 Intel Arc GPU（多 GPU 时防止选错）
+:: 固定使用 Intel Arc GPU（多显卡时防止选错设备）
 set ONEAPI_DEVICE_SELECTOR=level_zero:0
 
 :: 强制 OpenVINO 使用 GPU 模式
 set ORT_OPENVINO_DEVICE_TYPE=GPU_FP16
 
-:: 启用 Level Zero 即时指令流
+:: 启用 Level Zero 即时命令列表
 set SYCL_PI_LEVEL_ZERO_USE_IMMEDIATE_COMMANDLISTS=1
 
-
-::【新增】防止XPU空闲挂起（针对reconnecting问题）---
-:: 禁用设备事件作用域（防止空闲时XPU进入低功耗状态）
+:: 防止 XPU 空闲挂起（修复 "reconnecting" 重连问题）---
+:: 禁用设备事件作用域（空闲时不让 XPU 进入低功耗）
 set SYCL_PI_LEVEL_ZERO_DEVICE_SCOPE_EVENTS=0
 
-:: 强制使用Level Zero设备过滤器
+:: 强制使用 Level Zero 设备过滤器
 set SYCL_DEVICE_FILTER=level_zero
 
-
-:: 限制 IPEX 显存分配块为 64MB（比 128 更细，防止碎片化崩溃）
+:: 限制 IPEX 分配块上限 64MB（比 128 更细，避免碎片化崩溃）
 set PYTORCH_XPU_ALLOC_CONF=max_split_size_mb:64
 
-:: 启用PCI设备顺序（保持设备一致性）
+:: 保持 PCI 设备顺序稳定
 set ZE_ENABLE_PCI_ID_DEVICE_ORDER=1
 
-:: --- 【新增】Python垃圾回收优化 ---
-:: 减少GC触发频率，避免生成完成后的长时间GC暂停
+:: --- Python 垃圾回收(GC)调优 ---
+:: 调高 GC 阈值，减少生成结束后的长时间 GC 停顿
 set PYTHONGC=700,10,10
 
+:: ===== OmniXPU GPU 分支：Arc B = bmg / Arc A = dg2 / 其他 = fallback =====
+:: 可选：想手动指定时修改下方 GPU_TARGET（bmg/dg2/auto）
+set "GPU_TARGET=auto"
 
-:: OMNIXPU加速相关 没有安装 omnixpu-kernel 或 comfyui-omnixpu 插件请关闭
+if /i not "%GPU_TARGET%"=="auto" goto :omni_pick
+
+:: auto：检测 oneAPI 实际使用的 GPU（跟随 ONEAPI_DEVICE_SELECTOR）
+:: 通道1（首选）：sycl-ls - 列出运行时可见的 level-zero GPU
+::   设置 ONEAPI_DEVICE_SELECTOR 后只会列出已固定的设备，
+::   因此匹配会自动跟随固定显卡；无 oneAPI / sycl-ls -> 结果为空。
+set "GPU_TARGET=unknown"
+set "GPU_HITS=0"
+for /f "usebackq delims=" %%G in (`sycl-ls 2^>nul ^| findstr /c:"[level_zero:gpu]"`) do (
+    set /a GPU_HITS+=1
+    echo %%G|findstr /r /c:"B5[0-9]" >nul && set "GPU_TARGET=bmg"
+    echo %%G|findstr /r /c:"A[357][0-9]" >nul && set "GPU_TARGET=dg2"
+)
+:: 列出多个 level-zero GPU（选择器未固定）：结果不明确，改用 WMI
+if %GPU_HITS% gtr 1 set "GPU_TARGET=unknown"
+if not "%GPU_TARGET%"=="unknown" goto :omni_echo
+
+:: 通道2（备用）：WMI 全适配器扫描（无 oneAPI / sycl-ls 失败时）
+echo [GPU] sycl-ls unavailable or ambiguous, falling back to WMI scan
+set "GPU_PROBE=%TEMP%\omni_gpu_target.txt"
+if exist "%GPU_PROBE%" del "%GPU_PROBE%" >nul 2>nul
+powershell -NoProfile -Command "$g=(Get-CimInstance Win32_VideoController).Name; $r='unknown'; if($g -match 'Arc.+B5'){$r='bmg'} elseif($g -match 'Arc.+A[357]'){$r='dg2'}; Set-Content -LiteralPath '%GPU_PROBE%' -Value $r -Encoding Ascii -NoNewline"
+if exist "%GPU_PROBE%" set /p GPU_TARGET=<"%GPU_PROBE%"
+if not defined GPU_TARGET set "GPU_TARGET=unknown"
+set "GPU_PROBE="
+
+:omni_echo
+echo [GPU] detected target: %GPU_TARGET%
+
+:omni_pick
+if "%GPU_TARGET%"=="bmg" goto :omni_bmg
+if "%GPU_TARGET%"=="dg2" goto :omni_dg2
+goto :omni_fallback
+
+:omni_bmg
+echo [GPU] branch: bmg (Arc B / Battlemage) - cute attention + OmniXPU enabled
+:: OMNIXPU 启用块（BMG 分支）-- 未安装 kernel/插件时可关掉
+set OMNIXPU_ENABLE=1
+set OMNI_ATTN_BACKEND=cute
+set OMNIXPU_DEBUG=0
+:: Sol-Attn 实验节点路径
+set SOL_ATTN_XPU_EXPERIMENTAL=1
+goto :omni_done
+
+:omni_dg2
+echo [GPU] branch: dg2 (Arc A / Alchemist) - esimd attention + OmniXPU enabled
+set OMNIXPU_ENABLE=1
+set OMNI_ATTN_BACKEND=esimd
+set OMNIXPU_ATTENTION=1
+goto :omni_done
+
+:omni_fallback
+:: 无法识别的显卡：保持官方默认 PyTorch SDPA（不加注意力补丁）
+echo [GPU] branch: fallback (adapter not recognized as Arc A/B) - torch SDPA, no attention patch
 set OMNIXPU_ENABLE=1
 set OMNI_ATTN_BACKEND=torch
-set OMNI_XPU_REQUIRE_CUTE=0
-set OMNIXPU_DEBUG=0   
+goto :omni_done
 
-:: 跟踪aimdo xpu 的执行情况，没有安装aimdoXPU或者不需要跟踪请关闭
+:omni_done
+
+:: GGUF 路由保持全局生效（两行均设置）
+set COMFYUI_GGUF_BACKEND=xpu
+set COMFYUI_GGUF_DEBUG=0
+
+:: aimdo xpu 跟踪：默认关闭，装好该插件且确实需要跟踪时才开启
 :: set AIMDO_XPU_VBAR_TRACE=1
 :: set AIMDO_XPU_WDDM_TRACE=1
 
+:: --- 启动参数调优 ---
+:: 1. --preview-method 已关闭；需要时可在 ComfyUI 界面设置里重新开启
+:: 2. --disable-smart-memory：禁止 ComfyUI 在内存/显存间搬运大数据
+:: 3. 可尝试 --lowvram / --medvram / --highvram（A/B 测试）
+:: 4. 可尝试 --use-split-cross-attention / --use-pytorch-cross-attention
+:: 5. Intel XPU（非N卡）comfy-aimdo DynamicVRAM：--disable-dynamic-vram / --enable-dynamic-vram
 
-:: --- 【启动参数微调】 ---
-:: 1. 采样预览preview-method 这里是关闭 需要的话可以在comfyui界面设置中修改
-:: 2. 加入 --disable-smart-memory（防止 ComfyUI 自动尝试在内存/显存间倒腾大数据）
-:: 3. 加入 --lowvram  --medvram  --highvram (轮换测试)
-:: 4. 加入  --use-split-cross-attention    --use-pytorch-cross-attention
-:: 5. 如果安装了aimdo XPU 看下面注释
-:: --enable-dynamic-vram: Intel XPU 非 NVIDIA，需显式开启 comfy-aimdo DynamicVRAM
-:: --disable-dynamic-vram: Intel XPU 非 NVIDIA，需显式关闭 comfy-aimdo DynamicVRAM
-
- "%PYTHON_PATH%\python.exe" "%COMFYUI_PATH%\main.py" --enable-dynamic-vram --lowvram --reserve-vram 1.0 --preview-method none --use-pytorch-cross-attention
+"%PYTHON_PATH%\python.exe" "%COMFYUI_PATH%\main.py" --disable-dynamic-vram --lowvram --reserve-vram 1.0 --preview-method none --use-pytorch-cross-attention
 
 
 pause
+
 
 
 ```
