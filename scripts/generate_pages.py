@@ -288,18 +288,8 @@ INDEX_HTML = """<!DOCTYPE html>
 
   header { text-align: center; padding: 40px 0 24px; }
   header h1 {
-    font-size: 30px; font-weight: 700; color: var(--text);
-    display: inline-flex; align-items: center; gap: 10px;
+    font-size: 30px; font-weight: 700; color: var(--intel-blue);
   }
-  header h1 .logo {
-    width: 100px; height: 100px; border-radius: 6px;
-    object-fit: contain; display: inline-block; vertical-align: middle;
-  }
-  header h1 .logo-group {
-    width: 100px; height: 100px; border-radius: 6px;
-    object-fit: contain; display: inline-block; vertical-align: middle;
-  }
-  header h1 .logo-link { display: inline-flex; align-items: center; }
   header .note {
     margin-top: 12px; font-size: 14px; color: var(--text-muted);
   }
@@ -379,7 +369,7 @@ INDEX_HTML = """<!DOCTYPE html>
 <div class="container">
 
   <header>
-    <h1><a class="logo-link" href="group.html"><img class="logo-group" src="assets/group_logo_150.png" alt="Group"></a>IntelGpu-ComfyUI-Collection<img class="logo" src="assets/Intel_Graphics_logo.png" alt="Intel Graphics"></h1>
+    <h1>IntelGpu-ComfyUI-Collection</h1>
     <p class="note">以下项目多数由社群中作者维护，少量是Intel官方维护（官方的这几个项目需要紧盯）</p>
     <div class="chips">
 __NAV__
@@ -587,18 +577,8 @@ LINKS_HTML = """<!DOCTYPE html>
 
   header { text-align: center; padding: 40px 0 24px; }
   header h1 {
-    font-size: 30px; font-weight: 700; color: var(--text);
-    display: inline-flex; align-items: center; gap: 10px;
+    font-size: 30px; font-weight: 700; color: var(--intel-blue);
   }
-  header h1 .logo {
-    width: 100px; height: 100px; border-radius: 6px;
-    object-fit: contain; display: inline-block; vertical-align: middle;
-  }
-  header h1 .logo-group {
-    width: 100px; height: 100px; border-radius: 6px;
-    object-fit: contain; display: inline-block; vertical-align: middle;
-  }
-  header h1 .logo-link { display: inline-flex; align-items: center; }
   header .note {
     margin-top: 12px; font-size: 14px; color: var(--text-muted);
   }
@@ -650,7 +630,7 @@ LINKS_HTML = """<!DOCTYPE html>
 <div class="container">
 
   <header>
-    <h1><a class="logo-link" href="group.html"><img class="logo-group" src="assets/group_logo_150.png" alt="Group"></a>IntelGpu-ComfyUI-Collection<img class="logo" src="assets/Intel_Graphics_logo.png" alt="Intel Graphics"></h1>
+    <h1>IntelGpu-ComfyUI-Collection</h1>
     <p class="note">Intel XPU 重要组件下载地址</p>
     <div class="chips">
 __NAV__
@@ -898,18 +878,8 @@ CLOUD_HTML = """<!DOCTYPE html>
 
   header { text-align: center; padding: 40px 0 24px; }
   header h1 {
-    font-size: 30px; font-weight: 700; color: var(--text);
-    display: inline-flex; align-items: center; gap: 10px;
+    font-size: 30px; font-weight: 700; color: var(--intel-blue);
   }
-  header h1 .logo {
-    width: 100px; height: 100px; border-radius: 6px;
-    object-fit: contain; display: inline-block; vertical-align: middle;
-  }
-  header h1 .logo-group {
-    width: 100px; height: 100px; border-radius: 6px;
-    object-fit: contain; display: inline-block; vertical-align: middle;
-  }
-  header h1 .logo-link { display: inline-flex; align-items: center; }
   header .note {
     margin-top: 12px; font-size: 14px; color: var(--text-muted);
   }
@@ -975,7 +945,7 @@ CLOUD_HTML = """<!DOCTYPE html>
 <div class="container">
 
   <header>
-    <h1><a class="logo-link" href="group.html"><img class="logo-group" src="assets/group_logo_150.png" alt="Group"></a>IntelGpu-ComfyUI-Collection<img class="logo" src="assets/Intel_Graphics_logo.png" alt="Intel Graphics"></h1>
+    <h1>IntelGpu-ComfyUI-Collection</h1>
     <p class="note">Intel XPU 网盘聚合</p>
     <div class="chips">
 __NAV__
@@ -1216,18 +1186,8 @@ OPT_HTML = """<!DOCTYPE html>
 
   header { text-align: center; padding: 40px 0 24px; }
   header h1 {
-    font-size: 30px; font-weight: 700; color: var(--text);
-    display: inline-flex; align-items: center; gap: 10px;
+    font-size: 30px; font-weight: 700; color: var(--intel-blue);
   }
-  header h1 .logo {
-    width: 100px; height: 100px; border-radius: 6px;
-    object-fit: contain; display: inline-block; vertical-align: middle;
-  }
-  header h1 .logo-group {
-    width: 100px; height: 100px; border-radius: 6px;
-    object-fit: contain; display: inline-block; vertical-align: middle;
-  }
-  header h1 .logo-link { display: inline-flex; align-items: center; }
   header .note {
     margin-top: 12px; font-size: 14px; color: var(--text-muted);
   }
@@ -1286,7 +1246,7 @@ OPT_HTML = """<!DOCTYPE html>
 <div class="container">
 
   <header>
-    <h1><a class="logo-link" href="group.html"><img class="logo-group" src="assets/group_logo_150.png" alt="Group"></a>IntelGpu-ComfyUI-Collection<img class="logo" src="assets/Intel_Graphics_logo.png" alt="Intel Graphics"></h1>
+    <h1>IntelGpu-ComfyUI-Collection</h1>
     <p class="note">面向 Intel GPU ComfyUI 的优化建议</p>
     <div class="chips">
 __NAV__
@@ -1379,18 +1339,8 @@ GROUP_HTML = """<!DOCTYPE html>
 
   header { text-align: center; padding: 40px 0 24px; }
   header h1 {
-    font-size: 30px; font-weight: 700; color: var(--text);
-    display: inline-flex; align-items: center; gap: 10px;
+    font-size: 30px; font-weight: 700; color: var(--intel-blue);
   }
-  header h1 .logo {
-    width: 100px; height: 100px; border-radius: 6px;
-    object-fit: contain; display: inline-block; vertical-align: middle;
-  }
-  header h1 .logo-group {
-    width: 100px; height: 100px; border-radius: 6px;
-    object-fit: contain; display: inline-block; vertical-align: middle;
-  }
-  header h1 .logo-link { display: inline-flex; align-items: center; }
   header .note {
     margin-top: 12px; font-size: 14px; color: var(--text-muted);
   }
@@ -1458,7 +1408,7 @@ GROUP_HTML = """<!DOCTYPE html>
 <div class="container">
 
   <header>
-    <h1><a class="logo-link" href="group.html"><img class="logo-group" src="assets/group_logo_150.png" alt="Group"></a>IntelGpu-ComfyUI-Collection<img class="logo" src="assets/Intel_Graphics_logo.png" alt="Intel Graphics"></h1>
+    <h1>IntelGpu-ComfyUI-Collection</h1>
     <p class="note">Intel GPU &amp; ComfyUI 互助社群</p>
     <div class="chips">
 __NAV__
