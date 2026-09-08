@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
     paths: ['cloud_drive_collection.md']
+  workflow_dispatch:
 
 permissions:
   contents: write
