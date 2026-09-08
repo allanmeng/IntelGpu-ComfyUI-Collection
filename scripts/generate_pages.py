@@ -1304,7 +1304,7 @@ def build_comfyui_opt(opt_path):
 # ---------------------------------------------------------------------------
 
 GROUP_CARD_HTML = """    <div class="group-hero">
-      <img alt="group_logo" src="https://github.com/user-attachments/assets/40a6707f-a438-4139-8efa-c7248d0ccb9d">
+      <img alt="group_logo" src="https://raw.githubusercontent.com/allanmeng/IntelGpu-ComfyUI-Collection/main/assets/group_logo_630.jpg">
       <h2>《Intel GPU &amp; ComfyUI 折腾群》</h2>
       <p>标记为<span class="badge badge-community">社群</span>的项目来自群友作品</p>
       <p>QQ群：<a href="https://qm.qq.com/q/gls9aI3lgA" target="_blank">220819365</a></p>
@@ -1387,7 +1387,7 @@ GROUP_HTML = """<!DOCTYPE html>
     background: var(--card); border: 1px solid var(--border); border-radius: 16px;
     padding: 32px 28px; box-shadow: 0 1px 3px rgba(31,35,40,0.06);
   }
-  .group-hero img { max-width: 100%; height: auto; border-radius: 12px; }
+  .group-hero img { width: 630px; height: 630px; max-width: 100%; object-fit: cover; border-radius: 12px; }
   .group-hero h2 { margin: 16px 0 8px; font-size: 20px; }
   .group-hero p { font-size: 14px; color: var(--text-muted); margin: 6px 0; }
   .group-hero p a { color: var(--intel-blue); text-decoration: none; font-weight: 600; }
