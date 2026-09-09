@@ -19,7 +19,11 @@ ComfyUI Portable 是一个独立打包、下载就能用的 Windows 完整版 Co
 
 基于ComfyUI秋叶版制作，提前置入了 Pytorch, 以及 llama-cpp-python-sycl-windows 和 OpenVino，包含有限数量的 intel GPU专用的插件（群里作者的居多）。
 
-选择秋叶版本作为基底，是因为秋叶启动器很好的支持了 Comfyui的内核 以及 插件的维护升级。
+选择秋叶版本作为基底，是因为秋叶启动器很好的支持了 Comfyui的内核 以及 插件的维护升级。整合包有少量第三方插件、没有模型。
+
+整合包已经将《IntelGPU的ComfyUI系统优化指南》包含其中（20260905+），支持 A系列（dg2） 和 B系列（bmg） 显卡的优化，下载优需要用户根据自己显卡的型号，自行选择优化路径。
+
+作者自有B580（bmg）显卡，整合包中的 A系列（dg2）的优化资源来自群友 @Blackwood416 提供
 
 作者也优化了ComfyUI的 [启动文件bat](https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/comfyui-start/Stable_Start_IntelArc.md)，让Intel GPU适应更多的工作流压力
 
