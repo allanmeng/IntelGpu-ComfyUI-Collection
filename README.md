@@ -219,3 +219,15 @@ Intel XPU 集成适用于 Comfy-Org/comfy-kitchen，并由可选的 omni_xpu_ker
 Tag: fork,官方
 
 ---
+
+## ai-toolkit-xpu
+
+AI模型的调试训练工具包。在 Intel Arc / oneAPI (XPU) 上直接训练和出图。
+
+项目地址：https://github.com/JWLHS/ai-toolkit-xpu
+
+作者：[@JWLHS](https://github.com/JWLHS)
+
+Tag: fork,社群
+
+---
