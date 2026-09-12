@@ -14,7 +14,7 @@
 该优化的 B系列(BMG)显卡,来自官方的**llm-scaler-omni**官方項目；由社区补齐了**A770(DG2) 系列显卡**的支持缺口，针对Comfyui中工作流的执行速度和稳定性，提供了**Windows 平台**的支持，并整合为一份开箱即用的优化指南。建议Agent协助安装
 
 
-【[Release](https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/releases?q=intel-comfyui-guide&expanded=true)】【[网盘分流](https://pan.quark.cn/s/ba0d8aa09638)】【群文件分流】【[包含优化指南的整合包（20260905+）](https://pan.quark.cn/s/8263a7da1db6)】
+【[Release](https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/releases?q=intel-comfyui-guide&expanded=true)】【[网盘分流](https://pan.quark.cn/s/ba0d8aa09638)】【[包含优化指南的整合包（20260905+）](https://pan.quark.cn/s/8263a7da1db6)】【[关联视频](https://www.bilibili.com/video/BV1okYX6FEH8/)】
 
 项目地址：https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/intel-comfyui-guide/
 
