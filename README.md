@@ -222,7 +222,7 @@ Tag: fork,官方
 
 ## ai-toolkit-xpu
 
-AI模型的调试训练工具包。在 Intel Arc / oneAPI (XPU) 上直接训练和出图。
+ai-toolkit-xpu 是 ostris/ai-toolkit 的 Intel Arc XPU 适配版，让这套开源扩散模型训练套件在 Arc 独显上直接可用——支持 FLUX、Qwen-Image、Krea 2、SDXL、Wan、LTX-2 等全系图像与视频模型，可训 LoRA / LoKr。核心是 5 个 XPU 补丁加全模型 fp64 修复，无需 oneAPI 编译器。A770 上开启可选 xpu_int8 后端，Krea 2 训练提速约 2.25 倍（24.97 → 11.11 s/it），未装或架构不符会自动回退，训练不会失败。另配一键脚本、中文 Web UI 与全自动资源监控。
 
 项目地址：https://github.com/JWLHS/ai-toolkit-xpu
 
