@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-page-node-id="BdeYmvbq63OExQWN895gQ4">
-<head data-page-node-id="Z25K8GPJp5DXDiVh6N0iH9">
-<meta charset="utf-8" data-page-node-id="RFU9XQlWbVWRcdz2Lcw9I3">
-<meta name="viewport" content="width=device-width, initial-scale=1" data-page-node-id="7EDqeIpYUuXOpPDxqAGcpd">
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Intel GPU 的 ComfyUI 系统优化指南</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
@@ -45,66 +45,69 @@ hr { border:none; border-top:1px solid #e3e6ea; margin:28px 0; }
 }
 </style>
 </head>
-<body data-page-node-id="UAz7WWypfoEcdInMUUNDel">
-<div class="header" data-page-node-id="kF8m1Zir5HOZIvw2ERIdh9">
-  <h1 data-page-node-id="FHtU2bgky4OYNHVnBjbdIE">Intel GPU 的 ComfyUI 系统优化指南</h1>
-  <p data-page-node-id="Ew9RlAilhD53O988uPtsZH">Intel Arc 显卡 ComfyUI 加速方案 · 完整安装包与指南</p>
-  <a class="download-btn" href="https://pan.quark.cn/s/ba0d8aa09638" target="_blank" rel="noopener" data-page-node-id="TuBFfudDj0sPhn5vGyb7Io">📦 下载完整安装包（夸克网盘）</a>
+<body>
+<div class="header">
+  <h1>Intel GPU 的 ComfyUI 系统优化指南</h1>
+  <p>Intel Arc 显卡 ComfyUI 加速方案 · 完整安装包与指南</p>
+  <a class="download-btn" href="https://pan.quark.cn/s/ba0d8aa09638" target="_blank" rel="noopener">📦 下载完整安装包（夸克网盘）</a>
 </div>
-<div class="wrap" data-page-node-id="OSCH8CPef50TcDGRFJlIfb">
-  <div class="sidebar" data-page-node-id="9Bi6HlggcEtUX2vHh6vKFu">
-    <div class="toc" data-page-node-id="3kil0WH2oqflP2ypOAM2S4">
-      <div class="toc-title" data-page-node-id="1ZT9UFMMcG4Qk1CUJWHFUt">📖 目录</div>
-      <div class="toc" data-page-node-id="sirPRIw82FwQqJdYaTlS20">
-<ul data-page-node-id="nf1iyfrFBY52snr9EUyJMa">
-<li data-page-node-id="FAfKPcMiaw4N36gFMHZm7E"><a href="#_1" data-page-node-id="CvoWi5KsswGQUnii0tOutA">目录</a></li>
-<li data-page-node-id="F54HkqG6T4dLo81fTyCjxz"><a href="#_2" data-page-node-id="cMoAAFrVmkDJjh4CnA4tl3">第一部分：背景说明</a><ul data-page-node-id="Kt557FZ2OSubELoWPpsXYZ">
-<li data-page-node-id="HAz9Ap5C274If4ggxxBMzh"><a href="#intel-gpu-comfyui_1" data-page-node-id="pH6vpuFoRjiehEHO0fpk19">为什么 Intel GPU 在 ComfyUI 下又慢又"不稳"</a></li>
-<li data-page-node-id="FHpqUWsRcgYmq3HCg5CvGL"><a href="#intel-llm-scaler-omni" data-page-node-id="9lVofoJQFfX8gCunxQXhel">Intel llm-scaler-omni 的价值和问题</a></li>
+<div class="wrap">
+  <div class="sidebar">
+    <div class="toc">
+      <div class="toc-title">📖 目录</div>
+      <div class="toc">
+<ul>
+<li><a href="#_1">目录</a></li>
+<li><a href="#_2">第一部分：背景说明</a><ul>
+<li><a href="#intel-gpu-comfyui_1">为什么 Intel GPU 在 ComfyUI 下又慢又"不稳"</a></li>
+<li><a href="#intel-llm-scaler-omni">Intel llm-scaler-omni 的价值和问题</a></li>
 </ul>
 </li>
-<li data-page-node-id="cRP7TsjkZTomIDTXTAvCQB"><a href="#_3" data-page-node-id="DkymEMl87bEZ3FHAHrMgiQ">第二部分：优化思路</a><ul data-page-node-id="jzEPbIA0k2LZTasX3u8F8j">
-<li data-page-node-id="35kjdpYRw9KBmudJOCRTqB"><a href="#omni_xpu_kernel-kitchen-xpu-comfyui-omnixpu" data-page-node-id="83w5rpuMNcft937n3rtNLI">提速：omni_xpu_kernel + kitchen xpu + ComfyUI-OmniXPU</a></li>
-<li data-page-node-id="BL5D7TwQkuqgGTujh9fTBj"><a href="#comfy-aimdo-xpudynamicvram" data-page-node-id="mCpCDLO3BuP88H19B8r0Rk">稳定：comfy-aimdo XPU（DynamicVRAM）</a></li>
+<li><a href="#_3">第二部分：优化思路</a><ul>
+<li><a href="#omni_xpu_kernel-kernel">提速：量化算子加速链路（终点：omni_xpu_kernel 原生 kernel）</a></li>
+<li><a href="#comfy-aimdo-xpudynamicvram">稳定：comfy-aimdo XPU（DynamicVRAM）</a></li>
 </ul>
 </li>
-<li data-page-node-id="jcRGS31ZZUaCbpKUqfmCUZ"><a href="#_4" data-page-node-id="9z9PZgYEgrFJE0e3cwyahr">第三部分：安装</a><ul data-page-node-id="qTW4TA10fvsuBjwajatrus">
-<li data-page-node-id="RxXKh2slxawcJFwdzbhQ1b"><a href="#0-ai" data-page-node-id="ueCieDxktKkBnr5azQjEYs">0. 不熟悉命令行？让 AI 助手帮你装</a></li>
-<li data-page-node-id="6LHizV6ZLA4KKuVjQEG6eD"><a href="#1" data-page-node-id="oHniNhzP1GjwPgwE63e0vR">1. 环境要求</a></li>
-<li data-page-node-id="cloWOjjKPJnAIO8nepfGCa"><a href="#2-omni_xpu_kernel" data-page-node-id="ONb5MJQzmbgQltBjrkbs2m">2. omni_xpu_kernel 安装</a></li>
-<li data-page-node-id="UIJy6ub3Hh5ZMwEucmvYjk"><a href="#3-comfyui-omnixpu" data-page-node-id="Oxl4H4lemDH7L06NNNoIMS">3. ComfyUI-OmniXPU 安装</a></li>
-<li data-page-node-id="FLrZ3SrTu0T2VwqXNyVvZi"><a href="#4-comfyui-solattn-b" data-page-node-id="YpcnJoIfpILkJonqdLEEVG">4. ComfyUI-SolAttn 安装（选装，仅 B 系列用户）</a></li>
-<li data-page-node-id="AJgfyeFVFAz6WP5H8E0qmL"><a href="#5-comfyui-kitchen-xpu-20260905-provider" data-page-node-id="E3uOekf7rFq5nfUKSyCvSS">5. ComfyUI Kitchen XPU 安装（选装；20260905 起为 provider 新架构）</a></li>
-<li data-page-node-id="GctU3sDDbiAcdvLDQGJXZc"><a href="#6-comfyui-aimdo-xpu" data-page-node-id="LkPcLMoMYi4W1p7uVRhIo9">6. ComfyUI Aimdo XPU 安装（选装，测试版）</a></li>
-<li data-page-node-id="GWKTjGJVb8cvsf2QQIRRcn"><a href="#7-comfyui-gguf-xpu-gguf" data-page-node-id="pZM2TwPOR2XbrWSiE6tC6u">7. ComfyUI-GGUF-XPU 安装（选装，GGUF 用户强烈建议）</a></li>
+<li><a href="#_4">第三部分：安装</a><ul>
+<li><a href="#0-ai">0. 不熟悉命令行？让 AI 助手帮你装</a></li>
+<li><a href="#1">1. 环境要求</a></li>
+<li><a href="#2-omni_xpu_kernel">2. omni_xpu_kernel 安装</a></li>
+<li><a href="#3-comfyui-omnixpu">3. ComfyUI-OmniXPU 安装</a></li>
+<li><a href="#4-comfyui-solattn-b">4. ComfyUI-SolAttn 安装（选装，仅 B 系列用户）</a></li>
+<li><a href="#5-comfyui-kitchen-xpu-provider">5. ComfyUI Kitchen XPU 安装（选装；provider 架构）</a></li>
+<li><a href="#6-comfy-aimdo-xpu">6. comfy-aimdo XPU 安装（选装）</a></li>
+<li><a href="#7-comfyui-gguf-xpu-gguf">7. ComfyUI-GGUF-XPU 安装（选装，GGUF 用户强烈建议）</a></li>
 </ul>
 </li>
-<li data-page-node-id="ovqPrpvk6iSxINkQAVNG8j"><a href="#_5" data-page-node-id="Y5TGYP5iGESRE55Y5OnZCZ">第四部分：验证与故障排查</a><ul data-page-node-id="FYdQtjJRclXgNz21D1MPQj">
-<li data-page-node-id="sWDODwhA70UzwaaUX8IiHX"><a href="#_6" data-page-node-id="Xd8XRSdOnUqpTKfYdxxfTE">验证清单（按顺序）</a></li>
-<li data-page-node-id="Wfi70zCYsCLiImSYbaJp9m"><a href="#_7" data-page-node-id="4wdAqIUsLDDdfqWqHzetRb">常见问题表</a></li>
-<li data-page-node-id="a3BnRCadX6fXG6qlW7qhII"><a href="#comfyui" data-page-node-id="9dRPI1Cf3AyTundhyd8wHT">ComfyUI 内核升级后的标准动作（重要）</a></li>
+<li><a href="#_5">第四部分：验证与故障排查</a><ul>
+<li><a href="#_6">验证清单（按顺序）</a></li>
+<li><a href="#_7">常见问题表</a></li>
+<li><a href="#comfyui">ComfyUI 内核升级后的标准动作（重要）</a></li>
 </ul>
 </li>
-<li data-page-node-id="lHYBYZVenKlYHKzaMfENp1"><a href="#faq" data-page-node-id="rZOc4DILRck9qhGr1m7sNC">第五部分：实测数据与 FAQ</a><ul data-page-node-id="5A9rGa7qUFGmplH0y4oiB5">
-<li data-page-node-id="LbMxdiqDK51CvPtm70Lbfr"><a href="#arc-b580-windows-torch-213-torch-214" data-page-node-id="G9d20ieOSz4HyFJiRlIIXL">实测数据（Arc B580 / Windows；数据基于 torch 2.13 栈测得，torch 2.14 栈待复测）</a></li>
-<li data-page-node-id="N4YUWmYQmaZsjR01gCu0g7"><a href="#faq_1" data-page-node-id="T0NZwqjIre2wG0wcBtGMO8">FAQ</a></li>
+<li><a href="#faq">第五部分：实测数据与 FAQ</a><ul>
+<li><a href="#arc-b580-windows-torch-213-torch-214">实测数据（Arc B580 / Windows；提速数据基于 torch 2.13 栈测得，torch 2.14 栈待复测）</a></li>
+<li><a href="#arc-a770-16gb-windows-torch-2140xpu">实测数据（Arc A770 16GB / Windows / torch 2.14.0+xpu）</a></li>
+<li><a href="#faq_1">FAQ</a></li>
 </ul>
 </li>
-<li data-page-node-id="nWllBt6DkyDKA9EfmjUTSq"><a href="#_8" data-page-node-id="JglBU3WNosgONSmktL6q2f">第六部分：内核升级后的组件检查与恢复</a><ul data-page-node-id="ZPssEYO83LN76zDslgIoqY">
-<li data-page-node-id="QWecd0IxJlwqExCvZGXkd6"><a href="#61" data-page-node-id="e8JAIJJCKAw593DY3eR8HB">6.1 总览</a></li>
-<li data-page-node-id="6w7ZYT84qZV70RVkTPLWD6"><a href="#62-omni_xpu_kernel" data-page-node-id="zkoV3BlnfMFMjfHEqiS8fV">6.2 omni_xpu_kernel：通常不用管</a></li>
-<li data-page-node-id="oUogS10wkTHW0Ch9AVkH3n"><a href="#63-comfy-kitchenprovider-20260905" data-page-node-id="UBLzO6jTh60mn5vvlGZYYl">6.3 comfy-kitchen：provider 架构下不再被覆盖（20260905 起）</a></li>
-<li data-page-node-id="wVXHHmxflx2xYrv65XCXlK"><a href="#64-comfyui-omnixpu" data-page-node-id="gDTRM0N9vaynvFFhL1vlgC">6.4 ComfyUI-OmniXPU：目录安全，看启动日志</a></li>
-<li data-page-node-id="kVEWo4RVokYHEmrK4ABv5a"><a href="#65-comfyui-solattncomfyui-b" data-page-node-id="BjcsDYK0aKXhSP8rU0jckq">6.5 ComfyUI-SolAttn：ComfyUI 升级后的验证与恢复（仅 B 系列）</a></li>
-<li data-page-node-id="4APDZSyXZYFhwQERfVaTcb"><a href="#66-comfy-aimdo" data-page-node-id="SMKUuRtXTJ8FoZdVh83CgF">6.6 comfy-aimdo：另一套部署方式</a></li>
-<li data-page-node-id="wyAGhndHzrxDgYgbBDGT60"><a href="#67" data-page-node-id="Cl1pIQbwHQOb9FwJiJNz7W">6.7 升级后标准动作</a></li>
+<li><a href="#_8">第六部分：内核升级后的组件检查与恢复</a><ul>
+<li><a href="#61">6.1 总览</a></li>
+<li><a href="#62-provider-comfyui-provider">6.2 provider 的「双锚」：ComfyUI 一抬依赖，provider 就可能失效</a></li>
+<li><a href="#63-omni_xpu_kernel">6.3 omni_xpu_kernel：通常不用管</a></li>
+<li><a href="#64-comfy-kitchenprovider">6.4 comfy-kitchen：provider 架构下不再被覆盖</a></li>
+<li><a href="#65-comfyui-omnixpu">6.5 ComfyUI-OmniXPU：目录安全，看启动日志</a></li>
+<li><a href="#66-comfyui-solattncomfyui-b">6.6 ComfyUI-SolAttn：ComfyUI 升级后的验证与恢复（仅 B 系列）</a></li>
+<li><a href="#67-comfy-aimdoprovider-20260912">6.7 comfy-aimdo：provider 架构下不再被覆盖（20260912 起）</a></li>
+<li><a href="#68">6.8 升级后标准动作</a></li>
+<li><a href="#69-a770dg2">6.9 A770（DG2）专项说明</a></li>
 </ul>
 </li>
-<li data-page-node-id="kWSBpyZWfwKMVY82v5qnfk"><a href="#_9" data-page-node-id="PfCrC2mGAPPilY78nYSY0a">附录：文件清单对照</a></li>
-<li data-page-node-id="nna36bGK7ZD3B1XgOjoc7v"><a href="#_10" data-page-node-id="ukEHeDTOQpwtkI3DsAXiFl">感谢</a><ul data-page-node-id="E944wZR9L3MkhFEyM29uN6">
-<li data-page-node-id="WrvXlxaVSFcrTi6KaaKXIX"><a href="#_11" data-page-node-id="SrJ3U3KcHDUnikRksTpDYA">特别感谢</a></li>
-<li data-page-node-id="yweafyNMeCynBKiX2kmFO4"><a href="#intel-gpu-comfyui_2" data-page-node-id="soNyebICkmyQuKJROelGeD">Intel GPU &amp; ComfyUI 折腾群</a></li>
-<li data-page-node-id="4oiGZ7eZdZyUAiNmVmumve"><a href="#_12" data-page-node-id="vnTbbVJhPJzjT3R1ntkv3G">全部项目地址汇总</a></li>
+<li><a href="#_9">附录：文件清单对照</a></li>
+<li><a href="#_10">感谢</a><ul>
+<li><a href="#_11">特别感谢</a></li>
+<li><a href="#intel-gpu-comfyui_2">Intel GPU &amp; ComfyUI 折腾群</a></li>
+<li><a href="#_12">全部项目地址汇总</a></li>
 </ul>
 </li>
 </ul>
@@ -112,261 +115,330 @@ hr { border:none; border-top:1px solid #e3e6ea; margin:28px 0; }
 
     </div>
   </div>
-  <div class="main" data-page-node-id="ugF780zzvaEqEimPQHWZ4w">
-    <div class="content" data-page-node-id="bWhpugGvvg3lgfH5PkHdFM">
-      <h1 id="intel-gpu-comfyui" data-page-node-id="uAqB69n6LEz6QJunngDFJV">Intel GPU 的 ComfyUI 系统优化指南</h1>
-<blockquote data-page-node-id="jiYLOHylPWNDs5z6l6nrIG">
-<p data-page-node-id="yEfNHgWv1vaWKx3qnQ8BJL">面向普通 Intel GPU 用户：让 ComfyUI 在 Intel Arc 显卡上<strong data-page-node-id="UgXAeA0oBq3IC7rOiX2Fnz">更快、更稳</strong>的完整方案。
-本指南配套同目录下的安装文件包使用，版本：<strong data-page-node-id="oueJVi5cQ9a5TMDpfhyaZW">20260905</strong></p>
+  <div class="main">
+    <div class="content">
+      <h1 id="intel-gpu-comfyui">Intel GPU 的 ComfyUI 系统优化指南</h1>
+<blockquote>
+<p>面向普通 Intel GPU 用户：让 ComfyUI 在 Intel Arc 显卡上<strong>更快、更稳</strong>的完整方案。
+本指南配套同目录下的安装文件包使用，版本：<strong>20260912</strong></p>
 </blockquote>
-<p data-page-node-id="6G0IOI4vmKMy0z2bbHMLM3"><strong data-page-node-id="CsqWDDCpFPEGtqmg9l3CNw">📌 本版本更新说明（20260905）</strong>：</p>
-<ul data-page-node-id="OadbKTlnkpWsb25HgByb9i">
-<li data-page-node-id="VEwCV0cRhGKhq5rDt0UwhC">⚠️ <strong data-page-node-id="wkXb3lC8NQqGVLaS1AEQzf">本版为 torch 2.14 栈 / B 系列（BMG）和 A770(dg2) 双线，请区分不同的文件夹。</strong></li>
-<li data-page-node-id="vENo6cB3lxSqrBu9RAJdDw"><strong data-page-node-id="SWzRASxH7DHwXJcwaYQe4u">omni_xpu_kernel</strong>：0.2.0b2+torch213.bmg → <strong data-page-node-id="JJGRzeBMuC9HJLTyGBsx1X">0.2.0b2+torch214.bmg</strong>——<strong data-page-node-id="9Xxofr2cdnnxBuQdSq0Rdt">PyTorch 2.14 重建版</strong>（同步上游至 #675；Windows 编译标准升 <strong data-page-node-id="BgtspOXI7F5TVMnDOAB9XF">C++20</strong>——torch 2.14 headers 硬性要求）。CUTE FMHA + Sol-Attn 四算子（d128 / Wan cross / H3 VAE / sol_attn）随 bmg 内核保持全启用</li>
-<li data-page-node-id="EXIXXllYXII0OB2YuOu9tL"><strong data-page-node-id="vFz1wIQRFiXU1KAJ7DCpGX">comfy-kitchen</strong>：<strong data-page-node-id="73ZnSEDshozxgEwv5BXXwu">架构切换</strong>——0.2.31.post1 整包 → <strong data-page-node-id="aDOxz87TMRXHlpqTAx1GgX">xiangyuT provider 架构</strong>（<code data-page-node-id="LpHvxlIhATWPtiI2duiFum">comfy_kitchen_xpu_runtime-0.2.31</code>）。官方 comfy-kitchen 0.2.31 由 ComfyUI requirements 自动安装，XPU 实现走 <strong data-page-node-id="qwAvGBWhOCsFnKfrujGmDC">OmniXPU runtime provider 路由</strong>（与官方版解耦，<strong data-page-node-id="bqXFXdsZs9gHbrPxPPfvW7">升级 ComfyUI 内核不再互相覆盖</strong>）</li>
-<li data-page-node-id="7MKGxaj4iH4XQFQFnkCTe2"><strong data-page-node-id="pYbNIfPbwESiSADMd6Hlqb">ComfyUI-OmniXPU</strong>：沿用 20260901 版（上游无更新；该版已含 runtime bootstrap + provider 契约 comfy_kitchen/comfy_aimdo）</li>
-<li data-page-node-id="69k8FKEyR0H13XTESlv3qd"><strong data-page-node-id="CJf2LbHHInIhSVIzpJxOs4">ComfyUI-GGUF-XPU</strong>：<strong data-page-node-id="nJFpBdcYCbGBj4ZNl9W2Av">20260905 新版</strong>（<code data-page-node-id="N1Ix6nQwBAUfjky58ZMD1S">ComfyUI-GGUF-XPU-20260905.zip</code>）——新增 <strong data-page-node-id="KEplMDtmViobwVCiBJrTzm">Qwen3-VL 视觉塔（mmproj）加载映射</strong>（<code data-page-node-id="1YtVfbuiYBpTcUZSZSJI0c">loader.py</code>，对应上游 PR <a href="https://github.com/city96/ComfyUI-GGUF/pull/478" data-page-node-id="xVV1uwVHZy6QlfnwgnzMyS">city96/ComfyUI-GGUF#478</a>），修复 Krea2 工作流加载 GGUF 版 Qwen3-VL CLIP 时报 <code data-page-node-id="luupRHhXzwzy0zseBuz5ZM">30720 features but got 2560</code> 的问题；qwen2vl/llama/t5 等原加载路径零回归</li>
-<li data-page-node-id="rffqlBBXaQ9vcNg5V6ybhE"><strong data-page-node-id="HAKJVuGjmXmHuHPFL8aSky">ComfyUI-SolAttn / comfy-aimdo</strong>：沿用 20260901 版（无变化；aimdo 维持 PR#17）</li>
-<li data-page-node-id="86lXywiT9N0NxokgeFzbXE"><strong data-page-node-id="ACi7c9G7PnzDaEDEM8EQhQ">配套内核</strong>：ComfyUI 0.34.x（0.34.5 实测）+ <strong data-page-node-id="CGFHt0YjinQBjmvAAQsnsb">PyTorch 2.14.0+xpu</strong>（XPU build 20260100 = oneAPI 2026.1）</li>
+<p><strong>📌 本版本更新说明（20260912）</strong>：</p>
+<ul>
+<li>⚠️ <strong>本版为 torch 2.14 栈 / B 系列（BMG）和 A770(dg2) 双线，请区分不同的文件夹。</strong></li>
+<li><strong>A770(dg2) 线内容已补齐</strong>（社区 fork，Blackwood416）：内核 <code>omni_xpu_kernel-0.2.0b1+torch214.dg2.3-cp313-cp313-win_amd64.whl</code>（<strong>版本号是 <code>b1</code>，B 系列为 <code>b2</code>，号小不代表装错</strong>）+ <code>ComfyUI-OmniXPU.A770(dg2)-20260912.zip</code>。<strong>A770 没有单独的 aimdo / kitchen 包——与 B 系列共用包根目录的同一份 provider。</strong> 相关章节：2.1 / 3.1 / 6.9。</li>
+<li>⚠️ <strong>A770 跑 MiniMax H3 必须设 <code>UR_L0_USE_IMMEDIATE_COMMANDLISTS=1</code></strong>——否则第一个采样步的第 3 个 attention stage 即报 <code>UR_RESULT_ERROR_DEVICE_LOST</code>（详见 3.1）。<strong>该变量只影响 Windows DG2。</strong></li>
+<li><strong>comfy-aimdo XPU：改用 provider 架构（本版最大变化）</strong>——不再用 <code>deploy.bat</code> 覆盖官方 <code>comfy_aimdo</code> 包，改为独立发行 <strong><code>comfy-aimdo-xpu-runtime</code></strong>（本包根目录 <code>comfy_aimdo_xpu_runtime-0.5.3-cp39-abi3-win_amd64.whl</code>），与官方 <code>comfy-aimdo</code> <strong>精确配对、互不覆盖</strong>，安装方式改为 pip。详见第三部分第 6 节（含前置条件表与排错对照表）。</li>
+<li><strong>配套内核升级到 ComfyUI 0.35.0</strong>：kitchen 的"版本三角"随之抬到 <strong>0.2.33</strong>——ComfyUI <code>requirements.txt</code> 固定官方 <code>comfy-kitchen==0.2.33</code>，本包 provider 的版本锚同步为 <code>["0.2.33"]</code>。</li>
+<li><strong>omni_xpu_kernel</strong>：0.2.0b2+torch214.bmg <strong>同版本号重建</strong>——同步上游 <a href="https://github.com/intel/llm-scaler/pull/696">intel/llm-scaler#696</a>（xiangyuT，<em>Omni: Upgrade ComfyUI to v0.35.0</em>）：新增<strong>原生 Sol attention CUTE 全套实现</strong>（<code>sol_attn_{carriers,coarse,pooled,routes,token}.hpp</code>、<code>sol_attn_mainloop.hpp</code>、<code>sol_attn_prepare.cpp</code>、<code>sol_attn_torch.cpp</code>，以及 <code>cute/sol_attn_v2.py</code>）。<strong>本版 pyd 已重编</strong>：<code>cute_fmha_torch.pyd</code> 由 4.6MB 增至 <strong>7.3MB</strong>。</li>
+<li><strong>ComfyUI-OmniXPU</strong>：<strong>20260908 → 20260912 新版</strong>（<code>ComfyUI-OmniXPU.bmg-20260912.zip</code>）——新增 <code>sparse_attention</code>（改写上游 block-sparse 资格判定，认 kitchen 原生 XPU API）与 <code>quantized_matmul</code>（把 kitchen 原生 INT8 格式暴露给 ComfyUI 模型资格检查）两个 adapter；<code>runtime_bootstrap</code> / <code>config</code> / <code>patches</code> / <code>h3_rms_modulation</code> 同步更新。</li>
+<li><strong>comfy-kitchen XPU provider</strong>：0.2.31 → <strong>0.2.33</strong>（fork revision <code>9a46ea7</code>）——接入内核 <code>cute.sol_attn_v2</code> sidecar，<code>sol_attn</code> 算子纳入 kitchen 分发。</li>
+<li><strong>ComfyUI-GGUF-XPU</strong>：20260905 → <strong>20260912</strong>——<code>loader.py</code> 的 <code>IMG_ARCH_LIST</code> 补入 <code>krea2</code>（Krea2 GGUF 图像架构识别）。</li>
+<li><strong>ComfyUI-SolAttn</strong>：沿用 20260901 版（无变化）；<strong>仅 B 系列可用</strong>，A770 不适用。</li>
+<li><strong>📄 文档新增</strong>：第六部分增加 <strong>6.2 节《provider 的「双锚」》</strong>——解释"升级 ComfyUI 后 XPU 加速还在、但变慢了"这个高频现象，附自检命令与判读规则（另：Sol-Attn 章节补充了与 <code>ComfyUI-SolAttn_triton</code> 抢注册的警告，见第三部分第 4 节）。</li>
+<li><strong>📄 A770 章节新增</strong>：本版补入 A770 线内容——<code>UR_L0_USE_IMMEDIATE_COMMANDLISTS=1</code>（H3 硬性要求，见 3.1）、ESIMD 路由判据表（3.1）、A770 专属开关表与 SeedVR2 结论（<strong>6.9</strong>）、A770 实测数据（第五部分）、以及 6.5 的两线 adapter 对照。</li>
+<li><strong>🧰 新增工具</strong>：<strong><code>check_provider_alignment.py</code></strong>（包根目录）——一条命令体检"ComfyUI pin ↔ 官方包 ↔ provider 锚 ↔ torch"是否对齐，有问题时直接给出建议动作。建议每次升级 ComfyUI / <code>git pull</code> 之后跑一次。</li>
 </ul>
-<hr  data-page-node-id="JZ1AJQkMdXxe4j6QFxDvOj"/>
-<h2 id="_1" data-page-node-id="YngJYODBWiNszA3lc9Qtqy">目录</h2>
-<ul data-page-node-id="DAG91kEFJSIM7LRetkf41P">
-<li data-page-node-id="ZlEn1FDkOVgBkgMe4KYMwT"><a href="#第一部分背景说明" data-page-node-id="txDogrGMGGNKzFBtfHXv1m">第一部分：背景说明</a></li>
-<li data-page-node-id="ATv2W8ItbW6BtFv2u17QH5"><a href="#第二部分优化思路" data-page-node-id="8xLbWrHPfbOdEFWplS8IMH">第二部分：优化思路</a></li>
-<li data-page-node-id="XK7MoJKc4ZMMFWQBAlcDiZ"><a href="#第三部分安装" data-page-node-id="d3ZFm7e9DS6dZ3V04e3WES">第三部分：安装</a></li>
-<li data-page-node-id="bAhVMiZARtGmWRCyqWhFJ7"><a href="#第四部分验证与故障排查" data-page-node-id="u8ohGQ3txuPjO4IwCFIfI3">第四部分：验证与故障排查</a></li>
-<li data-page-node-id="4wwmvwnEQ7GXkrVITPfX2j"><a href="#第五部分实测数据与-faq" data-page-node-id="fMZoBxVPHuAKX0IOxBEgGt">第五部分：实测数据与 FAQ</a></li>
-<li data-page-node-id="22KI1YnGoGmbfxieKUSXTR"><a href="#第六部分内核升级后的组件检查与恢复" data-page-node-id="MMZMNe30wwKQiPmMNlku5a">第六部分：内核升级后的组件检查与恢复</a></li>
-<li data-page-node-id="1wtwPgnvCLw8th51rAIo3t"><a href="#附录文件清单对照" data-page-node-id="jsz5A5Xcs6rdHkfPEI9q1j">附录：文件清单对照</a></li>
+<hr />
+<h2 id="_1">目录</h2>
+<ul>
+<li><a href="#第一部分背景说明">第一部分：背景说明</a></li>
+<li><a href="#第二部分优化思路">第二部分：优化思路</a></li>
+<li><a href="#第三部分安装">第三部分：安装</a></li>
+<li><a href="#第四部分验证与故障排查">第四部分：验证与故障排查</a></li>
+<li><a href="#第五部分实测数据与-faq">第五部分：实测数据与 FAQ</a></li>
+<li><a href="#第六部分内核升级后的组件检查与恢复">第六部分：内核升级后的组件检查与恢复</a></li>
+<li><a href="#附录文件清单对照">附录：文件清单对照</a></li>
 </ul>
-<hr  data-page-node-id="FQKeG4mCWg5buWB8HjfKJo"/>
-<h2 id="_2" data-page-node-id="uKxAehEvc5mcxRqU7p2T49">第一部分：背景说明</h2>
-<h3 id="intel-gpu-comfyui_1" data-page-node-id="Jd06hNB1X1T5hAl9mWkoLO">为什么 Intel GPU 在 ComfyUI 下又慢又"不稳"</h3>
-<table data-page-node-id="llHYNrRcZ81WvCcz9qFK6J">
-<thead data-page-node-id="82kt1cg1llO6pAFy7VRXf2">
-<tr data-page-node-id="uadZDDs84xS3d4Hu3qO8iS">
-<th data-page-node-id="O9ZGC3UCF8CFsfHe7A33lX">问题</th>
-<th data-page-node-id="qkY20o1Qn8TSpvFV6Qh8Xh">根因</th>
+<hr />
+<h2 id="_2">第一部分：背景说明</h2>
+<h3 id="intel-gpu-comfyui_1">为什么 Intel GPU 在 ComfyUI 下又慢又"不稳"</h3>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>根因</th>
 </tr>
 </thead>
-<tbody data-page-node-id="zwhfja4d2Wj0pHqN5UQS4S">
-<tr data-page-node-id="tZ4iyF3p1jkxoTxikZP92Z">
-<td data-page-node-id="HqymkYWYCGCIPDXS9i1QAe"><strong data-page-node-id="qUVxlAqsMpNpkqCCsclwyD">慢</strong></td>
-<td data-page-node-id="8EZvW9Ubykhqfzh5NY70ZG">ComfyUI 的算子生态长期以 CUDA（NVIDIA）为中心，Intel 显卡只能走 PyTorch 通用路径（eager 逐算子执行），量化模型（GGUF/INT8/FP8）的解包、反量化大量在 CPU 或通用实现上完成</td>
+<tbody>
+<tr>
+<td><strong>慢</strong></td>
+<td>ComfyUI 的算子生态长期以 CUDA（NVIDIA）为中心，Intel 显卡只能走 PyTorch 通用路径（eager 逐算子执行），量化模型（GGUF/INT8/FP8）的解包、反量化大量在 CPU 或通用实现上完成</td>
 </tr>
-<tr data-page-node-id="aRegBDLozHrgdcNHPMiCTD">
-<td data-page-node-id="QbnCzBEiQtfACVhnKDg3Tv"><strong data-page-node-id="IRHR5K6GYQKNolLFlfPTXp">更慢</strong></td>
-<td data-page-node-id="j1xmgC6WCDbj9q3x0wi4X9">Intel GPU 没有成熟的"算子分发层"——装了量化模型也没有原生 kernel 可调，全部回退到慢速路径</td>
+<tr>
+<td><strong>更慢</strong></td>
+<td>Intel GPU 没有成熟的"算子分发层"——装了量化模型也没有原生 kernel 可调，全部回退到慢速路径</td>
 </tr>
-<tr data-page-node-id="IO81bOPDJCNz79hooxCLEF">
-<td data-page-node-id="x5rJkJnoFSjKsUxf4sJEUp"><strong data-page-node-id="zZQPO9sdks0hFVoKaVufFP">不稳</strong></td>
-<td data-page-node-id="jF5z4Jntw8bpBQrPJceXRY">消费级卡显存小（12–16GB）+ Windows WDDM 驱动调度开销大，大模型贴满显存时 OOM、卡死、花屏频发</td>
+<tr>
+<td><strong>不稳</strong></td>
+<td>消费级卡显存小（12–16GB）+ Windows WDDM 驱动调度开销大，大模型贴满显存时 OOM、卡死、花屏频发</td>
 </tr>
-<tr data-page-node-id="LSCks281IGD8vQXImGGTfg">
-<td data-page-node-id="ZtDYldADzTHJfSgurmQubq"><strong data-page-node-id="NKu82eHWY3AXURARVhGATh">生态</strong></td>
-<td data-page-node-id="KwenbxPB37OVUHn9zvTLwG"><code data-page-node-id="S8S115ByphC03IOG4097Vg">torch.xpu</code>（PyTorch 的 Intel GPU 后端）是后起之秀，周边配套（手写 kernel 库、显存管理）远不如 CUDA 成熟</td>
+<tr>
+<td><strong>生态</strong></td>
+<td><code>torch.xpu</code>（PyTorch 的 Intel GPU 后端）是后起之秀，周边配套（手写 kernel 库、显存管理）远不如 CUDA 成熟</td>
 </tr>
 </tbody>
 </table>
-<p data-page-node-id="SZYI2rhs1jnNoO5YAJCQ8z"><strong data-page-node-id="RMDFZQGfJ1E4FQO0Qpj5yV">一句话</strong>：Intel GPU 的瓶颈不在硬件，而在"软件生态没跟上"——量化算子和显存管理缺两条腿。</p>
-<h3 id="intel-llm-scaler-omni" data-page-node-id="GKa3BHCPgCJgbdxW2bePBD">Intel llm-scaler-omni 的价值和问题</h3>
-<p data-page-node-id="63PCkslwUXtpmM3eWg44SJ"><strong data-page-node-id="VFnDDx8AmEZAbKF89LHlgT">价值：官方为 ComfyUI 打造的 XPU 优化套件</strong></p>
-<p data-page-node-id="uFFVAaX14B9xUYGbBKkfvV">Intel 官方仓库 <code data-page-node-id="5I7yBjjc5DqgOormpzjrhG">intel/llm-scaler</code> 的 omni 系列，把"两条腿"补上了：
+<p><strong>一句话</strong>：Intel GPU 的瓶颈不在硬件，而在"软件生态没跟上"——量化算子和显存管理缺两条腿。</p>
+<h3 id="intel-llm-scaler-omni">Intel llm-scaler-omni 的价值和问题</h3>
+<p><strong>价值：官方为 ComfyUI 打造的 XPU 优化套件</strong></p>
+<p>Intel 官方仓库 <code>intel/llm-scaler</code> 的 omni 系列，把"两条腿"补上了：
 地址：https://github.com/intel/llm-scaler/tree/main/omni</p>
-<table data-page-node-id="hY8ZljtKN4vPBijelvB6lH">
-<thead data-page-node-id="AZjOLXD5sQ2RtghF153BI7">
-<tr data-page-node-id="ASG9NomagToNDekEzwWhiE">
-<th data-page-node-id="eePZQFxPFpyGT6ORvSZAgJ">组件</th>
-<th data-page-node-id="8BRt24WWTnQZguR5zZlvx5">作用</th>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>作用</th>
 </tr>
 </thead>
-<tbody data-page-node-id="OMJdFYKRFf2Qw7ihwhCwu3">
-<tr data-page-node-id="DABxWVoTreMmkTs9ajrut0">
-<td data-page-node-id="lZX5wZXZLbYYeaBzIidQAj"><strong data-page-node-id="usbgPq5DB8td7lZ2RWxC1n">omni_xpu_kernel</strong></td>
-<td data-page-node-id="E3WZeWKWZ18ia2zbeON7c7">SYCL/ESIMD 手写内核库：norm（RMSNorm/LayerNorm）、rotary、INT8 FFN、FP8 GEMM、GGUF 解包、SVDQuant INT4</td>
+<tbody>
+<tr>
+<td><strong>omni_xpu_kernel</strong></td>
+<td><strong>计算方</strong>：SYCL/ESIMD 手写内核库——norm（RMSNorm/LayerNorm）、rotary、INT8 FFN、FP8 GEMM、GGUF 解包、SVDQuant INT4，量化加速的唯一计算终点</td>
 </tr>
-<tr data-page-node-id="UgxAlPDQ11pColf1EPEy28">
-<td data-page-node-id="TXz3dT2EE21zl6ZZKlzewd"><strong data-page-node-id="UcJFfWsT4AbgvfJCFZMEmN">comfy-kitchen XPU fork</strong></td>
-<td data-page-node-id="4WAwbYnDJDd7xpGAymOCbQ">算子分发层：把量化算子（GGUF/rope/convrot…）路由到 omni_xpu_kernel 原生 kernel</td>
+<tr>
+<td><strong>comfy-kitchen XPU fork</strong></td>
+<td><strong>分发壳（零计算）</strong>：QuantizedTensor 解包 + registry 选路，把量化算子（GGUF/rope/convrot…）路由到 omni_xpu_kernel 原生 kernel</td>
 </tr>
-<tr data-page-node-id="77q9xFHdRL5JwlOykoqCLn">
-<td data-page-node-id="hAZczD88z6dm3lGz5nhwGQ"><strong data-page-node-id="0dUzolq3xiA9KsInH8XebA">ComfyUI-OmniXPU</strong></td>
-<td data-page-node-id="i6L2aE7ACeF82bKCMmIHQs">接入节点：启动时自动 patch ComfyUI 的模型层，无需改工作流</td>
+<tr>
+<td><strong>ComfyUI-OmniXPU</strong></td>
+<td><strong>接线方</strong>：启动自动 patch ComfyUI 的模型层，adapter 让 norm/FP8/INT8-FFN/attention 等普通张量路径<strong>直连 kernel</strong>（不经 kitchen）；无需改工作流</td>
 </tr>
-<tr data-page-node-id="gSUOYC3WlTq3aBIFpLUYU6">
-<td data-page-node-id="sHR8Xqc44oxrpr2ZFaljWO"><strong data-page-node-id="SbiTHTf8R6RJJHP9unA3ht">comfy-aimdo XPU</strong></td>
-<td data-page-node-id="5yHzSmAgbDVdrqy2GlkAJl">DynamicVRAM 显存管理：按需换页（VBAR fault）、权重驱逐，防 OOM</td>
+<tr>
+<td><strong>comfy-aimdo XPU</strong></td>
+<td>DynamicVRAM 显存管理：按需换页（VBAR fault）、权重驱逐，防 OOM（20260912 起为 provider 架构，独立发行 <code>comfy-aimdo-xpu-runtime</code>）</td>
 </tr>
 </tbody>
 </table>
-<p data-page-node-id="aMGdEMUvyvjx5vPvx4U1C8">官方验证面：Arc Pro B70/B60 专业卡。</p>
-<p data-page-node-id="xwNTVuZJZkMoKPzFiez5Jk"><strong data-page-node-id="Sj8FDBaoHsNHwYK0RBhYKQ">问题：官方套件的三个受限点</strong></p>
-<ol data-page-node-id="OrKrHZ5jNaUzWOxDMGtDuX">
-<li data-page-node-id="MJrY5NlFE9LogBAnyROzrT"><strong data-page-node-id="g92KbUSAfF5gmLDZINC25R">专注 B 系列（BMG 架构）</strong>：官方内核只编译 <code data-page-node-id="4SVSS8wNlwGsKjLCiXxc7o">bmg</code> 目标（B580/B60/B70），<strong data-page-node-id="XgsjAnPPjzm28lcCTQqhA0">A 系列（A770 等 DG2 架构）原版不支持</strong>——需社区手搓内核（见安装第 2 步）</li>
-<li data-page-node-id="3GApUfmEaybzmXDs5XCS8Z"><strong data-page-node-id="yYUZ4qzsbU6Z6qEWxv3tfa">优选专业卡</strong>：官方文档以 B60/B70 为基准验证，消费级 B580 部分场景（显存贴满）需要额外处理</li>
-<li data-page-node-id="o7wRS0MEJHp2gIFqII9Khc"><strong data-page-node-id="4HrNLISOi7z8Rd6kcnwID3">Windows 支持度有限</strong>：官方 Windows 便携版只验证到 torch 2.12；torch 2.13/2.14 均需本地适配编译（本包已为你编译好）；组件版本联动、升级后互相覆盖，维护门槛高</li>
+<p>官方验证面：Arc Pro B70/B60 专业卡。</p>
+<p><strong>问题：官方套件的三个受限点</strong></p>
+<ol>
+<li><strong>专注 B 系列（BMG 架构）</strong>：官方内核只编译 <code>bmg</code> 目标（B580/B60/B70），<strong>A 系列（A770 等 DG2 架构）原版不支持</strong>——需社区手搓内核（见安装 2.1）。社区的 dg2 内核不只是"能跑"：它额外带了 <strong>DG2 SDP 注意力侧车</strong>（ESIMD/DPAS 路线；B 系列走的是 CUTE）与一批 A770 实测调优，所以 <strong>A770 与 B 系列在注意力引擎、adapter 集上都是两条独立路线</strong>（对照见 6.9）</li>
+<li><strong>优选专业卡</strong>：官方文档以 B60/B70 为基准验证，消费级 B580 部分场景（显存贴满）需要额外处理</li>
+<li><strong>Windows 支持度有限</strong>：官方 Windows 便携版只验证到 torch 2.12；torch 2.13/2.14 均需本地适配编译（本包已为你编译好）；组件版本联动、升级后互相覆盖，维护门槛高</li>
 </ol>
-<hr  data-page-node-id="gHBJvWpJn1TYVAsC1trGjQ"/>
-<h2 id="_3" data-page-node-id="FHkFAhp4dCzmdfajem3UWB">第二部分：优化思路</h2>
-<h3 id="omni_xpu_kernel-kitchen-xpu-comfyui-omnixpu" data-page-node-id="mqIJEP1p8tTcTjKH1g2jrJ">提速：omni_xpu_kernel + kitchen xpu + ComfyUI-OmniXPU</h3>
-<pre data-page-node-id="J3eBUuBlpikJiLsoq6iu4I"><code data-page-node-id="le5NGx5J9riRraG8VLSbbR">优化前: 量化算子 → eager 通用路径（CPU/慢速实现）
-优化后: 量化算子 → comfy-kitchen(xpu backend) → omni_xpu_kernel 原生 kernel
+<hr />
+<h2 id="_3">第二部分：优化思路</h2>
+<h3 id="omni_xpu_kernel-kernel">提速：量化算子加速链路（终点：omni_xpu_kernel 原生 kernel）</h3>
+<p><strong>核心</strong>：所有量化加速的<strong>计算终结点都是 omni_xpu_kernel 原生 kernel</strong>（SYCL/ESIMD）；comfy-kitchen <strong>不实现任何计算</strong>，只充当"分发壳"。</p>
+<p>量化算子（INT8/GGUF/rope/convrot/SVDQuant…）有两条到达 kernel 的路径，取决于权重以什么形式参与计算：</p>
+<pre><code class="language-text">优化前: 量化算子 → eager 通用路径（CPU/慢速实现）
+
+路径① QuantizedTensor 承载（int8_tensorwise/convrot/GGUF/svdquant…）
+量化算子 → comfy-kitchen(xpu backend) 分发壳 → omni_xpu_kernel 原生 kernel
+
+路径② 普通张量承载（OmniXPU adapter patch：norm/FP8/INT8-FFN/attention）
+模型计算 → 直连 omni_xpu_kernel 原生 kernel（不经 kitchen）
 </code></pre>
-<p data-page-node-id="ZiwF88bZDILCCnYe1mbun3">三个组件各司其职：</p>
-<pre data-page-node-id="Ng6SUMcL1HivQi9EAoBZXm"><code data-page-node-id="vgoemcAh5rYnQmuVlsdrZZ">ComfyUI → OmniXPU 节点(自动 patch 模型层)
-              ├─ norm / FP8 / INT8-FFN → 直连 omni_xpu_kernel（不经 kitchen）
-              └─ GGUF/rope/convrot 等通用算子 → comfy-kitchen(xpu) → omni_xpu_kernel
+<p><strong>为什么路径① 必须经过分发壳</strong>（不能直接"量化算子 → kernel"）：</p>
+<pre><code class="language-text">量化权重以 QuantizedTensor（comfy-kitchen 定义的数据结构）承载，
+scale/zero_point/group 等量化元数据封装在内部；
+omni_xpu_kernel 的算子只认原始 tensor（x / weight / weight_scale / bias），
+不认识 QuantizedTensor 对象
+→ kitchen 层负责：解包元数据 + registry 按 capability 约束（dtype/形状）选 backend
+→ 约束不匹配时回落 eager（CPU 慢路径）
 </code></pre>
-<p data-page-node-id="a9am9Ew14ajdj0e33EVi6G"><strong data-page-node-id="OynxqHhqnkY0zVKCa9z0g4">实测效果</strong>（Arc B580，Krea2 GGUF Q4_0，8 步）：</p>
-<table data-page-node-id="UWh2C0j2OSmbqSIiCmeHt4">
-<thead data-page-node-id="d6lAIjb0Qu0zm89ES1CBHf">
-<tr data-page-node-id="yEs2YDuDwTmxAbvy4DpYLP">
-<th data-page-node-id="WGhdk3PwztY45bpkVa205m">配置</th>
-<th style="text-align: right;" data-page-node-id="XL8NO4C3fLvYfmNf8a3cFy">每步耗时</th>
-<th style="text-align: right;" data-page-node-id="LABNygZDUFofpahMWG68vN">提升</th>
+<blockquote>
+<p>补充：<strong>xpu backend 是纯薄壳</strong>——<code>backends/xpu/rope.py</code> 整个文件靠一句 <code>from omni_xpu_kernel import rotary</code>；<code>int8_linear</code> 非编译路径直接 <code>return _int8.int8_linear(...)</code>（<code>_int8 = omni_xpu_kernel.int8</code>）。零计算、零重写，实际算的 100% 是 omni_xpu_kernel。</p>
+</blockquote>
+<p>三个组件边界一目了然：</p>
+<pre><code class="language-text">omni_xpu_kernel    = 计算方 —— SYCL/ESIMD 内核（norm/rotary/int8/fp8/gguf/svdquant）
+comfy-kitchen(xpu) = 分发壳 —— QuantizedTensor 解包 + registry 选路，零计算
+ComfyUI-OmniXPU    = 接线方 —— 启动自动 patch 模型层；adapter 直连路径的发起者
+</code></pre>
+<p><strong>实测效果</strong>（Arc B580，Krea2 GGUF Q4_0，8 步）：</p>
+<table>
+<thead>
+<tr>
+<th>配置</th>
+<th style="text-align: right;">每步耗时</th>
+<th style="text-align: right;">提升</th>
 </tr>
 </thead>
-<tbody data-page-node-id="q65EwcENOc2bWi1fA0I3BJ">
-<tr data-page-node-id="XMGhCPImSEaFcAFnwYLaQw">
-<td data-page-node-id="avJ9YcXH6fstgtbuiIhvaQ">不优化（KJNodes 加载）</td>
-<td style="text-align: right;" data-page-node-id="sF4xP4QNbELgHZjNp8ms7X">4.00 s/it</td>
-<td style="text-align: right;" data-page-node-id="f1KoUE9s2ouuuooYtraPbR">—</td>
+<tbody>
+<tr>
+<td>不优化（KJNodes 加载）</td>
+<td style="text-align: right;">4.00 s/it</td>
+<td style="text-align: right;">—</td>
 </tr>
-<tr data-page-node-id="mGWwsXIUWTPJir7MSZSFWn">
-<td data-page-node-id="2q0FQJFJ4xUGQopVfTO31L">三件套（UnetLoaderGGUF 加载）</td>
-<td style="text-align: right;" data-page-node-id="LuHdEwh8DKjpT9ysYciPFP">2.50 s/it</td>
-<td style="text-align: right;" data-page-node-id="YAKGXjTphvlhf1PkMnA22H"><strong data-page-node-id="vwMa7feNDqEoqKXXwwJxTH">快 37.5%</strong></td>
+<tr>
+<td>三件套（UnetLoaderGGUF 加载）</td>
+<td style="text-align: right;">2.50 s/it</td>
+<td style="text-align: right;"><strong>快 37.5%</strong></td>
 </tr>
 </tbody>
 </table>
-<h3 id="comfy-aimdo-xpudynamicvram" data-page-node-id="z6nBt9iX4FgIayaNHx1YU0">稳定：comfy-aimdo XPU（DynamicVRAM）</h3>
-<p data-page-node-id="laePbHCkCR1k73C8IKS1EC">原理：显存贴满时，把不活跃的模型权重"换页"到系统内存（VBAR fault/驱逐），需要时再调回，避免 OOM。</p>
-<blockquote data-page-node-id="1jfsU69vNYIK5RtUqy56up">
-<p data-page-node-id="UWbIW29h8rXx6qVHDSbtnK">⚠️ <strong data-page-node-id="2ojYFywHepgzPSMpECT2z8">重要提醒</strong>：本包内置的 aimdo 为 <strong data-page-node-id="LIe0SWkS6BrqIRaf3vSrOO">PR#17 版</strong>（master 最新），<strong data-page-node-id="6pAUsBWPcuDHYAPn6JpmeA">仍属测试性质</strong>：
-- 历史已知问题（PR#7 时代的 issue #3：二次运行每步极慢）是否在新版闭环，<strong data-page-node-id="blWWQJVwxmEoejOKboLwXP">请以实际工作流测试为准</strong></p>
-<p data-page-node-id="Q9z4qUzXYALnL4nHHAD47r">→ <strong data-page-node-id="i9zqsuLU6JKVAHkI3hjy2N">普通用户建议暂不启用 aimdo</strong>；确需大模型显存管理，请先实测本包版本再决定。</p>
+<h3 id="comfy-aimdo-xpudynamicvram">稳定：comfy-aimdo XPU（DynamicVRAM）</h3>
+<p>原理：显存贴满时，把不活跃的模型权重"换页"到系统内存（VBAR fault/驱逐），需要时再调回，避免 OOM。</p>
+<blockquote>
+<p>⚠️ <strong>20260912 起更换为 provider 架构</strong>：XPU 实现不再覆盖官方 <code>comfy_aimdo</code> 包，而是作为独立发行 <code>comfy-aimdo-xpu-runtime</code> 与官方包<strong>精确配对</strong>。好处是<strong>升级 ComfyUI 不再互相覆盖</strong>；代价是版本必须严格对齐（provider 内部写死了可接受的官方版本）。</p>
+<p>→ 安装方式、前置条件与排错见<a href="#6-comfy-aimdo-xpu-安装选装">第三部分第 6 节</a>。</p>
 </blockquote>
-<hr  data-page-node-id="4E6UgKww22qbZugRoFIGQA"/>
-<h2 id="_4" data-page-node-id="cGSZ6BYKT8fI060yXOc3EL">第三部分：安装</h2>
-<h3 id="0-ai" data-page-node-id="BcxGL1p65ASpaNZmxd5xXq">0. 不熟悉命令行？让 AI 助手帮你装</h3>
-<p data-page-node-id="IAlZkcOFseY4WjJJstkFVl">如果你不想手动执行命令、改配置文件，<strong data-page-node-id="Mr6tojRfBy4g17mthB0TnS">最简单的方式</strong>：</p>
-<blockquote data-page-node-id="pLZg0USRTybXk64DSCJTPj">
-<p data-page-node-id="7NOD3Svutu4cxKyuAEeL8r">把本文件夹（含本指南和全部安装包）直接交给一个 AI 助手（如 WorkBuddy / 其他支持读取本地文件的 agent），对它说：<strong data-page-node-id="yf7y94lxRENtayxSbKh5Vx">"请阅读《Intel GPU 的 ComfyUI 优化指南.md》,按我的显卡（A770 或 B 系列）帮我完成安装、配置和验证。"</strong></p>
+<hr />
+<h2 id="_4">第三部分：安装</h2>
+<h3 id="0-ai">0. 不熟悉命令行？让 AI 助手帮你装</h3>
+<p>如果你不想手动执行命令、改配置文件，<strong>最简单的方式</strong>：</p>
+<blockquote>
+<p>把本文件夹（含本指南和全部安装包）直接交给一个 AI 助手（如 WorkBuddy / 其他支持读取本地文件的 agent），对它说：<strong>"请阅读《Intel GPU 的 ComfyUI 系统优化指南-20260912.md》，按我的显卡（A770 或 B 系列）帮我完成安装、配置和验证。"</strong></p>
 </blockquote>
-<p data-page-node-id="fd0RHJGyERHxWZnzkoOY5s">AI 助手会替你完成以下全部工作：</p>
-<ul data-page-node-id="C3O0698CGCTihrH69ia4aG">
-<li data-page-node-id="dySOXM5YjskBLZLetUjd0Z">读取本指南 + 检查你的环境（显卡型号、torch 版本、ComfyUI 版本）</li>
-<li data-page-node-id="W8VWXRA1s7F8DDwC6bYeO2">安装对应的 kernel wheel（按 A/B 系列选对版本）</li>
-<li data-page-node-id="THH13ikWKkctWJozDpcCs4">部署 OmniXPU 节点 / GGUF-XPU 节点到 <code data-page-node-id="j88755Rip0CUNGqV9HBzzh">custom_nodes\</code></li>
-<li data-page-node-id="e8c5rraIM45y3hRggb4k6G">修改启动 bat 的环境变量（按你的显卡选对一组）</li>
-<li data-page-node-id="wE9AFHkIFR22fMa6CaCVwi">按第四部分的清单验证是否生效</li>
+<p>AI 助手会替你完成以下全部工作：</p>
+<ul>
+<li>读取本指南 + 检查你的环境（显卡型号、torch 版本、ComfyUI 版本）</li>
+<li>安装对应的 kernel wheel（按 A/B 系列选对版本）</li>
+<li>部署 OmniXPU 节点 / GGUF-XPU 节点到 <code>custom_nodes\</code></li>
+<li>修改启动 bat 的环境变量（按你的显卡选对一组）</li>
+<li>按第四部分的清单验证是否生效</li>
+<li>跑一次 <code>check_provider_alignment.py</code>，确认三个组件版本对齐</li>
 </ul>
-<blockquote data-page-node-id="JdZOJ9Vqpiw7t60FMOnXE4">
-<p data-page-node-id="0h1tgZudyLoFLgfupPvgyd">💡 前提：AI 助手需要能访问本机文件（WorkBuddy 等桌面助手支持）。装完如有报错，直接把错误日志贴给助手即可。</p>
+<blockquote>
+<p>💡 前提：AI 助手需要能访问本机文件（WorkBuddy 等桌面助手支持）。装完如有报错，直接把错误日志贴给助手即可。</p>
 </blockquote>
-<h3 id="1" data-page-node-id="wZD1BMJUxiepPjKAVC7Jc1">1. 环境要求</h3>
-<table data-page-node-id="POsFFBlr3yukD2Hl7iDSZW">
-<thead data-page-node-id="6UHv6IXmSpMVhn4caGM3PU">
-<tr data-page-node-id="6a56s96zuTfGESnHGUo3ZQ">
-<th data-page-node-id="s8TPaOMgKVwgdapjq4qHoN">项</th>
-<th data-page-node-id="ElJ0LkHC7gb4YB9ywr7Tf8">要求</th>
+<h3 id="1">1. 环境要求</h3>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>要求</th>
 </tr>
 </thead>
-<tbody data-page-node-id="WbivxbRNtFFK8vg8RxlW10">
-<tr data-page-node-id="psMVl1R6TMcAa4k5rmK53U">
-<td data-page-node-id="shs84xKvxfWScnTyu0yKPC">显卡</td>
-<td data-page-node-id="nkuNAP9uVQlSLvvxDJEgY4"><strong data-page-node-id="GLbNYxjiiFLOmsmDmWIVqh">B 系列</strong>：Arc B580 / B60 / B70（BMG 架构）<br data-page-node-id="MVVTmtGvQ1J6lhdhljxPoy"><strong data-page-node-id="9V06z6Q6woXkURd7tvHziZ">A 系列</strong>：Arc A770 （DG2 架构）</td>
+<tbody>
+<tr>
+<td>显卡</td>
+<td><strong>B 系列</strong>：Arc B580 / B60 / B70（BMG 架构）<br><strong>A 系列</strong>：Arc A770 （DG2 架构）</td>
 </tr>
-<tr data-page-node-id="wsdI9zHYzbSlJR3y4Sp6Kl">
-<td data-page-node-id="f1CLUisKBMsSw0kwMBI70l">操作系统</td>
-<td data-page-node-id="I2jUvdt2uSazIZVkHFUK2E">Windows 10/11 64 位</td>
+<tr>
+<td>操作系统</td>
+<td>Windows 10/11 64 位</td>
 </tr>
-<tr data-page-node-id="Sh0zHqJqHf4V4GjVkK2vc6">
-<td data-page-node-id="CLhf63R6bYdVgNjXs3qvIx">Python</td>
-<td data-page-node-id="GCu3dFsTLERGdpKROM6j1a">3.13</td>
+<tr>
+<td>Python</td>
+<td>3.13</td>
 </tr>
-<tr data-page-node-id="MzpW39An7tJWEaL4wH7EOJ">
-<td data-page-node-id="FyC6HHoQutmEVuXn7Ss1Lt">PyTorch</td>
-<td data-page-node-id="EYJQxTAXG8ZK6OWftOTkvJ"><strong data-page-node-id="DMsUtV3F2AKw4itgM76TPX">2.14.0+xpu</strong>（ComfyUI XPU版本自带）</td>
+<tr>
+<td>PyTorch</td>
+<td><strong>2.14.0+xpu</strong>（ComfyUI XPU版本自带）</td>
 </tr>
-<tr data-page-node-id="56s1f0aMtV2VW0rsodCIQQ">
-<td data-page-node-id="Xm1rJSBhEiiIV7orYZWo00">ComfyUI</td>
-<td data-page-node-id="3OVKVdN2MfbfbDdtRXS0Y0">0.34.5+</td>
+<tr>
+<td>ComfyUI</td>
+<td><strong>0.35.0+</strong></td>
 </tr>
-<tr data-page-node-id="eVCaDfzXW4Us0FN8rVADEw">
-<td data-page-node-id="eeNhKEhRjlldkHrFG0JiWY">显卡驱动</td>
-<td data-page-node-id="83BKFSBcjpQXtFZYxlFzgI">Intel Arc 最新驱动</td>
+<tr>
+<td>显卡驱动</td>
+<td>Intel Arc 最新驱动</td>
 </tr>
-<tr data-page-node-id="AoA6KAqsCCPJ0oaAP1neia">
-<td data-page-node-id="5wWyIaI1mcoXwfUBR6mFJE">oneAPI</td>
-<td data-page-node-id="Q1X8TyA4PrdDVSmRy0LgNw"><strong data-page-node-id="CzLwdsYfDhIkp5o9DOqrq8">仅编译需要</strong>；运行时不需要（本包 wheel 已编译好）</td>
+<tr>
+<td>oneAPI</td>
+<td><strong>仅编译需要</strong>；运行时不需要（本包 wheel 已编译好）</td>
 </tr>
 </tbody>
 </table>
-<p data-page-node-id="b80HtDlv5J83ygLCk468n5"><strong data-page-node-id="dGAbuQ06sxQPh8FYmUQvlQ">先确认环境</strong>（命令行执行）：</p>
-<pre data-page-node-id="wAv92hHh2Wnwps2lUyNsg6"><code class="language-text" data-page-node-id="oldA2ApaxUvYrhC0pjSwoU">python -c &quot;import torch; print(torch.__version__, torch.xpu.is_available())&quot;
+<p><strong>先确认环境</strong>（命令行执行）：</p>
+<pre><code class="language-text">python -c &quot;import torch; print(torch.__version__, torch.xpu.is_available())&quot;
 :: 应输出: 2.14.0+xpu True
 </code></pre>
-<h3 id="2-omni_xpu_kernel" data-page-node-id="3Fv6ia6TPleGfgJ9jWrVA5">2. omni_xpu_kernel 安装</h3>
-<blockquote data-page-node-id="Epvey2IStJXuT6sPWB1jQa">
-<p data-page-node-id="EBgIwer6uWBAJ1R3coaBPS"><strong data-page-node-id="mSo8LQDVEb9MvJPoljTkog">内核 wheel 按显卡系列区分，选你对应的那个，不要混装。</strong>  </p>
-<p data-page-node-id="UaGiT8wsOmXPBlVGvD9UMI">⚠️ 官方版本内核也支持 Panther Lake H, 新一代酷睿 Ultra 200 系列集显，但必须在集显环境下编译才可使用，不能直接用下方内容</p>
+<h3 id="2-omni_xpu_kernel">2. omni_xpu_kernel 安装</h3>
+<blockquote>
+<p><strong>内核 wheel 按显卡系列区分，选你对应的那个，不要混装。</strong>  </p>
+<p>⚠️ 官方版本内核也支持 Panther Lake H, 新一代酷睿 Ultra 200 系列集显，但必须在集显环境下编译才可使用，不能直接用下方内容</p>
 </blockquote>
-<h4 id="21-a770-dg2" data-page-node-id="T4rz8gC7Y2LAEO2BFI8DBu">2.1 A770 显卡安装（社区手搓内核，dg2）</h4>
-<p data-page-node-id="5pdWcDIQEY0vJ2cmFxILXe">A 系列官方原版不支持，使用社区维护者 Blackwood416 的 dg2 内核。同架构A750可能会报错。</p>
-<blockquote data-page-node-id="UzG0PO8IkKBIEtOXsqvphf">
-<p data-page-node-id="lCAMx4Ddxe8ZoE54SUgDjP">✅ <strong data-page-node-id="0IZ5xPKj09mcxktDIsDNY5">本版（20260905）<code data-page-node-id="F4YpIEAqocVTLCb9LwlGlB">A770(dg2)/</code> 目录随包提供</strong>——torch 2.14 栈社区 dg2 内核，安装文件即下方所列。</p>
-<p data-page-node-id="dHa5jQ0CXhZFCqtAKbBAlx">🔄 <strong data-page-node-id="haVROVVZn0UIvv4eiTSlrJ">后续升级</strong>：从这个项目找更新包 → https://github.com/Blackwood416/omni-xpu-kernel</p>
+<h4 id="21-a770-forkdg2">2.1 A770 显卡安装（社区 fork，dg2）</h4>
+<p>A 系列官方原版不支持，使用社区维护者 Blackwood416 的 dg2 内核。同架构 A750 可能会报错。</p>
+<blockquote>
+<p>🔄 <strong>后续升级</strong>：从这个项目找更新包 → https://github.com/Blackwood416/omni-xpu-kernel</p>
 </blockquote>
-<ul data-page-node-id="bCuKdJswMjVnxIPaF4VDiH">
-<li data-page-node-id="Jysx1618AU13xZaECn0SNd">安装文件（本包 <code data-page-node-id="cIbmzk8aHKVraXqHBStNzU">A770(dg2)/</code> 目录）：</li>
-</ul>
-<p data-page-node-id="jPwGiXrxEoh1LSLVdgM9aB"><code data-page-node-id="QujVG73Y6fXdVF5viuTPt5">omni_xpu_kernel-0.2.0b2+torch214.dg2-cp313-cp313-win_amd64.whl</code></p>
-<ul data-page-node-id="XhDdV4XgmzkP9WQUlS8M9t">
-<li data-page-node-id="s32HFVZeBTmSvmKHHD7CHW">安装方法：</li>
-</ul>
-<p data-page-node-id="ExFVEFntxUKxFPmMEjG84k"><code data-page-node-id="gcrMwI1V1aK8915GqcBzNl">text
-  python -m pip install omni_xpu_kernel-0.2.0b2+torch214.dg2-cp313-cp313-win_amd64.whl</code></p>
-<h4 id="22-b-bmg" data-page-node-id="fPERQKtSVeAqFSaDzWyoSe">2.2 B 系列显卡安装（官方支持，bmg）</h4>
-<blockquote data-page-node-id="geLcLlJczUJEBqTkpbyEL2">
-<p data-page-node-id="C4xAvQsBJjOfjER9umu8bQ">说明：bmg wheel 覆盖整个 BMG 系列（B580/B60/B70），内核运行时自动识别显卡型号。</p>
-<p data-page-node-id="jinpUz4AlKDBA8G912CluW">🔄 <strong data-page-node-id="1wWtdB3vHFrNQx8IwkWkBM">后续升级</strong>：B 系列官方内核来自 llm-scaler-omni 项目 → https://github.com/intel/llm-scaler/tree/main/omni/omni_xpu_kernel</p>
-</blockquote>
-<ul data-page-node-id="K6tPfD0LLtixB8nNq4TMW7">
-<li data-page-node-id="Fd34L9wXzBMvazent9dKQ5">安装文件（本包 <code data-page-node-id="2782YmdDo38dbiaw4tC0Mu">B系列(bmg)/</code> 目录）：</li>
-</ul>
-<p data-page-node-id="td0XEaXxePJMOCtKNNTYHe"><code data-page-node-id="vHaZs7bdu9KMJ0fn0hbdzV">omni_xpu_kernel-0.2.0b2+torch214.bmg-cp313-cp313-win_amd64.whl</code></p>
-<ul data-page-node-id="AOI1G38SJ7UjhE7riSyy5e">
-<li data-page-node-id="7rrZHsZTeaX2NZCcLQKJqT">安装方法：</li>
-</ul>
-<p data-page-node-id="MfoDeox3SJ8Teb951lygFn"><code data-page-node-id="QYGYHoYC7cFq5bgMv0qSPJ">text
-  python -m pip install omni_xpu_kernel-0.2.0b2+torch214.bmg-cp313-cp313-win_amd64.whl</code></p>
-<h3 id="3-comfyui-omnixpu" data-page-node-id="xzLBIuIYkNeRpAZVf4zp7t">3. ComfyUI-OmniXPU 安装</h3>
-<h4 id="31-a770" data-page-node-id="uO4VHmtDGiBQE88d6nevOa">3.1 A770 用户</h4>
-<blockquote data-page-node-id="rK2uh9KDDYWZ3GP6Ktuz9j">
-<p data-page-node-id="aUfoBAdCF3rOj18t1knCDp">🔄 <strong data-page-node-id="OBwQDNcX16si11kDGaqoq6">A770 节点后续升级</strong>：从这个项目找更新包 → https://github.com/Blackwood416/ComfyUI-OmniXPU</p>
-</blockquote>
-<p data-page-node-id="5wPAg9HwQDeVKfxj7sfAnA"><strong data-page-node-id="dfaIaIX3A5Vk5EBdGFrZPb">安装</strong>  </p>
-<p data-page-node-id="yWZE2HKmZxyUS0RvoRWs5p">解压 <code data-page-node-id="Cw1RJCE586l4xWwo58a9tA">A770(dg2)/ComfyUI-OmniXPU.A770(dg2)-20260905.zip</code> 到 <code data-page-node-id="m7ynlA6Azhy1webuW09aVU">ComfyUI\custom_nodes\</code>（解压后即得 <code data-page-node-id="mImlEGpvgW0PVf5Dy9nWjO">ComfyUI-OmniXPU</code> 文件夹）<br  data-page-node-id="23xdAH2bkBDiGzlm7dlHtB"/>
-重启 ComfyUI 后自动加载（日志出现 <code data-page-node-id="G9PA2oCSOGqOxhO6HHOzz8">[OmniXPU]</code> 即成功）。</p>
-<p data-page-node-id="H1TwFMtcUJjOa0GpFL8YRh"><strong data-page-node-id="UThRsTXAMcjaEeD9wROFr3">A770的启动文件（bat）相关设置</strong>（esimd attention——A 系列社区内核特调）：</p>
-<p data-page-node-id="yBrcBvHRLr1Jf32eREH5jj">在启动 bat 的 <code data-page-node-id="4BqpEsjaoNKh8J59rXLA3m">python main.py ...</code> 之前加入环境变量：</p>
-<pre data-page-node-id="YWXbE1TUwrSfebK6ShapMe"><code class="language-text" data-page-node-id="rW1JhI4HbVCEDfBnQQkHZM">:: OMNIXPU加速相关（A770 / dg2）
-set OMNI_ATTN_BACKEND=esimd
-set OMNIXPU_ENABLE=1
-set OMNIXPU_ATTENTION=1
+<p><strong>安装文件</strong>（本包 <code>A770(dg2)/</code> 目录）：</p>
+<pre><code>omni_xpu_kernel-0.2.0b1+torch214.dg2.3-cp313-cp313-win_amd64.whl
+SHA256: DD3466A4175E19501741DABD914E05402062922EE8823784039701A61A0CB92A
 </code></pre>
-<h4 id="32-b" data-page-node-id="ty0COTtsQWiyUMSnzL7hy1">3.2 B 系列用户</h4>
-<blockquote data-page-node-id="oDZIvCKHHUsIyBgFBeFvTA">
-<p data-page-node-id="yOcrpUos0RD2VtzIDRlDLP">🔄 <strong data-page-node-id="dpotwUVIMzdnFx3KVAajzL">B 系列节点后续升级</strong>：官方节点来自 llm-scaler-omni 项目 → https://github.com/intel/llm-scaler/tree/main/omni/ComfyUI-OmniXPU</p>
+<p><strong>安装方法</strong>：</p>
+<pre><code class="language-text">python -m pip install omni_xpu_kernel-0.2.0b1+torch214.dg2.3-cp313-cp313-win_amd64.whl
+</code></pre>
+<blockquote>
+<p>⚠️ <strong>这个 wheel 只认 Python 3.13 + PyTorch 2.14.0+xpu + DG2（Arc A770）。</strong> PyTorch 2.13 与 2.14 的 <strong>C++ ABI 不兼容</strong>，2.13 用户必须留在 <code>0.2.0b1+torch213.dg2.2</code>，不能装本版。</p>
 </blockquote>
-<p data-page-node-id="IXj4YUDeci6RAtiFPyCjW4"><strong data-page-node-id="iCPgGOMCIbP0Y8xQLRTHQQ">安装</strong>  </p>
-<p data-page-node-id="KsSOCKDziHhXkHkA2ejQpI">解压 <code data-page-node-id="naqUXVk1Dst6ZpYJ9rxuvB">B系列(bmg)/ComfyUI-OmniXPU.bmg-20260901.zip</code> 到 <code data-page-node-id="fjT7qw6EGIGVTFFjm3ckvD">ComfyUI\custom_nodes\</code>（解压后即得 <code data-page-node-id="usYcIlkHcz4V78DC5GF9AB">ComfyUI-OmniXPU</code> 文件夹）<br  data-page-node-id="1AOKWsqKasnxECLHbKeEe6"/>
-重启 ComfyUI 后自动加载（日志出现 <code data-page-node-id="PRCIF9bKwHi2aS5RTef4Fg">[OmniXPU]</code> 即成功）。</p>
-<p data-page-node-id="YvAD2YDKVNN90oV7MJBf3F"><strong data-page-node-id="YQ2fDeZbq9XDnk753DeYDN">B 系列启动文件（bat）相关设置</strong></p>
-<p data-page-node-id="rr9BtfAzYNiWjPV1ZWNNyS">在启动 bat 的 <code data-page-node-id="BeVnn7H1xioTSudvyeEX3O">python main.py ...</code> 之前加入环境变量（<strong data-page-node-id="t9zCryDgbkk0LutS6oaJAD">按你的显卡选一组</strong>）：</p>
-<pre data-page-node-id="Gfwi7E0HDf1p4HyT2MLvxn"><code class="language-text" data-page-node-id="BV5jX5pf4lamC4zhrZcMBH">:: OMNIXPU加速相关（B系列 / bmg）
+<p><strong>版本号提示</strong>：A770 线是 <strong><code>0.2.0b1</code></strong>（<code>dg2</code> 目标），B 系列线是 <code>0.2.0b2</code>（<code>bmg</code> 目标）——<strong>两条线版本号不同步，不要看到号小以为装错了</strong>。<code>dg2</code> 目标另有 <code>a770</code> / <code>arc-a770</code> 别名。</p>
+<p><strong>一个容易踩的坑（缺 <code>pi_level_zero.dll</code>）</strong>：A770 wheel 运行时导入 <code>sycl9.dll</code>、<code>dnnl.dll</code>、<code>torch_xpu.dll</code>、<code>c10_xpu.dll</code>。torch 的 XPU pip 包会自动拉齐 SYCL / Unified Runtime 全家（<code>intel-sycl-rt</code>、<code>intel-cmplr-lib-ur</code>…），<strong>但一个残缺的 oneAPI 安装如果缺 <code>pi_level_zero.dll</code>，<code>_C</code> 会加载失败</strong>。ComfyUI 便携版环境已满足这一条，<strong>不需要单独装 oneAPI</strong>。</p>
+<h4 id="22-b-bmg">2.2 B 系列显卡安装（官方支持，bmg）</h4>
+<blockquote>
+<p>说明：bmg wheel 覆盖整个 BMG 系列（B580/B60/B70），内核运行时自动识别显卡型号。</p>
+<p>🔄 <strong>后续升级</strong>：B 系列官方内核来自 llm-scaler-omni 项目 → https://github.com/intel/llm-scaler/tree/main/omni/omni_xpu_kernel</p>
+</blockquote>
+<ul>
+<li>安装文件（本包 <code>B系列(bmg)/</code> 目录）：</li>
+</ul>
+<p><code>omni_xpu_kernel-0.2.0b2+torch214.bmg-cp313-cp313-win_amd64.whl</code></p>
+<ul>
+<li>安装方法：</li>
+</ul>
+<p><code>text
+  python -m pip install omni_xpu_kernel-0.2.0b2+torch214.bmg-cp313-cp313-win_amd64.whl</code></p>
+<h3 id="3-comfyui-omnixpu">3. ComfyUI-OmniXPU 安装</h3>
+<h4 id="31-a770">3.1 A770 用户</h4>
+<blockquote>
+<p>🔄 <strong>A770 节点后续升级</strong>：从这个项目找更新包 → https://github.com/Blackwood416/ComfyUI-OmniXPU</p>
+</blockquote>
+<p><strong>安装</strong>  </p>
+<p>解压 <code>A770(dg2)/</code> 目录内的 <code>ComfyUI-OmniXPU.A770(dg2)-20260912.zip</code> 到 <code>ComfyUI\custom_nodes\</code>（解压后即得 <code>ComfyUI-OmniXPU</code> 文件夹）<br />
+重启 ComfyUI 后自动加载（日志出现 <code>[OmniXPU]</code> 即成功）。</p>
+<p><strong>A770 的启动文件（bat）相关设置</strong></p>
+<p>在启动 bat 的 <code>python main.py ...</code> 之前加入环境变量：</p>
+<pre><code class="language-text">:: OMNIXPU加速相关（A770 / dg2）
+
+:: ① MiniMax H3 必设：不设会在第 3 个 attention stage 报 DEVICE_LOST
+set UR_L0_USE_IMMEDIATE_COMMANDLISTS=1
+
+:: ② 注意力后端：保持注释即为默认 torch（不 patch，最稳）
+::    A770 的 ESIMD/DPAS 侧车需显式开启；auto 永不自动选 ESIMD
+::    仅建议 D128 长序列 / H3 类负载开启（实测判据见下方表格）
+:: set OMNI_ATTN_BACKEND=esimd
+</code></pre>
+<blockquote>
+<p>💡 <strong>不需要写 <code>OMNIXPU_ENABLE=1</code> / <code>OMNIXPU_ATTENTION=1</code></strong>——这些适配器<strong>默认就是开的</strong>，写 <code>=1</code> 是空操作（只有 <code>=0</code> 才有意义，用于关闭）。A770 的完整开关表见 6.9。</p>
+</blockquote>
+<p><strong>要不要开 ESIMD？先看判据</strong>（A770 实测，D=128 / FP16 / H=32，驱动 32.0.101.8860）：</p>
+<table>
+<thead>
+<tr>
+<th>形状 / 场景</th>
+<th>谁更快</th>
+<th>实测（ESIMD vs PyTorch SDPA）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>D128，q_len == 2048 或 ≥ 4096</td>
+<td><strong>ESIMD</strong></td>
+<td>L2048 2.75 vs 3.29 ms · L4096 8.8 vs 12.6 ms · L8192 34.7 vs 41.4 ms</td>
+</tr>
+<tr>
+<td>D128，q_len ∈ [1024,2048) 或 (2048,4096)</td>
+<td><strong>torch</strong></td>
+<td>ESIMD 慢 1.1–1.6×</td>
+</tr>
+<tr>
+<td>D64 形状（如 FP16/D64）</td>
+<td><strong>torch</strong></td>
+<td>ESIMD 只有 0.57–0.92×</td>
+</tr>
+<tr>
+<td>H3 大形状 (1,20683,56,128) BF16</td>
+<td><strong>ESIMD</strong></td>
+<td>405–410 vs 431–451 ms</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>判据已经写进 adapter：<strong>ESIMD 不赢的契约会自动回退 PyTorch SDPA</strong>，所以开了不会崩，但也拿不到收益。想省心就保持默认（不开）；主跑 H3 / D128 长序列再开。</p>
+</blockquote>
+<h4 id="32-b">3.2 B 系列用户</h4>
+<blockquote>
+<p>🔄 <strong>B 系列节点后续升级</strong>：官方节点来自 llm-scaler-omni 项目 → https://github.com/intel/llm-scaler/tree/main/omni/ComfyUI-OmniXPU</p>
+</blockquote>
+<p><strong>安装</strong>  </p>
+<p>解压 <code>B系列(bmg)/ComfyUI-OmniXPU.bmg-20260912.zip</code> 到 <code>ComfyUI\custom_nodes\</code>（解压后即得 <code>ComfyUI-OmniXPU</code> 文件夹）<br />
+重启 ComfyUI 后自动加载（日志出现 <code>[OmniXPU]</code> 即成功）。</p>
+<p><strong>B 系列启动文件（bat）相关设置</strong></p>
+<p>在启动 bat 的 <code>python main.py ...</code> 之前加入环境变量（<strong>按你的显卡选一组</strong>）：</p>
+<pre><code class="language-text">:: OMNIXPU加速相关（B系列 / bmg）
 set OMNIXPU_ENABLE=1
 set OMNIXPU_DEBUG=0
 
@@ -377,463 +449,1069 @@ set OMNI_ATTN_BACKEND=cute
 :: 手动强制回退 PyTorch SDPA（仅故障排查 / A/B 对比 / 低版本内核时用）：
 :: set OMNI_ATTN_BACKEND=torch
 </code></pre>
-<h4 id="33-bat" data-page-node-id="FFunSz2KxEsv6GoXxGKsKB">3.3 通用启动文件思路（可选）：bat 自动判定显卡，走对应分支</h4>
-<p data-page-node-id="NCzKgspMC1Ixb3CnKbL5AM">上面 A770 与 B 系列是两套手动变量（<code data-page-node-id="MMmuT2CBbcIg8ETCCxTeoV">esimd</code> vs <code data-page-node-id="ib80CqXWE2SQpzdlADDj3J">cute</code>），分享或换机时容易配错。更省心的做法是把它合并成<strong data-page-node-id="Bf94N98xJzQFpzDRGqjMqH">一份通用启动 bat</strong>：启动开头先检测显卡型号，按结果自动设置对应的一组变量，一套文件通吃：</p>
-<ul data-page-node-id="ss2sbs3ydqe7I1TezVdR2M">
-<li data-page-node-id="qjbvheLLWu9Bhcomk8WEEF"><strong data-page-node-id="5meVLu4Pgkh5oJ33JHE48u">判定方式</strong>：bat 里调 PowerShell 读显卡型号（WMI <code data-page-node-id="ACKQrRhucqbXH1kC7BFNGH">Win32_VideoController</code>），按名称特征分流——<code data-page-node-id="HD4xPMGSmS20PF7qaDGkVi">Arc B5xx</code>（如 B580）→ <strong data-page-node-id="gDoEnlO42gsvfm9Va2l2QN">bmg</strong>；<code data-page-node-id="E4Y4kWswLtnZdNeMSw9l3l">Arc A3xx–A7xx</code>（如 A770）→ <strong data-page-node-id="pGNkpeYEwOPJtz4aRxT41O">dg2</strong>；两者都不匹配（核显 / 其他 / 未知）→ <strong data-page-node-id="EUv1mududnVuuz2ZFE8TE4">兜底</strong>。</li>
-<li data-page-node-id="fie28wwgb1Bd31EbDznZQ1"><strong data-page-node-id="cOiSBS7H8AMTwX20rsQijz">各分支动作</strong>：bmg → 设上面 B 系列那组（<code data-page-node-id="kHMRJttgQWublck5Zlg886">OMNI_ATTN_BACKEND=cute</code> 等）；dg2 → 设 A770 那组（<code data-page-node-id="y4ldQIEX2RBrJ9p3m2HtUh">esimd</code> 等）；兜底 → 设 <code data-page-node-id="lLY2Sbj3pPxcGp76ji7mMi">OMNI_ATTN_BACKEND=torch</code>（官方 PyTorch SDPA、不打 attention 补丁，最保守、不会出错）。</li>
-<li data-page-node-id="tAwwGgGIRedOGiD9YhboLu"><strong data-page-node-id="rvrWgoqIM1eveExPxeBloL">效果</strong>：A770 / B 系列 / 其他显卡用户拿到同一份 bat 都能直接跑，无需手工改型号；检测不到时自动走兜底而不是报错；想固定某档也可手动指定、跳过检测。</li>
-<li data-page-node-id="0cWQ7oUYQpFHoMKs5Un1fk">提示：完整实现代码段较长，需要时可按此思路自行扩展启动 bat（或参考维护者发布的示例 bat 中的 GPU 分支段）。</li>
+<h4 id="33-bat">3.3 通用启动文件思路（可选）：bat 自动判定显卡，走对应分支</h4>
+<p>上面 A770 与 B 系列是两套手动变量（B 系列 <code>cute</code>；A770 默认 <code>torch</code>、要提速再开 <code>esimd</code>），分享或换机时容易配错。更省心的做法是把它合并成<strong>一份通用启动 bat</strong>：启动开头先检测显卡型号，按结果自动设置对应的一组变量，一套文件通吃：</p>
+<ul>
+<li><strong>判定方式</strong>：bat 里调 PowerShell 读显卡型号（WMI <code>Win32_VideoController</code>），按名称特征分流——<code>Arc B5xx</code>（如 B580）→ <strong>bmg</strong>；<code>Arc A3xx–A7xx</code>（如 A770）→ <strong>dg2</strong>；两者都不匹配（核显 / 其他 / 未知）→ <strong>兜底</strong>。</li>
+<li><strong>各分支动作</strong>：bmg → 设上面 B 系列那组（<code>OMNI_ATTN_BACKEND=cute</code> 等）；dg2 → 设 <code>UR_L0_USE_IMMEDIATE_COMMANDLISTS=1</code>（ESIMD 按需再开）；兜底 → 保留 <code>UR_L0_USE_IMMEDIATE_COMMANDLISTS=1</code>（无 Level Zero 设备时被忽略，无副作用）、<strong>不设</strong> <code>OMNI_ATTN_BACKEND</code>（即保持默认 torch SDPA、不打 attention 补丁，最保守、不会出错）。</li>
+<li><strong>效果</strong>：A770 / B 系列 / 其他显卡用户拿到同一份 bat 都能直接跑，无需手工改型号；检测不到时自动走兜底而不是报错；想固定某档也可手动指定、跳过检测。</li>
+<li>提示：完整实现代码段较长，需要时可按此思路自行扩展启动 bat（或参考维护者发布的示例 bat 中的 GPU 分支段）。</li>
 </ul>
-<h3 id="4-comfyui-solattn-b" data-page-node-id="BCk7Wx2DzrFMTapghnmeKv">4. ComfyUI-SolAttn 安装（选装，<strong data-page-node-id="Ge3QrcyR4v9lNuxTcvyfQF">仅 B 系列用户</strong>）</h3>
-<blockquote data-page-node-id="ZREEexV3gIwRkh4COiKrIq">
-<p data-page-node-id="aASvpLP4jZc0RBOCDLF5i0">🔄 <strong data-page-node-id="Cz7av2qNvZF01fyW0T4OU4">后续升级</strong>：从这个项目找更新包 → https://github.com/xiangyuT/ComfyUI-SolAttn_xpu</p>
-<p data-page-node-id="pNZ9N7yFmrV4qjFFpnhpMt">⚠️ <strong data-page-node-id="1PX7ANVDJuvd5RKOH8wwSZ">仅限 B 系列（BMG）</strong>：Sol-Attn 稀疏注意力依赖内核的 <code data-page-node-id="H466E5cu7Vh8oDBlc4lYxI">cute.sol_attn</code> 算子，<strong data-page-node-id="iu6Bv2i4FboB4SZhceVNNZ">A770（DG2）不支持</strong>（A770 用户请跳过本小节）。</p>
+<h3 id="4-comfyui-solattn-b">4. ComfyUI-SolAttn 安装（选装，<strong>仅 B 系列用户</strong>）</h3>
+<blockquote>
+<p>🔄 <strong>后续升级</strong>：从这个项目找更新包 → https://github.com/xiangyuT/ComfyUI-SolAttn_xpu</p>
+<p>⚠️ <strong>仅限 B 系列（BMG）</strong>：Sol-Attn 稀疏注意力依赖内核的 <code>cute.sol_attn</code> 算子，<strong>A770（DG2）不支持</strong>（A770 用户请跳过本小节）。</p>
 </blockquote>
-<p data-page-node-id="WvPtAsaPMeTlEZSHV3Begc"><strong data-page-node-id="FctgKZ6wB9bAT56UMLIgAG">Sol-Attn 是什么</strong>：训练无关的稀疏注意力（arXiv 2607.24027，NVlabs Sana 团队）——只计算部分 token 对，加速<strong data-page-node-id="ml6gmWyY8rZjhz8YKOvQG0">长序列</strong>自注意力（高分辨率生图 / 长视频 / H3 等）。不匹配的注意力形状自动回退 dense（安全）。</p>
-<p data-page-node-id="fLrLsTEmTU8qQpft0e6bf4"><strong data-page-node-id="TtoB45gD7dcBL7TD5Sochu">安装</strong><br  data-page-node-id="ZvMN5gwoZKsSEWXwls6aCi"/>
-解压 <code data-page-node-id="iiv8yYGCSvVYOTd7Hr6UOK">B系列(bmg)/ComfyUI-SolAttn-20260901.zip</code> 到 <code data-page-node-id="5OYFAjjrPz7gE8BEUEA7s7">ComfyUI\custom_nodes\</code>（解压后即得 <code data-page-node-id="KKDQUerVAU7VFwtLObO7hF">ComfyUI-SolAttn</code> 文件夹）<br  data-page-node-id="0ou5gVBU3cCnD69Dx0ezhw"/>
-重启 ComfyUI 后节点列表出现 <strong data-page-node-id="2zzRq0tpx27ZuAoQF90eg1">Patch Sol-Attn</strong> 即成功。</p>
-<p data-page-node-id="zj1Lp2qAZeWJA2scF0qLfN"><strong data-page-node-id="lzsaRRTWP352ssBcSLuwrQ">B 系列启动文件（bat）相关设置</strong>——配合内核 <code data-page-node-id="aNTK2CAYBpEdG5GGwQFIM7">cute.sol_attn</code>，需启用实验开关：</p>
-<pre data-page-node-id="NjM2b0wAZn39iZtuPskgmO"><code class="language-text" data-page-node-id="izt9ketehG9NsVEFzjTe8E">:: Sol-Attn 实验路径（装了 ComfyUI-SolAttn 插件才需要）
+<p><strong>Sol-Attn 是什么</strong>：训练无关的稀疏注意力（arXiv 2607.24027，NVlabs Sana 团队）——只计算部分 token 对，加速<strong>长序列</strong>自注意力（高分辨率生图 / 长视频 / H3 等）。不匹配的注意力形状自动回退 dense（安全）。</p>
+<p><strong>安装</strong><br />
+解压 <code>B系列(bmg)/ComfyUI-SolAttn-20260901.zip</code> 到 <code>ComfyUI\custom_nodes\</code>（解压后即得 <code>ComfyUI-SolAttn</code> 文件夹）<br />
+重启 ComfyUI 后节点列表出现 <strong>Patch Sol-Attn</strong> 即成功。</p>
+<blockquote>
+<p>⚠️ <strong>不要同时安装 <code>ComfyUI-SolAttn_triton</code>（上游 CUDA 版）</strong>：两个插件都向 ComfyUI 注册<strong>同名的 <code>sol_attn</code> attention 函数</strong>，而 ComfyUI 的注册表是<strong>先到先得</strong>——后注册的只打一行 <code>already registered, skipping registration</code> 警告就被跳过。<strong>最终生效的是哪一个取决于插件加载顺序</strong>，等于把行为交给运气；而且 triton 版在 Windows 上本来就跑不了（它的 triton 内核需要 C++ 编译器，且 kitchen 的 triton 后端在 Windows 默认禁用）。</p>
+<p>→ 如果你以前装过 <code>ComfyUI-SolAttn_triton</code>，把它整个文件夹移出 <code>custom_nodes\</code>（或改名加 <code>.disabled</code> 后缀）即可，<strong>只保留本包提供的 XPU 版</strong>。</p>
+</blockquote>
+<p><strong>B 系列启动文件（bat）相关设置</strong>——配合内核 <code>cute.sol_attn</code>，需启用实验开关：</p>
+<pre><code class="language-text">:: Sol-Attn 实验路径（装了 ComfyUI-SolAttn 插件才需要）
 set SOL_ATTN_XPU_EXPERIMENTAL=1
 </code></pre>
-<p data-page-node-id="1RpzJIb1Zavu3TaztMjPQn"><strong data-page-node-id="of9nqi9Y1RjEUXiVS1S59C">使用</strong>：工作流里在模型加载器后添加 <strong data-page-node-id="J2IhqJksB0H6JcjtBKfjLV">Patch Sol-Attn</strong> 节点（参数：<code data-page-node-id="DQfRoacY3gSr9q7ryV5Bm7">start_percent</code> / <code data-page-node-id="B77WUspmGzPAhuGPqfYoaO">end_percent</code> 控制稀疏区间，头尾保留 dense 保画质；<code data-page-node-id="zx83MFJyDNR2C5iHPy4sfk">tau</code> 控制稀疏激进程度，先小值起步对比画质）。</p>
-<p data-page-node-id="cNJ69vBcCD8AFe2UC3z5x2"><strong data-page-node-id="vliyYeQxA2XCRKcbGbKefm">前提</strong>（缺一不可）：内核 <code data-page-node-id="OH8U8uJC4rP9Rs11BkVZaj">0.2.0b2+torch214.bmg</code>（含 sol_attn）+ <code data-page-node-id="9YNE70SCZRLApq0BsBoLvk">SOL_ATTN_XPU_EXPERIMENTAL=1</code> + <code data-page-node-id="c121jRACfSWK14ma1YSkBl">OMNI_ATTN_BACKEND=cute</code>（CUTE 路由）+ 注意力形状匹配（BF16 BTHD D128）。</p>
-<h3 id="5-comfyui-kitchen-xpu-20260905-provider" data-page-node-id="1PEFzKtzF09sDdVIgo5hCP">5. ComfyUI Kitchen XPU 安装（选装；20260905 起为 provider 新架构）</h3>
-<blockquote data-page-node-id="B4WS1D7piPV2GGw8IgfVZT">
-<p data-page-node-id="vJslkWg2ir4I0CylHwRmCz">🔄 <strong data-page-node-id="RF525uCWzyCVnlR46jEqca">后续升级</strong>：从这个项目找更新包 → https://github.com/xiangyuT/comfy-kitchen-xpu</p>
-<p data-page-node-id="y0wvu3CsPmF0WE4APYOBF1">⚠️ <strong data-page-node-id="uaMMHk9fEoAEGH3xfx2lUb">新架构说明（20260905）</strong>：kitchen 改走 <strong data-page-node-id="CSPyFkhKgTr6uWzYlmdft4">xiangyuT provider 架构</strong>——官方 <code data-page-node-id="Pfg1DyMGBBGPOWLijKy85h">comfy-kitchen</code> 0.2.31 由 ComfyUI <code data-page-node-id="HfS1Ob6MMsOt50vBMO2s1P">requirements.txt</code> 自动安装（官方 PyPI 版，不含 xpu 后端），XPU 实现打包为独立 <strong data-page-node-id="MynTbE70mTuyqGb6p47uap">provider 发行 <code data-page-node-id="QQJMRcdqfFKkZ22BIA45n2">comfy_kitchen_xpu_runtime</code></strong>，由 ComfyUI-OmniXPU 启动时（prestartup）按契约路由激活。<strong data-page-node-id="sYfj0j2ElHriQ0UpOvVl2o">不再互相覆盖，与 ComfyUI 依赖管理兼容</strong>。</p>
-<p data-page-node-id="QJ2bpGWp2T8UW5TGNRKykH">kitchen 不分显卡系列，provider wheel 一个通用（在本包根目录）；官方 comfy-kitchen 由 ComfyUI 自动装好，无需手动处理。</p>
+<p><strong>使用</strong>：工作流里在模型加载器后添加 <strong>Patch Sol-Attn</strong> 节点（参数：<code>start_percent</code> / <code>end_percent</code> 控制稀疏区间，头尾保留 dense 保画质；<code>tau</code> 控制稀疏激进程度，先小值起步对比画质）。</p>
+<p><strong>前提</strong>（缺一不可）：内核 <code>0.2.0b2+torch214.bmg</code>（含 sol_attn）+ <code>SOL_ATTN_XPU_EXPERIMENTAL=1</code> + <code>OMNI_ATTN_BACKEND=cute</code>（CUTE 路由）+ 注意力形状匹配（BF16 BTHD D128）。</p>
+<h3 id="5-comfyui-kitchen-xpu-provider">5. ComfyUI Kitchen XPU 安装（选装；provider 架构）</h3>
+<blockquote>
+<p>🔄 <strong>后续升级</strong>：从这个项目找更新包 → https://github.com/xiangyuT/comfy-kitchen-xpu</p>
+<p>⚠️ <strong>provider 架构说明</strong>：kitchen 走 <strong>xiangyuT provider 架构</strong>——官方 <code>comfy-kitchen</code> 由 ComfyUI <code>requirements.txt</code> 自动安装（官方 PyPI 版，不含 xpu 后端），XPU 实现打包为独立 <strong>provider 发行 <code>comfy_kitchen_xpu_runtime</code></strong>，由 ComfyUI-OmniXPU 启动时（prestartup）按契约路由激活。<strong>不再互相覆盖，与 ComfyUI 依赖管理兼容</strong>。</p>
+<p>⚠️ <strong>本版（20260912）为 0.2.33，必须配 ComfyUI 0.35.0</strong>：ComfyUI 的 <code>requirements.txt</code> 固定官方 <code>comfy-kitchen==0.2.33</code>，provider 内部写死了可接受的版本（<code>compatible_versions: ["0.2.33"]</code>）。<strong>三方必须同时对齐</strong>：ComfyUI 的 pin ↔ 官方包版本 ↔ provider 锚。若你的 ComfyUI 低于 0.35.0（官方包还是 0.2.31），请勿使用本 provider，否则会在启动日志看到 <code>compatible_versions</code> 不匹配的拒绝提示（见第四部分）。</p>
+<p>kitchen 不分显卡系列，provider wheel <strong>一个通用</strong>（在本包根目录，A770 与 B 系列共用同一份，<strong>A770 没有单独的 kitchen 包</strong>）；官方 comfy-kitchen 由 ComfyUI 自动装好，无需手动处理。</p>
+<p>💡 <strong>A770 说明</strong>：A770 的社区节点<strong>不装本 provider 也能跑</strong>——它的 <code>kitchen_compat</code> 适配器自带一层"缺后端桥"；装上本 provider 后，该桥会检测到已有 Kitchen XPU 后端并自动跳过自身注册（走正式分发层）。所以对 A770 而言，装它是<strong>推荐、但非强制</strong>。</p>
 </blockquote>
-<p data-page-node-id="f3IEyd3XdjOg2fMvNeSOAL"><strong data-page-node-id="PHggrtGc5kCAhNJQi7ZiRb">安装方法（装 provider wheel）</strong></p>
-<pre data-page-node-id="s0GjEyiMpE80YK0GskVfvZ"><code class="language-text" data-page-node-id="QWBrzFIK6srB8Bm5cjvpIq">python -m pip install comfy_kitchen_xpu_runtime-0.2.31-py3-none-any.whl
+<p><strong>安装方法（装 provider wheel）</strong></p>
+<pre><code class="language-text">python -m pip install comfy_kitchen_xpu_runtime-0.2.33-py3-none-any.whl
 </code></pre>
-<p data-page-node-id="9MHttSPpHK8oW9OEbBG0Io"><strong data-page-node-id="BoUahrijwrMbvpLE0eQJn8">生效前提</strong>：ComfyUI-OmniXPU 为 20260901+ 版（含 <code data-page-node-id="QBPsfJG1JevTwUGir1uHGO">runtime_bootstrap.py</code>，本包已带）；安装后 <strong data-page-node-id="2BMREZOHmfC9KG9R6oC47T">重启 ComfyUI</strong>，启动日志出现 provider active（bootstrap 路由）即生效。</p>
-<p data-page-node-id="qNh2E0r36sgJy6GrHSHKcy"><strong data-page-node-id="csH74k5RLnUGsdHTZOBuj3">ComfyUI 内核升级后还会失效吗？——不会（新架构已解决）</strong></p>
-<p data-page-node-id="Rk9JBkbkkEFRmVDugx4dVb">旧版（0.2.31.post1 整包）会被 ComfyUI 更新器按 <code data-page-node-id="WyfcFb6ODCjLSiZoSfKwHe">requirements.txt</code> 重装官方版覆盖，xpu 后端丢失。<strong data-page-node-id="7ziadRVm16K14XkK5Y0DRm">provider 架构下官方版与 XPU provider 各司其职</strong>：官方 comfy-kitchen 由 pip 管理、provider wheel 常驻 site-packages，升级 ComfyUI 内核不再影响 XPU 接入。</p>
-<p data-page-node-id="FSsXeIqga4hq8llbip8V8f"><strong data-page-node-id="I1TH12UZCwVE6lrNZdx3LC">若升级后发现 xpu 路由未生效</strong>：确认 provider 已装（<code data-page-node-id="kn3BkkffOEhUsGGTbeRvFT">pip show comfy-kitchen-xpu-runtime</code>）+ OmniXPU 为 20260901+ 版 + 重启 ComfyUI。</p>
-<p data-page-node-id="SYWDZuDrdL6zNsGIU0dg8W"><strong data-page-node-id="KpO7xmAoIJ2e0iBoflQh2a">不安装 ComfyUI Kitchen XPU 的损失</strong></p>
-<table data-page-node-id="OWyDX7Nn6Hin1PyE8nlGil">
-<thead data-page-node-id="oXYv7qM9tLxKeQMUL0sE2b">
-<tr data-page-node-id="jPki0iX3CCp71jTEXt6MEn">
-<th data-page-node-id="SiFoENKJZLfYQ2rDypqf7i">路径</th>
-<th data-page-node-id="UEQIiobqj0tJB5NvIXo7DE">没有 kitchen 时</th>
+<p><strong>生效前提</strong>：ComfyUI-OmniXPU 为 20260912 版（含 <code>runtime_bootstrap.py</code>，本包已带）+ 官方 comfy-kitchen 0.2.33（ComfyUI 0.35.0 自动装好）；安装后 <strong>重启 ComfyUI</strong>，启动日志出现 provider active（bootstrap 路由）即生效。</p>
+<blockquote>
+<p>💡 本版 kitchen provider 起，<code>sol_attn</code>（内核 CUTE sidecar）也纳入 kitchen 分发——即 Sol-Attn 的能力可以在 kitchen 这一层被调度。</p>
+</blockquote>
+<p><strong>ComfyUI 内核升级后还会失效吗？——不会自动跟随，但也不会崩</strong></p>
+<p>provider 架构下官方版与 XPU provider 各司其职，升级 ComfyUI 内核<strong>不会</strong>把 provider 冲掉；但 ComfyUI 抬高了 <code>comfy-kitchen</code> 的 pin 时，<strong>版本三角会被打破</strong>：provider 的版本锚不匹配 → 启动日志打印明确拒绝 → <strong>XPU 路由回落 PyTorch 慢路径（不崩，只是变慢）</strong>。此时需要安装与新官方包版本对齐的新 provider（联系包提供者）。</p>
+<p><strong>若升级后发现 xpu 路由未生效</strong>：确认 provider 已装（<code>pip show comfy-kitchen-xpu-runtime</code>）+ 官方包版本与 provider 锚一致 + OmniXPU 为 20260912+ 版 + 重启 ComfyUI。</p>
+<p><strong>不安装 ComfyUI Kitchen XPU 的损失</strong></p>
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th>没有 kitchen 时</th>
 </tr>
 </thead>
-<tbody data-page-node-id="NAclzbKmdktADwfJnaxMl3">
-<tr data-page-node-id="uK31oow6g4SgHWawmMKBmk">
-<td data-page-node-id="wzfEk1tnnnoQw7uTW5refG">norm（RMSNorm/LayerNorm）</td>
-<td data-page-node-id="IxGpHtpCs2Yc6En5GglZ4L">✅ 不受影响（OmniXPU 直连内核）</td>
+<tbody>
+<tr>
+<td>norm（RMSNorm/LayerNorm）</td>
+<td>✅ 不受影响（OmniXPU 直连内核）</td>
 </tr>
-<tr data-page-node-id="YO3oLxzrKEdfkIaijCSIh7">
-<td data-page-node-id="uXnHTrIV9ompKlphafdCkx">FP8 GEMM / INT8 FFN</td>
-<td data-page-node-id="MnF4y3oZZZJKNcxnO8EOW8">✅ 不受影响（直连）</td>
+<tr>
+<td>FP8 GEMM / INT8 FFN</td>
+<td>✅ 不受影响（直连）</td>
 </tr>
-<tr data-page-node-id="MHFxWVKTjrywWKJxyiDh4y">
-<td data-page-node-id="ub1FSEFCNvZyGq2WJa9RhZ"><strong data-page-node-id="Sm82ZfuiY9VsNH6sool9VK">GGUF 解包</strong>（Q4_0/Q8_0）</td>
-<td data-page-node-id="XDJUwrwB3iBi88NFHDbQvW">❌ 回落 eager，<strong data-page-node-id="L0KHHQuI0Hx6D6SL0qWx3e">丢失 ~37% 的加速</strong></td>
+<tr>
+<td><strong>GGUF 解包</strong>（Q4_0/Q8_0）</td>
+<td>❌ 回落 eager，<strong>丢失 ~37% 的加速</strong></td>
 </tr>
-<tr data-page-node-id="M1xgu5zryBeXCSeVpNaqHl">
-<td data-page-node-id="G77gkyiwRAJ9K0BmDHcXMK">rms_rope / convrot 等通用量化算子</td>
-<td data-page-node-id="RBhr7HB6SoVlEmqRLp0DBx">❌ 回落 eager</td>
+<tr>
+<td>rms_rope / convrot 等通用量化算子</td>
+<td>❌ 回落 eager</td>
 </tr>
 </tbody>
 </table>
-<p data-page-node-id="S2qGKIikDjIY1F3xzqtUB9"><strong data-page-node-id="YuaPFoxGsSpLFN2iGfN4Fw">结论</strong>：只跑 FP16/FP8 模型可不装；<strong data-page-node-id="tpvxAcWiJy10yFPHj3MiUH">跑 GGUF 量化模型收益最大</strong>（~37%），但需接受"每次内核升级要重新合并/patch/安装"的维护成本——收益与成本请自行权衡。</p>
-<h3 id="6-comfyui-aimdo-xpu" data-page-node-id="xW7yn9AaTMkoV7pPGpWSzd">6. ComfyUI Aimdo XPU 安装（选装，测试版）</h3>
-<blockquote data-page-node-id="YphijkvqIY6HmqdO5uyNBx">
-<p data-page-node-id="VxhMXrVCfBQZrIlDinFWfu">🔄 <strong data-page-node-id="wkMp32TnmYzapCptZQB3XD">后续升级</strong>：从这个项目找更新包 → https://github.com/xiangyuT/comfy-aimdo-xpu/</p>
-<p data-page-node-id="svcmdHE7d1qGrVOdYp8AYS">⚠️ <strong data-page-node-id="BfAnSnqKrGnsMANF3s7KpD">当前版本是 PR#17 构建</strong>（master 最新），仍属测试性质（历史已知问题是否闭环见第二部分提醒）。<strong data-page-node-id="qtBcGOGipAszudgDnvnZGY">普通用户建议跳过本节</strong>，等待稳定版。</p>
+<p><strong>结论</strong>：只跑 FP16/FP8 模型可不装；<strong>跑 GGUF 量化模型收益最大</strong>（~37%），但需接受"每次内核升级要重新合并/patch/安装"的维护成本——收益与成本请自行权衡。</p>
+<h3 id="6-comfy-aimdo-xpu">6. comfy-aimdo XPU 安装（选装）</h3>
+<blockquote>
+<p>🔄 <strong>后续升级</strong>：从这个项目找更新包 → https://github.com/xiangyuT/comfy-aimdo-xpu/</p>
+<p>⚠️ <strong>20260912 起改用 provider 架构</strong>：<strong>不再</strong>用 <code>deploy.bat</code> 覆盖官方 <code>comfy_aimdo</code> 包——XPU 实现改为独立发行 <strong><code>comfy-aimdo-xpu-runtime</code></strong>，与官方 <code>comfy-aimdo</code> <strong>精确配对、各司其职</strong>：官方包由 pip 管理，XPU provider 常驻 <code>site-packages</code>，<strong>互不覆盖</strong>。旧的"解压 zip + 双击 deploy.bat"装法作废。</p>
 </blockquote>
-<p data-page-node-id="8n67E27Oi8mFwKbj5ICeJB"><strong data-page-node-id="kkIcl32Xlz0ld1eA1QCUyy">安装文件的下载与部署</strong></p>
-<p data-page-node-id="0mTGyNNBB4THMOtR1fNwoe">解压本包 <code data-page-node-id="BdHdhUZ0BO2FZVRAZ5h4VR">comfy_aimdo_xpu_win_PR17.zip</code>（解压后得 <code data-page-node-id="GNQBJSuzYmo1jNXWKhhvD6">comfy_aimdo_xpu_win_pr17/</code> 文件夹），把整个文件夹放到 <strong data-page-node-id="hmeIlIOXFUdwCC6sODLmaV">ComfyUI-aki 根目录</strong>（与 <code data-page-node-id="l5hMcMyjIdoRsqVnHlJRxS">python</code> 文件夹同级），<strong data-page-node-id="wIgEjmG5Fk9E7GUIhGvaqU">双击运行 <code data-page-node-id="3STtRki5kW4HleGBu1gbdi">deploy.bat</code></strong>：</p>
-<ul data-page-node-id="yeKsElfjCW64KXmC2mPbP9">
-<li data-page-node-id="hqQkuD7XyZdd0Hfy0GjOPy">自动备份原 <code data-page-node-id="vKQL5cB8EMKPWxBtCWcwqS">comfy_aimdo</code> 包为 <code data-page-node-id="3O2cIOH4mmZfPahdDF5oYg">comfy_aimdo.bak</code></li>
-<li data-page-node-id="QC9gb4EYlsDNMGZ46Ft54n">自动覆盖部署 6 个 py + <code data-page-node-id="ZSoVHGVYW7A1It4sF3ESVn">aimdo_xpu.dll</code></li>
-<li data-page-node-id="ivk8fppAuj2ckZ2mExeklo">提示手动添加启动参数</li>
+<p><strong>安装文件</strong>（本包根目录）：<code>comfy_aimdo_xpu_runtime-0.5.3-cp39-abi3-win_amd64.whl</code></p>
+<p><strong>包名含义</strong>：<code>0.5.3</code> = provider 版本 · <strong><code>torch2.14</code> = 必须配 <code>torch 2.14.0+xpu</code></strong> · <code>xpu</code> = Intel XPU（<strong>不锁机型</strong>）· <code>20260912</code> = 打包日期。</p>
+<p><strong>安装方法</strong></p>
+<pre><code class="language-text">python -m pip install --force-reinstall --no-deps comfy_aimdo_xpu_runtime-0.5.3-cp39-abi3-win_amd64.whl
+</code></pre>
+<p>两个参数都不能省：</p>
+<ul>
+<li><code>--force-reinstall</code>：provider 的版本号与官方包同为 <code>0.5.3</code>，普通 <code>pip install -U</code> 会以为"已是最新"而<strong>什么都不做</strong>；</li>
+<li><code>--no-deps</code>：provider 的 METADATA 里没有依赖声明，加它避免 pip 去动别的包。</li>
 </ul>
-<p data-page-node-id="EJMgwCNnZChNbGrJ9beDWC"><strong data-page-node-id="yNDOP4X2ILSTLcHmb49pXx">aimdo xpu 的开启与关闭</strong></p>
-<table data-page-node-id="FRX0gery4l6sxCJwIIQPQD">
-<thead data-page-node-id="ScUxM7gMecPdKK7aeFTT49">
-<tr data-page-node-id="amTjvb31TWkffDwZXyznFo">
-<th data-page-node-id="ooWdzIpHLQwkV3sfsMCdOk">操作</th>
-<th data-page-node-id="8ZbHB4glv0cNrSsnmo9SHT">方法</th>
+<blockquote>
+<p>关于 wheel 名里的 <code>cp39-abi3</code>：<code>abi3</code> 是<strong>下限</strong>声明（最低 Python 3.9），不是"只能装 3.9"。它按稳定 ABI 打标，pip 允许装在任意 ≥3.9 的 CPython 上（3.13 也行）。本包用 CPython 3.13 构建并实测通过；wheel 内<strong>没有任何 <code>.pyd</code></strong>，唯一二进制是运行时用 <code>ctypes</code> 加载的 <code>aimdo_xpu.dll</code>，与 CPython 版本无关。</p>
+</blockquote>
+<p><strong>前置条件（缺一即被拒，或被静默跳过）</strong></p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>前置</th>
+<th>具体要求</th>
+<th>缺了会怎样</th>
 </tr>
 </thead>
-<tbody data-page-node-id="YMdJC2m49fyKXitRkbSrqa">
-<tr data-page-node-id="IH2XdtnqXPlMbBwbgLxSRD">
-<td data-page-node-id="RL6TQXa2JUr0zi43smlg85"><strong data-page-node-id="P6IhISgyrO4GBYSS5N8HE5">开启</strong></td>
-<td data-page-node-id="6JHD0PCA8hkmFEIHxgXe1C">启动 bat 的 <code data-page-node-id="yhyzfEfM37IjXXJzB5FwBi">python main.py</code> 参数中加 <code data-page-node-id="gVxYdah5HPT3uLqiNwVaAF">--enable-dynamic-vram</code></td>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>ComfyUI-OmniXPU 插件</strong></td>
+<td>版本已认识 <code>comfy_aimdo.xpu</code> 这个 provider 契约（本包 20260912 版即满足）</td>
+<td>装了等于没装，<strong>而且不报错</strong></td>
 </tr>
-<tr data-page-node-id="ZwAo9uOln5REUhmnnVKMmZ">
-<td data-page-node-id="BdOXLH4EKjoFj62nG6dRe0"><strong data-page-node-id="ZsHy2uH2E1kdBaKdTNr2uk">关闭</strong></td>
-<td data-page-node-id="WlxyXmdM3eFmfs5Na3aqgg">改成 <code data-page-node-id="XQDUN9E6KkeddaDqsGYalL">--disable-dynamic-vram</code>（保留其他参数）</td>
+<tr>
+<td>2</td>
+<td><strong>官方 <code>comfy-aimdo</code></strong></td>
+<td>版本<strong>精确等于 <code>0.5.3</code></strong></td>
+<td>启动打印 <code>is incompatible</code>，provider 被拒</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>PyTorch</strong></td>
+<td>官方 XPU wheel，<strong>精确 <code>2.14.0+xpu</code></strong></td>
+<td>打印 <code>does not match provider</code>，被拒</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>显卡驱动 + VC++ 运行库</strong></td>
+<td>系统目录有 <code>ze_loader.dll</code>（显卡驱动带）与 <code>MSVCP140.dll</code>（VC++ 2015-2022 运行库）</td>
+<td><code>aimdo_xpu.dll</code> 加载失败</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>启动参数</strong></td>
+<td>启动 bat 的 python 那行显式加 <code>--enable-dynamic-vram</code></td>
+<td>provider 被标成 <code>skipped</code>，静默退回旧路径</td>
 </tr>
 </tbody>
 </table>
-<p data-page-node-id="hgv5NeHf6tcAFSb85SehDB">验证：启动日志出现 <code data-page-node-id="V1080gHgzni9TaJxRqD4wj">DynamicVRAM support detected and enabled</code> 即开启成功。</p>
-<h3 id="7-comfyui-gguf-xpu-gguf" data-page-node-id="FyWNH42QT1efDKsfb2ToiX">7. ComfyUI-GGUF-XPU 安装（选装，GGUF 用户强烈建议）</h3>
-<blockquote data-page-node-id="pxs9mUEq9X0gkLxZgp5xXO">
-<p data-page-node-id="BIavQnbzk9ylb7i5da51tG">🔄 <strong data-page-node-id="6pwYCD5hQAHi7uzzYDGjC0">后续升级</strong>：从这个项目找更新包 → https://github.com/analytics-zoo/ComfyUI-GGUF-XPU</p>
-<p data-page-node-id="1BOnQKWTHTa2Xav6KUU4sE">GGUF 模型（Q4_0/Q8_0 等）想走 kernel 加速，加载器必须用 <strong data-page-node-id="mfRgaTXVhSDDzkM5uYdYW0">ComfyUI-GGUF-XPU 的 <code data-page-node-id="qkfGNGi5OvJ26nPuq8ftFc">UnetLoaderGGUF</code> 节点</strong>（走 <code data-page-node-id="T4CtXhZGgfETW4eW5Oz4X2">kitchen → omni_xpu_kernel.gguf</code>）。实测比普通加载方式快 ~37%。</p>
+<p><strong>关于第 2 条（重要）</strong>：不要用 <code>pip install -U comfy-aimdo</code>，也不要用别人给的任意版本。官方包和 provider 是<strong>精确配对</strong>的：provider 内部写死了 <code>compatible_versions: ["0.5.3"]</code>，多一个小版本号都会被拒（拒绝是"响亮"的，会打印原因并退回纯官方包，不会半残运行）。ComfyUI 0.35.0 的 <code>requirements.txt</code> 里就是 <code>comfy-aimdo==0.5.3</code>，升级内核时会自动装好。</p>
+<p><strong>关于第 3 条</strong>：包名里的 <code>torch2.14</code> 就是这一条——名字对不上就别装。核对：</p>
+<pre><code class="language-text">python -c &quot;import torch; print(torch.__version__)&quot;
+:: 期望输出: 2.14.0+xpu
+</code></pre>
+<p><strong>关于 oneAPI</strong>：本包<strong>不需要</strong>完整 oneAPI（6~7GB）。<code>aimdo_xpu.dll</code> 需要 <code>sycl9.dll</code> 和 <code>libmmd.dll</code> 两个运行库——它们随 torch 的 XPU wheel 一起装到 <code>python\Library\bin\</code>，provider 会自己把这个目录加进 DLL 搜索路径。<strong>所以只要 torch 是 XPU 版，这一条就自动满足了。</strong></p>
+<p><strong>关于显卡型号</strong>：本包<strong>不锁机型</strong>。<code>aimdo_xpu.dll</code> 编译时没有指定 SYCL AOT 目标，落成的是通用 SPIR-V（<code>spir64</code>），运行时按你机器上的实际设备 JIT——所以 DG2（<strong>A770</strong> 一类）与 BMG（<strong>B580 / B70</strong> 一类）用的是<strong>同一份二进制</strong>，换卡不需要换包。已实测环境：<strong>B580 + Win11</strong>。</p>
+<blockquote>
+<p>💡 <strong>A770 用户的命名提示</strong>：社区（Blackwood）在自己的说明里把 A770 侧的 aimdo provider 写作 <code>comfy-aimdo-xpu 0.5.3+xpu.1</code>。其中的 <strong><code>+xpu.1</code> 只是他自己的本地构建编号</strong>，与包根目录的 <code>comfy_aimdo_xpu_runtime-0.5.3-cp39-abi3-win_amd64.whl</code> 是<strong>同一个包</strong>——<strong>A770 没有单独的 aimdo 包</strong>，直接用本包这一份即可。</p>
 </blockquote>
-<p data-page-node-id="DENZgIDZ9E9WnBQTVlkNAP"><strong data-page-node-id="WcEsFMeEuIf9wtFeSeHzdA">安装文件的下载与部署</strong></p>
-<ul data-page-node-id="ehCI8K8Us151wUhQfdMrgF">
-<li data-page-node-id="1VtAfQvXcEIO0rFwKPzYwj">安装文件（本包根目录）：<code data-page-node-id="SUfAoTgOphuIHnsqnQEtqi">ComfyUI-GGUF-XPU-20260905.zip</code>（本版新增 Qwen3-VL 视觉塔支持，Krea2 工作流加载 GGUF 版 Qwen3-VL CLIP 必需）</li>
-<li data-page-node-id="OhXDHYFKLx0AFpXyOnhLNa">安装方法：解压到 <code data-page-node-id="M0YmlP9by6iSYtQFPHOPqZ">ComfyUI\custom_nodes\</code>（解压后即得 <code data-page-node-id="hTHGnGXSIvnOdlBjw0WNu3">ComfyUI-GGUF-XPU</code> 文件夹），重启 ComfyUI</li>
-</ul>
-<p data-page-node-id="I2peMRVTun9eTqc7RZC5Cj"><strong data-page-node-id="A2co8GiLA6Ox8DS93Y34jS">重要提醒：与官方原版 ComfyUI-GGUF 不冲突</strong></p>
-<p data-page-node-id="SDe7qF1XKn0w8UquR7ENKA">两个插件都注册同名节点 <code data-page-node-id="o4VfvD3ScWM6zTcBA1Xgnz">UnetLoaderGGUF</code>，同时安装时谁生效取决于加载顺序（字母序靠后的覆盖靠前的）。</p>
-<hr  data-page-node-id="sxIkvxM4z6TnAX45eB3oR3"/>
-<h2 id="_5" data-page-node-id="PG2c0a3uPWPT3jhecGvfIn">第四部分：验证与故障排查</h2>
-<h3 id="_6" data-page-node-id="b4S9sK9AMb4auEVatrS86Z">验证清单（按顺序）</h3>
-<p data-page-node-id="6thrxx6ZxoGgtMoSp5VHzI"><strong data-page-node-id="FFsIyGfHtQzvEdMr09YRsQ">① 内核就位</strong>：</p>
-<pre data-page-node-id="7RoM1JxtwxON1RG2WS7VfB"><code class="language-text" data-page-node-id="nLcjHocXLOBZPP8UTpYRD8">python -c &quot;import omni_xpu_kernel as o; print(o.__xpu_target__, o.is_available())&quot;
-:: 期望: bmg True（A770 则为 dg2 True）
+<p><strong>开启与关闭</strong></p>
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>方法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>开启</strong></td>
+<td>启动 bat 的 <code>python main.py</code> 参数中加 <code>--enable-dynamic-vram</code></td>
+</tr>
+<tr>
+<td><strong>关闭</strong></td>
+<td>改成 <code>--disable-dynamic-vram</code>（保留其他参数）</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>provider 读的是"<strong>显式给了这个参数</strong>"这一件事本身，它<strong>不会</strong>去用 ComfyUI 自己那套 <code>enables_dynamic_vram()</code> 的推导逻辑。所以即使你的配置看起来"本来就开着 DynamicVRAM"，也<strong>必须</strong>显式加上。</p>
+</blockquote>
+<p><strong>验证（启动前自检，30 秒）</strong></p>
+<pre><code class="language-text">python -c &quot;import importlib.metadata as m;v=m.version('comfy-aimdo');print(v,'-&gt; OK' if v=='0.5.3' else '-&gt; MISMATCH')&quot;
+:: 期望: 0.5.3 -&gt; OK
 </code></pre>
-<p data-page-node-id="MwYYevmw4j5NKiHg0jjxmr"><strong data-page-node-id="2GiHiY4uZSybxA6JF5MR2G">② kitchen xpu provider 生效</strong>（20260905 起为 provider 架构）：</p>
-<pre data-page-node-id="tO1TBHppEr7fFAaXi7jPuX"><code class="language-text" data-page-node-id="JBUx4RpBCBxK6j3gESkjuk">python -m pip show comfy-kitchen-xpu-runtime   :: 有输出 = provider 已装
+<p>再检查宿主插件是否认识这个 provider（在 ComfyUI 根目录下执行）：</p>
+<pre><code class="language-text">python -c &quot;import sys; sys.path.insert(0,'ComfyUI/custom_nodes/ComfyUI-OmniXPU'); import runtime_bootstrap as b; print('contract registered :', 'comfy_aimdo.xpu' in b._PROVIDER_CONTRACTS); ps, errs = b.discover_providers(); print('comfy_aimdo.xpu accepted :', 'comfy_aimdo.xpu' in ps); [print('rejected -&gt;', e) for e in errs]&quot;
+:: 期望: contract registered : True / comfy_aimdo.xpu accepted : True
 </code></pre>
-<ul data-page-node-id="LaB5Zwh0fX9QYkHms1iwnc">
-<li data-page-node-id="2jpktW6257Lyqhk8D4wTti">重启 ComfyUI，启动日志出现 <strong data-page-node-id="zZsHLxCKP776hgxfmccUzh">provider active</strong> / bootstrap 路由行 = XPU 路由已激活</li>
-<li data-page-node-id="CDlVGVjPEYyLyn9aRsZOGK">⚠️ xpu backend 由 OmniXPU prestartup 挂载：独立 python 下 <code data-page-node-id="s6W1nUHZXmFCAT18nrPtYC">import comfy_kitchen</code> 看到的是官方版（无 xpu），属<strong data-page-node-id="zADfalXYZZDJDzBuquCqDX">正常</strong>，勿按旧版方式独立验证</li>
+<blockquote>
+<p>如果你另外装了 <code>comfy-kitchen</code> 的 XPU provider，这里可能还会多出一行 <code>rejected -&gt; comfy_kitchen.xpu: ... is incompatible</code>。<strong>那是另一个包的版本问题，不影响 aimdo</strong>，可以忽略——它也正说明这套机制是"不匹配就明确拒绝"，而不是悄悄失效。</p>
+</blockquote>
+<p><strong>启动日志判据</strong></p>
+<p>日志里应该出现下面这些行（前两条是 <strong>XPU 独占</strong>的，官方 CUDA / ROCm 版不会打）：</p>
+<pre><code class="language-text">native Torch XPU allocator retained; arbitrating Unified Runtime USM allocations
+arbitrating Unified Runtime USM allocations; PyTorch caching allocator retained
+</code></pre>
+<p>再配合 ComfyUI 自己的：</p>
+<pre><code class="language-text">DynamicVRAM support detected and enabled
+</code></pre>
+<blockquote>
+<p>⚠️ 不要用 <code>WDDM adapter match</code> 当判据 —— 官方 CUDA / ROCm 的 DLL 也会打这句。</p>
+</blockquote>
+<p><strong>出问题时的对照表</strong></p>
+<table>
+<thead>
+<tr>
+<th>日志 / 报错</th>
+<th>真实原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>runtime provider rejected: comfy_aimdo.xpu: official comfy-aimdo 0.5.x is incompatible; provider accepts ['0.5.3']</code></td>
+<td>官方包版本不是 0.5.3（被别的 pip 操作升级/降级过）</td>
+</tr>
+<tr>
+<td><code>PyTorch '2.13.0+xpu' does not match provider '2.14.0+xpu'</code></td>
+<td>torch 版本和本包不配对</td>
+</tr>
+<tr>
+<td><code>... is not installed</code></td>
+<td>官方 <code>comfy-aimdo</code> 根本没装</td>
+</tr>
+<tr>
+<td>什么都没报，但也没有 <code>DynamicVRAM support detected</code></td>
+<td>① 启动 bat 没加 <code>--enable-dynamic-vram</code>；② 没装 ComfyUI-OmniXPU 插件；③ site-packages 里官方包被改脏</td>
+</tr>
+<tr>
+<td><code>Error loading aimdo_xpu.dll</code> / <code>找不到指定的模块</code></td>
+<td>缺 <code>sycl9.dll</code>（torch 不是 XPU 版）或 <code>ze_loader.dll</code> / <code>MSVCP140.dll</code>（驱动 / VC++ 运行库）</td>
+</tr>
+<tr>
+<td><code>source repository is not the registered contract</code></td>
+<td>宿主的 provider 契约和本包来源仓库不一致，说明插件版本不匹配</td>
+</tr>
+</tbody>
+</table>
+<p>出现"被拒"时不用慌：这套机制是<strong>响亮失败</strong>——provider 会被跳过，ComfyUI 照常能启动，只是没有 XPU 加速。修好上面那一条再重启即可。</p>
+<blockquote>
+<p><strong>旧版残留不需要清理</strong>：如果你以前装过旧版 aimdo xpu（那种"把 py 和 dll 直接覆盖进 site-packages"的装法），官方包升级后，旧版多出来的 <code>aimdo_xpu.dll</code>、<code>*.bak</code> 之类会继续留在 site-packages 里。<strong>这些残留不影响本 provider 工作</strong>——它们既不参与模块加载，也被 provider 自己的 <code>_vendor/</code> 目录挡在解析顺序后面。<strong>不需要手工删任何东西。</strong></p>
+</blockquote>
+<p><strong>卸载</strong></p>
+<pre><code class="language-text">python -m pip uninstall comfy-aimdo-xpu-runtime
+</code></pre>
+<p>官方 <code>comfy-aimdo</code> 包<strong>不会被影响</strong>（它们是两个独立的 distribution），ComfyUI 会回到纯官方路径继续跑。</p>
+<h3 id="7-comfyui-gguf-xpu-gguf">7. ComfyUI-GGUF-XPU 安装（选装，GGUF 用户强烈建议）</h3>
+<blockquote>
+<p>🔄 <strong>后续升级</strong>：从这个项目找更新包 → https://github.com/analytics-zoo/ComfyUI-GGUF-XPU</p>
+<p>GGUF 模型（Q4_0/Q8_0 等）想走 kernel 加速，加载器必须用 <strong>ComfyUI-GGUF-XPU 的 <code>UnetLoaderGGUF</code> 节点</strong>（走 <code>kitchen → omni_xpu_kernel.gguf</code>）。实测比普通加载方式快 ~37%。</p>
+</blockquote>
+<p><strong>安装文件的下载与部署</strong></p>
+<ul>
+<li>安装文件（本包根目录）：<code>ComfyUI-GGUF-XPU-20260912.zip</code></li>
+<li>本版（20260912）变更：<code>loader.py</code> 的 <code>IMG_ARCH_LIST</code> 补入 <strong><code>krea2</code></strong>——Krea2 的 GGUF 图像模型不再被当成未知架构处理（沿用 20260905 版起含的 Qwen3-VL 视觉塔加载补丁，Krea2 工作流加载 GGUF 版 Qwen3-VL CLIP 必需）</li>
+<li>安装方法：解压到 <code>ComfyUI\custom_nodes\</code>（解压后即得 <code>ComfyUI-GGUF-XPU</code> 文件夹），重启 ComfyUI</li>
 </ul>
-<p data-page-node-id="PkGePFgHXQ2SSAxEThxz7p"><strong data-page-node-id="7hKpzpXUAnGVuiALsvTFnB">③ 节点生效</strong>（重启 ComfyUI 后看启动日志）：</p>
-<pre data-page-node-id="zyaAW9LGUstJWdIdME5p6V"><code data-page-node-id="eDZdIlwoH5gAz2vWu7iCrc">[OmniXPU] omni_xpu_kernel 0.2.0b2+torch214.bmg - available: norm, rotary, linear_fp8, int8
+<p><strong>重要提醒：与官方原版 ComfyUI-GGUF 不冲突</strong></p>
+<p>两个插件都注册同名节点 <code>UnetLoaderGGUF</code>，同时安装时谁生效取决于加载顺序（字母序靠后的覆盖靠前的）。</p>
+<hr />
+<h2 id="_5">第四部分：验证与故障排查</h2>
+<h3 id="_6">验证清单（按顺序）</h3>
+<p><strong>① 内核就位</strong>：</p>
+<pre><code class="language-text">python -c &quot;import omni_xpu_kernel as o; print(o.__version__, o.__xpu_target__, o.is_available())&quot;
+:: B 系列期望: 0.2.0b2+torch214.bmg bmg True
+:: A770 期望:   0.2.0b1+torch214.dg2.3 dg2 True
+</code></pre>
+<p><strong>② kitchen xpu provider 生效</strong>：</p>
+<pre><code class="language-text">python -m pip show comfy-kitchen-xpu-runtime   :: 有输出 = provider 已装
+</code></pre>
+<ul>
+<li>重启 ComfyUI，启动日志出现 <strong>provider active</strong> / bootstrap 路由行 = XPU 路由已激活</li>
+<li>⚠️ xpu backend 由 OmniXPU prestartup 挂载：独立 python 下 <code>import comfy_kitchen</code> 看到的是官方版（无 xpu），属<strong>正常</strong>，勿按旧版方式独立验证</li>
+</ul>
+<p><strong>③ 节点生效</strong>（重启 ComfyUI 后看启动日志）：</p>
+<p><strong>B 系列（bmg）</strong>——本版新增 <code>quantized_matmul_adapter</code> 与 <code>sparse_attention_adapter</code> 两行：</p>
+<pre><code>[OmniXPU] omni_xpu_kernel 0.2.0b2+torch214.bmg - available: sdp, norm, rotary, linear_fp8, int8, layout
+[OmniXPU] quantized_matmul_adapter: applied
+[OmniXPU] sparse_attention_adapter: applied
+[OmniXPU] attention[cute]: rebound 58 by-value imports across sys.modules
 [OmniXPU] norm_adapter: applied
 [OmniXPU] fp8_model_adapter: applied
 [OmniXPU] int8_ffn_adapter: applied
+[OmniXPU] norm: patched MiniMax H3 segmented RMS modulation
+[OmniXPU] h3_rms_modulation_adapter: applied
 ComfyUI-GGUF: Comfy Kitchen GGUF routing available
+Found comfy_kitchen backend xpu: {'available': True, 'disabled': False, ... 'capabilities': [..., 'sol_attn', ...]}
 </code></pre>
-<p data-page-node-id="wG6944M3KZ5JZgJBWs3OnD"><strong data-page-node-id="nYFZ3yD4I48ns8PVUf0c7M">④ 工作流实测</strong>：GGUF 模型请用 <strong data-page-node-id="owm4VauFgZwmqvmUKvMj3O">UnetLoaderGGUF</strong> 节点（不要用 GGUFLoaderKJ——不走内核加速），对比速度应有明显提升。</p>
-<h3 id="_7" data-page-node-id="nHNJ67QoHuOOuEZMtprIZ4">常见问题表</h3>
-<table data-page-node-id="dw04JkyjPCRd9Gxgp1DC1D">
-<thead data-page-node-id="GFpiyxp6OStYcJIhIxzzcl">
-<tr data-page-node-id="GkpNndCTN4RUuPKZkDmkx8">
-<th data-page-node-id="Sn8jnM1CsE3dPQM8nHS1O8">症状</th>
-<th data-page-node-id="6sATHeY4rVHMgbFlvkfp60">原因</th>
-<th data-page-node-id="OH903wL2i0pPzs3uO5UR05">解决</th>
+<p><strong>A770（dg2）</strong>——社区 fork 是<strong>另一套 adapter</strong>，<strong>不会出现上面那两个新增 adapter</strong>：</p>
+<pre><code>[OmniXPU] omni_xpu_kernel 0.2.0b1+torch214.dg2.3 - available: sdp, norm, rotary, linear_fp8, int8, layout
+[OmniXPU] attention_adapter: applied
+[OmniXPU] rotary_adapter: applied
+[OmniXPU] a770_rms_rope_bridge: applied          ← A770 专属：RMS-RoPE 融合桥
+[OmniXPU] norm_adapter: applied
+[OmniXPU] fp8_model_adapter: applied
+[OmniXPU] int8_ffn_adapter: applied
+[OmniXPU] int4_gemm_adapter: applied             ← A770 专属
+[OmniXPU] dynamic_vram_boundary_trim: applied
+[OmniXPU] a770_kitchen_compat: applied           ← A770 缺后端桥（装了 kitchen provider 时会变成 skipped）
+[OmniXPU] a770_int8_native_gate: applied         ← A770 专属
+[OmniXPU] sdp_cache_lifecycle: applied
+[OmniXPU] legacy_interpolate_fix: skipped (disabled by env)
+[OmniXPU] legacy_median_fix: skipped (disabled by env)
+ComfyUI-GGUF: Comfy Kitchen GGUF routing available
+Found comfy_kitchen backend xpu: {'available': True, 'disabled': False, ...}
+</code></pre>
+<blockquote>
+<p><strong>带 <code>a770_</code> 前缀的三条</strong>（<code>a770_rms_rope_bridge</code> / <code>a770_kitchen_compat</code> / <code>a770_int8_native_gate</code>）是 A770 专属兼容桥，B 系列不会有。种子/大视频相关的 <code>seedvr_*</code>、<code>large_video_preprocess_adapter</code>、<code>lora_memory_adapter</code> 两条线都有，此处省略。</p>
+<p><code>Found comfy_kitchen backend xpu</code> 里 <strong><code>available: True</code></strong> 是路由生效的铁证（若版本三角不匹配，这里会是 <code>available: False</code> 且附带 <code>unavailable_reason</code>）。<strong>注意 A770 的 capabilities 里没有 <code>sol_attn</code></strong>（DG2 不支持），这是正常的，不是故障。</p>
+</blockquote>
+<p><strong>④ 工作流实测</strong>：GGUF 模型请用 <strong>UnetLoaderGGUF</strong> 节点（不要用 GGUFLoaderKJ——不走内核加速），对比速度应有明显提升。</p>
+<h3 id="_7">常见问题表</h3>
+<table>
+<thead>
+<tr>
+<th>症状</th>
+<th>原因</th>
+<th>解决</th>
 </tr>
 </thead>
-<tbody data-page-node-id="dJU3YHiBq3xI8trHVG3mDx">
-<tr data-page-node-id="PDsy4umY54VeVnZy8q8Mod">
-<td data-page-node-id="K3gkLwTiskmEBZwSC1wGJ1"><code data-page-node-id="GpBcnmE3Z0EC8UOCZdZuL4">pip install</code> 报错版本不匹配</td>
-<td data-page-node-id="tNyZ02PEqJCfSrvTaeaSBU">wheel 与 torch/Python 不匹配</td>
-<td data-page-node-id="1cb6jIfU4F7QE1E3lWvgK8">确认 torch 2.14.0+xpu、Python 3.13</td>
+<tbody>
+<tr>
+<td><code>pip install</code> 报错版本不匹配</td>
+<td>wheel 与 torch/Python 不匹配</td>
+<td>确认 torch 2.14.0+xpu、Python 3.13</td>
 </tr>
-<tr data-page-node-id="aMwoLD1raXldkwxAhQNGta">
-<td data-page-node-id="n3AtUX6G0MTIsEHXxzS66N">kitchen xpu 路由没生效</td>
-<td data-page-node-id="76A5wL0NHtizdlC8zCOITC">provider 未装 / OmniXPU 太旧 / 未重启</td>
-<td data-page-node-id="NMF9sOBRGU0Jurx8W5TwXV">装本包 provider wheel + OmniXPU 20260901+ + 重启 ComfyUI</td>
+<tr>
+<td>kitchen xpu 路由没生效</td>
+<td>provider 未装 / 官方包版本与锚不一致 / 未重启</td>
+<td>装本包 provider wheel + 确认 ComfyUI 0.35.0（官方 kitchen 0.2.33）+ 重启</td>
 </tr>
-<tr data-page-node-id="4UnHSDURsocpZqBBGyNMFK">
-<td data-page-node-id="3Q06YMHZnqHyYeOSoSCW4f">节点没加载（无 <code data-page-node-id="AetZsF8hKXjxxQJn4hedHs">[OmniXPU]</code> 日志）</td>
-<td data-page-node-id="eIb8AD6xtSCV0mxZJtqXwC">解压目录名不对/有 <code data-page-node-id="p9aU8xQpGjgXPw55FHtQjW">__pycache__</code> 残留</td>
-<td data-page-node-id="lA6XCYn8Pr2k8tDgtMIJTZ">确认目录名为 <code data-page-node-id="LErXHj3AGwJfyVJ9tlwytR">ComfyUI-OmniXPU</code>，删除 <code data-page-node-id="Ah7e9RL8FXNkPf1R1aw9lV">__pycache__</code></td>
+<tr>
+<td>启动日志 <code>comfy_kitchen backend xpu: available False</code></td>
+<td>版本三角不匹配（ComfyUI pin ↔ 官方包 ↔ provider 锚）</td>
+<td>三者对齐到 0.2.33；旧 ComfyUI 请勿使用本版 provider</td>
 </tr>
-<tr data-page-node-id="rBf5Jk7E9OESLJuEP8v0gP">
-<td data-page-node-id="Ntjetb5NaUnkSBwZweRfto">GGUF 没加速</td>
-<td data-page-node-id="xXBz4HwQdEEPB1dCDQU4IW">用了 GGUFLoaderKJ 节点</td>
-<td data-page-node-id="PzQjOPlrqQKcV6WgDmEpUI">改用 <strong data-page-node-id="3yvjeudEW8ChtuMBdmYsP8">UnetLoaderGGUF</strong></td>
+<tr>
+<td>节点没加载（无 <code>[OmniXPU]</code> 日志）</td>
+<td>解压目录名不对/有 <code>__pycache__</code> 残留</td>
+<td>确认目录名为 <code>ComfyUI-OmniXPU</code>，删除 <code>__pycache__</code></td>
 </tr>
-<tr data-page-node-id="jmA5PgCKNoFdIcTvvQFxm7">
-<td data-page-node-id="fF39bLhTlDCJqv2N3EHVGL">开启 aimdo 后卡死/极慢</td>
-<td data-page-node-id="NwyXevfA8rjDbrC9Ewv0Dm">aimdo 测试版已知问题（issue #3）</td>
-<td data-page-node-id="SAjeldCysE31ZdSz6TLBHm"><strong data-page-node-id="jCZ5lTbFoepP7Jz54QGt18">关闭 aimdo</strong>（去掉 <code data-page-node-id="EcgFZVGmxQzCSD9NGDg0Nn">--enable-dynamic-vram</code>）</td>
+<tr>
+<td>GGUF 没加速</td>
+<td>用了 GGUFLoaderKJ 节点</td>
+<td>改用 <strong>UnetLoaderGGUF</strong></td>
 </tr>
-<tr data-page-node-id="DwKdmC7dIhaIpsxdyhZJZc">
-<td data-page-node-id="1AzLu3I76WhlSf02ma23zT">运行时报 DLL 加载错误</td>
-<td data-page-node-id="6mkZVE5YfFBMJnzWh4NxdM">oneAPI 运行时缺失（罕见）</td>
-<td data-page-node-id="HVNZdTZDdW564J0zTlyR4h">确认 torch 环境自带 <code data-page-node-id="ZCBYQagI4OEwMEZSxbvOe9">sycl9.dll</code>（<code data-page-node-id="UStVNyW4AdEyVAyr8KTPhk">python\Library\bin</code>）</td>
+<tr>
+<td>aimdo 装了但没生效（无 XPU 独占日志行）</td>
+<td>启动 bat 没显式加 <code>--enable-dynamic-vram</code></td>
+<td>见第三部分第 6 节前置条件表</td>
+</tr>
+<tr>
+<td><code>runtime provider rejected: comfy_aimdo.xpu ... is incompatible</code></td>
+<td>官方 <code>comfy-aimdo</code> 不是 0.5.3</td>
+<td>对齐官方包版本（ComfyUI 0.35.0 自带 0.5.3）</td>
+</tr>
+<tr>
+<td>开启 aimdo 后卡死/极慢</td>
+<td>aimdo 仍在演进，个别工作流可能有回归</td>
+<td><strong>关闭 aimdo</strong>（把 <code>--enable-dynamic-vram</code> 改成 <code>--disable-dynamic-vram</code>）并反馈日志</td>
+</tr>
+<tr>
+<td>运行时报 DLL 加载错误</td>
+<td>oneAPI 运行时缺失（罕见）</td>
+<td>确认 torch 环境自带 <code>sycl9.dll</code>（<code>python\Library\bin</code>）</td>
+</tr>
+<tr>
+<td>启动日志出现 <code>Attention function sol_attn already registered</code></td>
+<td>同时装了 <code>ComfyUI-SolAttn</code> 与 <code>ComfyUI-SolAttn_triton</code></td>
+<td>移出 triton 版，只保留 XPU 版（见第三部分第 4 节）</td>
+</tr>
+<tr>
+<td><strong>A770</strong> 跑 H3 报 <code>UR_RESULT_ERROR_DEVICE_LOST</code></td>
+<td>没设 <code>UR_L0_USE_IMMEDIATE_COMMANDLISTS=1</code></td>
+<td>bat 里补上该变量（见 3.1）</td>
+</tr>
+<tr>
+<td><strong>A770</strong> 装了 <code>dg2.3</code> 但 <code>_C</code> 加载失败</td>
+<td>残缺的 oneAPI 安装缺 <code>pi_level_zero.dll</code></td>
+<td>确认 torch 为 XPU 版（其 pip 包会拉齐 Unified Runtime）；见 2.1</td>
+</tr>
+<tr>
+<td><strong>A770</strong> 装了 <code>0.2.0b2</code> 却报 target 不符</td>
+<td>A770 只有 <code>0.2.0b1</code> 的 dg2 线，<code>b2</code> 是 B 系列的</td>
+<td>换装 <code>A770(dg2)</code> 目录里的 <code>dg2.3</code> 包（见 2.1）</td>
+</tr>
+<tr>
+<td><strong>A770</strong> 开了 ESIMD 反而更慢</td>
+<td>形状不在 ESIMD 的胜出区间（D64 / D128 中段）</td>
+<td>按 3.1 判据表决定；或直接保持默认不开</td>
 </tr>
 </tbody>
 </table>
-<h3 id="comfyui" data-page-node-id="uUAehStFRFJ1SD2EqexeYx">ComfyUI 内核升级后的标准动作（重要）</h3>
-<p data-page-node-id="CZYjTGEShTgVVvqZGBSCRg">每次升级 ComfyUI 内核后，按顺序执行：</p>
-<ol data-page-node-id="azTTZGUd918DXIAVRFwmL9">
-<li data-page-node-id="R2tA4mW8Jfu9x8PWHgQCJR"><strong data-page-node-id="Ld7lstjwuIhT2MCVSN6d3n">检查 kitchen</strong>：<code data-page-node-id="ADK77o72fVcVRQqgEhOCwp">backends</code> 是否还有 xpu → 没有就重装 kitchen wheel（第 4 步）</li>
-<li data-page-node-id="GvyGzvJS61HdeotkWDQUZ9"><strong data-page-node-id="UkGb4Kg3pjGZtML73USvBW">检查 torch</strong>：版本变了 → 内核 wheel 需要重新编译（联系包提供者）</li>
-<li data-page-node-id="BYEwQxX1Vl1jJ0KsFWZiaY"><strong data-page-node-id="FCu6uzmfnWvgc1ljektkWY">检查节点</strong>：<code data-page-node-id="lroYDFY7j461wm9UbULa1z">[OmniXPU]</code> 日志的 adapter 是否 still applied</li>
+<h3 id="comfyui">ComfyUI 内核升级后的标准动作（重要）</h3>
+<p>每次升级 ComfyUI 内核后，按顺序执行：</p>
+<ol>
+<li><strong>检查 kitchen</strong>：启动日志里 <code>comfy_kitchen backend xpu</code> 是否 <code>available: True</code> → 没有就对齐版本三角并重装 provider wheel（第 5 节）</li>
+<li><strong>检查 aimdo</strong>：<code>pip show comfy-aimdo</code> 版本是否仍与 provider 锚一致 → 不一致就装对应的新 provider</li>
+<li><strong>检查 torch</strong>：版本变了 → 内核 wheel 需要重新编译（联系包提供者）</li>
+<li><strong>检查节点</strong>：<code>[OmniXPU]</code> 日志的 adapter 是否 still applied</li>
 </ol>
-<hr  data-page-node-id="7D5V7ncabZ8iAAL4fYCix8"/>
-<h2 id="faq" data-page-node-id="rMHxz4COB0Yi9lK3Q1KYlP">第五部分：实测数据与 FAQ</h2>
-<h3 id="arc-b580-windows-torch-213-torch-214" data-page-node-id="mMfcnzmH3LxLydkkdSIsbv">实测数据（Arc B580 / Windows；数据基于 torch 2.13 栈测得，torch 2.14 栈待复测）</h3>
-<table data-page-node-id="jIP0fMALgFBbfx5iRDdyVI">
-<thead data-page-node-id="UDE1VHhunRcpDs2rowbxlJ">
-<tr data-page-node-id="u6OY07lmDznIvFQxpYBIwZ">
-<th data-page-node-id="TZ7sxUgau0u0iNhMGux5SS">工作流</th>
-<th style="text-align: right;" data-page-node-id="XKZb2pYysr5zImmCgGwYoR">优化前</th>
-<th style="text-align: right;" data-page-node-id="G4JjHsBeLFlsfCOXdDTvNJ">优化后</th>
-<th style="text-align: right;" data-page-node-id="YDnyyIRnhX0YDc8ormpD5C">提升</th>
+<hr />
+<h2 id="faq">第五部分：实测数据与 FAQ</h2>
+<h3 id="arc-b580-windows-torch-213-torch-214">实测数据（Arc B580 / Windows；提速数据基于 torch 2.13 栈测得，torch 2.14 栈待复测）</h3>
+<table>
+<thead>
+<tr>
+<th>工作流</th>
+<th style="text-align: right;">优化前</th>
+<th style="text-align: right;">优化后</th>
+<th style="text-align: right;">提升</th>
 </tr>
 </thead>
-<tbody data-page-node-id="EngYTThCieLf2qNipFwa6C">
-<tr data-page-node-id="hIMwqjZf6QiFZEOlfe7oNY">
-<td data-page-node-id="SM9VhWQBdYMEQc7BG4LRG0">Krea2 GGUF Q4_0（8 步）</td>
-<td style="text-align: right;" data-page-node-id="3DwnXdcI7IkpioPDK3Ijhu">4.00 s/it</td>
-<td style="text-align: right;" data-page-node-id="ESFmtwOaooK8Tpfvoo179c">2.50 s/it</td>
-<td style="text-align: right;" data-page-node-id="j9HjAwTXbsegOrkWLfmf8S"><strong data-page-node-id="zkPcOTyMH6OIE1lSZvuthU">+37.5%</strong></td>
+<tbody>
+<tr>
+<td>Krea2 GGUF Q4_0（8 步）</td>
+<td style="text-align: right;">4.00 s/it</td>
+<td style="text-align: right;">2.50 s/it</td>
+<td style="text-align: right;"><strong>+37.5%</strong></td>
 </tr>
-<tr data-page-node-id="92eXsUuGfMVDUQm3tLLORi">
-<td data-page-node-id="8aTrH6kasp9l9r4oHTOxCb">Lumina2 GGUF 混合量化</td>
-<td style="text-align: right;" data-page-node-id="wIUkx9EtuOmspjn0Wkdqvq">—</td>
-<td style="text-align: right;" data-page-node-id="nIRYBBxwvDsn9iYDPTm1Pa">1.21 s/it</td>
-<td style="text-align: right;" data-page-node-id="JXYU1F4npW4bWAHW8cCIY1">正常水平</td>
+<tr>
+<td>Lumina2 GGUF 混合量化</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">1.21 s/it</td>
+<td style="text-align: right;">正常水平</td>
 </tr>
-<tr data-page-node-id="c8pwVy6xgInXhlkTH6PyXS">
-<td data-page-node-id="AbSO5CBG2Fu0JqmJ3lcsCn">Flux2 Klein FP8</td>
-<td style="text-align: right;" data-page-node-id="UefRBxhaCYe6kUT1Miml7T">—</td>
-<td style="text-align: right;" data-page-node-id="kbfrtcx9BHFtU8wfcHERdG">3.16 s/it</td>
-<td style="text-align: right;" data-page-node-id="yDSCvpX80ozpMsAfIJpWYQ">fp8_gemm 生效</td>
+<tr>
+<td>Flux2 Klein FP8</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">3.16 s/it</td>
+<td style="text-align: right;">fp8_gemm 生效</td>
 </tr>
 </tbody>
 </table>
-<h3 id="faq_1" data-page-node-id="NaUecEpIJO4CX3yeHRpEY3">FAQ</h3>
-<p data-page-node-id="ITf5VzX1JtOR3XZENk4eiF"><strong data-page-node-id="TUFk6D8nM2iI2xv8RTPxvj">Q1：A 系列（A770）和 B 系列（B580/B70）区别？</strong>
-A：架构不同（DG2 vs BMG），内核 wheel 不通用。A 系列（社区内核）与 B 系列（官方内核）分目录；<strong data-page-node-id="Kg3nxhKkI5covoxcowcbme">本版（20260905）为 torch 2.14 栈，<code data-page-node-id="8uXd73ygSFVXVvKfkf8Zo0">B系列(bmg)/</code> 与 <code data-page-node-id="qKNyRpSdvRRoPZdkXILAQp">A770(dg2)/</code> 随包各含一份</strong>。kitchen/节点/aimdo 通用不分卡。</p>
-<p data-page-node-id="eDjELgSd0P6JXMwsMdmP47"><strong data-page-node-id="DcXmEYb3sYbIKHV2hRQ9We">Q2：需要安装 oneAPI 吗？</strong>
-A：<strong data-page-node-id="fxD08vLj1SClx94sG0E81X">不需要</strong>。oneAPI 只是编译内核时的工具；运行时的 DLL 依赖（sycl9 等）由 torch 2.14 环境自带。前提是 torch 必须是 2.14.0+xpu（与内核 wheel 配对）。</p>
-<p data-page-node-id="hwDeFBxfqZk7FI9E0SrWq7"><strong data-page-node-id="ANQcYmNzGbyWQtbAsjj2ln">Q3：kitchen 和 OmniXPU 是重复的吗？</strong>
+<h3 id="arc-a770-16gb-windows-torch-2140xpu">实测数据（Arc A770 16GB / Windows / torch 2.14.0+xpu）</h3>
+<p>环境：驱动 32.0.101.8860 · oneAPI 2026.1 · 内核 <code>0.2.0b1+torch214.dg2.3</code> · 稳定的单步采样时间</p>
+<table>
+<thead>
+<tr>
+<th>工作流</th>
+<th>规格</th>
+<th style="text-align: right;">单步耗时</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Z-Image Turbo</td>
+<td>1024²，8 步</td>
+<td style="text-align: right;">0.91–0.93 s</td>
+</tr>
+<tr>
+<td>Krea2 Turbo + LoRA</td>
+<td>1024²，8 步，strength 0.8</td>
+<td style="text-align: right;">1.64–1.68 s</td>
+</tr>
+<tr>
+<td>MiniMax H3 + LoRA</td>
+<td>864×480，124 帧，8 步</td>
+<td style="text-align: right;">26.3–26.7 s</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>⚠️ H3 这一行<strong>必须</strong>在设了 <code>UR_L0_USE_IMMEDIATE_COMMANDLISTS=1</code> 的前提下才成立（不设会在第一个采样步崩，见 3.1）。A770 的注意力算子级实测（ESIMD vs PyTorch SDPA）见 3.1 的判据表。</p>
+</blockquote>
+<h3 id="faq_1">FAQ</h3>
+<p><strong>Q1：A 系列（A770）和 B 系列（B580/B70）区别？</strong>
+A：架构不同（DG2 vs BMG），内核 wheel 不通用，<strong>注意力引擎也不同</strong>——A770 走 <strong>ESIMD/DPAS 侧车</strong>，B 系列走 <strong>CUTE</strong>（对照见 6.9）。<code>B系列(bmg)/</code> 与 <code>A770(dg2)/</code> 都已随本包提供，各自用对应的 wheel 与节点 zip。<strong>kitchen / aimdo provider 两线共用同一份</strong>——A770 没有单独的 aimdo / kitchen 包。</p>
+<p><strong>Q2：需要安装 oneAPI 吗？</strong>
+A：<strong>不需要</strong>。oneAPI 只是编译内核时的工具；运行时的 DLL 依赖（sycl9 等）由 torch 2.14 环境自带。前提是 torch 必须是 2.14.0+xpu（与内核 wheel、aimdo provider 配对）。</p>
+<p><strong>Q3：kitchen 和 OmniXPU 是重复的吗？</strong>
 A：不是。OmniXPU 负责"接进 ComfyUI"（patch 模型层），kitchen 负责"算子分发"（路由到内核）。两者配合才完整；GGUF 加速主要靠 kitchen。</p>
-<p data-page-node-id="xScrX51IFVsCdPXrVwEibC"><strong data-page-node-id="EOjFVCfs1soktG5RWiyRAw">Q4：aimdo 为什么是测试版？</strong>
-A：aimdo 整体仍属测试性质——历史问题（issue #3"二次运行每步极慢"）是否在新版（PR#17）闭环<strong data-page-node-id="Qf0l2Eu76Rs0t2WQ6S3MgZ">需实测确认</strong>。普通用户建议暂不启用。</p>
-<p data-page-node-id="hBrZyyt76fU71CmQBrZ1DV"><strong data-page-node-id="sfbZWMDTYjn8tfr0Cfdm7z">Q5：Sol-Attn 是什么？支持哪些工作流？</strong>
-A：训练无关的<strong data-page-node-id="IuSW52pHqRhqQZkOFBgLOH">稀疏注意力</strong>（arXiv 2607.24027，NVlabs Sana 团队）——只计算部分 token 对，加速<strong data-page-node-id="1zVIXiknNwaJknYgwiTHw7">长序列</strong>自注意力。<strong data-page-node-id="ckuxAiYkyCifDpGWJrZ193">不限于 H3/Wan</strong>：任何 D128 长序列生图工作流（Flux / Qwen-Image / Sana / 高分辨率 DiT）都能挂 Patch Sol-Attn 试，不匹配的注意力形状自动回退 dense（安全无副作用）。</p>
-<p data-page-node-id="YBSKfeHWSPxxSXRsvGhKAp"><strong data-page-node-id="vTGCgAo9JFLFAGTYnP4nHG">Q6：Sol-Attn 只有 B 系列能用？A770 行吗？</strong>
-A：<strong data-page-node-id="H8AwYG7SaWoDZrK6WA3PKo">仅限 B 系列（BMG）</strong>。内核 <code data-page-node-id="qcmFRWUcFdnrrvZ15Z4NoT">cute.sol_attn</code> 是 BMG 专属（编译目标 bmg-g31），<strong data-page-node-id="sh4Ihi3FrfSkKcFIKdqG6G">A770（DG2）不支持</strong>——CUTE 注意力全家（d128/H3 VAE/Wan cross/sol_attn）在 A 系列上都没有，A770 请用社区 A 系列内核（Blackwood416 fork，DPAS 融合算子路线）。</p>
-<p data-page-node-id="CwDXPput6uEauxZT4qZggo"><strong data-page-node-id="wGwZSh9vbG7oR4JIzZ40xN">Q7：CUTE 不是只支持 Linux 吗？Windows 怎么也有了？</strong>
-A：原本是——PR#659 之前 Windows 编译直接拒编 CUTE（setup.py raise）。<strong data-page-node-id="3Oz0oEUUVG5k8dDCkBaIEO">PR#659（2026-09-01 合并）起 Windows 正式支持 CUTE + Sol-Attn</strong>（b2 内核），但仅验证 BMG 目标。Windows 上默认仍走 torch SDPA，须设 <code data-page-node-id="sVLqkOC9uuH19XzCw4kBvy">OMNI_ATTN_BACKEND=cute</code> 才启用 CUTE 路由。</p>
-<p data-page-node-id="m8wHmSfa7zIOVUCjL5kZ20"><strong data-page-node-id="C2xg2rrTr7599dqfwZttL0">Q8：<code data-page-node-id="b3pI3EgfSi4jHTVBrWL2XJ">OMNI_ATTN_BACKEND=cute</code> 和 <code data-page-node-id="aGiCGMr0wo1HBc6Iqj4Fix">=torch</code> 什么关系？</strong>
-A：<code data-page-node-id="zF9Afjx5dId9xrCC6gvAx8">cute</code> = <strong data-page-node-id="GRPz2rVztMpb2pB4HcTtlQ">CUTE 优先 + 形状不匹配自动回退 torch SDPA</strong>（安全）；<code data-page-node-id="INVoRWbu45hXtREdPoOC5f">torch</code> = 强制纯 SDPA（完全不 patch）。cute 用 fp32 累加（大激活如 Qwen-Image 不溢出，优于 ESIMD 的 fp16 累加）。故障排查/A-B 对比时手动切回 <code data-page-node-id="coTk5eYfXqWr58LTS6mOlD">torch</code> 即可。</p>
-<p data-page-node-id="EXHkRyQuIkTRku2X90IMka"><strong data-page-node-id="mPtVkWBr0WzwtJQEvN6XNC">Q9：挂了 Patch Sol-Attn 但感觉没效果？</strong>
-A：先确认<strong data-page-node-id="xKraAjE1a3apxhbPk2b3Eg">是否命中</strong>：用插件自带的 <strong data-page-node-id="Y3wmKTnR70UvqXGrRwIipO">SolAttnBlockProbe</strong> 节点查看统计——<code data-page-node-id="I0QX38PO5gMb7SBOhaXIuc">sparse</code> 计数 &gt; 0 才算生效；<code data-page-node-id="yCLvVFLbrJHM9jZwf84cYu">dense_fallback</code> 增长 = 形状不匹配自动回退（正常，无收益而已）。注意命中日志只在前几次调用打印（防刷屏），<strong data-page-node-id="Bip2W5gGsn0butuqaz9NZc">以 Probe 统计为准</strong>。也可能注意力在总耗时占比小（短序列/少步数）导致收益不明显。</p>
-<p data-page-node-id="amGCvJTRoQRcmGJdaKJ6IL"><strong data-page-node-id="05ZDwSnG2DR9Xab1Tf88bQ">Q10：启用 Sol-Attn 需要什么？</strong>
-A：三层门槛缺一不可：① 内核 <strong data-page-node-id="NDCqSJbTPBswvXbaEgb6KG">b2+</strong>（<code data-page-node-id="jh9UIpQceYroVKPBbUpnOo">supports_sol_attn()</code> 为 True）② 启动 bat 设 <strong data-page-node-id="IrhAYF4VKdD7EFmPigbjo2"><code data-page-node-id="Sj0qt5hAmOoZuhyXXsJja6">SOL_ATTN_XPU_EXPERIMENTAL=1</code></strong> ③ <code data-page-node-id="VKseHsQGzvhUxmZp5k3g1t">OMNI_ATTN_BACKEND=cute</code> + 工作流加 <strong data-page-node-id="tTeGz8gAiBt1jlAgyTWQ6n">Patch Sol-Attn</strong> 节点。前提注意力形状匹配（BF16 BTHD D128）。</p>
-<p data-page-node-id="TLmts8SXqTn3fYz1Cgx8pp"><strong data-page-node-id="Y1RBNIv5BIZFis9fJpKzBG">Q11：Qwen-Image 能用 Sol-Attn 吗？</strong>
+<p><strong>Q4：aimdo 为什么单独一个 provider 包？</strong>
+A：官方 <code>comfy-aimdo</code> 只做 CUDA/ROCm 等后端，Intel XPU 的实现由社区 fork 维护，且必须与官方包<strong>精确配对</strong>（provider 内部写死了可接受的官方版本）。打包成独立 provider 后：官方包由 pip 正常管理、XPU provider 常驻 site-packages，<strong>升级 ComfyUI 不再互相覆盖</strong>。不匹配时是"响亮失败"（明确拒绝 + 退回纯官方路径），不会半残运行。</p>
+<p><strong>Q5：Sol-Attn 是什么？支持哪些工作流？</strong>
+A：训练无关的<strong>稀疏注意力</strong>（arXiv 2607.24027，NVlabs Sana 团队）——只计算部分 token 对，加速<strong>长序列</strong>自注意力。<strong>不限于 H3/Wan</strong>：任何 D128 长序列生图工作流（Flux / Qwen-Image / Sana / 高分辨率 DiT）都能挂 Patch Sol-Attn 试，不匹配的注意力形状自动回退 dense（安全无副作用）。</p>
+<p><strong>Q6：Sol-Attn 只有 B 系列能用？A770 行吗？</strong>
+A：<strong>仅限 B 系列（BMG）</strong>。内核 <code>cute.sol_attn</code> 是 BMG 专属（编译目标 bmg-g31），<strong>A770（DG2）不支持</strong>——CUTE 注意力全家（d128/H3 VAE/Wan cross/sol_attn）在 A 系列上都没有，A770 请用社区 A 系列内核（Blackwood416 fork，DPAS 融合算子路线）。</p>
+<p><strong>Q7：CUTE 不是只支持 Linux 吗？Windows 怎么也有了？</strong>
+A：原本是——PR#659 之前 Windows 编译直接拒编 CUTE（setup.py raise）。<strong>PR#659（2026-09-01 合并）起 Windows 正式支持 CUTE + Sol-Attn</strong>（b2 内核），但仅验证 BMG 目标。Windows 上默认仍走 torch SDPA，须设 <code>OMNI_ATTN_BACKEND=cute</code> 才启用 CUTE 路由。</p>
+<p><strong>Q8：<code>OMNI_ATTN_BACKEND=cute</code> 和 <code>=torch</code> 什么关系？</strong>
+A：<code>cute</code> = <strong>CUTE 优先 + 形状不匹配自动回退 torch SDPA</strong>（安全）；<code>torch</code> = 强制纯 SDPA（完全不 patch）。cute 用 fp32 累加（大激活如 Qwen-Image 不溢出，优于 ESIMD 的 fp16 累加）。故障排查/A-B 对比时手动切回 <code>torch</code> 即可。</p>
+<p><strong>Q9：挂了 Patch Sol-Attn 但感觉没效果？</strong>
+A：先确认<strong>是否命中</strong>：用插件自带的 <strong>SolAttnBlockProbe</strong> 节点查看统计——<code>sparse</code> 计数 &gt; 0 才算生效；<code>dense_fallback</code> 增长 = 形状不匹配自动回退（正常，无收益而已）。注意命中日志只在前几次调用打印（防刷屏），<strong>以 Probe 统计为准</strong>。也可能注意力在总耗时占比小（短序列/少步数）导致收益不明显。</p>
+<p><strong>Q10：启用 Sol-Attn 需要什么？</strong>
+A：三层门槛缺一不可：① 内核 <strong>b2+</strong>（<code>supports_sol_attn()</code> 为 True）② 启动 bat 设 <strong><code>SOL_ATTN_XPU_EXPERIMENTAL=1</code></strong> ③ <code>OMNI_ATTN_BACKEND=cute</code> + 工作流加 <strong>Patch Sol-Attn</strong> 节点。前提注意力形状匹配（BF16 BTHD D128）。另需确认没有装 <code>ComfyUI-SolAttn_triton</code>（会抢注册同名 attention 函数）。</p>
+<p><strong>Q11：Qwen-Image 能用 Sol-Attn 吗？</strong>
 A：可以试——bf16 + D128 + 长序列（实测 seq=4224）匹配，cross-attention（图像↔文本）部分预期 dense（不稀疏）。命中与否以 SolAttnBlockProbe 统计为准；不匹配自动回退，不会崩。</p>
-<hr  data-page-node-id="ioIfvpDhYuODswx2fiPXAv"/>
-<h2 id="_8" data-page-node-id="KgHFY3CCVv7V8BW59VMQla">第六部分：内核升级后的组件检查与恢复</h2>
-<blockquote data-page-node-id="M5QiVrBlHfezwknlQHNEcW">
-<p data-page-node-id="RkIvwswODZQfRyfxG0LDEQ">升级 ComfyUI 内核后（如 0.33.x → 0.34.x），按本部分检查 XPU 加速组件是否受影响、如何恢复。
-本部分为通用方法，不依赖具体版本号；恢复时以<strong data-page-node-id="jdiVyiUcUNEAQBf3Log1Ig">本包内提供的文件</strong>为准（版本以本包为准）。</p>
+<hr />
+<h2 id="_8">第六部分：内核升级后的组件检查与恢复</h2>
+<blockquote>
+<p>升级 ComfyUI 内核后（如 0.34.x → 0.35.x），按本部分检查 XPU 加速组件是否受影响、如何恢复。
+本部分为通用方法，不依赖具体版本号；恢复时以<strong>本包内提供的文件</strong>为准（版本以本包为准）。</p>
 </blockquote>
-<h3 id="61" data-page-node-id="pNmkPkSK5kU1DGaRcaE0Sk">6.1 总览</h3>
-<table data-page-node-id="lUBhm9XpJczXV05ci3mJCe">
-<thead data-page-node-id="qQablhMJEYZAQgMiFDJIZh">
-<tr data-page-node-id="ABRGo2u4i6KFeZADuAKGHv">
-<th data-page-node-id="JSirJbq4Bvt1nI4a8B3DzR">组件</th>
-<th data-page-node-id="V8w1xfcwldzw6rh0lmDWnP">升级会被覆盖吗</th>
-<th data-page-node-id="cBmnkk3oMjlPvxRukklIss">恢复方式</th>
-<th data-page-node-id="2f9oABaV5mqtYKsZK31Pui">需要重新编译吗</th>
+<h3 id="61">6.1 总览</h3>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>升级会被覆盖吗</th>
+<th>恢复方式</th>
+<th>需要重新编译吗</th>
 </tr>
 </thead>
-<tbody data-page-node-id="zLRasIXSQ6ED5I71n9Z4k3">
-<tr data-page-node-id="kjqdcPGNiOnxpNt6IQ7kX0">
-<td data-page-node-id="ypZWlXdrmXrBYKEMQzxnWd">omni_xpu_kernel</td>
-<td data-page-node-id="Wpe49jHaSnYq8kbW3Gv2Au">❌ 不会（requirements 无声明）</td>
-<td data-page-node-id="T5AW4EmGljta2MxfAmMxEB">通常无需操作</td>
-<td data-page-node-id="b2EDuYBr7LUlZC7jk4gP3W">仅当 torch 升级时</td>
+<tbody>
+<tr>
+<td>omni_xpu_kernel</td>
+<td>❌ 不会（requirements 无声明）</td>
+<td>通常无需操作</td>
+<td>仅当 torch 升级时</td>
 </tr>
-<tr data-page-node-id="9aTgz2lmSAAx4p4ZPmCX1x">
-<td data-page-node-id="0AkUQUOUy4L9AFVDzbjrZi">comfy-kitchen</td>
-<td data-page-node-id="116yOVASKWwMEbCGCyeujt">❌ <strong data-page-node-id="72oemK1AxfS2DErvoJecjh">不会</strong>（20260905 起 provider 架构，与官方解耦）</td>
-<td data-page-node-id="XL29gma6loBMK7qt1Prp4E">重装本包 provider wheel</td>
-<td data-page-node-id="GezUUE0FZjKN9HKMC9FrsT">否（纯 python）</td>
+<tr>
+<td>comfy-kitchen</td>
+<td>❌ <strong>不会</strong>（provider 架构，与官方解耦）</td>
+<td>版本三角变化时重装本包 provider wheel</td>
+<td>否（纯 python）</td>
 </tr>
-<tr data-page-node-id="0BHvSEJmsl1BMfpzyhg93t">
-<td data-page-node-id="LrSGiiP3RhnRKzgqQKAkN2">ComfyUI-OmniXPU</td>
-<td data-page-node-id="RdeqsOoFwGJuYhfA7IlCGd">❌ 不会（custom_nodes 不被动）</td>
-<td data-page-node-id="yutVNqFl122WtbWSOffeXN">一般无需</td>
-<td data-page-node-id="I74rZZepQxJpMafASMvFDl">否</td>
+<tr>
+<td>ComfyUI-OmniXPU</td>
+<td>❌ 不会（custom_nodes 不被动）</td>
+<td>一般无需</td>
+<td>否</td>
 </tr>
-<tr data-page-node-id="lBw1mpPvgOBvFtzahB4Rhe">
-<td data-page-node-id="DCUFgJc4pwNBzeVr4bHmvV">ComfyUI-SolAttn（B 系列）</td>
-<td data-page-node-id="d5CbCrqChJBxvZh1OLKIuX">❌ 不会（custom_nodes 不被动）</td>
-<td data-page-node-id="bjQLcbvhMh811oyKEhZfsS">一般无需；插件丢失时重解压本包 zip</td>
-<td data-page-node-id="EmDgFv7DNKEGADzQjrDTN0">否（纯 python）</td>
+<tr>
+<td>ComfyUI-SolAttn（B 系列）</td>
+<td>❌ 不会（custom_nodes 不被动）</td>
+<td>一般无需；插件丢失时重解压本包 zip</td>
+<td>否（纯 python）</td>
 </tr>
-<tr data-page-node-id="Xm01WZXmlXAXLy6NQ583b3">
-<td data-page-node-id="23KnvUwMEj37bPCTOzJRDB">comfy-aimdo</td>
-<td data-page-node-id="oyNzB8Ifk6OpOol6o76Tau">❌ 不会（deploy.bat 部署）</td>
-<td data-page-node-id="gqjy8cgH3sBXOMA1xYZ5ue">deploy.bat 重部署</td>
-<td data-page-node-id="FYoBAv1x4TW5nSrHmADOGw">否（zip 含编译好的 dll）</td>
+<tr>
+<td>comfy-aimdo</td>
+<td>❌ <strong>不会</strong>（20260912 起为 provider 架构，与官方解耦）</td>
+<td>版本三角变化时重装本包 aimdo provider wheel</td>
+<td>否（wheel 含编译好的 dll）</td>
 </tr>
 </tbody>
 </table>
-<h3 id="62-omni_xpu_kernel" data-page-node-id="bxu8xERzHrxVjiyU2cQJRq">6.2 omni_xpu_kernel：通常不用管</h3>
-<ul data-page-node-id="omIseIMnwAVGDHNABNJKtW">
-<li data-page-node-id="HDVo1Lx5Uq6sBeiDc7XsR6"><strong data-page-node-id="NGwm6slGUeu33r4g8FXgHV">为什么安全</strong>：<code data-page-node-id="5ITwUNpprTY57Z3SoEveJK">ComfyUI\requirements.txt</code> 里没有 kernel 条目 → 升级脚本不会重装</li>
-<li data-page-node-id="b4CvIdaAo1z2Yz2d0JxKpG"><strong data-page-node-id="90bSZkGGHYnUNyfZKi1VpM">检查</strong>（可选）：</li>
-</ul>
-<pre data-page-node-id="rtdjTG3RZQvkCFNWTF2jzy"><code class="language-python" data-page-node-id="y9E4sA6H6eEqEyHwWFhQEo">F:\ComfyUI-aki-v3\python\python.exe -c &quot;import torch; torch.xpu.init(); import omni_xpu_kernel; print(omni_xpu_kernel.__version__, omni_xpu_kernel.is_available())&quot;
+<blockquote>
+<p><strong>A770 补充</strong>：两线共用 kitchen / aimdo provider，恢复方式与上表一致；但 A770 的<strong>内核走 <code>dg2</code> 线、由社区独立发版</strong>，不跟随官方版本号（<code>b1</code>/<code>b2</code> 与 <code>dg2.N</code> 是两套编号）。A770 的恢复与升级请以 <code>A770(dg2)/</code> 目录或社区 release 页为准，详见 6.9。</p>
+</blockquote>
+<h3 id="62-provider-comfyui-provider">6.2 provider 的「双锚」：ComfyUI 一抬依赖，provider 就可能失效</h3>
+<blockquote>
+<p>本小节解释一个高频现象：<strong>升级 ComfyUI 后 XPU 加速"还在、但变慢了"</strong>。结论是 provider 被"响亮地拒绝"了，不是装坏了。</p>
+</blockquote>
+<p><strong>provider 不是"装一次就永久有效"</strong>——每次启动都会被校验，有<strong>两个锚</strong>，任一不满足即被拒：</p>
+<table>
+<thead>
+<tr>
+<th>锚</th>
+<th>校验内容</th>
+<th>当前值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>① 官方包版本</td>
+<td>provider 清单里写死 <code>compatible_versions</code>，必须<strong>精确命中</strong>官方包的已装版本</td>
+<td>kitchen <code>["0.2.33"]</code> / aimdo <code>["0.5.3"]</code></td>
+</tr>
+<tr>
+<td>② PyTorch 版本</td>
+<td>必须<strong>精确等于</strong> provider 清单里的 <code>torch_version</code></td>
+<td><code>2.14.0+xpu</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>为什么要有锚</strong>：provider 的 <code>_vendor/</code> 目录里装的是"某个官方版本对应的 XPU 实现"，而官方包提供的是 API 契约。官方换版本意味着契约可能变——这时<strong>明确拒绝</strong>比"看起来能跑"更安全。</p>
+<p><strong>关键：官方包版本由 ComfyUI 自己决定，而且变得很勤</strong></p>
+<pre><code class="language-text">ComfyUI\requirements.txt 固定了官方版本：
+    comfy-kitchen==0.2.33
+    comfy-aimdo==0.5.3
 </code></pre>
-<ul data-page-node-id="AhR3omgBStk0lTlBnsbqNP">
-<li data-page-node-id="TlOsq4hdLCFVPOZkX7G61H">期望：当前版本号 + <code data-page-node-id="xBaDjpPHWtZvDTJlVnKLxr">True</code></li>
-<li data-page-node-id="UI6BEYGmyZGHrjZ8lAWd0z">⚠️ <strong data-page-node-id="mNcCVl0fXnlU2TN8rnX0HP">唯一例外</strong>：torch 版本变了（kernel 按特定 torch ABI 编译）：</li>
-</ul>
-<pre data-page-node-id="Qskj1HGHs4vsD65TJooYJU"><code class="language-python" data-page-node-id="s450qRajis7DTy7npdCw5V">F:\ComfyUI-aki-v3\python\python.exe -c &quot;import torch; print(torch.__version__)&quot;
+<p>实测 ComfyUI 仓库近 5 周（2026-08-10 ~ 09-09）的 pin 变动：</p>
+<table>
+<thead>
+<tr>
+<th>包</th>
+<th>版本变化</th>
+<th style="text-align: center;">抬升次数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>comfy-kitchen</td>
+<td>0.2.28 → 0.2.30 → 0.2.31 → 0.2.33</td>
+<td style="text-align: center;">3</td>
+</tr>
+<tr>
+<td>comfy-aimdo</td>
+<td>0.4.13 → 0.4.15 → 0.5.1 → 0.5.2 → 0.5.3</td>
+<td style="text-align: center;">4</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>⚠️ <strong>别只看版本号</strong>：这些是<strong>独立于 ComfyUI 版本号</strong>的提交（如 <code>Update comfy-kitchen version to 0.2.33</code>）。也就是说，<strong>不必等到"升级到新版本号"</strong>——一次普通的 <code>git pull</code> 就可能撞上。</p>
+</blockquote>
+<p><strong>失效时的表现（响亮失败，不崩）</strong></p>
+<pre><code class="language-text">[WARNING] [OmniXPU] runtime provider rejected:
+    comfy_kitchen.xpu: official comfy-kitchen 0.2.34 is incompatible; provider accepts ['0.2.33']
 </code></pre>
-<ul data-page-node-id="uYWzrI9fvGDBaqJl5YqEOv">
-<li data-page-node-id="BZcwbOJ00NylI9k2B88vcA">torch 未变 → 不用管；torch 变了 → kernel 加载失败，需<strong data-page-node-id="lTsbb8vjkIvK2vwov51FlQ">按新 torch 重新编译</strong>（参考内核编译说明）</li>
-</ul>
-<h3 id="63-comfy-kitchenprovider-20260905" data-page-node-id="tGAfRecW1pUUHGXuMQM4qe">6.3 comfy-kitchen：provider 架构下不再被覆盖（20260905 起）</h3>
-<ul data-page-node-id="KSKzLkcBvkvQL9lZuPrzDI">
-<li data-page-node-id="XlYFSszlDSKlUNLnLJc9tY"><strong data-page-node-id="FC6RG92tYMng9H7sTTmNVQ">旧版问题</strong>（≤20260901 的 0.2.31.post1 整包）：<code data-page-node-id="qTgueqZhuLUHK6UBlQQ7tg">requirements.txt</code> 固定官方 kitchen → 升级时被官方纯版覆盖（xpu 后端丢失）</li>
-<li data-page-node-id="g6aJB3OBsckoPZN88ZY85M"><strong data-page-node-id="UiSo5IHwIz5U6STkFu5kqx">新版机制</strong>（20260905 provider 架构）：官方 comfy-kitchen 由 pip 管理、XPU provider（<code data-page-node-id="Q7zhRQHBP6dy18o1pGOMsD">comfy_kitchen_xpu_runtime</code>）常驻 site-packages，二者解耦 → 升级 ComfyUI 内核不再影响 XPU 接入</li>
-<li data-page-node-id="PQPpXc51vpP3JsmFtYXQoH"><strong data-page-node-id="vhE43QDXaBZOL03ydIrdIC">检查</strong>（provider 是否就绪）：</li>
-</ul>
-<pre data-page-node-id="G4Bde3EqcIJfdlBTBOWoZ8"><code class="language-text" data-page-node-id="4IEHGHczwyJrqvHT5JavIl">python -m pip show comfy-kitchen-xpu-runtime   :: 有输出 = provider 已装
+<p>→ 该 provider 被<strong>跳过</strong>，ComfyUI <strong>照常启动</strong>，相关加速回落 PyTorch 慢路径——<strong>不崩，但明显变慢</strong>。</p>
+<p><strong>升级 ComfyUI 之后，建议跑一次自检</strong></p>
+<pre><code class="language-python">python -c &quot;import importlib.metadata as m; print('kitchen 官方', m.version('comfy-kitchen'), '| provider', m.version('comfy-kitchen-xpu-runtime')); print('aimdo   官方', m.version('comfy-aimdo'), '| provider', m.version('comfy-aimdo-xpu-runtime')); print('torch', m.version('torch'))&quot;
 </code></pre>
-<ul data-page-node-id="kCaWjN5M0BaeL8LKbk0pOc">
-<li data-page-node-id="OhPHNTFGJp9NivLsHD66uN"><strong data-page-node-id="wVvrlWAtAah8uADjRSwYi3">验证 xpu 路由</strong>：重启 ComfyUI 看启动日志 provider active；或先模拟 prestartup 激活 provider（OmniXPU 的 <code data-page-node-id="APmc94WRQaXIm9gqIhTglF">runtime_bootstrap.py</code>）再独立验证：</li>
-</ul>
-<pre data-page-node-id="JfEYRWoAf2WJRJi9Ucis6d"><code class="language-python" data-page-node-id="BlBctC0nVwfVEIoA4fBXBe">F:\ComfyUI-aki-v3\python\python.exe -c &quot;import torch; torch.xpu.init(); import comfy_kitchen as ck; x=ck.list_backends().get('xpu',{}); print(x.get('available'), len(x.get('capabilities') or []))&quot;
+<p>再对照 ComfyUI 里的实际要求（Windows）：</p>
+<pre><code class="language-text">findstr /b &quot;comfy-kitchen comfy-aimdo&quot; ComfyUI\requirements.txt
 </code></pre>
-<ul data-page-node-id="2Fkr1Az88bFqZ4sUbSOcVR">
-<li data-page-node-id="7wKoSDgtcmAynhBvgJGxA3">期望：<code data-page-node-id="Px1gCJJQldmvcARB99GEig">True</code> + capabilities 数量 &gt; 0</li>
-<li data-page-node-id="U8bBso5j7UVItwbuQ27ERw"><strong data-page-node-id="kIR3BtHkcsqGaEqLFZBcbG">恢复</strong>：provider wheel 丢失 → 重装本包 <code data-page-node-id="XZhkJrZQwJPCCfsUGHPtON">comfy_kitchen_xpu_runtime-0.2.31-py3-none-any.whl</code>（<code data-page-node-id="e2QHWjWcLZJt1mCsBD7nAr">pip install --force-reinstall --no-deps</code>），再重启 ComfyUI</li>
+<p>判读规则：</p>
+<table>
+<thead>
+<tr>
+<th>现象</th>
+<th>含义</th>
+<th>处理</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>requirements pin = 官方实装 = provider 锚</td>
+<td>对齐</td>
+<td>无需操作</td>
+</tr>
+<tr>
+<td>requirements pin 变了、官方包也跟着变了</td>
+<td><strong>① 号锚过期</strong></td>
+<td>换装锚定新版本的新 provider wheel</td>
+</tr>
+<tr>
+<td>官方包没变，但 torch 变了</td>
+<td><strong>② 号锚过期</strong></td>
+<td>换装按新 torch 重打的 provider wheel</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>💡 <strong>懒人版：本包提供了一个自检脚本</strong> <code>check_provider_alignment.py</code>（在包根目录）。用 ComfyUI 自带的 python 跑一次，上面这些结论会自动成表输出，并直接给出建议动作：</p>
+</blockquote>
+<pre><code class="language-text">&lt;你的ComfyUI&gt;\python\python.exe check_provider_alignment.py --comfy-root &lt;你的ComfyUI&gt;
+</code></pre>
+<ul>
+<li>退出码 <code>0</code> = 全部对齐；<code>1</code> = 有需处理项（会自动列出问题与建议操作）</li>
+<li>加 <code>--quiet</code> 只输出结论行，便于配合批处理 / 自动化调用</li>
+<li>也可不传参数：脚本会自动探测 ComfyUI 根目录（也认环境变量 <code>COMFY_ROOT</code>）</li>
+<li>它还会顺带检查：vendor 文件哈希是否完整、OmniXPU 插件是否在位、<strong>是否两个 SolAttn 插件抢注册</strong>、aimdo 旧版残留</li>
 </ul>
-<h3 id="64-comfyui-omnixpu" data-page-node-id="gznT7MMM3dESDjjtST97lk">6.4 ComfyUI-OmniXPU：目录安全，看启动日志</h3>
-<ul data-page-node-id="7wSlqgwDwFKDwjGhKr9Nz3">
-<li data-page-node-id="KfvjYDOdxNOeTjcgBayXXy">custom_nodes 目录由用户手工管理，升级脚本不碰</li>
-<li data-page-node-id="px2iIsw4lOFa38vpIrYEek"><strong data-page-node-id="1VM8AeIWsKoPBWWzMzJRsv">检查</strong>：<code data-page-node-id="cYmy5uKBEAOYK5xrS8LevX">custom_nodes\ComfyUI-OmniXPU\adapters</code> 目录完整（含 seedvr 等最新适配器）</li>
-<li data-page-node-id="Z77zQZav6cEbjbsoSK59mP"><strong data-page-node-id="B1NDq1kc4jeHH1wXbH2EvG">验证</strong>：启动日志应见 <code data-page-node-id="hwRNn7G5ZpTkecd60CY5rc">[OmniXPU] adapter applied</code>（norm/fp8/int8_ffn/seedvr_* 等）；若缺失或报 patch 目标找不到 → 内核 API 变了，需等插件更新</li>
-<li data-page-node-id="8lmaL8xFYDkeGCugf4srah"><strong data-page-node-id="wICs1I5Wqwc1AePudPXzYK">恢复</strong>：插件丢失/损坏时，重新解压本包 <code data-page-node-id="LuS2k2l6POXLIGLMyN3UjT">B系列(bmg)\ComfyUI-OmniXPU...zip</code> 到 <code data-page-node-id="nw3fWknBjMidyKHSfedf8F">custom_nodes\</code></li>
+<p><strong>三类组件"怕的东西"各不相同</strong></p>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>绑定对象</th>
+<th>ComfyUI 抬依赖 pin 后</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>omni_xpu_kernel</td>
+<td>PyTorch（ABI）</td>
+<td>✅ 不受影响（不在 requirements 里）</td>
+</tr>
+<tr>
+<td>comfy-kitchen / comfy-aimdo provider</td>
+<td>官方包版本 + PyTorch</td>
+<td>❌ 需重打（<strong>响亮失败</strong>）</td>
+</tr>
+<tr>
+<td>ComfyUI-OmniXPU</td>
+<td>ComfyUI 内部 API</td>
+<td>⚠️ 不会被覆盖，但 adapter 可能<strong>静默失效</strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>⚠️ <strong>最需要警惕的反而是最后一行</strong>：provider 失效会打 warning，而 OmniXPU 的 adapter 找不到 patch 目标时，只体现为日志里一行从 <code>xxx_adapter: applied</code> 变成 <code>xxx_adapter: skipped</code>——<strong>功能没了却不报错</strong>。升级后请主动核对启动日志里的 adapter 列表（见第四部分「验证③」）。</p>
+</blockquote>
+<h3 id="63-omni_xpu_kernel">6.3 omni_xpu_kernel：通常不用管</h3>
+<ul>
+<li><strong>为什么安全</strong>：<code>ComfyUI\requirements.txt</code> 里没有 kernel 条目 → 升级脚本不会重装</li>
+<li><strong>检查</strong>（可选）：</li>
 </ul>
-<h3 id="65-comfyui-solattncomfyui-b" data-page-node-id="X9veeos6dSGVBgeR1EdUqq">6.5 ComfyUI-SolAttn：ComfyUI 升级后的验证与恢复（仅 B 系列）</h3>
-<ul data-page-node-id="CTvHY8n2LPXdviqJF9Jpsn">
-<li data-page-node-id="RECRiBx7wUGZbHmkFJbz5H"><strong data-page-node-id="PZDrAR3I8QuF5vt2HlNm5Y">仅限 B 系列（BMG）</strong>——Sol-Attn 稀疏注意力依赖内核的 <code data-page-node-id="ddON4qQKmtewTMhiJcVobM">cute.sol_attn</code> 算子，A770（DG2）不支持</li>
-<li data-page-node-id="9T6WkGPsN7NgodY8I0ZKmv"><strong data-page-node-id="NGK2AEVzPPu1p3YVPqVlmZ">ComfyUI 升级影响</strong>：插件本体在 <code data-page-node-id="YrVWuftmrt58QCinituA5h">custom_nodes</code> <strong data-page-node-id="QCgMc2b8DGix5BYGOuVaet">不会被覆盖</strong>（升级脚本不碰自定义节点）；但 ComfyUI 升级可能改变 attention 接口，需验证插件 patch 兼容性</li>
-<li data-page-node-id="Jdx2QrmXS9wX453kOi5tES"><strong data-page-node-id="chcXAr1lAxV6U8wgcjioxR">验证（ComfyUI 升级后）</strong>：</li>
-<li data-page-node-id="FgU3ye5JfUGkE6AEOHJfft">节点加载：重启后节点列表有 <strong data-page-node-id="DQINlu13Xy1nfBdSZVlJQc">Patch Sol-Attn</strong>（无 import 报错）</li>
-<li data-page-node-id="6HYatoqI1ZesfUWRtWBok8">patch 生效：跑含 Patch Sol-Attn 的工作流，用 <strong data-page-node-id="qKjapA2v1yzXEg38cGxNTf">SolAttnBlockProbe</strong> 看统计——<code data-page-node-id="632BJifqBY5HjskHPfE8lM">sparse</code> &gt; 0 才算生效（<code data-page-node-id="5SbKXbxPQAYBXlnJ8ve3Zc">dense_fallback</code> 增长 = 注意力形状不匹配自动回退，属正常）</li>
-<li data-page-node-id="rICwJ4k04dE4b4Nk1IRxV1">启动 bat 里 <code data-page-node-id="6zYieHf1uVxop7YveYqgBJ">SOL_ATTN_XPU_EXPERIMENTAL=1</code> 还在</li>
-<li data-page-node-id="fj4Kd0Sz3xkQfxsVt4yRwS"><strong data-page-node-id="GtQ1mM4HQ0J9JuytiF4QlC">恢复</strong>：</li>
-<li data-page-node-id="4psms2ZVZV7WWjKJ2dvs3Q">插件丢失/损坏 → 重新解压本包 <code data-page-node-id="PBUFoWyDhxOVT3dGjU3cLU">B系列(bmg)\ComfyUI-SolAttn-20260901.zip</code> 到 <code data-page-node-id="xLtBXcFgoGjpfuB83Le0UJ">custom_nodes\</code></li>
-<li data-page-node-id="voL0Hg34QNRiC8qq4qj8i8">ComfyUI 接口变化导致节点报错/patch 失效 → 等插件作者更新（https://github.com/xiangyuT/ComfyUI-SolAttn_xpu）</li>
-<li data-page-node-id="oZiRWWUjPZLTv07GCdlfM9">实验开关丢失 → 启动 bat 补回 <code data-page-node-id="I51NBPgc3qtToj1s64aaCk">set SOL_ATTN_XPU_EXPERIMENTAL=1</code></li>
+<pre><code class="language-python">F:\ComfyUI-aki-v3\python\python.exe -c &quot;import torch; torch.xpu.init(); import omni_xpu_kernel; print(omni_xpu_kernel.__version__, omni_xpu_kernel.is_available())&quot;
+</code></pre>
+<ul>
+<li>期望：当前版本号 + <code>True</code></li>
+<li>⚠️ <strong>唯一例外</strong>：torch 版本变了（kernel 按特定 torch ABI 编译）：</li>
 </ul>
-<h3 id="66-comfy-aimdo" data-page-node-id="aWNNUh3TDJu1r7qgYgS0pE">6.6 comfy-aimdo：另一套部署方式</h3>
-<ul data-page-node-id="agFdb646F2ijdXePGSMLaX">
-<li data-page-node-id="yfGHkdTqsyUQXAG4GpBA16">通过 <code data-page-node-id="egrg2IexFSnMTGGpDoDd0y">deploy.bat</code> 部署到 <code data-page-node-id="xF4TvRJOpt2tzZMEDo5Pvz">site-packages\comfy_aimdo</code>，<strong data-page-node-id="do8oRdddEE1Owis3cWvfEf">非 pip 包 → 不会被覆盖</strong></li>
-<li data-page-node-id="LmB69cR8RJszvgaw5vlXCa"><strong data-page-node-id="aU4TTeQCMD8QwuiUiFq5oD">检查</strong>：<code data-page-node-id="A9b4rq2OqiAkvYblsiuWMx">site-packages\comfy_aimdo</code> 存在 + 启动 bat 里有 <code data-page-node-id="KJqsJIAztOUFRkIPSPJ9qw">--enable-dynamic-vram</code></li>
-<li data-page-node-id="Ft9oNq2Fg7mkNuVaALDgcl"><strong data-page-node-id="2P7zGLAW24RAEbxCxse7cQ">更新</strong>：用最新版 zip 内的 <code data-page-node-id="FBulbP87wAZ7jwfYmfhpHV">deploy.bat</code> 重新部署（自动备份旧包）</li>
-<li data-page-node-id="gBSWqkFFqkYfpwjvDHfdKg"><strong data-page-node-id="yUkMloAZqSkvWPLOIxK93W">注意</strong>：内核升级后需<strong data-page-node-id="2QBRXPZCN61eyzMnnufNpA">实测工作流</strong>（aimdo 与 ComfyUI 接口联动，验证无回归）</li>
+<pre><code class="language-python">F:\ComfyUI-aki-v3\python\python.exe -c &quot;import torch; print(torch.__version__)&quot;
+</code></pre>
+<ul>
+<li>torch 未变 → 不用管；torch 变了 → kernel 加载失败，需<strong>按新 torch 重新编译</strong>（参考内核编译说明）</li>
 </ul>
-<h3 id="67" data-page-node-id="qsogCwMlCJpIQHDCxAcJXg">6.7 升级后标准动作</h3>
-<ol data-page-node-id="kiHaldL8r91o6RtrqqMRB3">
-<li data-page-node-id="EHPlD9SJbpXJljP3TPDfVJ"><strong data-page-node-id="DR92arHiq9xeheVrHW9F60">查 torch 版本</strong> → 决定 kernel 是否需要重编译</li>
-<li data-page-node-id="b8aoHvicX0pL3fenp2R4BB"><strong data-page-node-id="v4uBEXjVWWgWLj4OU7tWHa">检查 kitchen provider</strong>（必做）→ <code data-page-node-id="aG8xbaD7Jvn1JOhDY6oabQ">pip show comfy-kitchen-xpu-runtime</code> + OmniXPU provider active → 无则重装本包 provider wheel</li>
-<li data-page-node-id="63YYuxWiid33PeR3e61r83"><strong data-page-node-id="wV3ZVLylFd8o5fE3wYaW4z">看 OmniXPU 启动日志</strong> → adapter applied 是否完整</li>
-<li data-page-node-id="LTMV351NTiLnHIEbh9xNjD"><strong data-page-node-id="kJsUM0mlJjmRRdgotjEEHd">查 SolAttn 能力</strong>（B 系列）→ <code data-page-node-id="Ju6gtmQVdIL1bVPbTJfCo4">supports_sol_attn()</code> + 实验开关 + Probe 统计</li>
-<li data-page-node-id="sE6ke2AbneC1dgdTCgXtMw"><strong data-page-node-id="1g3g8muOoO3anFEbCkSnMj">实测 aimdo</strong> → deploy 状态 + 工作流验证</li>
+<h3 id="64-comfy-kitchenprovider">6.4 comfy-kitchen：provider 架构下不再被覆盖</h3>
+<ul>
+<li><strong>旧版问题</strong>（≤20260901 的 0.2.31.post1 整包）：<code>requirements.txt</code> 固定官方 kitchen → 升级时被官方纯版覆盖（xpu 后端丢失）</li>
+<li><strong>新版机制</strong>（provider 架构）：官方 comfy-kitchen 由 pip 管理、XPU provider（<code>comfy_kitchen_xpu_runtime</code>）常驻 site-packages，二者解耦</li>
+<li><strong>⚠️ 但版本三角要跟着走</strong>：ComfyUI 抬高官方 pin（如 0.2.31 → 0.2.33）时，provider 的 <code>compatible_versions</code> 锚会对不上 → provider 被明确拒绝、路由回落慢路径。<strong>这是"响亮失败"，不崩</strong></li>
+<li><strong>检查</strong>：</li>
+</ul>
+<pre><code class="language-text">python -m pip show comfy-kitchen-xpu-runtime   :: 有输出 = provider 已装
+python -c &quot;import importlib.metadata as m; print(m.version('comfy-kitchen'))&quot;   :: 官方包版本
+</code></pre>
+<ul>
+<li><strong>验证 xpu 路由</strong>：重启 ComfyUI 看启动日志 <code>comfy_kitchen backend xpu: {... 'available': True ...}</code>；或先模拟 prestartup 激活 provider 再独立验证：</li>
+</ul>
+<pre><code class="language-python">F:\ComfyUI-aki-v3\python\python.exe -c &quot;import sys; sys.path.insert(0,'ComfyUI/custom_nodes/ComfyUI-OmniXPU'); import runtime_bootstrap as rb; rb.bootstrap(); import comfy_kitchen as ck; x=ck.list_backends().get('xpu',{}); print(x.get('available'), len(x.get('capabilities') or []))&quot;
+</code></pre>
+<ul>
+<li>期望：<code>True</code> + capabilities 数量 &gt; 0</li>
+<li><strong>恢复</strong>：provider 与官方包版本不再配对 → 换装锚定新版本的本包 provider wheel（<code>pip install --force-reinstall --no-deps</code>），再重启 ComfyUI</li>
+</ul>
+<h3 id="65-comfyui-omnixpu">6.5 ComfyUI-OmniXPU：目录安全，看启动日志</h3>
+<ul>
+<li>custom_nodes 目录由用户手工管理，升级脚本不碰</li>
+<li><strong>检查</strong>：<code>custom_nodes\ComfyUI-OmniXPU\adapters</code> 目录完整——⚠️ <strong>两条线的 adapter 集完全不同，不要拿对方的名单去核对</strong>：</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>B 系列（官方，bmg）</th>
+<th>A770（社区 fork，dg2）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>本版新增</td>
+<td><code>sparse_attention.py</code>、<code>quantized_matmul.py</code></td>
+<td><strong>无</strong>（A770 没有这两个）</td>
+</tr>
+<tr>
+<td>注意力</td>
+<td><code>attention.py</code>（CUTE 路由）、<code>h3_rms_modulation.py</code></td>
+<td><code>attention.py</code>（ESIMD/DPAS 路由）、<code>rms_rope.py</code>、<code>sdp_cache_lifecycle.py</code></td>
+</tr>
+<tr>
+<td>量化</td>
+<td><code>fp8_gemm.py</code>、<code>int8_ffn.py</code></td>
+<td><code>fp8_gemm.py</code>、<code>int8_ffn.py</code>、<code>int4_gemm.py</code>、<code>int8_direct_cast.py</code>、<code>int8_native_gate.py</code></td>
+</tr>
+<tr>
+<td>兼容桥</td>
+<td>—</td>
+<td><code>kitchen_compat.py</code>（A770 专属）</td>
+</tr>
+<tr>
+<td>内存 / 种子</td>
+<td><code>seedvr_capacity.py</code>、<code>seedvr_cat_pad.py</code></td>
+<td><code>dynamic_vram.py</code>、<code>lora_memory.py</code>、<code>seedvr_capacity.py</code>、<code>seedvr_cat_pad.py</code>、<code>large_video_preprocess.py</code></td>
+</tr>
+<tr>
+<td><code>fixes/</code></td>
+<td><code>legacy_interpolate.py</code>、<code>legacy_median.py</code>、<code>seedvr_ada.py</code></td>
+<td>同上 + <strong><code>seedvr_vae_decode.py</code></strong>（A770 独家）</td>
+</tr>
+<tr>
+<td><code>nodes/</code></td>
+<td>—</td>
+<td>含 <code>sdp_cache.py</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>验证</strong>：启动日志应见 <code>[OmniXPU] xxx_adapter: applied</code>（A770 另有 <code>a770_*</code> 前缀的专属桥）；若缺失或报 patch 目标找不到 → 内核 API 变了，需等插件更新</li>
+<li><strong>恢复</strong>：插件丢失/损坏时，重新解压本包 <code>B系列(bmg)\ComfyUI-OmniXPU.bmg-20260912.zip</code>（A770 用户用 <code>A770(dg2)\ComfyUI-OmniXPU.A770(dg2)-20260912.zip</code>）到 <code>custom_nodes\</code></li>
+</ul>
+<h3 id="66-comfyui-solattncomfyui-b">6.6 ComfyUI-SolAttn：ComfyUI 升级后的验证与恢复（仅 B 系列）</h3>
+<ul>
+<li><strong>仅限 B 系列（BMG）</strong>——Sol-Attn 稀疏注意力依赖内核的 <code>cute.sol_attn</code> 算子，A770（DG2）不支持</li>
+<li><strong>ComfyUI 升级影响</strong>：插件本体在 <code>custom_nodes</code> <strong>不会被覆盖</strong>（升级脚本不碰自定义节点）；但 ComfyUI 升级可能改变 attention 接口，需验证插件 patch 兼容性</li>
+<li><strong>验证（ComfyUI 升级后）</strong>：</li>
+<li>节点加载：重启后节点列表有 <strong>Patch Sol-Attn</strong>（无 import 报错）</li>
+<li>patch 生效：跑含 Patch Sol-Attn 的工作流，用 <strong>SolAttnBlockProbe</strong> 看统计——<code>sparse</code> &gt; 0 才算生效（<code>dense_fallback</code> 增长 = 注意力形状不匹配自动回退，属正常）</li>
+<li>启动 bat 里 <code>SOL_ATTN_XPU_EXPERIMENTAL=1</code> 还在</li>
+<li>启动日志<strong>没有</strong> <code>Attention function sol_attn already registered</code>（有则说明 <code>ComfyUI-SolAttn_triton</code> 也装着，把后者移出 <code>custom_nodes</code>）</li>
+<li><strong>恢复</strong>：</li>
+<li>插件丢失/损坏 → 重新解压本包 <code>B系列(bmg)\ComfyUI-SolAttn-20260901.zip</code> 到 <code>custom_nodes\</code></li>
+<li>ComfyUI 接口变化导致节点报错/patch 失效 → 等插件作者更新（https://github.com/xiangyuT/ComfyUI-SolAttn_xpu）</li>
+<li>实验开关丢失 → 启动 bat 补回 <code>set SOL_ATTN_XPU_EXPERIMENTAL=1</code></li>
+</ul>
+<h3 id="67-comfy-aimdoprovider-20260912">6.7 comfy-aimdo：provider 架构下不再被覆盖（20260912 起）</h3>
+<ul>
+<li><strong>旧版问题</strong>（<code>deploy.bat</code> 覆盖 <code>site-packages\comfy_aimdo</code>）：官方包一旦更新，覆盖内容即失效，需重新 deploy</li>
+<li><strong>新版机制</strong>：官方 <code>comfy-aimdo</code> 由 pip 管理（ComfyUI 0.35.0 对应 0.5.3），XPU provider（<code>comfy-aimdo-xpu-runtime</code>）独立常驻 → 二者解耦，升级互不影响</li>
+<li><strong>检查</strong>：</li>
+</ul>
+<pre><code class="language-text">python -m pip show comfy-aimdo-xpu-runtime   :: 有输出 = provider 已装
+python -c &quot;import importlib.metadata as m; print(m.version('comfy-aimdo'))&quot;   :: 应为 0.5.3
+</code></pre>
+<ul>
+<li><strong>验证</strong>：启动日志出现两条 XPU 独占行 + <code>DynamicVRAM support detected and enabled</code>；启动 bat 里有 <code>--enable-dynamic-vram</code></li>
+<li><strong>恢复</strong>：provider 与官方包版本不再配对 → 换装锚定新版本的本包 aimdo provider wheel（<code>pip install --force-reinstall --no-deps</code>），再重启</li>
+<li><strong>注意</strong>：内核升级后需<strong>实测工作流</strong>（aimdo 与 ComfyUI 接口联动，验证无回归）</li>
+</ul>
+<h3 id="68">6.8 升级后标准动作</h3>
+<ol>
+<li><strong>先跑一次 provider 对齐自检</strong>（见 6.2）→ 一屏看清两个 provider 的锚是否还成立，再决定要不要动别的地方</li>
+<li><strong>查 torch 版本</strong> → 决定 kernel 是否需要重编译</li>
+<li><strong>检查 kitchen provider</strong>（必做）→ <code>pip show comfy-kitchen-xpu-runtime</code> + 官方包版本是否与锚一致 + OmniXPU provider active → 不符则换装对应 provider wheel</li>
+<li><strong>看 OmniXPU 启动日志</strong> → adapter applied 是否完整</li>
+<li><strong>查 SolAttn 能力</strong>（B 系列）→ <code>supports_sol_attn()</code> + 实验开关 + Probe 统计 + 确认无 triton 版抢注册</li>
+<li><strong>检查 aimdo</strong> → <code>pip show comfy-aimdo</code> 与 provider 锚一致 + bat 有 <code>--enable-dynamic-vram</code> + 实测工作流</li>
+<li><strong>A770 加查</strong> → 内核仍是 <code>0.2.0b1+torch214.dg2.3</code>（社区 fork 独立发版，<strong>不会自动跟随官方 <code>b2</code></strong>）+ bat 里有 <code>UR_L0_USE_IMMEDIATE_COMMANDLISTS=1</code> + ESIMD 开关是否仍符合 3.1 判据</li>
 </ol>
-<hr  data-page-node-id="vfWTnB1TJuYnBio0dCYQAE"/>
-<h2 id="_9" data-page-node-id="wAwLDZEN9I58wciEwjcJaq">附录：文件清单对照</h2>
-<pre data-page-node-id="sJvUoRwsIVYO6cHqkRDLzs"><code data-page-node-id="i979BczOSxTUCzjmPNeRMZ">IntelGPU-ComfyUI-系统优化指南-20260905/
-├── 本指南.md                      ← 你现在看的（torch 2.14 栈 / B 系列(bmg) 与 A770(dg2) 双线）
-├── A770(dg2)/                     ← A 系列（A770 等 DG2）专用（社区内核）
-│   ├── omni_xpu_kernel-0.2.0b2+torch214.dg2-cp313-....whl   ← 社区 dg2 内核（torch 2.14 重建）
-│   └── ComfyUI-OmniXPU.A770(dg2)-20260905.zip               ← 社区版节点（Blackwood416）
-├── B系列(bmg)/                    ← B 系列（B580/B60/B70）专用
-│   ├── omni_xpu_kernel-0.2.0b2+torch214.bmg-cp313-....whl   ← 含 Windows CUTE + Sol-Attn（torch 2.14 重建）
-│   ├── ComfyUI-OmniXPU.bmg-20260901.zip                     ← 官方版（沿用；含 runtime bootstrap）
-│   └── ComfyUI-SolAttn-20260901.zip                         ← Patch Sol-Attn 稀疏注意力节点（沿用）
-├── comfy_kitchen_xpu_runtime-0.2.31-py3-none-any.whl  ← kitchen XPU provider（新架构；官方 comfy-kitchen 由 ComfyUI 自动装）
-├── ComfyUI-GGUF-XPU-20260905.zip   ← GGUF 加速节点（新增 Qwen3-VL/Krea2 视觉塔补丁，选装）
-└── comfy_aimdo_xpu_win_PR17.zip    ← aimdo（沿用，选装测试版：PR#17）
-    └── 解压后得 comfy_aimdo_xpu_win_pr17/，含 deploy.bat + README-DEPLOY-CN.md
-</code></pre>
-<hr  data-page-node-id="kLMbCSUW4j08ncXgXHM1cF"/>
-<h2 id="_10" data-page-node-id="TNM1OuOoe5Ie6wbu0iYikP">感谢</h2>
-<p data-page-node-id="Y8BdNNf9tiKJBtD9B0iAxx">本指南涉及的所有项目与作者，感谢你们的付出：</p>
-<h3 id="_11" data-page-node-id="BNyuIrZOc5g5NChLMWBmML">特别感谢</h3>
-<table data-page-node-id="ewkhEI7vyCsIAQArF91rQ0">
-<thead data-page-node-id="iFxGAPFp1xK2FAGIJHkSv8">
-<tr data-page-node-id="mlUUUI65kBW7XzIIV849YC">
-<th data-page-node-id="rJ8YC9pgivvtB4f49lsjd6">作者</th>
-<th data-page-node-id="6HxI1MlihtgXRLqLTBWkLD">项目</th>
-<th data-page-node-id="LxSnTxCCBobDArpa6adI9N">贡献</th>
-</tr>
-</thead>
-<tbody data-page-node-id="FENAhYStbJuIB97mxYv15D">
-<tr data-page-node-id="NCZQabjuMjMIYLfHUodHbJ">
-<td data-page-node-id="KSy2SPpsJedQxMYlGudMEF"><strong data-page-node-id="NKHGHpBfN5YOimInzJiyPA">Blackwood</strong></td>
-<td data-page-node-id="PPFihpsMUroxVZvZdjCDKB"><a href="https://github.com/Blackwood416/omni-xpu-kernel" data-page-node-id="wfPFP8BQcQguVOk4DMJEtI">Blackwood416/omni-xpu-kernel</a></td>
-<td data-page-node-id="HrcjfdzOwyniw1hC4ROuA8"><strong data-page-node-id="U73HgpLOuynlLgVxvSxj4P">A770 等 A 系列（DG2）内核</strong>——官方原版不支持 A 系列，是 Blackwood 手搓的 dg2 内核让 A 系列也能享受加速</td>
-</tr>
-<tr data-page-node-id="7HW7n1oJ3PJmzpcYHMjw71">
-<td data-page-node-id="1Z8hyq3D9e0yp2mRyiQJpB"><strong data-page-node-id="VlfvXPPMdF8ze0eCpVF0fP">xiangyuT</strong></td>
-<td data-page-node-id="OGaHi8sDcyOTbV1bU1aCDn"><a href="https://github.com/intel/llm-scaler/tree/main/omni" data-page-node-id="8m5iapUTODZRpAs5lpCnso">intel/llm-scaler omni</a></td>
-<td data-page-node-id="nxBfQEMSudlx8fLvZEkmUe"><strong data-page-node-id="q8DEramE8C99KKabIYrdkX">官方 omni 项目负责人</strong>——omni_xpu_kernel、ComfyUI-OmniXPU 官方套件的核心作者，同时维护 XPU fork（kitchen/aimdo）</td>
-</tr>
-</tbody>
-</table>
-<h3 id="intel-gpu-comfyui_2" data-page-node-id="sA9ivJNjYIEV11gMM4pl5u">Intel GPU &amp; ComfyUI 折腾群</h3>
-<blockquote data-page-node-id="5kCO1LNc4d43hFgxMn1GhJ">
-<p data-page-node-id="sPtx3ZGEEE290v4NfLEIfH"><strong data-page-node-id="GIgzXznJAvgT1qCmv1vKt1">QQ 群号：220819365</strong> —— 欢迎加入交流 Intel GPU 上的 ComfyUI 折腾经验。</p>
+<hr />
+<h3 id="69-a770dg2">6.9 A770（DG2）专项说明</h3>
+<blockquote>
+<p>A770 与 B 系列在<strong>内核、注意力引擎、adapter 集</strong>上都是两条独立路线。本节集中 A770 的差异点与开关。</p>
 </blockquote>
-<h3 id="_12" data-page-node-id="IxGEtaSfta0MOavsSwRgve">全部项目地址汇总</h3>
-<table data-page-node-id="yHNj22d9wfV7I8yDdvrnKs">
-<thead data-page-node-id="cOKChHTINAlYOiEGBDMD3k">
-<tr data-page-node-id="T3frYWbiiRLVkYEh82W6ta">
-<th data-page-node-id="BhBmKEVGzjc8YVTFBnqtVS">项目</th>
-<th data-page-node-id="WtC0qnjiPDth1cDwtxVpdk">地址</th>
-<th data-page-node-id="IYpzxNKWLCW8A4EqpLlQWP">用途</th>
+<p><strong>① 两线差异速查</strong></p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>A770 / DG2（社区 fork）</th>
+<th>B 系列 / BMG（官方）</th>
 </tr>
 </thead>
-<tbody data-page-node-id="BR6SlHRhWaakdcd17aLBpl">
-<tr data-page-node-id="w1HFHzEAUiKGTTr7eWFETF">
-<td data-page-node-id="L2IRtTQofbG4C0qituy3th"><strong data-page-node-id="bQWYQQx8qeIf8cfACHHqcO">Intel llm-scaler（官方 omni）</strong></td>
-<td data-page-node-id="vFt4ypjVKqaE9RF4S6aC89">https://github.com/intel/llm-scaler/tree/main/omni</td>
-<td data-page-node-id="wcZGkZEa5Aji3q7i6hAG8m">官方内核 + OmniXPU 节点</td>
+<tbody>
+<tr>
+<td>内核 wheel</td>
+<td><code>0.2.0b1+torch214.dg2.3</code></td>
+<td><code>0.2.0b2+torch214.bmg</code></td>
 </tr>
-<tr data-page-node-id="mB2SmDokkS55cFyH9hDD3y">
-<td data-page-node-id="8mEPYhHA8zpeWdZAr7rOh3"><strong data-page-node-id="gZe3wTxoXimPlbXXSkQ4sX">Blackwood416/omni-xpu-kernel</strong></td>
-<td data-page-node-id="Bi6eq3k9BTAt9h5MGglOPu">https://github.com/Blackwood416/omni-xpu-kernel</td>
-<td data-page-node-id="Etj5lyGWGn0sfq6Frc0BWy">A 系列（DG2）内核</td>
+<tr>
+<td>编译目标</td>
+<td><code>dg2</code>（别名 <code>a770</code> / <code>arc-a770</code>）</td>
+<td><code>bmg</code></td>
 </tr>
-<tr data-page-node-id="CtAMHMGxrepdtFmCPxJiWO">
-<td data-page-node-id="TdIuT6udYW8yrnjfmpNqJQ"><strong data-page-node-id="s36M7Pf1Sids3E1DpPOlDq">Blackwood416/ComfyUI-OmniXPU</strong></td>
-<td data-page-node-id="pCoHxwDWF19eRg6iOjmOv4">https://github.com/Blackwood416/ComfyUI-OmniXPU</td>
-<td data-page-node-id="ewOPZdnydLh9zeTGLwzZtK">A 系列专用节点</td>
+<tr>
+<td>注意力引擎</td>
+<td><strong>ESIMD / DPAS 侧车</strong>（<code>lgrf_uni\lgrf_sdp*.pyd</code>）</td>
+<td><strong>CUTE FMHA</strong>（<code>cute_fmha_torch.pyd</code>，7.3MB）</td>
 </tr>
-<tr data-page-node-id="T0vZlkpcDpaIOQZy5xKhMV">
-<td data-page-node-id="cJ1HTxlhAyWBh88ORmynAc"><strong data-page-node-id="3x8vMiwFeil8Fq0RgIWy4L">xiangyuT/comfy-kitchen-xpu</strong></td>
-<td data-page-node-id="xFEX2Gy6KjL9CmKpxYbnDS">https://github.com/xiangyuT/comfy-kitchen-xpu</td>
-<td data-page-node-id="zlUFZJBScCwdWDz3uOpzso">kitchen XPU fork（算子分发）</td>
+<tr>
+<td>Sol-Attn</td>
+<td>❌ 不支持（无 <code>cute.sol_attn</code>）</td>
+<td>✅ 支持</td>
 </tr>
-<tr data-page-node-id="p5cVEPOZLHw1cBfYXGAtMg">
-<td data-page-node-id="GMmVAt8KgYkA3Gr4CHjoIv"><strong data-page-node-id="sZ1IHxw4oAK6t2sDXo3e6e">xiangyuT/comfy-aimdo-xpu</strong></td>
-<td data-page-node-id="Lmh3IGhh2PPb6GkWrLbBSr">https://github.com/xiangyuT/comfy-aimdo-xpu/</td>
-<td data-page-node-id="v9oDBwNCUhMM9VCTQ14TFi">aimdo XPU（DynamicVRAM）</td>
+<tr>
+<td>注意力开关</td>
+<td><code>OMNI_ATTN_BACKEND=esimd</code>（opt-in，<strong>默认 torch</strong>）</td>
+<td><code>OMNI_ATTN_BACKEND=cute</code></td>
 </tr>
-<tr data-page-node-id="mCXSSzbVghHHhaFZheM0Cm">
-<td data-page-node-id="AXRN0ry39jc918WKOOrHte"><strong data-page-node-id="UQ9zyl7VEbffE1KX9NATlN">xiangyuT/ComfyUI-SolAttn_xpu</strong></td>
-<td data-page-node-id="rAlr6EdEfukdopvMqyXY2X">https://github.com/xiangyuT/ComfyUI-SolAttn_xpu</td>
-<td data-page-node-id="idnPVubFlEJoiwuzIIMWwz">Sol-Attn 稀疏注意力节点（B 系列）</td>
+<tr>
+<td>专属 adapter</td>
+<td><code>a770_rms_rope_bridge</code>、<code>a770_kitchen_compat</code>、<code>a770_int8_native_gate</code>、<code>int4_gemm</code>、<code>sdp_cache_lifecycle</code>、<code>seedvr_vae_decode</code></td>
+<td><code>sparse_attention</code>、<code>quantized_matmul</code>、<code>h3_rms_modulation</code></td>
 </tr>
-<tr data-page-node-id="FMe19kwNB72OtSC60I6ida">
-<td data-page-node-id="lFyZ6NieVEkppEWzwx83Ek"><strong data-page-node-id="onX7TC4LUpkYkV8cvcTetT">kijai/ComfyUI-SolAttn_triton（上游）</strong></td>
-<td data-page-node-id="Q9z3fSpvjClDQdqDYi9kGI">https://github.com/kijai/ComfyUI-SolAttn_triton</td>
-<td data-page-node-id="CQe2XwsZIOw1GhaiKc52vE">Sol-Attn 官方实现（CUDA/ROCm）</td>
+<tr>
+<td>kitchen provider</td>
+<td>共用根目录同一份（<strong>不装也能跑</strong>，有 <code>a770_kitchen_compat</code> 兜底桥）</td>
+<td>共用根目录同一份</td>
 </tr>
-<tr data-page-node-id="coKZGNOnUBv5YxsDhErHr9">
-<td data-page-node-id="JyCsaAFs5szIw0exgZW8j8"><strong data-page-node-id="hQVuXLjfIQQYEnW6n6zXCT">analytics-zoo/ComfyUI-GGUF-XPU</strong></td>
-<td data-page-node-id="zHzcLIy7AFEWrW6p6XaCWa">https://github.com/analytics-zoo/ComfyUI-GGUF-XPU</td>
-<td data-page-node-id="caO6Jf1sAjgOPdjE72Vivo">GGUF 加速节点</td>
-</tr>
-<tr data-page-node-id="BTIALBDUWcuSaUkVA1y40V">
-<td data-page-node-id="cfR6wgA1RSvr6FrSsGUheo"><strong data-page-node-id="drriLjM49ctze2XhD6KWXF">Comfy-Org/comfy-kitchen（官方上游）</strong></td>
-<td data-page-node-id="kUIBt9iKlk5zh3IB66TnPp">https://github.com/Comfy-Org/comfy-kitchen</td>
-<td data-page-node-id="kP8J8YMg12a7XGrbeb533R">kitchen 官方源</td>
+<tr>
+<td>aimdo provider</td>
+<td>共用根目录同一份（<strong>无独立 dg2 版</strong>）</td>
+<td>共用根目录同一份</td>
 </tr>
 </tbody>
 </table>
-<p data-page-node-id="7ZTaQtD6TlReFSeEWzk8EH"><em data-page-node-id="Uy6AqMN9FYcLNST4hTwago">感谢所有为 Intel GPU 生态贡献代码的开发者们 🙏</em></p>
-<hr  data-page-node-id="pmsDEqgB3PImLSXuQ9H7dB"/>
-<p data-page-node-id="31stkXUEITGHyjHOGmu3VD"><em data-page-node-id="tBniwuQFJ6gj9gA9k40tWK">本指南由 Intel Arc 生态维护整理，随组件版本更新。如有问题，请携带上述验证输出反馈。</em></p>
+<p><strong>② A770 专属开关</strong>（默认值已逐条核对源码 <code>config.py</code>）</p>
+<table>
+<thead>
+<tr>
+<th>变量</th>
+<th>默认</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>UR_L0_USE_IMMEDIATE_COMMANDLISTS</code></td>
+<td>—</td>
+<td><strong>H3 必设 <code>=1</code></strong>，否则 DEVICE_LOST（见 3.1）</td>
+</tr>
+<tr>
+<td><code>OMNIXPU_DG2_CONVROT_FUSED</code></td>
+<td>开</td>
+<td>把缓存的 Hadamard 矩阵乘融进 rowwise INT8 量化（SLM 与 register butterfly 两条实现，后者为生产路径）；数字见 ③</td>
+</tr>
+<tr>
+<td><code>OMNIXPU_RMS_ROPE</code></td>
+<td>开</td>
+<td>RMS-RoPE 融合桥；实测 Kitchen eager 路径比融合 kernel <strong>慢 4–11×</strong></td>
+</tr>
+<tr>
+<td><code>OMNIXPU_KITCHEN_COMPAT</code></td>
+<td>开</td>
+<td>缺后端桥（装了 kitchen provider 后自动跳过自身注册）</td>
+</tr>
+<tr>
+<td><code>OMNIXPU_INT8_NATIVE</code></td>
+<td>开</td>
+<td>INT8 原生路径门控</td>
+</tr>
+<tr>
+<td><code>OMNIXPU_INT4_GEMM</code></td>
+<td>开</td>
+<td>INT4 GEMM（A770 独有模块）</td>
+</tr>
+<tr>
+<td><code>OMNIXPU_INT8_DIRECT_CAST</code></td>
+<td><strong>关</strong></td>
+<td>A770 实验：卸载的 TensorWise INT8 留在量化路径，省掉 bf16 物化</td>
+</tr>
+<tr>
+<td><code>OMNIXPU_INT8_PATCH_CACHE</code></td>
+<td><strong>关</strong></td>
+<td>A770 实验：缓存 patched bf16 权重；<strong>显存紧张时会退化</strong>，仅 A/B 时开</td>
+</tr>
+<tr>
+<td><code>OMNIXPU_SDP_CACHE_AUTOCLEAR</code></td>
+<td>开</td>
+<td>SDP 缓存生命周期；<strong>注意是"非 0/off/keep 即开"</strong>，写 <code>keep</code> 也可关闭</td>
+</tr>
+<tr>
+<td><code>OMNIXPU_XPU_MEMORY_FRACTION</code></td>
+<td>0.99（Win）</td>
+<td>分配器占比；<strong>非法值会直接 SystemExit</strong></td>
+</tr>
+<tr>
+<td><code>OMNIXPU_INT8_FAST_FORWARD_COPY_MIN_ELEMS</code></td>
+<td>—</td>
+<td>已有负面结论：调到 16 Mi 以下<strong>不会</strong>提速，不必再试</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>另 <code>OMNIXPU_VALIDATE_ATTENTION_OUTPUT=1</code>：开启后每次 CUTE 调用都全量扫描输出（增加与形状成正比的临时分配），默认关闭，仅诊断用。<strong>A770 的 ESIMD FP16 路由不受这个开关控制——它始终保留自己的溢出扫描。</strong></p>
+</blockquote>
+<p><strong>③ DG2 上的计算优化亮点</strong></p>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>dtype-aware ConvRot 反量化（build 3 新增）</td>
+<td>低显存 LoRA 场景不再先物化整块 FP32 再转 BF16；group 64/256 + rowwise scale 走融合 DG2 ESIMD kernel，其他形状回退 FP32+cast；带配套 <code>torch.compile</code> meta function</td>
+</tr>
+<tr>
+<td>H3 SwiGLU 精确契约（build 3 新增）</td>
+<td>activation <code>(16473,28672)</code> / weight <code>(5376,14336)</code>；<strong>3.33ms vs 5.43ms</strong>（对比 eager SiLU + 原地乘）；输出 <strong>bit-exact</strong></td>
+</tr>
+<tr>
+<td>ConvRot 融合量化</td>
+<td><code>int8_convrot_quant_esimd</code>（register butterfly）为生产路径：<code>20685×14336</code> <strong>4.3ms vs 7.3ms</strong>；压力测试无 DEVICE_LOST</td>
+</tr>
+<tr>
+<td>RMS-RoPE 桥</td>
+<td><code>rotary.rms_kitchen_rope_split_half_</code>，供 MiniMax H3 的 Q/K 使用</td>
+</tr>
+</tbody>
+</table>
+<p><strong>④ SeedVR2 在 A770 上</strong></p>
+<ul>
+<li><code>seedvr_ada_reshape</code>：消除一处 <strong>&gt;4GiB 的 <code>repeat_interleave</code></strong>（A770 上会让 K 采样 OOM）</li>
+<li><code>seedvr_vae_decode</code>：单次 XPU 分配会超过 <strong>~4GiB 上限</strong>时，把 tiled decode 结果 CPU staging；设 <code>UR_L0_ENABLE_RELAXED_ALLOCATION_LIMITS=1</code> 时自动关闭</li>
+<li><strong>DG2 D128 注意力路由</strong>：<code>q_len ∈ [1024,2048)</code> 与 <code>(2048,4096)</code> 走 torch SDPA（ESIMD 实测慢 1.1–1.6×）；<code>q_len == 2048</code> 与 <code>q_len ≥ 4096</code> 走 ESIMD</li>
+<li><strong>端到端实测</strong>（<code>seedvr2_3b_int8_upscale_video.json</code>）：<strong>681 s → 607 s</strong></li>
+<li><strong>已知负面结论</strong>（不必再试）：spatial tile 1024 会 OOM；temporal chunk 125 无收益</li>
+</ul>
+<p><strong>⑤ A770 的升级节奏与 B 系列不同步</strong></p>
+<p>社区 fork 是<strong>独立发版</strong>的：它有自己的构建号（<code>dg2.1</code> → <code>dg2.2</code> → <code>dg2.3</code>），<strong>不会自动跟随官方内核的版本号</strong>（官方另外走 <code>b1</code> → <code>b2</code>）。所以升级 ComfyUI 后，A770 用户要看的是"有没有新的 <code>dg2.N</code>"，而不是"官方出没出 <code>bN</code>"。更新从这里找：https://github.com/Blackwood416/omni-xpu-kernel/releases</p>
+<hr />
+<h2 id="_9">附录：文件清单对照</h2>
+<pre><code>IntelGPU-ComfyUI-系统优化指南-20260912/
+├── 本指南.md                      ← 你现在看的（torch 2.14 栈 / B 系列(bmg) 与 A770(dg2) 双线）
+├── A770(dg2)/                     ← A 系列（A770 等 DG2）专用（社区 fork，Blackwood416）
+│   ├── omni_xpu_kernel-0.2.0b1+torch214.dg2.3-cp313-cp313-win_amd64.whl
+│   │     └─ SHA256: DD3466A4175E19501741DABD914E05402062922EE8823784039701A61A0CB92A
+│   └── ComfyUI-OmniXPU.A770(dg2)-20260912.zip               ← 社区版（A770 专属 adapter：a770_rms_rope_bridge / a770_kitchen_compat / int4_gemm / seedvr_vae_decode 等）
+├── B系列(bmg)/                    ← B 系列（B580/B60/B70）专用
+│   ├── omni_xpu_kernel-0.2.0b2+torch214.bmg-cp313-....whl   ← 含 Windows CUTE + Sol-Attn；本版同步 #696（新增原生 Sol attention CUTE 全套 + sol_attn_v2.py，pyd 重编）
+│   ├── ComfyUI-OmniXPU.bmg-20260912.zip                     ← 官方版（新增 sparse_attention / quantized_matmul 两个 adapter）
+│   └── ComfyUI-SolAttn-20260901.zip                         ← Patch Sol-Attn 稀疏注意力节点（沿用，**仅 B 系列**）
+├── comfy_kitchen_xpu_runtime-0.2.33-py3-none-any.whl  ← kitchen XPU provider（0.2.31 → 0.2.33，锚定 ComfyUI 0.35.0 的官方 pin）**两线共用**
+├── comfy_aimdo_xpu_runtime-0.5.3-cp39-abi3-win_amd64.whl  ← aimdo XPU provider（新版架构，取代旧 deploy.bat 覆盖式装法）**两线共用，无独立 dg2 版**
+├── ComfyUI-GGUF-XPU-20260912.zip   ← GGUF 加速节点（本版补入 krea2 架构识别，选装）
+└── check_provider_alignment.py     ← 对齐自检脚本（升级 ComfyUI 后跑一次，看三个组件是否还对齐）
+</code></pre>
+<p>注：
+- <strong>A770 不含 Sol-Attn</strong>——<code>A770(dg2)/</code> 内外都没有 SolAttn 包，这是正确的（DG2 无 <code>cute.sol_attn</code>）。
+- <strong>A770 不含独立的 aimdo / kitchen provider</strong>——与 B 系列共用上面那两份，无需另找。
+- 一键安装 bat 由维护者单独发布，随包结构以实际目录为准。</p>
+<hr />
+<h2 id="_10">感谢</h2>
+<p>本指南涉及的所有项目与作者，感谢你们的付出：</p>
+<h3 id="_11">特别感谢</h3>
+<table>
+<thead>
+<tr>
+<th>作者</th>
+<th>项目</th>
+<th>贡献</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Blackwood</strong></td>
+<td><a href="https://github.com/Blackwood416/omni-xpu-kernel">Blackwood416/omni-xpu-kernel</a></td>
+<td><strong>A770 等 A 系列（DG2）内核</strong>——官方原版不支持 A 系列，是 Blackwood 手搓的 dg2 内核让 A 系列也能享受加速</td>
+</tr>
+<tr>
+<td><strong>xiangyuT</strong></td>
+<td><a href="https://github.com/intel/llm-scaler/tree/main/omni">intel/llm-scaler omni</a></td>
+<td><strong>官方 omni 项目负责人</strong>——omni_xpu_kernel、ComfyUI-OmniXPU 官方套件的核心作者，同时维护 XPU fork（kitchen/aimdo）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="intel-gpu-comfyui_2">Intel GPU &amp; ComfyUI 折腾群</h3>
+<blockquote>
+<p><strong>QQ 群号：220819365</strong> —— 欢迎加入交流 Intel GPU 上的 ComfyUI 折腾经验。</p>
+</blockquote>
+<h3 id="_12">全部项目地址汇总</h3>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>地址</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Intel llm-scaler（官方 omni）</strong></td>
+<td>https://github.com/intel/llm-scaler/tree/main/omni</td>
+<td>官方内核 + OmniXPU 节点</td>
+</tr>
+<tr>
+<td><strong>Blackwood416/omni-xpu-kernel</strong></td>
+<td>https://github.com/Blackwood416/omni-xpu-kernel</td>
+<td>A 系列（DG2）内核</td>
+</tr>
+<tr>
+<td><strong>Blackwood416/ComfyUI-OmniXPU</strong></td>
+<td>https://github.com/Blackwood416/ComfyUI-OmniXPU</td>
+<td>A 系列专用节点</td>
+</tr>
+<tr>
+<td><strong>xiangyuT/comfy-kitchen-xpu</strong></td>
+<td>https://github.com/xiangyuT/comfy-kitchen-xpu</td>
+<td>kitchen XPU fork（算子分发）</td>
+</tr>
+<tr>
+<td><strong>xiangyuT/comfy-aimdo-xpu</strong></td>
+<td>https://github.com/xiangyuT/comfy-aimdo-xpu/</td>
+<td>aimdo XPU（DynamicVRAM）</td>
+</tr>
+<tr>
+<td><strong>xiangyuT/ComfyUI-SolAttn_xpu</strong></td>
+<td>https://github.com/xiangyuT/ComfyUI-SolAttn_xpu</td>
+<td>Sol-Attn 稀疏注意力节点（B 系列）</td>
+</tr>
+<tr>
+<td><strong>kijai/ComfyUI-SolAttn_triton（上游）</strong></td>
+<td>https://github.com/kijai/ComfyUI-SolAttn_triton</td>
+<td>Sol-Attn 官方实现（CUDA/ROCm）——<strong>不要与 XPU 版同装</strong></td>
+</tr>
+<tr>
+<td><strong>analytics-zoo/ComfyUI-GGUF-XPU</strong></td>
+<td>https://github.com/analytics-zoo/ComfyUI-GGUF-XPU</td>
+<td>GGUF 加速节点</td>
+</tr>
+<tr>
+<td><strong>Comfy-Org/comfy-kitchen（官方上游）</strong></td>
+<td>https://github.com/Comfy-Org/comfy-kitchen</td>
+<td>kitchen 官方源</td>
+</tr>
+</tbody>
+</table>
+<p><em>感谢所有为 Intel GPU 生态贡献代码的开发者们 🙏</em></p>
+<hr />
+<p><em>本指南由 Intel Arc 生态维护整理，随组件版本更新。如有问题，请携带上述验证输出反馈。</em></p>
     </div>
   </div>
 </div>
