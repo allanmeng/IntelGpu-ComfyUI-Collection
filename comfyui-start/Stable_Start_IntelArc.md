@@ -114,12 +114,14 @@ set ORT_OPENVINO_DEVICE_TYPE=GPU_FP16
 :: 启用 Level Zero 即时命令列表
 set SYCL_PI_LEVEL_ZERO_USE_IMMEDIATE_COMMANDLISTS=1
 
+
 :: 防止 XPU 空闲挂起（修复 "reconnecting" 重连问题）---
 :: 禁用设备事件作用域（空闲时不让 XPU 进入低功耗）
 set SYCL_PI_LEVEL_ZERO_DEVICE_SCOPE_EVENTS=0
 
 :: 强制使用 Level Zero 设备过滤器
 set SYCL_DEVICE_FILTER=level_zero
+
 
 :: 限制 IPEX 分配块上限 64MB（比 128 更细，避免碎片化崩溃）
 set PYTORCH_XPU_ALLOC_CONF=max_split_size_mb:64
@@ -151,7 +153,6 @@ for /f "usebackq delims=" %%G in (`sycl-ls 2^>nul ^| findstr /c:"[level_zero:gpu
 :: 列出多个 level-zero GPU（选择器未固定）：结果不明确，改用 WMI
 if %GPU_HITS% gtr 1 set "GPU_TARGET=unknown"
 if not "%GPU_TARGET%"=="unknown" goto :omni_echo
-
 :: 通道2（备用）：WMI 全适配器扫描（无 oneAPI / sycl-ls 失败时）
 echo [GPU] sycl-ls unavailable or ambiguous, falling back to WMI scan
 set "GPU_PROBE=%TEMP%\omni_gpu_target.txt"
@@ -160,7 +161,6 @@ powershell -NoProfile -Command "$g=(Get-CimInstance Win32_VideoController).Name;
 if exist "%GPU_PROBE%" set /p GPU_TARGET=<"%GPU_PROBE%"
 if not defined GPU_TARGET set "GPU_TARGET=unknown"
 set "GPU_PROBE="
-
 :omni_echo
 echo [GPU] detected target: %GPU_TARGET%
 
@@ -181,9 +181,12 @@ goto :omni_done
 
 :omni_dg2
 echo [GPU] branch: dg2 (Arc A / Alchemist) - esimd attention + OmniXPU enabled
-set OMNIXPU_ENABLE=1
 set OMNI_ATTN_BACKEND=esimd
+set OMNIXPU_ENABLE=1
 set OMNIXPU_ATTENTION=1
+set OMNIXPU_PROVIDER_BOOTSTRAP=auto
+set UR_L0_ENABLE_RELAXED_ALLOCATION_LIMITS=1
+set UR_L0_USE_IMMEDIATE_COMMANDLISTS=1
 goto :omni_done
 
 :omni_fallback
@@ -194,23 +197,26 @@ set OMNI_ATTN_BACKEND=torch
 goto :omni_done
 
 :omni_done
-
 :: GGUF 路由保持全局生效（两行均设置）
 set COMFYUI_GGUF_BACKEND=xpu
 set COMFYUI_GGUF_DEBUG=0
+
+
+
 
 :: aimdo xpu 跟踪：默认关闭，装好该插件且确实需要跟踪时才开启
 :: set AIMDO_XPU_VBAR_TRACE=1
 :: set AIMDO_XPU_WDDM_TRACE=1
 
-:: --- 启动参数调优 ---
-:: 1. --preview-method 已关闭；需要时可在 ComfyUI 界面设置里重新开启
-:: 2. --disable-smart-memory：禁止 ComfyUI 在内存/显存间搬运大数据
-:: 3. 可尝试 --lowvram / --medvram / --highvram（A/B 测试）
-:: 4. 可尝试 --use-split-cross-attention / --use-pytorch-cross-attention
-:: 5. Intel XPU（非N卡）comfy-aimdo DynamicVRAM：--disable-dynamic-vram / --enable-dynamic-vram
 
-"%PYTHON_PATH%\python.exe" "%COMFYUI_PATH%\main.py" --disable-dynamic-vram --lowvram --reserve-vram 1.0 --preview-method none --use-pytorch-cross-attention
+:: --- 启动参数调优 ---
+:: 1. preview-method 已关闭；需要时可在 ComfyUI 界面设置里重新开启
+:: 2. disable-smart-memory 关闭在内存和显存间搬运大数据
+:: 3. 可尝试 lowvram / medvram / highvram
+:: 4. 可尝试 use-split-cross-attention / use-pytorch-cross-attention
+:: 5. Intel XPU（非N卡）comfy-aimdo DynamicVRAM：disable-dynamic-vram / enable-dynamic-vram
+
+"%PYTHON_PATH%\python.exe" "%COMFYUI_PATH%\main.py" --enable-dynamic-vram --lowvram --reserve-vram 1.0 --preview-method none --use-pytorch-cross-attention
 
 
 pause
