@@ -945,6 +945,7 @@ F:\ComfyUI-aki-v3\python\python.exe -c "import sys; sys.path.insert(0,'ComfyUI/c
 | A770（dg2） | `A770(dg2)/comfy_aimdo_xpu_runtime-0.5.5.dg2-cp39-abi3-win_amd64.whl` | 0.5.5 | `["dg2"]` | `["0.5.5"]` | ✅ 一致 |
 
 - ✅ **两条线的锚本版都对上了**：ComfyUI 0.37.0 把官方包 pin 到 `0.5.5`，而 B 系列的 `0.5.5.bmg` 与 A770 的 `0.5.5.dg2`，锚**都是** `["0.5.5"]` → 双锚满足，**两条线都会正常激活**。
+  - 两份 wheel 的 `provider.json` / `METADATA` 均**实读核实**为 `provider_distribution.version 0.5.5`、`compatible_versions ["0.5.5"]`、`torch_version 2.14.0+xpu`、`platforms` 含 `win32`；A770 那份的 `source.revision` = `4f5ea9d6…`、`xpu_targets ["dg2"]`。
 
   唯一要小心的是**别装错架构**：两份 provider 的 `xpu_targets` 不同（B 系列 `["bmg"]`、A770 `["dg2"]`），**装错会被明确拒绝（跳过）**，换正确的那份即可。
 
@@ -1059,8 +1060,8 @@ IntelGPU-ComfyUI-系统优化指南-20260921/
     ├── ComfyUI-OmniXPU.A770(dg2)-20260921.zip
     │     └─ 社区版（A770 专属 adapter：a770_rms_rope_bridge / a770_kitchen_compat / int4_gemm / seedvr_vae_decode 等）
     └── comfy_aimdo_xpu_runtime-0.5.5.dg2-cp39-abi3-win_amd64.whl
-          └─ SHA256: 待补录（0.5.5.dg2 编译件发布后填入）
-             锚 ["0.5.5"]，与 ComfyUI 0.37.0 的官方 pin 一致 → 正常激活（见 6.7 / 6.9）
+          └─ SHA256: 5D0C5B223F86F242DD5A931768ED694796CEE535C23E80515429AB4939F561B0
+             锚 ["0.5.5"]（`compatible_versions`）、`xpu_targets ["dg2"]`，与 ComfyUI 0.37.0 的官方 pin 一致 → 正常激活（见 6.7 / 6.9）
 ```
 
 注：

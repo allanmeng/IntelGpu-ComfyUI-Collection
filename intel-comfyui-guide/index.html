@@ -1429,6 +1429,7 @@ python -c &quot;import importlib.metadata as m; print(m.version('comfy-kitchen')
 </table>
 <ul>
 <li>✅ <strong>两条线的锚本版都对上了</strong>：ComfyUI 0.37.0 把官方包 pin 到 <code>0.5.5</code>，而 B 系列的 <code>0.5.5.bmg</code> 与 A770 的 <code>0.5.5.dg2</code>，锚<strong>都是</strong> <code>["0.5.5"]</code> → 双锚满足，<strong>两条线都会正常激活</strong>。</li>
+<li>两份 wheel 的 <code>provider.json</code> / <code>METADATA</code> 均<strong>实读核实</strong>为 <code>provider_distribution.version 0.5.5</code>、<code>compatible_versions ["0.5.5"]</code>、<code>torch_version 2.14.0+xpu</code>、<code>platforms</code> 含 <code>win32</code>；A770 那份的 <code>source.revision</code> = <code>4f5ea9d6…</code>、<code>xpu_targets ["dg2"]</code>。</li>
 </ul>
 <p>唯一要小心的是<strong>别装错架构</strong>：两份 provider 的 <code>xpu_targets</code> 不同（B 系列 <code>["bmg"]</code>、A770 <code>["dg2"]</code>），<strong>装错会被明确拒绝（跳过）</strong>，换正确的那份即可。</p>
 <p>⚠️ <strong>不要靠改版本号 / 改 manifest 字段 / 降级官方包来"凑"通过</strong>——锚与 <code>xpu_targets</code> 存在的意义，正是拦住"官方契约 ≠ 实现"和"装错卡"这两种状态。
@@ -1642,8 +1643,8 @@ python -c &quot;import importlib.metadata as m; print(m.version('comfy-aimdo'))&
     ├── ComfyUI-OmniXPU.A770(dg2)-20260921.zip
     │     └─ 社区版（A770 专属 adapter：a770_rms_rope_bridge / a770_kitchen_compat / int4_gemm / seedvr_vae_decode 等）
     └── comfy_aimdo_xpu_runtime-0.5.5.dg2-cp39-abi3-win_amd64.whl
-          └─ SHA256: 待补录（0.5.5.dg2 编译件发布后填入）
-             锚 [&quot;0.5.5&quot;]，与 ComfyUI 0.37.0 的官方 pin 一致 → 正常激活（见 6.7 / 6.9）
+          └─ SHA256: 5D0C5B223F86F242DD5A931768ED694796CEE535C23E80515429AB4939F561B0
+             锚 [&quot;0.5.5&quot;]（`compatible_versions`）、`xpu_targets [&quot;dg2&quot;]`，与 ComfyUI 0.37.0 的官方 pin 一致 → 正常激活（见 6.7 / 6.9）
 </code></pre>
 <p>注：
 - <strong>本版的目录约定</strong>：<strong>包根目录 = 两线共用件</strong>（kitchen provider + GGUF 节点 + 自检脚本 + 本文档）；<strong><code>B系列(bmg)/</code> = B 系列专属文件</strong>（kernel / OmniXPU 节点 / aimdo provider）；<strong><code>A770(dg2)/</code> = A 系列专属文件</strong>。
