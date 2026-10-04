@@ -308,13 +308,14 @@ INDEX_HTML = """<!DOCTYPE html>
     background: linear-gradient(90deg, #e8f1fb, #f0f7fd);
     border: 1px solid #c8e0f5; border-radius: 10px;
     padding: 10px 16px; font-size: 13px; color: var(--intel-blue-dark);
-    display: flex; align-items: center; gap: 8px; justify-content: center;
+    text-align: center; line-height: 1.8;
   }
   .sort-banner .dot {
-    width: 8px; height: 8px; border-radius: 50%; background: #2da44e; display: inline-block;
+    width: 8px; height: 8px; border-radius: 50%; background: #2da44e;
+    display: inline-block; vertical-align: middle; margin-right: 6px;
   }
 
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(460px, 1fr)); gap: 16px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(460px, 100%), 1fr)); gap: 16px; }
 
   .card {
     background: var(--card); border: 1px solid var(--border); border-radius: 14px;
@@ -324,7 +325,7 @@ INDEX_HTML = """<!DOCTYPE html>
   }
   .card:hover { box-shadow: 0 4px 12px rgba(31,35,40,0.12); }
 
-  .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
   .card-name { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .card-name a { color: var(--text); text-decoration: none; }
   .card-name a:hover { color: var(--intel-blue); }
@@ -339,6 +340,7 @@ INDEX_HTML = """<!DOCTYPE html>
   .updated {
     font-size: 12px; color: var(--text-muted); white-space: nowrap;
     background: #f3f4f6; border-radius: 6px; padding: 3px 8px;
+    margin-left: auto;
   }
   .card-desc { font-size: 13px; color: var(--text-muted); flex: 1; }
   .card-desc a { color: var(--intel-blue); text-decoration: none; }
@@ -346,11 +348,12 @@ INDEX_HTML = """<!DOCTYPE html>
 
   .card-footer {
     display: flex; align-items: center; justify-content: space-between;
+    gap: 8px; flex-wrap: wrap;
     padding-top: 10px; border-top: 1px solid #eef0f2;
   }
   .author { font-size: 13px; color: var(--text-muted); }
   .author a { color: var(--intel-blue); text-decoration: none; font-weight: 600; }
-  .links { display: flex; gap: 8px; }
+  .links { display: flex; gap: 8px; flex-wrap: wrap; }
   .btn {
     font-size: 12px; text-decoration: none; padding: 5px 12px; border-radius: 8px;
     border: 1px solid var(--border); color: var(--text); background: #fff;
