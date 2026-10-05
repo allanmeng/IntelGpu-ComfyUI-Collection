@@ -130,7 +130,7 @@ Tag: fork,社群,指定卡
 Intel llm-scaler 中 omni_xpu_kernel 的独立 fork，为 **DG2（A770）** 增加 DPAS attention、ConvRot 融合量化、INT8 快速路径等原生内核，提供 Windows 预编译 wheel。
 
 
-【[A770专用_ComfyUI_MinMaxH3_整合包](https://pan.quark.cn/s/0f9b1816831c?pwd=S5HC)】    【[关联视频](https://www.bilibili.com/video/BV19Wbi6eEMi)】
+【[A770专用_ComfyUI_加速组件_整合包](https://pan.quark.cn/s/0f9b1816831c?pwd=NAyj#/list/share)】    【[关联视频](https://www.bilibili.com/video/BV1pNHs6aEZD/)】
 
 如果你找B系列（bmg）适配，请查阅[系统优化指南](https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/intel-comfyui-guide/)
 
