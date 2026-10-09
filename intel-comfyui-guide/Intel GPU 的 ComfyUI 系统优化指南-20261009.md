@@ -6,20 +6,20 @@
 **📌 本版本更新说明（20261009）**：
 
 - ✅ **本版含 `A770(dg2)/` 子目录**：A 系列（A770 / DG2）专属文件已随包提供，**无需再去翻上一版包**。这三个件取自社区维护者 **Blackwood416 2026-10-04 的更新**（内核 `dg2.1`、节点 zip、aimdo `0.5.5.dg2`）——该批更新的**适配基准是 ComfyUI 0.38 内核**，而本包 B 系列线是 **0.39.2**；两条线本就独立（详见 6.9）。
-  - ⚠️ **A770 不需要安装 kitchen provider**：它的社区节点自带 `kitchen_compat.py`「缺后端桥」，**不装 `comfy_kitchen_xpu_runtime` 也能跑**（装了则是走正式分发层，属可选）。因此本包的 kitchen provider 只服务 B 系列线。
-  - **aimdo provider 版本仍为 `0.5.5.dg2`**（与 20260921 版包内**同一份文件**，SHA256 未变），锚 `["0.5.5"]` 与本包 B 系列线及 ComfyUI 的官方 pin 一致。
+    - ⚠️ **A770 不需要安装 kitchen provider**：它的社区节点自带 `kitchen_compat.py`「缺后端桥」，**不装 `comfy_kitchen_xpu_runtime` 也能跑**（装了则是走正式分发层，属可选）。因此本包的 kitchen provider 只服务 B 系列线。
+    - **aimdo provider 版本仍为 `0.5.5.dg2`**（与 20260921 版包内**同一份文件**，SHA256 未变），锚 `["0.5.5"]` 与本包 B 系列线及 ComfyUI 的官方 pin 一致。
 - ⚠️ **目录结构（本版变更）**：**组件全部收进 `B系列(bmg)/` 子目录**——**其中 `comfy_kitchen_xpu_runtime` 本版起从包根目录移入 `B系列(bmg)/`**。包根目录只留自适应件与文档（GGUF 节点、自检脚本、本文档）。该 provider 的 manifest 仍写 `xpu_targets: ["bmg", "dg2"]`（两种架构都认），所以 **A770 用户可直接取用同一份 wheel**。
 - **omni_xpu_kernel（B 系列）**：`0.2.0b2+torch214.bmg` **同版本号重建**——同步上游 [intel/llm-scaler#748](https://github.com/intel/llm-scaler/pull/748)（Xiangyu Tian，*upgrade ComfyUI to 0.39.0 and align Torch 2.14 XPU integration*），并带上 #746 / #747 / #749。**本版起内核改用 C++20 编译**（torch 2.14 的语言要求，上游 `setup.py` 按 torch minor 自动选择；2.13 及以下仍为 C++17）。内核 5 个 csrc 文件更新：`bindings.cpp` / `convrot.cpp` / `int8_scaleback_esimd.cpp` / `onednn_int4_gemm.cpp` / `onednn_int8.cpp`。
-  - ✅ **#747 新增输入校验**：`fused_scaleback` 增加 **bias 长度**与**设备一致性**检查——此前 bias 元素数不符、或落在 CPU 上，会**静默越界读**；现在改为在进入内核前明确报错。
-  - ✅ **#749 新增输入校验**：INT4 GEMM 拒绝非法量化组（要求 `K` 与 `num_groups` 为正且 `K` 可被整除）。
-  - ⚠️ **oneDNN 依赖仍为 3.11.2（本机实测可用组合）**：上游把 torch 2.14 的合同写成 oneDNN 3.12.0 / oneAPI 2026.1，但**该组合在任何官方渠道都取不到**——oneAPI Toolkit 2026.1 自带的 dnnl 组件就是 `2026.0.1`（＝oneDNN 3.11.2），PyPI `onednn` 止于 2026.0.2，oneDNN v3.12 无 Windows 预编译件。本版**沿用已验证的 oneDNN 3.11.2 构建**（与 09-28 实测跑通的同一组合）。
+    - ✅ **#747 新增输入校验**：`fused_scaleback` 增加 **bias 长度**与**设备一致性**检查——此前 bias 元素数不符、或落在 CPU 上，会**静默越界读**；现在改为在进入内核前明确报错。
+    - ✅ **#749 新增输入校验**：INT4 GEMM 拒绝非法量化组（要求 `K` 与 `num_groups` 为正且 `K` 可被整除）。
+    - ⚠️ **oneDNN 依赖仍为 3.11.2（本机实测可用组合）**：上游把 torch 2.14 的合同写成 oneDNN 3.12.0 / oneAPI 2026.1，但**该组合在任何官方渠道都取不到**——oneAPI Toolkit 2026.1 自带的 dnnl 组件就是 `2026.0.1`（＝oneDNN 3.11.2），PyPI `onednn` 止于 2026.0.2，oneDNN v3.12 无 Windows 预编译件。本版**沿用已验证的 oneDNN 3.11.2 构建**（与 09-28 实测跑通的同一组合）。
 - **comfy-kitchen XPU provider**：**0.2.35 → 0.2.37**（`compatible_versions: ["0.2.37"]`）——同步上游 [comfy-kitchen-xpu PR #12](https://github.com/xiangyuT/comfy-kitchen-xpu/pull/12)，fork revision `31f697a0` → **`7e639254`**；上游同批带入 `comfy-kitchen 0.2.37`（含 XPU 上按组路由的 INT8 linear）。**官方包与 provider 必须同时到位**，否则 provider 被明确拒绝（响亮失败，不崩）。
-  - ✅ **本版按双架构需求重建**：`xpu_targets: ["bmg", "dg2"]`——一个 wheel 同时记录两种架构，**B 系列与 A770 共用**（provider 是架构无关的纯 Python 包）。
+    - ✅ **本版按双架构需求重建**：`xpu_targets: ["bmg", "dg2"]`——一个 wheel 同时记录两种架构，**B 系列与 A770 共用**（provider 是架构无关的纯 Python 包）。
 - **comfy-aimdo XPU provider（B 系列）**：`0.5.5.bmg` **沿用，本版无变化**——版本号与锚均不变（`0.5.5` / `["0.5.5"]`），与 ComfyUI 0.39.2 pin 的官方 `comfy-aimdo==0.5.5` 一致 → **双锚满足**。
 - **ComfyUI-OmniXPU（B 系列）**：`ComfyUI-OmniXPU.bmg-20261009.zip`（**34 个条目**，较上版 **+3**）——同步上游 #746 / #748：
-  - ✅ **新增 3 个文件**：`adapters/aimdo_memory_compiler.py`、`compiler_compat.py`、`aimdo_release_compat.py`——AIMDO XPU memory compiler 的**诊断适配**，**默认关闭**，需显式设 `AIMDO_XPU_NATIVE_OWNER_DIAGNOSTIC=1` 才启用（详见 6.7 后的说明）。
-  - ✅ **更新 7 个文件**：`__init__.py`（补包别名 `sys.modules` 注册）、`adapters/attention.py`、`adapters/qwen_image21_cache.py`（+95 行：ComfyUI 0.39 的 `evict_active` 策略保留、attention container 单次消费）、`config.py`、`patches/__init__.py`、`README.md`、`runtime_bootstrap.py`。
-  - ⚠️ **本版保留一处本地补丁**：`attention.py` 的 `_VALIDATED_ROUTED_TORCH_BY_TARGET` 里 **`ptl-h` 与 `bmg` 都白名单 `(2,13)(2,14)`**——上游只给 `bmg` 开了 `(2,14)`，我们**两条线都开**（该补丁自 2026-09-05 起生效，历次同步均须保留）。
+    - ✅ **新增 3 个文件**：`adapters/aimdo_memory_compiler.py`、`compiler_compat.py`、`aimdo_release_compat.py`——AIMDO XPU memory compiler 的**诊断适配**，**默认关闭**，需显式设 `AIMDO_XPU_NATIVE_OWNER_DIAGNOSTIC=1` 才启用（详见 6.7 后的说明）。
+    - ✅ **更新 7 个文件**：`__init__.py`（补包别名 `sys.modules` 注册）、`adapters/attention.py`、`adapters/qwen_image21_cache.py`（+95 行：ComfyUI 0.39 的 `evict_active` 策略保留、attention container 单次消费）、`config.py`、`patches/__init__.py`、`README.md`、`runtime_bootstrap.py`。
+    - ⚠️ **本版保留一处本地补丁**：`attention.py` 的 `_VALIDATED_ROUTED_TORCH_BY_TARGET` 里 **`ptl-h` 与 `bmg` 都白名单 `(2,13)(2,14)`**——上游只给 `bmg` 开了 `(2,14)`，我们**两条线都开**（该补丁自 2026-09-05 起生效，历次同步均须保留）。
 - **ComfyUI-GGUF-XPU**：沿用 **20260912** 版（本版无代码变化——与已部署副本逐文件哈希比对，代码 0 差异）。
 - **📄 文档更新**：本版更新说明、目录说明与附录目录树改写（**核心变化 = kitchen provider 位置**）；正文其余章节维持。
 - **🧰 工具沿用**：`check_provider_alignment.py`（包根目录）——一条命令体检"ComfyUI pin ↔ 官方包 ↔ provider 锚 ↔ torch"是否对齐。**升级 ComfyUI 后建议跑一次**。
@@ -216,15 +216,15 @@ python -m pip install omni_xpu_kernel-0.2.0b2+torch214.dg2.1-cp313-cp313-win_amd
 
 - 安装文件（本包 `B系列(bmg)/` 目录）：
 
-  ```
-  omni_xpu_kernel-0.2.0b2+torch214.bmg-cp313-cp313-win_amd64.whl
-  ```
+```
+omni_xpu_kernel-0.2.0b2+torch214.bmg-cp313-cp313-win_amd64.whl
+```
 
 - 安装方法：
 
-  ```text
-  python -m pip install omni_xpu_kernel-0.2.0b2+torch214.bmg-cp313-cp313-win_amd64.whl
-  ```
+```text
+python -m pip install omni_xpu_kernel-0.2.0b2+torch214.bmg-cp313-cp313-win_amd64.whl
+```
 
 
 
@@ -941,15 +941,15 @@ F:\ComfyUI-aki-v3\python\python.exe -c "import sys; sys.path.insert(0,'ComfyUI/c
 - **本版起不再随包提供 `ComfyUI-SolAttn` 插件**——ComfyUI 0.35.0+ **内置** **Model Sparse Attention** 节点，上游已把旧的 **Patch Sol-Attn** 入口标记为 deprecated。装过旧插件的，按第三部分 4.3 迁移后**把它移出 `custom_nodes`**。
 - **ComfyUI 升级影响**：内置节点随 ComfyUI 一起走，**不需要重装任何东西**；但**稀疏资格的判定契约可能变**——ComfyUI-OmniXPU 的 `sparse_attention_adapter` 会随之失效（静默 skipped）。
 - **验证（ComfyUI 升级后）**：
-  1. 节点存在：节点搜索里能找到 **Model Sparse Attention**，无 import 报错
-  2. adapter 生效：**OmniXPU Status** 节点报 `sparse_attention_adapter: applied`
-  3. 底层能力在位：kitchen xpu backend 的 capabilities 里有 `sol_attn`（见第四部分验证③）
-  4. **实跑**：把稀疏节点 `verbose` 打开，日志里能看到稀疏执行；**整段输出画面连贯、尺寸 / 时长 / 音频可用**
-  5. 启动 bat 里**没有**遗留的 `SOL_ATTN` / `SOL_ATTN_XPU_EXPERIMENTAL`（旧设置应删掉）
+    1. 节点存在：节点搜索里能找到 **Model Sparse Attention**，无 import 报错
+    2. adapter 生效：**OmniXPU Status** 节点报 `sparse_attention_adapter: applied`
+    3. 底层能力在位：kitchen xpu backend 的 capabilities 里有 `sol_attn`（见第四部分验证③）
+    4. **实跑**：把稀疏节点 `verbose` 打开，日志里能看到稀疏执行；**整段输出画面连贯、尺寸 / 时长 / 音频可用**
+    5. 启动 bat 里**没有**遗留的 `SOL_ATTN` / `SOL_ATTN_XPU_EXPERIMENTAL`（旧设置应删掉）
 - **恢复**：
-  - adapter 被 skipped → 等 ComfyUI-OmniXPU 更新（上游改资格契约时必须跟）
-  - 节点缺失 → 确认 ComfyUI ≥ 0.35.0（本版基准 0.39.2）
-  - 万不得已回退旧插件路线：把备份的插件放回 `custom_nodes` 并恢复 `SOL_ATTN_XPU_EXPERIMENTAL=1`（**不推荐**，上游已弃用）
+    - adapter 被 skipped → 等 ComfyUI-OmniXPU 更新（上游改资格契约时必须跟）
+    - 节点缺失 → 确认 ComfyUI ≥ 0.35.0（本版基准 0.39.2）
+    - 万不得已回退旧插件路线：把备份的插件放回 `custom_nodes` 并恢复 `SOL_ATTN_XPU_EXPERIMENTAL=1`（**不推荐**，上游已弃用）
 
 ### 6.7 comfy-aimdo：provider 架构 + 本版起按架构分线
 
@@ -963,11 +963,11 @@ F:\ComfyUI-aki-v3\python\python.exe -c "import sys; sys.path.insert(0,'ComfyUI/c
 | A770（dg2） | `A770(dg2)/comfy_aimdo_xpu_runtime-0.5.5.dg2-cp39-abi3-win_amd64.whl`（本版沿用，与 20260921 版包同一份） | 0.5.5 | `["dg2"]` | `["0.5.5"]` | ✅ 一致 |
 
 - ✅ **两条线的锚都对上了**：ComfyUI 0.39.x 把官方包 pin 到 `0.5.5`，而 B 系列的 `0.5.5.bmg` 与 A770 的 `0.5.5.dg2`，锚**都是** `["0.5.5"]` → 双锚满足，**两条线都会正常激活**。
-  - 两份 wheel 的 `provider.json` / `METADATA` 均**实读核实**为 `provider_distribution.version 0.5.5`、`compatible_versions ["0.5.5"]`、`torch_version 2.14.0+xpu`、`platforms` 含 `win32`。本版 B 系列那份的 `source.revision` = `4b5b109c…`、`xpu_targets ["bmg"]`（**本版沿用，未重建**）；A770 那份（本包 `A770(dg2)/`，与 20260921 版包为同一份文件）的 `source.revision` = `4f5ea9d6…`、`xpu_targets ["dg2"]`。
+    - 两份 wheel 的 `provider.json` / `METADATA` 均**实读核实**为 `provider_distribution.version 0.5.5`、`compatible_versions ["0.5.5"]`、`torch_version 2.14.0+xpu`、`platforms` 含 `win32`。本版 B 系列那份的 `source.revision` = `4b5b109c…`、`xpu_targets ["bmg"]`（**本版沿用，未重建**）；A770 那份（本包 `A770(dg2)/`，与 20260921 版包为同一份文件）的 `source.revision` = `4f5ea9d6…`、`xpu_targets ["dg2"]`。
 
-  唯一要小心的是**别装错架构**：两份 provider 的 `xpu_targets` 不同（B 系列 `["bmg"]`、A770 `["dg2"]`），**装错会被明确拒绝（跳过）**，换正确的那份即可。
+    唯一要小心的是**别装错架构**：两份 provider 的 `xpu_targets` 不同（B 系列 `["bmg"]`、A770 `["dg2"]`），**装错会被明确拒绝（跳过）**，换正确的那份即可。
 
-  ⚠️ **不要靠改版本号 / 改 manifest 字段 / 降级官方包来"凑"通过**——锚与 `xpu_targets` 存在的意义，正是拦住"官方契约 ≠ 实现"和"装错卡"这两种状态。
+    ⚠️ **不要靠改版本号 / 改 manifest 字段 / 降级官方包来"凑"通过**——锚与 `xpu_targets` 存在的意义，正是拦住"官方契约 ≠ 实现"和"装错卡"这两种状态。
 - **检查**：
 
 ```text
