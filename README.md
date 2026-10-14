@@ -113,7 +113,7 @@ Tag: 社群
 Intel llm-scaler-omni 官方套件的独立 fork，为 **Arc A770 / DG2** 补齐 RMS-RoPE 桥接、DG2 注意力路由、INT8 快速路径、DynamicVRAM 裁剪等兼容性。
 
 
-【[A770专用_ComfyUI_加速组件_整合包](https://pan.quark.cn/s/fdc5d881f025?pwd=NAyj#/list/share)】    【[关联视频](https://www.bilibili.com/video/BV19Wbi6eEMi)】
+【[A770专用_ComfyUI_加速组件_整合包](https://pan.quark.cn/s/fdc5d881f025?pwd=NAyj#/list/share)】    【[关联视频](https://www.bilibili.com/video/BV1pNHs6aEZD/)】
 
 如果你找B系列（bmg）适配，请查阅[系统优化指南](https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/intel-comfyui-guide/)
 
