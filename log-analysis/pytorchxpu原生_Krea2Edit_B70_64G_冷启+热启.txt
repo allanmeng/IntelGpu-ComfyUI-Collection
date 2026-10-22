@@ -1,0 +1,80 @@
+[INFO] got prompt
+[INFO] Model storage policy: fast_disk=True paths=['D:\\ComfyUI-intel-aki-v1.1\\ComfyUI\\models\\vae\\qwen_image_vae.safetensors']
+[INFO] Using pytorch attention in VAE
+[INFO] Using pytorch attention in VAE
+[INFO] VAE load device: xpu:0, offload device: cpu, dtype: torch.float32
+# 😺dzNodes: LayerStyle -> ImageScaleByAspectRatio V2 Processed 1 image(s).
+# 😺dzNodes: LayerStyle -> ImageScaleByAspectRatio V2 Processed 1 image(s).
+[INFO] Found quantization metadata version 1
+[INFO] Using MixedPrecisionOps for text encoder
+[INFO] Model storage policy: fast_disk=True paths=['D:\\ComfyUI-intel-aki-v1.1\\ComfyUI\\models\\text_encoders\\qwen3vl_4b_fp8_scaled.safetensors']
+[INFO] Requested to load Krea2TEModel_
+[INFO] loaded completely;  4999.47 MB loaded, full load: True
+[INFO] CLIP/text encoder model load device: xpu:0, offload device: cpu, current: xpu:0, dtype: torch.float16
+[INFO] Requested to load WanVAE
+[INFO] loaded completely; 21843.92 MB usable, 484.06 MB loaded, full load: True
+[INFO] Found quantization metadata version 1
+[INFO] Detected mixed precision quantization
+[INFO] Using mixed precision operations
+[INFO] Native ops:  , emulated ops: float8_e5m2, float8_e4m3fn, asym_w4a8_int8, nvfp4, convrot_w4a4, mxfp8, w6a8_int8, int8_tensorwise
+[INFO] model weight dtype torch.bfloat16, manual cast: torch.bfloat16
+[INFO] model_type FLUX
+[INFO] Model storage policy: fast_disk=True paths=['D:\\ComfyUI-intel-aki-v1.1\\ComfyUI\\models\\diffusion_models\\krea2_turbo_int8_convrot.safetensors']
+[krea2edit] pre-encoding sources at target 1024x768px (before sampling, fit_mode=fit)
+[krea2edit] _fit_encode_image: mode=fit in=(1, 1024, 768, 3) target_latent=128x96
+[krea2edit] _fit_encode_image: mode=fit in=(1, 752, 1024, 3) target_latent=128x96
+[INFO] Requested to load Krea2
+[INFO] loaded completely; 24943.47 MB usable, 12866.82 MB loaded, full load: True
+  0%|                                                                                                               | 0/8 [00:00<?, ?it/s][krea2edit] pixel path ACTIVE (fit_mode=fit)
+[krea2edit] STRIDE1-POS fit: ref grids [(64, 48), (35, 48)] centered in (64,48)
+ 12%|█████████████▊                                                                                                 | 1/8 [00:03<00:22,  3.24s/it][krea2edit] STRIDE1-POS fit: ref grids [(64, 48), (35, 48)] centered in (64,48)
+ 25%|███████████████████████████▌                                                                                   | 2/8 [00:06<00:20,  3.35s/it][krea2edit] STRIDE1-POS fit: ref grids [(64, 48), (35, 48)] centered in (64,48)
+ 38%|█████████████████████████████████████████▎                                                                     | 3/8 [00:10<00:17,  3.40s/it][krea2edit] STRIDE1-POS fit: ref grids [(64, 48), (35, 48)] centered in (64,48)
+ 50%|███████████████████████████████████████████████████████                                                        | 4/8 [00:13<00:13,  3.45s/it][krea2edit] STRIDE1-POS fit: ref grids [(64, 48), (35, 48)] centered in (64,48)
+ 62%|████████████████████████████████████████████████████████████████████▊                                          | 5/8 [00:17<00:10,  3.47s/it][krea2edit] STRIDE1-POS fit: ref grids [(64, 48), (35, 48)] centered in (64,48)
+ 75%|██████████████████████████████████████████████████████████████████████████████████▌                            | 6/8 [00:20<00:06,  3.48s/it][krea2edit] STRIDE1-POS fit: ref grids [(64, 48), (35, 48)] centered in (64,48)
+ 88%|████████████████████████████████████████████████████████████████████████████████████████████████▎              | 7/8 [00:24<00:03,  3.49s/it][krea2edit] STRIDE1-POS fit: ref grids [(64, 48), (35, 48)] centered in (64,48)
+100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████ | 8/8 [00:27<00:00,  3.46s/it]
+VRAM清理完成 [卸载模型: False, 清空缓存: False]
+[INFO] VRAMdebug: free memory before: 14,255,852,544
+[INFO] VRAMdebug: free memory after: 33,530,339,328
+[INFO] VRAMdebug: freed memory: 19,274,486,784
+[INFO] Prompt executed in 122.62 seconds
+[INFO] Seeder start (roots=('output',), phase=full)
+[INFO] [assets-event] seeder.scan_started phase=full root=output
+[INFO] Asset scan [output] directories: ['D:\\ComfyUI_windows_portable\\ComfyUI\\output']
+[INFO] Fast scan complete: 0.004s total (created=0, skipped=1, total_paths=2)
+[INFO] Scan(('output',), full) done 0.008s: created=0 enriched=0 skipped=1
+[INFO] [assets-event] seeder.scan_completed cpu_ms=16 created=0 dirs_listed_count=1 elapsed_ms=8 enrich_failed=0 enriched=0 files_statted_count=1 hash_failed=0 missing_marked_count=0 paused_ms=0 permission_denied=0 phase=full recovered_count=0 root=output skipped=1
+[INFO] got prompt
+# 😺dzNodes: LayerStyle -> ImageScaleByAspectRatio V2 Processed 1 image(s).
+[INFO] Requested to load Krea2TEModel_
+[INFO] loaded completely; 30457.82 MB usable, 4999.47 MB loaded, full load: True
+[INFO] Requested to load WanVAE
+[INFO] loaded completely; 22123.29 MB usable, 484.06 MB loaded, full load: True
+[krea2edit] pre-encoding sources at target 1024x704px (before sampling, fit_mode=fit)
+[krea2edit] _fit_encode_image: mode=fit in=(1, 1024, 704, 3) target_latent=128x88
+[krea2edit] _fit_encode_image: mode=fit in=(1, 752, 1024, 3) target_latent=128x88
+[INFO] Requested to load Krea2
+[INFO] loaded completely; 24942.56 MB usable, 12866.82 MB loaded, full load: True
+  0%|                                                                                                               | 0/8 [00:00<?, ?it/s][krea2edit] pixel path ACTIVE (fit_mode=fit)
+[krea2edit] STRIDE1-POS fit: ref grids [(64, 44), (32, 44)] centered in (64,44)
+ 12%|█████████████▊                                                                                                 | 1/8 [00:00<00:03,  2.13it/s][krea2edit] STRIDE1-POS fit: ref grids [(64, 44), (32, 44)] centered in (64,44)
+ 25%|███████████████████████████▌                                                                                   | 2/8 [00:03<00:13,  2.19s/it][krea2edit] STRIDE1-POS fit: ref grids [(64, 44), (32, 44)] centered in (64,44)
+ 38%|█████████████████████████████████████████▎                                                                     | 3/8 [00:07<00:13,  2.76s/it][krea2edit] STRIDE1-POS fit: ref grids [(64, 44), (32, 44)] centered in (64,44)
+ 50%|███████████████████████████████████████████████████████                                                        | 4/8 [00:10<00:12,  3.03s/it][krea2edit] STRIDE1-POS fit: ref grids [(64, 44), (32, 44)] centered in (64,44)
+ 62%|████████████████████████████████████████████████████████████████████▊                                          | 5/8 [00:14<00:09,  3.20s/it][krea2edit] STRIDE1-POS fit: ref grids [(64, 44), (32, 44)] centered in (64,44)
+ 75%|██████████████████████████████████████████████████████████████████████████████████▌                            | 6/8 [00:17<00:06,  3.28s/it][krea2edit] STRIDE1-POS fit: ref grids [(64, 44), (32, 44)] centered in (64,44)
+ 88%|████████████████████████████████████████████████████████████████████████████████████████████████▎              | 7/8 [00:21<00:03,  3.34s/it][krea2edit] STRIDE1-POS fit: ref grids [(64, 44), (32, 44)] centered in (64,44)
+100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████ | 8/8 [00:24<00:00,  3.08s/it]
+VRAM清理完成 [卸载模型: False, 清空缓存: False]
+[INFO] VRAMdebug: free memory before: 14,255,287,296
+[INFO] VRAMdebug: free memory after: 33,530,339,328
+[INFO] VRAMdebug: freed memory: 19,275,052,032
+[INFO] Prompt executed in 46.66 seconds
+[INFO] Seeder start (roots=('output',), phase=full)
+[INFO] [assets-event] seeder.scan_started phase=full root=output
+[INFO] Asset scan [output] directories: ['D:\\ComfyUI_windows_portable\\ComfyUI\\output']
+[INFO] Fast scan complete: 0.003s total (created=0, skipped=2, total_paths=3)
+[INFO] Scan(('output',), full) done 0.006s: created=0 enriched=0 skipped=2
+[INFO] [assets-event] seeder.scan_completed cpu_ms=0 created=0 dirs_listed_count=1 elapsed_ms=6 enrich_failed=0 enriched=0 files_statted_count=1 hash_failed=0 missing_marked_count=0 paused_ms=0 permission_denied=0 phase=full recovered_count=0 root=output skipped=2

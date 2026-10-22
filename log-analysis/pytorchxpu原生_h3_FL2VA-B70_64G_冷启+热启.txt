@@ -1,0 +1,56 @@
+[INFO] got prompt
+[INFO] Model storage policy: fast_disk=True paths=['D:\\ComfyUI-intel-aki-v1.1\\ComfyUI\\models\\vae\\minimax_h3_audio_vae_fp32.safetensors']
+[INFO] VAE load device: xpu:0, offload device: cpu, dtype: torch.float32
+[INFO] Model storage policy: fast_disk=True paths=['D:\\ComfyUI-intel-aki-v1.1\\ComfyUI\\models\\vae\\minimax_h3_video_vae_fp16.safetensors']
+[INFO] VAE load device: xpu:0, offload device: cpu, dtype: torch.float16
+[INFO] Found quantization metadata version 1
+[INFO] Using MixedPrecisionOps for text encoder
+[INFO] Model storage policy: fast_disk=True paths=['D:\\ComfyUI-intel-aki-v1.1\\ComfyUI\\models\\text_encoders\\qwen3vl_32b_minimax_h3_int8_convrot.safetensors']
+[INFO] CLIP/text encoder model load device: xpu:0, offload device: cpu, current: cpu, dtype: torch.float16
+[INFO] Requested to load MiniMaxH3TEModel_
+[INFO] loaded completely; 30458.20 MB usable, 25883.83 MB loaded, full load: True
+[INFO] Requested to load MiniMaxH3VideoVAE
+[INFO] Unloaded partially: 1077.01 MB freed, 24806.82 MB remains loaded, 28.40 MB buffer reserved, lowvram patches: 0
+[INFO] loaded completely; 5496.89 MB usable, 4966.19 MB loaded, full load: True
+[INFO] Found quantization metadata version 1
+[INFO] Detected mixed precision quantization
+[INFO] Using mixed precision operations
+[INFO] Native ops:  , emulated ops: asym_w4a8_int8, w6a8_int8, convrot_w4a4, float8_e5m2, nvfp4, float8_e4m3fn, mxfp8, int8_tensorwise
+[INFO] model weight dtype torch.bfloat16, manual cast: torch.bfloat16
+[INFO] model_type FLOW_AV
+[INFO] Model storage policy: fast_disk=True paths=['D:\\ComfyUI-intel-aki-v1.1\\ComfyUI\\models\\diffusion_models\\minimax_h3_fl2va_pruned_int8_convrot.safetensors']
+[INFO] Requested to load MiniMaxH3
+[INFO] loaded completely; 24835.51 MB usable, 19996.14 MB loaded, full load: True
+100%|████████████████████████████████████████████████████████████████████████████████████| 4/4 [01:57<00:00, 29.40s/it]
+[INFO] Requested to load MiniMaxH3AudioVAE
+[INFO] loaded completely; 10441.74 MB usable, 577.08 MB loaded, full load: True
+[INFO] Requested to load MiniMaxH3VideoVAE
+[INFO] loaded completely; 9861.63 MB usable, 4966.19 MB loaded, full load: True
+[INFO] Prompt executed in 384.69 seconds
+[INFO] Seeder start (roots=('output',), phase=full)
+[INFO] [assets-event] seeder.scan_started phase=full root=output
+[INFO] Asset scan [output] directories: ['D:\\ComfyUI_windows_portable\\ComfyUI\\output']
+[INFO] Fast scan complete: 0.003s total (created=0, skipped=4, total_paths=5)
+[INFO] Scan(('output',), full) done 0.006s: created=0 enriched=0 skipped=4
+[INFO] [assets-event] seeder.scan_completed cpu_ms=0 created=0 dirs_listed_count=2 elapsed_ms=6 enrich_failed=0 enriched=0 files_statted_count=1 hash_failed=0 missing_marked_count=0 paused_ms=0 permission_denied=0 phase=full recovered_count=0 root=output skipped=4
+[INFO] got prompt
+[INFO] Requested to load MiniMaxH3TEModel_
+[INFO] Unloaded partially: 18819.71 MB freed, 1176.47 MB remains loaded, 735.11 MB buffer reserved, lowvram patches: 202
+[INFO] loaded completely; 29281.35 MB usable, 25883.83 MB loaded, full load: True
+[INFO] Requested to load MiniMaxH3VideoVAE
+[INFO] Unloaded partially: 1077.01 MB freed, 24806.82 MB remains loaded, 28.40 MB buffer reserved, lowvram patches: 0
+[INFO] loaded completely; 5500.76 MB usable, 4966.19 MB loaded, full load: True
+[INFO] Requested to load MiniMaxH3
+[INFO] loaded completely; 24835.39 MB usable, 19996.14 MB loaded, full load: True
+100%|████████████████████████████████████████████████████████████████████████████████████| 4/4 [01:57<00:00, 29.34s/it]
+[INFO] Requested to load MiniMaxH3AudioVAE
+[INFO] loaded completely; 10441.74 MB usable, 577.08 MB loaded, full load: True
+[INFO] Requested to load MiniMaxH3VideoVAE
+[INFO] loaded completely; 9861.63 MB usable, 4966.19 MB loaded, full load: True
+[INFO] Prompt executed in 204.65 seconds
+[INFO] Seeder start (roots=('output',), phase=full)
+[INFO] [assets-event] seeder.scan_started phase=full root=output
+[INFO] Asset scan [output] directories: ['D:\\ComfyUI_windows_portable\\ComfyUI\\output']
+[INFO] Fast scan complete: 0.002s total (created=0, skipped=5, total_paths=6)
+[INFO] Scan(('output',), full) done 0.003s: created=0 enriched=0 skipped=5
+[INFO] [assets-event] seeder.scan_completed cpu_ms=0 created=0 dirs_listed_count=2 elapsed_ms=3 enrich_failed=0 enriched=0 files_statted_count=1 hash_failed=0 missing_marked_count=0 paused_ms=0 permission_denied=0 phase=full recovered_count=0 root=output skipped=5
