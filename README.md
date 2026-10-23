@@ -121,7 +121,7 @@ Intel llm-scaler-omni 官方套件的独立 fork，为 **Arc A770 / DG2** 补齐
 
 作者：[@Blackwood416](https://github.com/Blackwood416)
 
-Tag: fork,社群,指定卡
+Tag: fork,社群,dg2
 
 ---
 
@@ -138,7 +138,7 @@ Intel llm-scaler 中 omni_xpu_kernel 的独立 fork，为 **DG2（A770）** 增�
 
 作者：[@Blackwood416](https://github.com/Blackwood416)
 
-Tag: fork,社群,指定卡
+Tag: fork,社群,dg2
 
 ---
 
@@ -177,7 +177,7 @@ LLM Scaler Omni 为生成式媒体（多媒体）工作负载提供Intel XPU 镜
 
 作者：[@xiangyuT](https://github.com/xiangyuT)
 
-Tag: 官方
+Tag: 官方,bmg
 
 ---
 
@@ -192,7 +192,7 @@ AI 模型动态卸载器 (AI Model Dynamic Offloader)该项目是一款 PyTorch 
 
 作者：[@xiangyuT](https://github.com/xiangyuT)
 
-Tag: fork,官方
+Tag: fork,官方,bmg
 
 ---
 
@@ -216,7 +216,7 @@ Intel XPU 集成适用于 Comfy-Org/comfy-kitchen，并由可选的 omni_xpu_ker
 
 作者：[@xiangyuT](https://github.com/xiangyuT)
 
-Tag: fork,官方
+Tag: fork,官方,bmg
 
 ---
 
@@ -229,5 +229,17 @@ ai-toolkit-xpu 是 ostris/ai-toolkit 的 Intel Arc XPU 适配版，让这套开�
 作者：[@JWLHS](https://github.com/JWLHS)
 
 Tag: fork,社群
+
+---
+
+## comfy-aimdo-xpu
+
+ai-toolkit-xpu 是 ostris/ai-toolkit 的 Intel Arc XPU 适配版，让这套开源扩散模型训练套件在 Arc 独显上直接可用——支持 FLUX、Qwen-Image、Krea 2、SDXL、Wan、LTX-2 等全系图像与视频模型，可训 LoRA / LoKr。核心是 5 个 XPU 补丁加全模型 fp64 修复，无需 oneAPI 编译器。A770 上开启可选 xpu_int8 后端，Krea 2 训练提速约 2.25 倍（24.97 → 11.11 s/it），未装或架构不符会自动回退，训练不会失败。另配一键脚本、中文 Web UI 与全自动资源监控。
+
+项目地址：https://github.com/Blackwood416/comfy-aimdo-xpu
+
+作者：[@Blackwood416](https://github.com/Blackwood416)
+
+Tag: fork,社群,dg2
 
 ---
