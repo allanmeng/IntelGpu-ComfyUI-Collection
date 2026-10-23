@@ -145,16 +145,27 @@ def nav_html(active):
 
 
 def badge_html(tags):
+    """Tag → 徽章。
+
+    dg2 / bmg 属同一类「指定卡（特定架构）」标签，沿用原 badge-card 浅红样式。
+    注意：此处**不可**用 `if t in cls` 过滤——曾因过滤导致 README 里的 dg2/bmg
+    徽章被静默丢弃（2026-10-23 修复）。未知标签改为按默认样式渲染并打 warn。
+    """
     cls = {
         "官方": "badge-official",
         "社群": "badge-community",
         "fork": "badge-fork",
-        "指定卡": "badge-card",
+        "dg2": "badge-card",   # A 系列 / DG2
+        "bmg": "badge-card",   # B 系列 / Battlemage
+        "指定卡": "badge-card",  # 旧写法，保留兼容
     }
-    return "".join(
-        '<span class="badge %s">%s</span>' % (cls.get(t, "badge-fork"), t)
-        for t in tags if t in cls
-    )
+    out = []
+    for t in tags:
+        if t not in cls:
+            print("[warn] 未登记的 Tag：%r（已按默认样式渲染，建议补进 badge_html 映射）" % t,
+                  file=sys.stderr)
+        out.append('<span class="badge %s">%s</span>' % (cls.get(t, "badge-fork"), t))
+    return "".join(out)
 
 
 # ---------------------------------------------------------------------------
