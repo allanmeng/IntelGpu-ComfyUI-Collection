@@ -27,6 +27,7 @@ import html as _html
 import json
 import os
 import re
+import subprocess
 import sys
 import time
 import urllib.parse
@@ -1502,6 +1503,7 @@ _RE_LOAD = re.compile(r"Requested to load ([A-Za-z0-9_]+)")
 _RE_LPATH = re.compile(r"[A-Za-z]:\\\\[^\s'\"\],)]*")
 
 _RE_DATE = re.compile(r"^(20\d{6})$")
+_RE_DATE_TIME = re.compile(r"^(20\d{6})-(\d{2})(\d{2})$")
 _RE_VRAM = re.compile(r"^\d+\s?G(?:B)?$", re.I)
 _RE_CARD = re.compile(r"^(?:A|B)\d{2,4}$", re.I)
 _RE_PRECISION = re.compile(r"^(?:int|fp|bf|nf|w)\d+[a-z0-9_]*$", re.I)
@@ -1543,7 +1545,8 @@ def _logs_expand_parts(parts):
     """
     out = []
     for p in parts:
-        if _RE_CARD.match(p) or _RE_VRAM.match(p) or _RE_PRECISION.match(p) or _RE_DATE.match(p):
+        if (_RE_CARD.match(p) or _RE_VRAM.match(p) or _RE_PRECISION.match(p)
+                or _RE_DATE.match(p) or _RE_DATE_TIME.match(p)):
             out.append(p)
             continue
         toks = p.split("-")
@@ -1558,15 +1561,20 @@ def _logs_parse_name(stem):
     """文件名 → 对比轴。字段位置不限，靠内容识别；识别不了的片段拼回工作流名。
 
     已支持的写法：
-      新规范  20261026_Krea2Edit_omnixpu加速_B70_64G_冷启+热启
-      旧写法  omnixpu加速_Krea2Edit_B70_64G_冷启+热启   （字段顺序任意）
+      推荐    20261026-2157_Krea2Edit_omnixpu加速_B70_64G_冷启+热启   （带时刻）
+      新规范  20261026_Krea2Edit_omnixpu加速_B70_64G_冷启+热启        （无时刻）
+      旧写法  omnixpu加速_Krea2Edit_B70_64G_冷启+热启                 （字段顺序任意）
     下划线会切断 h3_FL2VA 这类名字，因此识别不了的片段用 _ 拼回，而不是丢弃。
     """
-    meta = {"date": "", "workflow": "", "scheme": "", "card": "", "vram": "",
-            "precision": "", "test": ""}
+    meta = {"date": "", "time": "", "workflow": "", "scheme": "", "card": "",
+            "vram": "", "precision": "", "test": ""}
     leftovers = []
     for part in _logs_expand_parts([p for p in stem.split("_") if p]):
-        if not meta["date"] and _RE_DATE.match(part):
+        dtm = _RE_DATE_TIME.match(part)
+        if not meta["date"] and dtm:
+            meta["date"] = dtm.group(1)
+            meta["time"] = "%s:%s" % (dtm.group(2), dtm.group(3))
+        elif not meta["date"] and _RE_DATE.match(part):
             meta["date"] = part
         elif not meta["vram"] and _RE_VRAM.match(part):
             meta["vram"] = part.upper().replace(" ", "")
@@ -1690,26 +1698,49 @@ def _logs_fmt_date(d):
     return d
 
 
-def _logs_when(path, name_date):
-    """日期 + 时间 + 排序依据。
+def _logs_git_added_at(rel_path):
+    """文件首次入库时间 → ("YYYYMMDD", "HH:MM")；取不到返回空串对。
 
-    ComfyUI 日志正文不带时间戳（已确认），时间只能取文件修改时间。
-    日期优先用文件名里的 YYYYMMDD（= 实际运行日，跨机器可复现），文件名没有才退回 mtime。
-
-    ⚠️ mtime 的可复现性防护：CI 的 actions/checkout 会把所有文件 mtime 重置为克隆时刻，
-    那时刻不是运行时刻。因此当 mtime 的北京日期与文件名日期不一致时，时间留空，
-    宁可少一个字段也不写错的时间。
+    用 --follow + --diff-filter=A 穿透 git mv 的重命名，拿到最初入库那个 commit。
+    ⚠️ CI 里 actions/checkout 默认 fetch-depth: 1 只有一条提交，查不到历史 →
+       logs-page.yml 必须显式写 fetch-depth: 0，否则这里永远返回空。
     """
     try:
-        st = os.stat(path)
-    except OSError:
-        return name_date, "", 0.0
-    raw = st.st_mtime
-    moment = datetime.fromtimestamp(raw, TZ_CN)
-    mdate = "%04d%02d%02d" % (moment.year, moment.month, moment.day)
-    date = name_date or mdate
-    time_str = moment.strftime("%H:%M") if date == mdate else ""
-    return date, time_str, raw
+        proc = subprocess.run(
+            ["git", "log", "--follow", "--diff-filter=A", "--format=%aI", "--", rel_path],
+            cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+            universal_newlines=True, timeout=20)
+    except Exception:  # noqa: BLE001  git 缺失 / 超时 / 非仓库
+        return "", ""
+    if proc.returncode != 0:
+        return "", ""
+    lines = [x.strip() for x in (proc.stdout or "").splitlines() if x.strip()]
+    if not lines:
+        return "", ""
+    iso = lines[-1]                      # 最早一条 = 首次入库
+    if len(iso) < 16:
+        return "", ""
+    return iso[0:4] + iso[5:7] + iso[8:10], iso[11:16]
+
+
+def _logs_when(path, name_date, name_time=""):
+    """日期 + 时刻。**完全不使用文件 mtime。**
+
+    优先级：
+      1) 文件名里的 -HHMM   推荐写法，跨机器 / CI 完全一致
+      2) git 首次入库时间    自动兜底，零人工维护
+
+    mtime 弃用实证（2026-10-26）：四份 20261023 日志的 mtime 是
+    20:27:54.603 / .604 / .605 / .606 —— 毫秒级连续，那是批量拷贝/解压的时刻，
+    不是运行时刻；CI 的 checkout 还会把它重置成检出时刻。两个来源都不可信。
+    """
+    rel = os.path.relpath(path, ROOT).replace(os.sep, "/")
+    if name_date:
+        if name_time:
+            return name_date, name_time, "name"
+        return name_date, _logs_git_added_at(rel)[1], "git"
+    gdate, gtime = _logs_git_added_at(rel)
+    return gdate, gtime, "git"
 
 
 def _logs_analyze(path):
@@ -1734,7 +1765,7 @@ def _logs_analyze(path):
 
     fname = os.path.basename(path)
     entry = _logs_parse_name(os.path.splitext(fname)[0])
-    date, time_str, mtime = _logs_when(path, entry["date"])
+    date, time_str, time_src = _logs_when(path, entry["date"], entry.get("time", ""))
     entry.update({
         "file": fname,
         "runs": runs,
@@ -1744,7 +1775,7 @@ def _logs_analyze(path):
         "date": date,
         "date_display": _logs_fmt_date(date),
         "time": time_str,
-        "mtime": mtime,
+        "time_source": time_src,
     })
     entry["slug"] = ""
     entry["title"] = " / ".join(
@@ -1764,14 +1795,25 @@ def _logs_collect(logs_dir):
         path = os.path.join(logs_dir, fname)
         if os.path.isfile(path) and fname.lower().endswith(".txt"):
             entries.append(_logs_analyze(path))
-    entries.sort(key=lambda e: (e["date"], e["time"], e["workflow"], e["scheme"]), reverse=True)
+    # 日期 → 时刻 → 工作流/方案。时刻缺失的用 "00:00"，倒序时落到该日期末尾。
+    entries.sort(key=lambda e: (e["date"], e["time"] or "00:00",
+                                e["workflow"], e["scheme"]), reverse=True)
     return entries
 
 
 def _logs_uniq_slug(entries):
+    """详情页文件名。**只有时刻来自文件名时才把时刻拼进去。**
+
+    理由：文件名里的时刻是稳定的（跟着文件走），拼进 slug 后同一天跑两次同组合也不会撞名；
+    而 git 兜底时刻会随重命名/历史变化而漂移，若拼进 slug 会让已发布的 URL 失效、
+    并在 logs/ 里留下孤儿文件。存量日志因此保持原有 slug 不变。
+    """
     seen = {}
     for e in entries:
-        base = "-".join(x for x in [e["date"], e["workflow"], e["scheme"],
+        date_part = e["date"]
+        if date_part and e.get("time") and e.get("time_source") == "name":
+            date_part = "%s-%s" % (date_part, e["time"].replace(":", ""))
+        base = "-".join(x for x in [date_part, e["workflow"], e["scheme"],
                                     e["card"], e["vram"]] if x)
         base = re.sub(r"[^0-9A-Za-z\u4e00-\u9fa5._-]+", "-", base).strip("-.") or "log"
         n = seen.get(base, 0) + 1
@@ -1928,6 +1970,7 @@ LOGS_CSS = """  :root {
     text-align: left; font-weight: 600; color: var(--text-muted); font-size: 12px;
     padding: 6px 10px; border-bottom: 1px solid var(--border);
   }
+  table.mx th.mx-num { text-align: right; }
   table.mx td { padding: 7px 10px; border-bottom: 1px solid #eef0f2; }
   table.mx tr:last-child td { border-bottom: none; }
   table.mx a { color: var(--intel-blue); text-decoration: none; }
@@ -2040,7 +2083,7 @@ __NAV__
   </header>
 
   <div class="sort-banner">
-    <span class="dot"></span>按时间倒排（新 → 旧） · 指标由脚本从原始日志正则抽取 · 日期取文件名、时刻取文件修改时间 · 点击日志进入全文
+    <span class="dot"></span>按日期与时刻倒排（新 → 旧） · 指标由脚本从原始日志正则抽取 · 日期与时刻取自文件名（<code>YYYYMMDD-HHMM</code>），未标时刻时回退到首次入库时间 · 点击日志进入全文
   </div>
 
   <h2 class="sec-title">全部日志</h2>
@@ -2163,8 +2206,9 @@ def _logs_detail(e):
             '    <div class="mx-block">\n'
             '      <div class="mx-wrap">\n'
             '        <table class="mx">\n'
-            '          <thead><tr><th>阶段</th><th>耗时</th><th>步数</th><th>s/it</th>'
-            '<th>staged MB</th><th>其他指标</th></tr></thead>\n'
+            '          <thead><tr><th>阶段</th><th class="mx-num">耗时</th>'
+            '<th class="mx-num">步数</th><th class="mx-num">s/it</th>'
+            '<th class="mx-num">staged MB</th><th>其他指标</th></tr></thead>\n'
             '          <tbody>\n%s\n'
             '          </tbody>\n'
             '        </table>\n'

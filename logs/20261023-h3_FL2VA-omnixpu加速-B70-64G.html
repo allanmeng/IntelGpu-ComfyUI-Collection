@@ -46,6 +46,7 @@
     text-align: left; font-weight: 600; color: var(--text-muted); font-size: 12px;
     padding: 6px 10px; border-bottom: 1px solid var(--border);
   }
+  table.mx th.mx-num { text-align: right; }
   table.mx td { padding: 7px 10px; border-bottom: 1px solid #eef0f2; }
   table.mx tr:last-child td { border-bottom: none; }
   table.mx a { color: var(--intel-blue); text-decoration: none; }
@@ -141,7 +142,7 @@
 
   <header>
     <h1>IntelGpu-ComfyUI-Collection</h1>
-    <p class="note">20261023_h3_FL2VA_omnixpu加速_B70_64G_冷启+热启.txt · 2026-10-23</p>
+    <p class="note">20261023_h3_FL2VA_omnixpu加速_B70_64G_冷启+热启.txt · 2026-10-23 02:52</p>
     <div class="chips">
       <a class="chip" href="../index.html">项目收集</a>
       <a class="chip" href="../links.html">组件下载</a>
@@ -167,7 +168,7 @@
     <div class="mx-block">
       <div class="mx-wrap">
         <table class="mx">
-          <thead><tr><th>阶段</th><th>耗时</th><th>步数</th><th>s/it</th><th>staged MB</th><th>其他指标</th></tr></thead>
+          <thead><tr><th>阶段</th><th class="mx-num">耗时</th><th class="mx-num">步数</th><th class="mx-num">s/it</th><th class="mx-num">staged MB</th><th>其他指标</th></tr></thead>
           <tbody>
           <tr><td>冷启</td><td class="mx-num">211.47 s</td><td class="mx-num">4</td><td class="mx-num">27.23</td><td class="mx-num">25,882</td><td><span class="pill pill-attn">CUTE_BHLD_D128 ×3</span><span class="pill pill-attn">CUTE_H3_VAE_D64 ×3</span></td></tr>
           <tr><td>热启</td><td class="mx-num">182.45 s</td><td class="mx-num">4</td><td class="mx-num">27.64</td><td class="mx-num">25,882</td><td>—</td></tr>

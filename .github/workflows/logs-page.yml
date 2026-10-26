@@ -16,6 +16,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # 必须全量历史：脚本用 git log --follow 取文件首次入库时间作为时刻兜底，
+          # 默认 fetch-depth: 1 只有一条提交，查不到 → 时刻会全部退化为空。
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:

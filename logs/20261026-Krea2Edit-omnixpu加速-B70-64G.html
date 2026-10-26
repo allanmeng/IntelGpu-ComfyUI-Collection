@@ -46,6 +46,7 @@
     text-align: left; font-weight: 600; color: var(--text-muted); font-size: 12px;
     padding: 6px 10px; border-bottom: 1px solid var(--border);
   }
+  table.mx th.mx-num { text-align: right; }
   table.mx td { padding: 7px 10px; border-bottom: 1px solid #eef0f2; }
   table.mx tr:last-child td { border-bottom: none; }
   table.mx a { color: var(--intel-blue); text-decoration: none; }
@@ -168,7 +169,7 @@
     <div class="mx-block">
       <div class="mx-wrap">
         <table class="mx">
-          <thead><tr><th>阶段</th><th>耗时</th><th>步数</th><th>s/it</th><th>staged MB</th><th>其他指标</th></tr></thead>
+          <thead><tr><th>阶段</th><th class="mx-num">耗时</th><th class="mx-num">步数</th><th class="mx-num">s/it</th><th class="mx-num">staged MB</th><th>其他指标</th></tr></thead>
           <tbody>
           <tr><td>冷启</td><td class="mx-num">115.97 s</td><td class="mx-num">8</td><td class="mx-num">2.05</td><td class="mx-num">12,864</td><td><span class="pill"><b>0.1</b> MB freed</span><span class="pill pill-attn">fallback ×5</span><span class="pill pill-attn">CUTE ×3</span></td></tr>
           <tr><td>热启</td><td class="mx-num">36.96 s</td><td class="mx-num">8</td><td class="mx-num">1.79</td><td class="mx-num">12,864</td><td><span class="pill"><b>0.1</b> MB freed</span></td></tr>
