@@ -6,23 +6,30 @@
 - links.html                <- links.md                 (源顺序)
 - cloud_drive_collection.html <- cloud_drive_collection.md (## box + ### 子节)
 - comfyui_opt.html          <- comfyui_opt.md           (## box + 【】链接行)
+- logs.html + logs/*.html   <- log-analysis/ 原始日志    (指标抽取 + 时间倒排列表)
 - group.html                <- 静态
 
-每页的解析/渲染函数独立私有（_index_*/_links_*/_cloud_*/_opt_*）；
-每页的 HTML 模板完全独立（INDEX_HTML / LINKS_HTML / CLOUD_HTML / OPT_HTML / GROUP_HTML），
+每页的解析/渲染函数独立私有（_index_*/_links_*/_cloud_*/_opt_*/_logs_*）；
+每页的 HTML 模板完全独立（INDEX_HTML / LINKS_HTML / CLOUD_HTML / OPT_HTML / LOGS_INDEX_HTML / GROUP_HTML），
 调整某页的结构不影响其他页的生成。共享仅限纯工具
 （正则、split_sections、URL 提取、nav_html/badge_html）。
+
+log-analysis/ 只读：脚本从原始 .txt 抽指标，不写任何中间文件进去。
 
 Usage:
   python generate_pages.py --index [--token GH_TOKEN] [--out-dir DIR]
   python generate_pages.py --links [--out-dir DIR]
-  python generate_pages.py --index --links --cloud-drive --opt --group
+  python generate_pages.py --logs [--out-dir DIR]
+  python generate_pages.py --index --links --cloud-drive --opt --logs --group
 """
 import argparse
+import html as _html
 import json
 import os
 import re
 import sys
+import time
+import urllib.parse
 import urllib.request
 from datetime import datetime, timedelta, timezone
 
@@ -37,8 +44,12 @@ URL_RE = re.compile(r"https?://[^\s)\]]+")
 MD_LINK_RE = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
 
 
-def fetch_repo_updated(repo, path, token):
-    """Last default-branch commit time for a repo, optionally restricted to a path."""
+def fetch_repo_updated(repo, path, token, retries=3):
+    """Last default-branch commit time for a repo, optionally restricted to a path.
+
+    失败会短暂退避重试：网络抖动（如 SSL EOF）单次失败就丢更新时间，
+    会让 index 卡片的倒序排列整体错乱。
+    """
     url = "https://api.github.com/repos/%s/commits?per_page=1" % repo
     if path:
         url += "&path=%s" % path
@@ -46,16 +57,21 @@ def fetch_repo_updated(repo, path, token):
     if token:
         headers["Authorization"] = "Bearer %s" % token
     req = urllib.request.Request(url, headers=headers)
-    try:
-        with urllib.request.urlopen(req, timeout=20) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-            if data and "commit" in data[0]:
-                return data[0]["commit"]["committer"]["date"] or ""
-            return ""
-    except Exception as exc:  # noqa: BLE001
-        print("[warn] API query failed for %s%s: %s"
-              % (repo, ("/" + path) if path else "", exc), file=sys.stderr)
-        return ""
+    last_exc = None
+    for attempt in range(retries):
+        try:
+            with urllib.request.urlopen(req, timeout=20) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                if data and "commit" in data[0]:
+                    return data[0]["commit"]["committer"]["date"] or ""
+                return ""
+        except Exception as exc:  # noqa: BLE001
+            last_exc = exc
+            if attempt + 1 < retries:
+                time.sleep(1.5 * (attempt + 1))
+    print("[warn] API query failed for %s%s: %s"
+          % (repo, ("/" + path) if path else "", last_exc), file=sys.stderr)
+    return ""
 
 
 def fmt_cn(iso):
@@ -122,6 +138,7 @@ NAV_TABS = [
     ("links.html", "组件下载"),
     ("cloud_drive_collection.html", "资源聚合"),
     ("comfyui_opt.html", "工作台优化"),
+    ("logs.html", "执行日志"),
     ("group.html", "互助社群"),
 ]
 
@@ -131,14 +148,18 @@ EXTERNAL_NAV = [
 ]
 
 
-def nav_html(active):
-    """Chips navigation, 'active' highlighted; 站内 tab + 站外链接（新标签页）。"""
+def nav_html(active, prefix=""):
+    """Chips navigation, 'active' highlighted; 站内 tab + 站外链接（新标签页）。
+
+    prefix：子目录页面（如 logs/<slug>.html）传 "../"，使相对链接回到站根。
+    默认空串，站根页面输出与历史版本逐字节一致。
+    """
     out = []
     for href, label in NAV_TABS:
         if href == active:
             out.append('      <span class="chip chip-active">%s</span>' % label)
         else:
-            out.append('      <a class="chip" href="%s">%s</a>' % (href, label))
+            out.append('      <a class="chip" href="%s%s">%s</a>' % (prefix, href, label))
     for label, url in EXTERNAL_NAV:
         out.append('      <a class="chip" href="%s" target="_blank" rel="noopener">%s ↗</a>' % (url, label))
     return "\n".join(out)
@@ -1454,8 +1475,754 @@ def build_group():
 
 
 # ---------------------------------------------------------------------------
+# logs.html + logs/<slug>.html —— 执行日志库独立规则 + 独立模板
+#
+# 设计要点（2026-10-26 Allan 定）：
+# - 原始日志本体留在 log-analysis/，本模块只读不写，不生成任何中间文件；
+# - 页面产物 = 站根 logs.html（汇总矩阵 + 索引）+ logs/<slug>.html（单份详情）；
+# - 指标全部从日志正文正则抽取，不依赖人工标注；文件名仅提供对比轴（工作流/方案/卡/显存）；
+# - 本地绝对路径在**渲染时**脱敏，原始 txt 保持原样。
+# ---------------------------------------------------------------------------
+
+LOGS_DIRNAME = "log-analysis"
+
+# 日志格式固定，指标用正则直取（不引第三方解析器）
+_RE_PROMPT_SPLIT = re.compile(r"^\[INFO\] got prompt\s*$", re.M)
+_RE_EXEC = re.compile(r"Prompt executed in ([\d.]+) seconds")
+_RE_PROGRESS = re.compile(r"(\d+)/(\d+) \[[\d:]+<[\d:]+,?\s*([\d.]+)s/it\]")
+_RE_STAGED = re.compile(r"prepared for dynamic VRAM loading\.\s*(\d+)MB Staged")
+_RE_VRAM_FREE = re.compile(r"VRAMdebug: freed memory:\s*([\d,]+)")
+_RE_ATTN = re.compile(r"attention (CUTE(?:_[A-Za-z0-9_]+)?|fallback)")
+_RE_QUANT = re.compile(r"Native ops:\s*(.*?)\s*,\s*emulated ops:\s*(.*)")
+# 模型清单：原生日志打印 storage policy 真实路径；OmniXPU 路径不打印，退化为类名
+_RE_MODEL_POLICY = re.compile(r"Model storage policy:[^\n]*?paths=\[([^\]]*)\]")
+_RE_QUOTED = re.compile(r"'([^']+)'")
+_RE_LOAD = re.compile(r"Requested to load ([A-Za-z0-9_]+)")
+# 形如 D:\\ComfyUI-intel-aki-v1.1\\ComfyUI\\models\\vae\\x.safetensors（日志内为字面双反斜杠）
+_RE_LPATH = re.compile(r"[A-Za-z]:\\\\[^\s'\"\],)]*")
+
+_RE_DATE = re.compile(r"^(20\d{6})$")
+_RE_VRAM = re.compile(r"^\d+\s?G(?:B)?$", re.I)
+_RE_CARD = re.compile(r"^(?:A|B)\d{2,4}$", re.I)
+_RE_PRECISION = re.compile(r"^(?:int|fp|bf|nf|w)\d+[a-z0-9_]*$", re.I)
+
+_LOGS_SCHEME_HINTS = ("omnixpu", "pytorch", "torch", "原生", "加速", "aimdo")
+_LOGS_TEST_HINTS = ("冷启", "热启", "首跑", "实测", "对比")
+
+
+def _esc(v):
+    """HTML 文本转义（日志正文含 < > & 等字符）。"""
+    return _html.escape("" if v is None else str(v), quote=True)
+
+
+
+def _logs_sanitize(text):
+    """把 Windows 绝对路径收敛成 <ComfyUI>/... —— 仅在渲染阶段做，源文件不动。
+
+    模型不一定放在 ComfyUI 目录树里（实测存在 E:\\model\\xxx.safetensors 这种外部
+    模型目录），这类路径退化成 <本地路径>/<文件名>：目录结构隐藏，文件名保留，
+    否则日志正文里连加载的是哪个模型都看不出来。
+    """
+    def _repl(m):
+        raw = m.group(0).replace("\\\\", "\\")
+        idx = raw.lower().find("\\comfyui\\")
+        if idx >= 0:
+            return "<ComfyUI>/" + raw[idx + len("\\comfyui\\"):].replace("\\", "/")
+        base = raw.replace("\\", "/").rstrip("/").rsplit("/", 1)[-1]
+        if base and "." in base:
+            return "<本地路径>/" + base
+        return "<本地路径>"
+    return _RE_LPATH.sub(_repl, text)
+
+
+def _logs_expand_parts(parts):
+    """拆开 h3_FL2VA-B70 这类「工作流-卡」粘连段。
+
+    仅当段内 token 命中强模式（显卡/显存/精度/日期）时才拆，
+    且只用强模式 token 判断，避免把 comfy-aimdo-xpu 这类工作流名误拆。
+    """
+    out = []
+    for p in parts:
+        if _RE_CARD.match(p) or _RE_VRAM.match(p) or _RE_PRECISION.match(p) or _RE_DATE.match(p):
+            out.append(p)
+            continue
+        toks = p.split("-")
+        if len(toks) > 1 and any(_RE_CARD.match(t) or _RE_VRAM.match(t) for t in toks):
+            out.extend(t for t in toks if t)
+        else:
+            out.append(p)
+    return out
+
+
+def _logs_parse_name(stem):
+    """文件名 → 对比轴。字段位置不限，靠内容识别；识别不了的片段拼回工作流名。
+
+    已支持的写法：
+      新规范  20261026_Krea2Edit_omnixpu加速_B70_64G_冷启+热启
+      旧写法  omnixpu加速_Krea2Edit_B70_64G_冷启+热启   （字段顺序任意）
+    下划线会切断 h3_FL2VA 这类名字，因此识别不了的片段用 _ 拼回，而不是丢弃。
+    """
+    meta = {"date": "", "workflow": "", "scheme": "", "card": "", "vram": "",
+            "precision": "", "test": ""}
+    leftovers = []
+    for part in _logs_expand_parts([p for p in stem.split("_") if p]):
+        if not meta["date"] and _RE_DATE.match(part):
+            meta["date"] = part
+        elif not meta["vram"] and _RE_VRAM.match(part):
+            meta["vram"] = part.upper().replace(" ", "")
+        elif not meta["card"] and _RE_CARD.match(part):
+            meta["card"] = part.upper()
+        elif not meta["precision"] and _RE_PRECISION.match(part):
+            meta["precision"] = part.lower()
+        elif not meta["test"] and any(h in part for h in _LOGS_TEST_HINTS):
+            meta["test"] = part
+        elif not meta["scheme"] and any(h in part.lower() for h in _LOGS_SCHEME_HINTS):
+            meta["scheme"] = part
+        else:
+            leftovers.append(part)
+    meta["workflow"] = "_".join(leftovers)
+    return meta
+
+
+def _logs_scan_segment(seg):
+    """单次执行（两次 got prompt 之间）→ 指标。"""
+    seconds = None
+    m = _RE_EXEC.search(seg)
+    if m:
+        seconds = float(m.group(1))
+
+    steps = sec_per_it = None
+    prog = _RE_PROGRESS.findall(seg)
+    if prog:
+        _, steps, sec_per_it = prog[-1]
+        steps, sec_per_it = int(steps), float(sec_per_it)
+
+    staged = [int(x) for x in _RE_STAGED.findall(seg)]
+    freed = [int(x.replace(",", "")) for x in _RE_VRAM_FREE.findall(seg)]
+
+    attn = {}
+    for name in _RE_ATTN.findall(seg):
+        attn[name] = attn.get(name, 0) + 1
+
+    native = emulated = ""
+    m = _RE_QUANT.search(seg)
+    if m:
+        native = " ".join(m.group(1).split())
+        emulated = " ".join(m.group(2).split())
+
+    return {
+        "seconds": seconds,
+        "steps": steps,
+        "sec_per_it": sec_per_it,
+        "staged_mb": max(staged) if staged else None,
+        "freed_mb": round(sum(freed) / 1048576.0, 1) if freed else None,
+        "attn": attn,
+        "native_ops": native,
+        "emulated_ops": emulated,
+    }
+
+
+def _logs_model_role(path_lower):
+    """按模型目录判定角色（路径已统一成反斜杠小写）。
+
+    ⚠️ 底模不一定放在 models\\diffusion_models\\ 下：实测 20261026 那份日志的
+    `Model storage policy` 打印的是 E:\\model\\krea2_turbo_int8_convrot.safetensors
+    （模型放在 ComfyUI 目录树之外、目录是单数 model），只认 diffusion_model / unet
+    会把底模判成空角色并整行丢掉。
+    """
+    if "lora" in path_lower:
+        return "lora"
+    if "text_encoder" in path_lower or "clip" in path_lower:
+        return "te"
+    if "vae" in path_lower:
+        return "vae"
+    if ("diffusion_model" in path_lower or "unet" in path_lower
+            or "checkpoint" in path_lower or "\\model\\" in path_lower):
+        return "base"
+    return ""
+
+
+def _logs_model_role_class(name):
+    """模型类名 → 角色。OmniXPU 日志只有类名，靠命名约定归类。"""
+    n = name.lower()
+    if "vae" in n:
+        return "vae"
+    if "temodel" in n or "clip" in n:
+        return "te"
+    return "base"
+
+
+def _logs_extract_models(text):
+    """底模 / TE / VAE / LoRA 清单。
+
+    优先 Model storage policy 里的真实文件名（只有 pytorch 原生日志打印这一行）；
+    OmniXPU 日志不打印，退化为 Requested to load 的模型类名——精度较低但不留空。
+    LoRA 在两种日志里都不出现文件名，取不到就留空、页面不显示该行。
+
+    兜底按「角色」逐个补而不是按「整份日志」补：只要某个角色没取到文件名就用类名顶上，
+    避免因为某个目录没认出来导致整行（例如底模）从卡片上消失。
+    """
+    out = {"base": [], "te": [], "vae": [], "lora": [], "from_file": False}
+    for paths in _RE_MODEL_POLICY.findall(text):
+        for raw in _RE_QUOTED.findall(paths):
+            p = raw.replace("\\\\", "\\")
+            role = _logs_model_role(p.replace("/", "\\").lower())
+            if not role:
+                continue
+            name = re.split(r"[\\/]", p)[-1]
+            if name not in out[role]:
+                out[role].append(name)
+                out["from_file"] = True
+    missing = [k for k in ("base", "te", "vae") if not out[k]]
+    if missing:
+        for cls in sorted(set(_RE_LOAD.findall(text))):
+            role = _logs_model_role_class(cls)
+            if role in missing and cls not in out[role]:
+                out[role].append(cls)
+    return out
+
+
+def _logs_fmt_date(d):
+    """20261026 -> 2026-10-26；识别不了就原样返回。"""
+    d = d or ""
+    if re.fullmatch(r"20\d{6}", d):
+        return "%s-%s-%s" % (d[:4], d[4:6], d[6:])
+    return d
+
+
+def _logs_when(path, name_date):
+    """日期 + 时间 + 排序依据。
+
+    ComfyUI 日志正文不带时间戳（已确认），时间只能取文件修改时间。
+    日期优先用文件名里的 YYYYMMDD（= 实际运行日，跨机器可复现），文件名没有才退回 mtime。
+
+    ⚠️ mtime 的可复现性防护：CI 的 actions/checkout 会把所有文件 mtime 重置为克隆时刻，
+    那时刻不是运行时刻。因此当 mtime 的北京日期与文件名日期不一致时，时间留空，
+    宁可少一个字段也不写错的时间。
+    """
+    try:
+        st = os.stat(path)
+    except OSError:
+        return name_date, "", 0.0
+    raw = st.st_mtime
+    moment = datetime.fromtimestamp(raw, TZ_CN)
+    mdate = "%04d%02d%02d" % (moment.year, moment.month, moment.day)
+    date = name_date or mdate
+    time_str = moment.strftime("%H:%M") if date == mdate else ""
+    return date, time_str, raw
+
+
+def _logs_analyze(path):
+    """读一份日志 → 条目（含逐次执行指标 + 脱敏全文）。"""
+    with open(path, encoding="utf-8", errors="replace") as f:
+        text = f.read()
+
+    body = _logs_sanitize(text)
+    segs = _RE_PROMPT_SPLIT.split(text)
+    if _RE_PROMPT_SPLIT.search(text):
+        # split 产生的首段是首个 got prompt 之前的内容（启动日志），丢弃后配对
+        segs = segs[1:]
+    else:
+        segs = [text]
+
+    runs = []
+    for i, seg in enumerate(segs):
+        st = _logs_scan_segment(seg)
+        st["label"] = "冷启" if i == 0 else "热启"
+        runs.append(st)
+    runs = [r for r in runs if r["seconds"] is not None]
+
+    fname = os.path.basename(path)
+    entry = _logs_parse_name(os.path.splitext(fname)[0])
+    date, time_str, mtime = _logs_when(path, entry["date"])
+    entry.update({
+        "file": fname,
+        "runs": runs,
+        "body": body,
+        "size": len(text.encode("utf-8")),
+        "models": _logs_extract_models(text),
+        "date": date,
+        "date_display": _logs_fmt_date(date),
+        "time": time_str,
+        "mtime": mtime,
+    })
+    entry["slug"] = ""
+    entry["title"] = " / ".join(
+        x for x in [entry["workflow"], entry["scheme"], entry["card"], entry["vram"]] if x
+    ) or os.path.splitext(fname)[0]
+    entry["cold"] = runs[0]["seconds"] if len(runs) >= 1 else None
+    entry["warm"] = runs[1]["seconds"] if len(runs) >= 2 else None
+    return entry
+
+
+def _logs_collect(logs_dir):
+    """扫目录 → 日志条目列表（按日期 + 时间倒排，新→旧）。只收 .txt，不再处理截图。"""
+    entries = []
+    if not os.path.isdir(logs_dir):
+        return entries
+    for fname in sorted(os.listdir(logs_dir)):
+        path = os.path.join(logs_dir, fname)
+        if os.path.isfile(path) and fname.lower().endswith(".txt"):
+            entries.append(_logs_analyze(path))
+    entries.sort(key=lambda e: (e["date"], e["time"], e["workflow"], e["scheme"]), reverse=True)
+    return entries
+
+
+def _logs_uniq_slug(entries):
+    seen = {}
+    for e in entries:
+        base = "-".join(x for x in [e["date"], e["workflow"], e["scheme"],
+                                    e["card"], e["vram"]] if x)
+        base = re.sub(r"[^0-9A-Za-z\u4e00-\u9fa5._-]+", "-", base).strip("-.") or "log"
+        n = seen.get(base, 0) + 1
+        seen[base] = n
+        e["slug"] = base if n == 1 else "%s-%d" % (base, n)
+    return entries
+
+
+def _logs_fmt_sec(v):
+    if v is None:
+        return "—"
+    return ("%.2f s" % v) if v >= 100 else ("%.2f s" % v)
+
+
+def _logs_stat_pills(run, skip=()):
+    """一次执行的关键指标 → 徽章组。skip 用于详情页表格里去掉已单独成列的项。"""
+    out = []
+    if run.get("sec_per_it") and "sec_per_it" not in skip:
+        out.append('<span class="pill"><b>%.2f</b> s/it</span>' % run["sec_per_it"])
+    if run.get("steps") and "steps" not in skip:
+        out.append('<span class="pill"><b>%d</b> steps</span>' % run["steps"])
+    if run.get("staged_mb") and "staged_mb" not in skip:
+        out.append('<span class="pill"><b>%s</b> MB staged</span>' % format(run["staged_mb"], ","))
+    if run.get("freed_mb"):
+        out.append('<span class="pill"><b>%s</b> MB freed</span>' % format(run["freed_mb"], ","))
+    for name, cnt in sorted((run.get("attn") or {}).items(), key=lambda kv: -kv[1]):
+        out.append('<span class="pill pill-attn">%s ×%d</span>' % (_esc(name), cnt))
+    return "".join(out)
+
+
+_LOGS_MODEL_LABELS = [("base", "底模"), ("te", "TE"), ("vae", "VAE"), ("lora", "LoRA")]
+
+
+def _logs_break_name(name):
+    """长模型文件名给浏览器优先断行点。
+
+    断点优先级：扩展名前 > 下划线后。前者保证 .safetensors 不被劈成 'safe'/'tensors'；
+    后者让 `krea2_turbo_int8_convrot` 在 `_` 处换行，而不是从单词中间硬切。
+    """
+    safe = _esc(name)
+    for ext in (".safetensors", ".gguf", ".ckpt", ".pth", ".bin", ".pt"):
+        safe = safe.replace(ext, "<wbr>" + ext)
+    return safe.replace("_", "_<wbr>")
+
+
+def _logs_model_rows(models):
+    """底模 / TE / VAE / LoRA 行；取不到的类别直接不渲染（LoRA 通常没有）。
+
+    值可能是真文件名，也可能是类名兜底（日志没打印 storage policy 时）。
+    后者用弱化样式 + title 标出来，避免读者把 `Krea2` 当成文件名。
+    """
+    rows = []
+    for key, label in _LOGS_MODEL_LABELS:
+        vals = (models or {}).get(key) or []
+        if not vals:
+            continue
+        cells = []
+        for v in vals:
+            if re.search(r"\.[A-Za-z0-9]{2,16}$", v):
+                cells.append(_logs_break_name(v))
+            else:
+                cells.append('<span class="model-cls" title="该日志未打印文件名，'
+                             '此处为模型类名">%s</span>' % _esc(v))
+        rows.append('<div class="model-row"><i>%s</i><span>%s</span></div>'
+                    % (label, " /<wbr> ".join(cells)))
+    return "\n          ".join(rows)
+
+
+def _logs_card(e):
+    """单份日志卡片。方案 / 显卡 / 显存三个标签统一收到右上角。"""
+    tags = []
+    if e["scheme"]:
+        tags.append('<span class="tag tag-scheme">%s</span>' % _esc(e["scheme"]))
+    if e["card"]:
+        tags.append('<span class="tag tag-card" title="显卡">%s</span>' % _esc(e["card"]))
+    if e["vram"]:
+        tags.append('<span class="tag tag-vram" title="显存">%s</span>' % _esc(e["vram"]))
+
+    head = ('<div class="log-head">'
+            '<span class="log-wf">%s</span>'
+            '<span class="log-tags">%s</span>'
+            '</div>' % (_esc(e["workflow"] or "未命名"), "".join(tags)))
+
+    nums = []
+    for r in e["runs"]:
+        nums.append('<span class="st"><i>%s</i><b>%s</b></span>'
+                    % (_esc(r["label"]), _logs_fmt_sec(r["seconds"])))
+    if not nums:
+        nums.append('<span class="st"><i>耗时</i><b>—</b></span>')
+
+    models_html = _logs_model_rows(e["models"])
+    models_block = ('        <div class="log-models">\n          %s\n        </div>\n'
+                    % models_html) if models_html else ""
+
+    when = ('<div class="log-when">'
+            '<span class="log-date">%s</span>'
+            '<span class="log-time">%s</span>'
+            '</div>' % (
+                _esc(e.get("date_display") or "—"),
+                _esc(e.get("time") or "—")))
+
+    return (
+        '    <a class="log-card" href="logs/%s.html">\n'
+        '      %s\n'
+        '      <div class="log-main">\n'
+        '        %s\n'
+        '        <div class="log-nums">%s</div>\n'
+        '%s'
+        '        <div class="log-file">%s</div>\n'
+        '      </div>\n'
+        '    </a>' % (
+            _esc(e["slug"]), when, head, "".join(nums),
+            models_block, _esc(e["file"])))
+
+
+LOGS_CSS = """  :root {
+    --intel-blue: #0071c5;
+    --intel-blue-dark: #005a99;
+    --bg: #f6f8fa;
+    --card: #ffffff;
+    --text: #24292f;
+    --text-muted: #57606a;
+    --border: #d0d7de;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.6;
+  }
+  .container { max-width: 1100px; margin: 0 auto; padding: 24px 20px 48px; }
+  header { text-align: center; padding: 40px 0 24px; }
+  header h1 { font-size: 30px; font-weight: 700; color: var(--intel-blue); }
+  header .note { margin-top: 12px; font-size: 14px; color: var(--text-muted); }
+  .chips { margin-top: 14px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .chip {
+    font-size: 12px; padding: 5px 12px; border-radius: 999px;
+    background: #e8f1fb; color: var(--intel-blue-dark); border: 1px solid #c8e0f5;
+    text-decoration: none; display: inline-block;
+  }
+  .chip-active { background: var(--intel-blue); color: #fff; border-color: var(--intel-blue); }
+  .sec-title { font-size: 17px; font-weight: 600; margin: 32px 0 14px; }
+  .sort-banner {
+    margin: 28px 0 8px; background: linear-gradient(90deg, #e8f1fb, #f0f7fd);
+    border: 1px solid #c8e0f5; border-radius: 10px; padding: 10px 16px;
+    font-size: 13px; color: var(--intel-blue-dark); text-align: center; line-height: 1.8;
+  }
+  .mx-block {
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 16px 18px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(31,35,40,0.06);
+  }
+  .mx-wrap { overflow-x: auto; }
+  table.mx { width: 100%; border-collapse: collapse; font-size: 13px; white-space: nowrap; }
+  table.mx th {
+    text-align: left; font-weight: 600; color: var(--text-muted); font-size: 12px;
+    padding: 6px 10px; border-bottom: 1px solid var(--border);
+  }
+  table.mx td { padding: 7px 10px; border-bottom: 1px solid #eef0f2; }
+  table.mx tr:last-child td { border-bottom: none; }
+  table.mx a { color: var(--intel-blue); text-decoration: none; }
+  table.mx a:hover { text-decoration: underline; }
+  .mx-num { text-align: right; font-variant-numeric: tabular-nums; }
+  .log-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+  .log-card {
+    display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: 0 16px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 16px 18px; text-decoration: none; color: inherit;
+    box-shadow: 0 1px 3px rgba(31,35,40,0.06);
+    transition: box-shadow 0.15s ease, border-color 0.15s ease;
+  }
+  .log-when {
+    display: flex; flex-direction: column; gap: 2px; padding-right: 14px;
+    border-right: 1px solid #eef0f2; text-align: right; font-variant-numeric: tabular-nums;
+  }
+  .log-date { font-size: 13px; font-weight: 600; color: var(--text); }
+  .log-time { font-size: 12px; color: var(--text-muted); }
+  .log-main { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .log-card:hover { box-shadow: 0 4px 12px rgba(31,35,40,0.12); border-color: #c8e0f5; }
+  .log-head { display: flex; align-items: baseline; gap: 8px 12px; flex-wrap: wrap; }
+  .log-wf { font-size: 15px; font-weight: 600; }
+  .log-tags {
+    margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap;
+    justify-content: flex-end; align-items: center;
+  }
+  .tag {
+    font-size: 12px; line-height: 18px; padding: 1px 8px; border-radius: 6px;
+    background: #f3f4f6; border: 1px solid #e5e7eb; color: var(--text-muted);
+    white-space: nowrap;
+  }
+  .tag-scheme {
+    color: var(--intel-blue-dark); background: #e8f1fb; border-color: #c8e0f5;
+  }
+  .tag-card {
+    color: #6b3fc4; background: #f4efff; border-color: #ddd0fa;
+  }
+  .tag-vram {
+    color: #9a5b00; background: #fff5e2; border-color: #f2dcaf;
+  }
+  .log-nums { display: flex; gap: 18px; flex-wrap: wrap; }
+  .log-nums .st { display: flex; flex-direction: column; }
+  .log-nums .st i { font-style: normal; font-size: 11px; color: var(--text-muted); }
+  .log-nums .st b { font-size: 17px; font-variant-numeric: tabular-nums; }
+  .log-models {
+    display: flex; flex-direction: column; gap: 3px;
+    padding-top: 10px; border-top: 1px dashed #e5e7eb;
+  }
+  .model-row { display: flex; gap: 8px; font-size: 12px; align-items: baseline; }
+  .model-row i {
+    font-style: normal; color: var(--text-muted); flex: 0 0 auto;
+    min-width: 32px; font-size: 11px;
+  }
+  .model-row span {
+    color: var(--text); overflow-wrap: anywhere; word-break: normal;
+    font-family: "Cascadia Mono", Consolas, monospace; font-size: 11px; line-height: 1.5;
+  }
+  .model-row span.model-cls { color: var(--text-muted); font-style: italic; cursor: help; }
+  .pill {
+    font-size: 11px; color: var(--text-muted); background: #f3f4f6;
+    border: 1px solid #e5e7eb; border-radius: 999px; padding: 2px 8px;
+  }
+  .pill b { color: var(--text); font-weight: 600; }
+  .pill-attn { background: #f0f7fd; border-color: #c8e0f5; color: var(--intel-blue-dark); }
+  .log-file { font-size: 11px; color: #8c959f; overflow-wrap: anywhere; word-break: normal; }
+  .empty { text-align: center; color: var(--text-muted); font-size: 14px; padding: 48px 0; }
+  footer { text-align: center; margin-top: 40px; font-size: 12px; color: var(--text-muted); }
+  footer a { color: var(--intel-blue); text-decoration: none; }
+  .back { display: inline-block; margin-bottom: 18px; font-size: 13px; color: var(--intel-blue); text-decoration: none; }
+  .back:hover { text-decoration: underline; }
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(150px, 100%), 1fr)); gap: 10px; margin: 18px 0 8px; }
+  .stat-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; }
+  .stat-box i { font-style: normal; display: block; font-size: 11px; color: var(--text-muted); }
+  .stat-box b { font-size: 18px; font-variant-numeric: tabular-nums; }
+  .raw { margin-top: 10px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .raw summary { cursor: pointer; padding: 12px 16px; font-size: 14px; font-weight: 600; background: #fafbfc; }
+  .raw pre {
+    margin: 0; padding: 14px 16px; font-size: 12px; line-height: 1.55;
+    font-family: "Cascadia Mono", Consolas, "Courier New", monospace;
+    overflow-x: auto; white-space: pre; color: #24292f; max-height: 720px; overflow-y: auto;
+  }
+  .lg-info { color: #57606a; }
+  .lg-warn { color: #9a6700; background: #fff8e5; display: block; width: max-content; min-width: 100%; }
+  .lg-err { color: #a40e26; background: #fdecee; display: block; width: max-content; min-width: 100%; }
+  .lg-omni { color: #005a99; }
+  .lg-prog { color: #8c959f; }
+"""
+
+
+LOGS_INDEX_HTML = """<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IntelGpu-ComfyUI-Collection - 执行日志</title>
+<style>
+__CSS__
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>IntelGpu-ComfyUI-Collection</h1>
+    <p class="note">从 ComfyUI 运行日志中自动抽取的性能指标</p>
+    <div class="chips">
+__NAV__
+    </div>
+  </header>
+
+  <div class="sort-banner">
+    <span class="dot"></span>按时间倒排（新 → 旧） · 指标由脚本从原始日志正则抽取 · 日期取文件名、时刻取文件修改时间 · 点击日志进入全文
+  </div>
+
+  <h2 class="sec-title">全部日志</h2>
+  <div class="log-grid">
+__CARDS__
+  </div>
+
+  <footer>
+    由 <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection" target="_blank">IntelGpu-ComfyUI-Collection</a> 自动生成 ·
+    <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/tree/main/log-analysis" target="_blank">log-analysis/ 原始日志</a>
+  </footer>
+
+</div>
+</body>
+</html>
+"""
+
+
+LOG_DETAIL_HTML = """<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>__PAGETITLE__ - 执行日志</title>
+<style>
+__CSS__
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>IntelGpu-ComfyUI-Collection</h1>
+    <p class="note">__SUBTITLE__</p>
+    <div class="chips">
+__NAV__
+    </div>
+  </header>
+
+  <a class="back" href="../logs.html">← 返回执行日志</a>
+
+__STATS__
+
+__RUNS__
+
+  <details class="raw" open>
+    <summary>原始日志全文（已脱敏本地路径）</summary>
+    <pre>__BODY__</pre>
+  </details>
+
+  <footer>
+    由 <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection" target="_blank">IntelGpu-ComfyUI-Collection</a> 自动生成 ·
+    <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/log-analysis/__FILEURL__" target="_blank">__FILENAME__ 源文件</a>
+  </footer>
+
+</div>
+</body>
+</html>
+"""
+
+
+def _logs_highlight(body):
+    """原始日志按级别染色；纯文本渲染，保持每行原貌（进度条长行靠横向滚动）。"""
+    out = []
+    for line in body.split("\n"):
+        esc = _esc(line)
+        if line.startswith("[WARNING]"):
+            out.append('<span class="lg-warn">%s</span>' % esc)
+        elif "[ERROR]" in line or line.startswith("Error") or "Traceback" in line:
+            out.append('<span class="lg-err">%s</span>' % esc)
+        elif "[OmniXPU]" in line:
+            out.append('<span class="lg-omni">%s</span>' % esc)
+        elif line.startswith("[INFO]"):
+            out.append('<span class="lg-info">%s</span>' % esc)
+        elif "s/it]" in line or "%|" in line:
+            out.append('<span class="lg-prog">%s</span>' % esc)
+        else:
+            out.append(esc)
+    return "\n".join(out)
+
+
+def _logs_detail(e):
+    """单份日志详情页（独立模板 LOG_DETAIL_HTML）。"""
+    first = e["runs"][0] if e["runs"] else {}
+
+    boxes = []
+    if e["cold"] is not None:
+        boxes.append('<div class="stat-box"><i>冷启</i><b>%s</b></div>' % _logs_fmt_sec(e["cold"]))
+    if e["warm"] is not None:
+        boxes.append('<div class="stat-box"><i>热启</i><b>%s</b></div>' % _logs_fmt_sec(e["warm"]))
+        if e["cold"] and e["warm"]:
+            boxes.append('<div class="stat-box"><i>热启 vs 冷启</i><b>%.2f×</b></div>'
+                         % (e["cold"] / e["warm"]))
+    if first.get("sec_per_it"):
+        boxes.append('<div class="stat-box"><i>每步耗时</i><b>%.2f s/it</b></div>' % first["sec_per_it"])
+    if first.get("staged_mb"):
+        boxes.append('<div class="stat-box"><i>峰值 staged</i><b>%s MB</b></div>'
+                     % format(first["staged_mb"], ","))
+    if first.get("freed_mb"):
+        boxes.append('<div class="stat-box"><i>显存回收</i><b>%s MB</b></div>'
+                     % format(first["freed_mb"], ","))
+    stats = ('  <div class="stat-grid">\n    %s\n  </div>' % "\n    ".join(boxes)) if boxes \
+        else '  <p class="empty">这份日志里没有抽到可用的耗时指标。</p>'
+
+    rows = []
+    for i, r in enumerate(e["runs"]):
+        rows.append(
+            "          <tr><td>%s</td><td class=\"mx-num\">%s</td><td class=\"mx-num\">%s</td>"
+            "<td class=\"mx-num\">%s</td><td class=\"mx-num\">%s</td><td>%s</td></tr>" % (
+                _esc(r["label"]), _logs_fmt_sec(r["seconds"]),
+                ("%d" % r["steps"]) if r.get("steps") else "—",
+                ("%.2f" % r["sec_per_it"]) if r.get("sec_per_it") else "—",
+                format(r["staged_mb"], ",") if r.get("staged_mb") else "—",
+                _logs_stat_pills(r, skip=("sec_per_it", "steps", "staged_mb")) or "—"))
+
+    runs_tbl = ""
+    if rows:
+        runs_tbl = (
+            '  <h2 class="sec-title">逐次执行</h2>\n'
+            '    <div class="mx-block">\n'
+            '      <div class="mx-wrap">\n'
+            '        <table class="mx">\n'
+            '          <thead><tr><th>阶段</th><th>耗时</th><th>步数</th><th>s/it</th>'
+            '<th>staged MB</th><th>其他指标</th></tr></thead>\n'
+            '          <tbody>\n%s\n'
+            '          </tbody>\n'
+            '        </table>\n'
+            '      </div>\n'
+            '    </div>' % "\n".join(rows))
+
+    stamp = " ".join(x for x in [e.get("date_display"), e.get("time")] if x)
+    subtitle = "%s · %s" % (e["file"], stamp) if stamp else e["file"]
+
+    return (LOG_DETAIL_HTML
+            .replace("__CSS__", LOGS_CSS)
+            .replace("__NAV__", nav_html("logs.html", prefix="../"))
+            .replace("__PAGETITLE__", _esc(e["title"]))
+            .replace("__SUBTITLE__", _esc(subtitle))
+            .replace("__STATS__", stats)
+            .replace("__RUNS__", runs_tbl)
+            .replace("__BODY__", _logs_highlight(e["body"]))
+            .replace("__FILEURL__", _esc(urllib.parse.quote(e["file"])))
+            .replace("__FILENAME__", _esc(e["file"])))
+
+
+def build_logs(logs_dir, out_dir):
+    """生成 logs.html（索引）+ logs/<slug>.html（详情），返回写出的文件数。"""
+    entries = _logs_collect(logs_dir)
+    _logs_uniq_slug(entries)
+
+    if entries:
+        cards = "\n".join(_logs_card(e) for e in entries)
+    else:
+        cards = '    <p class="empty">log-analysis/ 下还没有日志。</p>'
+
+    index = (LOGS_INDEX_HTML
+             .replace("__CSS__", LOGS_CSS)
+             .replace("__NAV__", nav_html("logs.html"))
+             .replace("__CARDS__", cards))
+
+    written = 0
+    with open(os.path.join(out_dir, "logs.html"), "w", encoding="utf-8") as f:
+        f.write(index)
+    written += 1
+    print("[ok] logs.html written (%d bytes)" % len(index.encode("utf-8")))
+
+    detail_dir = os.path.join(out_dir, "logs")
+    os.makedirs(detail_dir, exist_ok=True)
+    for e in entries:
+        page = _logs_detail(e)
+        with open(os.path.join(detail_dir, e["slug"] + ".html"), "w", encoding="utf-8") as f:
+            f.write(page)
+        written += 1
+        print("[ok] logs/%s.html written (%d bytes)"
+              % (e["slug"], len(page.encode("utf-8"))))
+    return written
+
+
+# ---------------------------------------------------------------------------
 # Entry
 # ---------------------------------------------------------------------------
+
 
 def main():
     ap = argparse.ArgumentParser()
@@ -1464,6 +2231,7 @@ def main():
     ap.add_argument("--cloud-drive", action="store_true", help="generate cloud_drive_collection.html from cloud_drive_collection.md")
     ap.add_argument("--group", action="store_true", help="generate group.html (static)")
     ap.add_argument("--opt", action="store_true", help="generate comfyui_opt.html from comfyui_opt.md")
+    ap.add_argument("--logs", action="store_true", help="generate logs.html + logs/*.html from log-analysis/")
     ap.add_argument("--token", default="", help="GitHub token for API queries")
     ap.add_argument("--out-dir", default="", help="output directory (default: repo root)")
     args = ap.parse_args()
@@ -1474,6 +2242,7 @@ def main():
     links_path = os.path.join(ROOT, "links.md")
     cloud_path = os.path.join(ROOT, "cloud_drive_collection.md")
     opt_path = os.path.join(ROOT, "comfyui_opt.md")
+    logs_path = os.path.join(ROOT, LOGS_DIRNAME)
 
     if args.index:
         html = build_index(readme_path, args.token)
@@ -1504,6 +2273,9 @@ def main():
         with open(os.path.join(out_dir, "comfyui_opt.html"), "w", encoding="utf-8") as f:
             f.write(html)
         print("[ok] comfyui_opt.html written (%d bytes)" % len(html.encode("utf-8")))
+
+    if args.logs:
+        build_logs(logs_path, out_dir)
 
 
 if __name__ == "__main__":

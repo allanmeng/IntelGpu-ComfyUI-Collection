@@ -1,0 +1,125 @@
+[INFO] got prompt
+[INFO] Model storage policy: fast_disk=False paths=['F:\\ComfyUI-aki-v3\\ComfyUI\\models\\vae\\qwen_image_vae.safetensors']
+[INFO] Using pytorch attention in VAE
+[INFO] Using pytorch attention in VAE
+[INFO] VAE load device: xpu:0, offload device: cpu, dtype: torch.float32
+# 😺dzNodes: LayerStyle -> ImageScaleByAspectRatio V2 Processed 1 image(s).
+# 😺dzNodes: LayerStyle -> ImageScaleByAspectRatio V2 Processed 1 image(s).
+[INFO] Found quantization metadata version 1
+[INFO] Using MixedPrecisionOps for text encoder
+[INFO] Model storage policy: fast_disk=False paths=['F:\\ComfyUI-aki-v3\\ComfyUI\\models\\text_encoders\\qwen3vl_4b_fp8_scaled.safetensors']
+[INFO] CLIP/text encoder model load device: xpu:0, offload device: cpu, current: cpu, dtype: torch.float16
+[INFO] Requested to load Krea2TEModel_
+[INFO] Model Krea2TEModel_ prepared for dynamic VRAM loading. 4999MB Staged. 0 patches attached. Force pre-loaded 249 weights: 627 KB.
+[INFO] [OmniXPU] norm first use: LayerNorm shape=torch.Size([1728, 1024])
+[INFO] Model Krea2TEModel_ prepared for dynamic VRAM loading. 4999MB Staged. 0 patches attached. Force pre-loaded 249 weights: 627 KB.
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=4406.2MiB
+[INFO] Requested to load WanVAE
+[INFO] Model WanVAE prepared for dynamic VRAM loading. 483MB Staged. 0 patches attached. Force pre-loaded 60 weights: 89 KB.
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=4500.0MiB
+[INFO] Model WanVAE prepared for dynamic VRAM loading. 483MB Staged. 0 patches attached. Force pre-loaded 60 weights: 89 KB.
+[INFO] Found quantization metadata version 1
+[INFO] Detected mixed precision quantization
+[INFO] Using mixed precision operations
+[INFO] Native ops: int8_tensorwise , emulated ops: asym_w4a8_int8, float8_e5m2, nvfp4, w6a8_int8, mxfp8, float8_e4m3fn, convrot_w4a4
+[INFO] model weight dtype torch.bfloat16, manual cast: torch.bfloat16
+[INFO] model_type FLUX
+[INFO] Model storage policy: fast_disk=False paths=['E:\\model\\krea2_turbo_int8_convrot.safetensors']
+[INFO] [OmniXPU] LoRA memory budget cached: source=1743.5MiB/512 tensors model_added=1743.5MiB model_budget=1743.5MiB clip_added=0.0MiB clip_budget=0.0MiB
+[krea2edit] pre-encoding sources at target 1024x768px (before sampling, fit_mode=fit)
+[krea2edit] _fit_encode_image: mode=fit in=(1, 1024, 768, 3) target_latent=128x96
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=4500.0MiB
+[INFO] Model WanVAE prepared for dynamic VRAM loading. 483MB Staged. 0 patches attached. Force pre-loaded 60 weights: 89 KB.
+[krea2edit] _fit_encode_image: mode=fit in=(1, 752, 1024, 3) target_latent=128x96
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=2460.9MiB
+[INFO] Model WanVAE prepared for dynamic VRAM loading. 483MB Staged. 0 patches attached. Force pre-loaded 60 weights: 89 KB.
+[INFO] [OmniXPU] LoRA model budget applied: cached=1743.5MiB/512 tensors requested=1081.3->2824.8MiB minimum=540.7->2284.2MiB xpu_memory=available xpu_allocated=0.7MiB xpu_reserved=2.0MiB xpu_free=23299.2MiB xpu_total=31977.4MiB
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=2284.2MiB
+[INFO] Requested to load Krea2
+[INFO] Model Krea2 prepared for dynamic VRAM loading. 12864MB Staged. 256 patches attached. Force pre-loaded 160 weights: 2824 KB.
+[INFO] [OmniXPU] LoRA model load complete: xpu_memory=available xpu_allocated=3.5MiB xpu_reserved=4.0MiB xpu_free=23294.7MiB xpu_total=31977.4MiB
+  0%|                                                                | 0/8 [00:00<?, ?it/s,   Model Initializing ...  ][krea2edit] pixel path ACTIVE (fit_mode=fit)
+[INFO] [OmniXPU] attention fallback: batch=891 (seq=12)
+[INFO] [OmniXPU] attention fallback: batch=891 (seq=12)
+[INFO] [OmniXPU] attention CUTE #1: heads=20 seq=891 dtype=torch.bfloat16
+[INFO] [OmniXPU] attention CUTE #2: heads=20 seq=891 dtype=torch.bfloat16
+[krea2edit] STRIDE1-POS fit: ref grids [(64, 48), (35, 48)] centered in (64,48)
+[INFO] [OmniXPU] attention CUTE #3: heads=48 seq=8715 dtype=torch.bfloat16
+ 12%|██████▏                                          | 1/8 [01:05<07:39, 65.65s/it,  Model Initialization complete!  ][INFO] [OmniXPU] attention fallback: batch=891 (seq=12)
+[INFO] [OmniXPU] attention fallback: batch=891 (seq=12)
+[krea2edit] STRIDE1-POS fit: ref grids [(64, 48), (35, 48)] centered in (64,48)
+ 25%|█████████████████████                                                               | 2/8 [00:04<00:12,  2.05s/it][INFO] [OmniXPU] attention fallback: batch=891 (seq=12)
+[krea2edit] STRIDE1-POS fit: ref grids [(64, 48), (35, 48)] centered in (64,48)
+ 38%|███████████████████████████████▌                                                    | 3/8 [00:06<00:10,  2.04s/it][krea2edit] STRIDE1-POS fit: ref grids [(64, 48), (35, 48)] centered in (64,48)
+ 50%|██████████████████████████████████████████                                          | 4/8 [00:08<00:08,  2.04s/it][krea2edit] STRIDE1-POS fit: ref grids [(64, 48), (35, 48)] centered in (64,48)
+ 62%|████████████████████████████████████████████████████▌                               | 5/8 [00:10<00:06,  2.04s/it][krea2edit] STRIDE1-POS fit: ref grids [(64, 48), (35, 48)] centered in (64,48)
+ 75%|███████████████████████████████████████████████████████████████                     | 6/8 [00:12<00:04,  2.06s/it][krea2edit] STRIDE1-POS fit: ref grids [(64, 48), (35, 48)] centered in (64,48)
+ 88%|█████████████████████████████████████████████████████████████████████████▌          | 7/8 [00:14<00:02,  2.04s/it][krea2edit] STRIDE1-POS fit: ref grids [(64, 48), (35, 48)] centered in (64,48)
+100%|████████████████████████████████████████████████████████████████████████████████████| 8/8 [00:16<00:00,  2.05s/it]
+VRAM清理完成 [卸载模型: True, 清空缓存: True]
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=550.0MiB
+[INFO] Requested to load WanVAE
+[INFO] Model WanVAE prepared for dynamic VRAM loading. 483MB Staged. 0 patches attached. Force pre-loaded 60 weights: 89 KB.
+[INFO] VRAMdebug: free memory before: 33,530,239,488
+[INFO] VRAMdebug: free memory after: 33,530,337,792
+[INFO] VRAMdebug: freed memory: 98,304
+[INFO] Prompt executed in 115.97 seconds
+[INFO] Using RAM pressure cache.
+[INFO] got prompt
+[INFO] Model storage policy: fast_disk=False paths=['F:\\ComfyUI-aki-v3\\ComfyUI\\models\\vae\\qwen_image_vae.safetensors']
+[INFO] Using pytorch attention in VAE
+[INFO] Using pytorch attention in VAE
+[INFO] VAE load device: xpu:0, offload device: cpu, dtype: torch.float32
+# 😺dzNodes: LayerStyle -> ImageScaleByAspectRatio V2 Processed 1 image(s).
+# 😺dzNodes: LayerStyle -> ImageScaleByAspectRatio V2 Processed 1 image(s).
+[INFO] Found quantization metadata version 1
+[INFO] Using MixedPrecisionOps for text encoder
+[INFO] Model storage policy: fast_disk=False paths=['F:\\ComfyUI-aki-v3\\ComfyUI\\models\\text_encoders\\qwen3vl_4b_fp8_scaled.safetensors']
+[INFO] CLIP/text encoder model load device: xpu:0, offload device: cpu, current: cpu, dtype: torch.float16
+[INFO] Requested to load Krea2TEModel_
+[INFO] Model Krea2TEModel_ prepared for dynamic VRAM loading. 4999MB Staged. 0 patches attached. Force pre-loaded 249 weights: 627 KB.
+[INFO] Model Krea2TEModel_ prepared for dynamic VRAM loading. 4999MB Staged. 0 patches attached. Force pre-loaded 249 weights: 627 KB.
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=4406.2MiB
+[INFO] Requested to load WanVAE
+[INFO] Model WanVAE prepared for dynamic VRAM loading. 483MB Staged. 0 patches attached. Force pre-loaded 60 weights: 89 KB.
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=4125.0MiB
+[INFO] Model WanVAE prepared for dynamic VRAM loading. 483MB Staged. 0 patches attached. Force pre-loaded 60 weights: 89 KB.
+[INFO] Found quantization metadata version 1
+[INFO] Detected mixed precision quantization
+[INFO] Using mixed precision operations
+[INFO] Native ops: int8_tensorwise , emulated ops: asym_w4a8_int8, float8_e5m2, nvfp4, w6a8_int8, mxfp8, float8_e4m3fn, convrot_w4a4
+[INFO] model weight dtype torch.bfloat16, manual cast: torch.bfloat16
+[INFO] model_type FLUX
+[INFO] Model storage policy: fast_disk=False paths=['E:\\model\\krea2_turbo_int8_convrot.safetensors']
+[INFO] [OmniXPU] LoRA memory budget cached: source=1743.5MiB/512 tensors model_added=1743.5MiB model_budget=1743.5MiB clip_added=0.0MiB clip_budget=0.0MiB
+[krea2edit] pre-encoding sources at target 1024x704px (before sampling, fit_mode=fit)
+[krea2edit] _fit_encode_image: mode=fit in=(1, 1024, 704, 3) target_latent=128x88
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=4125.0MiB
+[INFO] Model WanVAE prepared for dynamic VRAM loading. 483MB Staged. 0 patches attached. Force pre-loaded 60 weights: 89 KB.
+[krea2edit] _fit_encode_image: mode=fit in=(1, 752, 1024, 3) target_latent=128x88
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=2062.5MiB
+[INFO] Model WanVAE prepared for dynamic VRAM loading. 483MB Staged. 0 patches attached. Force pre-loaded 60 weights: 89 KB.
+[INFO] [OmniXPU] LoRA model budget applied: cached=1743.5MiB/512 tensors requested=991.2->2734.7MiB minimum=495.6->2239.1MiB xpu_memory=available xpu_allocated=1.1MiB xpu_reserved=4.0MiB xpu_free=22270.9MiB xpu_total=31977.4MiB
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=2239.1MiB
+[INFO] Requested to load Krea2
+[INFO] Model Krea2 prepared for dynamic VRAM loading. 12864MB Staged. 256 patches attached. Force pre-loaded 160 weights: 2824 KB.
+[INFO] [OmniXPU] LoRA model load complete: xpu_memory=available xpu_allocated=3.9MiB xpu_reserved=4.0MiB xpu_free=22270.9MiB xpu_total=31977.4MiB
+  0%|                                                                                                                                   | 0/8 [00:00<?, ?it/s,   Model Initializing ...  ][krea2edit] pixel path ACTIVE (fit_mode=fit)
+[krea2edit] STRIDE1-POS fit: ref grids [(64, 44), (32, 44)] centered in (64,44)
+ 12%|██████████████▌                                                                                                     | 1/8 [00:09<01:08,  9.85s/it,  Model Initialization complete!  ][krea2edit] STRIDE1-POS fit: ref grids [(64, 44), (32, 44)] centered in (64,44)
+ 25%|█████████████████████████████████████▊                                                                                                                 | 2/8 [00:03<00:10,  1.78s/it][krea2edit] STRIDE1-POS fit: ref grids [(64, 44), (32, 44)] centered in (64,44)
+ 38%|████████████████████████████████████████████████████████▋                                                                                              | 3/8 [00:05<00:08,  1.79s/it][krea2edit] STRIDE1-POS fit: ref grids [(64, 44), (32, 44)] centered in (64,44)
+ 50%|███████████████████████████████████████████████████████████████████████████▌                                                                           | 4/8 [00:07<00:07,  1.78s/it][krea2edit] STRIDE1-POS fit: ref grids [(64, 44), (32, 44)] centered in (64,44)
+ 62%|██████████████████████████████████████████████████████████████████████████████████████████████▍                                                        | 5/8 [00:08<00:05,  1.79s/it][krea2edit] STRIDE1-POS fit: ref grids [(64, 44), (32, 44)] centered in (64,44)
+ 75%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████▎                                     | 6/8 [00:10<00:03,  1.80s/it][krea2edit] STRIDE1-POS fit: ref grids [(64, 44), (32, 44)] centered in (64,44)
+ 88%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████▏                  | 7/8 [00:12<00:01,  1.79s/it][krea2edit] STRIDE1-POS fit: ref grids [(64, 44), (32, 44)] centered in (64,44)
+100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 8/8 [00:14<00:00,  1.79s/it]
+VRAM清理完成 [卸载模型: True, 清空缓存: True]
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=550.0MiB
+[INFO] Requested to load WanVAE
+[INFO] Model WanVAE prepared for dynamic VRAM loading. 483MB Staged. 0 patches attached. Force pre-loaded 60 weights: 89 KB.
+[INFO] VRAMdebug: free memory before: 33,530,239,488
+[INFO] VRAMdebug: free memory after: 33,530,337,792
+[INFO] VRAMdebug: freed memory: 98,304
+[INFO] Prompt executed in 36.96 seconds
+[INFO] Using RAM pressure cache.

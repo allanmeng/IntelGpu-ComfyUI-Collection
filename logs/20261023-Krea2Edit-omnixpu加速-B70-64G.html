@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Krea2Edit / omnixpu加速 / B70 / 64G - 执行日志</title>
+<style>
+  :root {
+    --intel-blue: #0071c5;
+    --intel-blue-dark: #005a99;
+    --bg: #f6f8fa;
+    --card: #ffffff;
+    --text: #24292f;
+    --text-muted: #57606a;
+    --border: #d0d7de;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.6;
+  }
+  .container { max-width: 1100px; margin: 0 auto; padding: 24px 20px 48px; }
+  header { text-align: center; padding: 40px 0 24px; }
+  header h1 { font-size: 30px; font-weight: 700; color: var(--intel-blue); }
+  header .note { margin-top: 12px; font-size: 14px; color: var(--text-muted); }
+  .chips { margin-top: 14px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .chip {
+    font-size: 12px; padding: 5px 12px; border-radius: 999px;
+    background: #e8f1fb; color: var(--intel-blue-dark); border: 1px solid #c8e0f5;
+    text-decoration: none; display: inline-block;
+  }
+  .chip-active { background: var(--intel-blue); color: #fff; border-color: var(--intel-blue); }
+  .sec-title { font-size: 17px; font-weight: 600; margin: 32px 0 14px; }
+  .sort-banner {
+    margin: 28px 0 8px; background: linear-gradient(90deg, #e8f1fb, #f0f7fd);
+    border: 1px solid #c8e0f5; border-radius: 10px; padding: 10px 16px;
+    font-size: 13px; color: var(--intel-blue-dark); text-align: center; line-height: 1.8;
+  }
+  .mx-block {
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 16px 18px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(31,35,40,0.06);
+  }
+  .mx-wrap { overflow-x: auto; }
+  table.mx { width: 100%; border-collapse: collapse; font-size: 13px; white-space: nowrap; }
+  table.mx th {
+    text-align: left; font-weight: 600; color: var(--text-muted); font-size: 12px;
+    padding: 6px 10px; border-bottom: 1px solid var(--border);
+  }
+  table.mx td { padding: 7px 10px; border-bottom: 1px solid #eef0f2; }
+  table.mx tr:last-child td { border-bottom: none; }
+  table.mx a { color: var(--intel-blue); text-decoration: none; }
+  table.mx a:hover { text-decoration: underline; }
+  .mx-num { text-align: right; font-variant-numeric: tabular-nums; }
+  .log-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+  .log-card {
+    display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: 0 16px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 16px 18px; text-decoration: none; color: inherit;
+    box-shadow: 0 1px 3px rgba(31,35,40,0.06);
+    transition: box-shadow 0.15s ease, border-color 0.15s ease;
+  }
+  .log-when {
+    display: flex; flex-direction: column; gap: 2px; padding-right: 14px;
+    border-right: 1px solid #eef0f2; text-align: right; font-variant-numeric: tabular-nums;
+  }
+  .log-date { font-size: 13px; font-weight: 600; color: var(--text); }
+  .log-time { font-size: 12px; color: var(--text-muted); }
+  .log-main { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .log-card:hover { box-shadow: 0 4px 12px rgba(31,35,40,0.12); border-color: #c8e0f5; }
+  .log-head { display: flex; align-items: baseline; gap: 8px 12px; flex-wrap: wrap; }
+  .log-wf { font-size: 15px; font-weight: 600; }
+  .log-tags {
+    margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap;
+    justify-content: flex-end; align-items: center;
+  }
+  .tag {
+    font-size: 12px; line-height: 18px; padding: 1px 8px; border-radius: 6px;
+    background: #f3f4f6; border: 1px solid #e5e7eb; color: var(--text-muted);
+    white-space: nowrap;
+  }
+  .tag-scheme {
+    color: var(--intel-blue-dark); background: #e8f1fb; border-color: #c8e0f5;
+  }
+  .tag-card {
+    color: #6b3fc4; background: #f4efff; border-color: #ddd0fa;
+  }
+  .tag-vram {
+    color: #9a5b00; background: #fff5e2; border-color: #f2dcaf;
+  }
+  .log-nums { display: flex; gap: 18px; flex-wrap: wrap; }
+  .log-nums .st { display: flex; flex-direction: column; }
+  .log-nums .st i { font-style: normal; font-size: 11px; color: var(--text-muted); }
+  .log-nums .st b { font-size: 17px; font-variant-numeric: tabular-nums; }
+  .log-models {
+    display: flex; flex-direction: column; gap: 3px;
+    padding-top: 10px; border-top: 1px dashed #e5e7eb;
+  }
+  .model-row { display: flex; gap: 8px; font-size: 12px; align-items: baseline; }
+  .model-row i {
+    font-style: normal; color: var(--text-muted); flex: 0 0 auto;
+    min-width: 32px; font-size: 11px;
+  }
+  .model-row span {
+    color: var(--text); overflow-wrap: anywhere; word-break: normal;
+    font-family: "Cascadia Mono", Consolas, monospace; font-size: 11px; line-height: 1.5;
+  }
+  .model-row span.model-cls { color: var(--text-muted); font-style: italic; cursor: help; }
+  .pill {
+    font-size: 11px; color: var(--text-muted); background: #f3f4f6;
+    border: 1px solid #e5e7eb; border-radius: 999px; padding: 2px 8px;
+  }
+  .pill b { color: var(--text); font-weight: 600; }
+  .pill-attn { background: #f0f7fd; border-color: #c8e0f5; color: var(--intel-blue-dark); }
+  .log-file { font-size: 11px; color: #8c959f; overflow-wrap: anywhere; word-break: normal; }
+  .empty { text-align: center; color: var(--text-muted); font-size: 14px; padding: 48px 0; }
+  footer { text-align: center; margin-top: 40px; font-size: 12px; color: var(--text-muted); }
+  footer a { color: var(--intel-blue); text-decoration: none; }
+  .back { display: inline-block; margin-bottom: 18px; font-size: 13px; color: var(--intel-blue); text-decoration: none; }
+  .back:hover { text-decoration: underline; }
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(150px, 100%), 1fr)); gap: 10px; margin: 18px 0 8px; }
+  .stat-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; }
+  .stat-box i { font-style: normal; display: block; font-size: 11px; color: var(--text-muted); }
+  .stat-box b { font-size: 18px; font-variant-numeric: tabular-nums; }
+  .raw { margin-top: 10px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .raw summary { cursor: pointer; padding: 12px 16px; font-size: 14px; font-weight: 600; background: #fafbfc; }
+  .raw pre {
+    margin: 0; padding: 14px 16px; font-size: 12px; line-height: 1.55;
+    font-family: "Cascadia Mono", Consolas, "Courier New", monospace;
+    overflow-x: auto; white-space: pre; color: #24292f; max-height: 720px; overflow-y: auto;
+  }
+  .lg-info { color: #57606a; }
+  .lg-warn { color: #9a6700; background: #fff8e5; display: block; width: max-content; min-width: 100%; }
+  .lg-err { color: #a40e26; background: #fdecee; display: block; width: max-content; min-width: 100%; }
+  .lg-omni { color: #005a99; }
+  .lg-prog { color: #8c959f; }
+
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>IntelGpu-ComfyUI-Collection</h1>
+    <p class="note">20261023_Krea2Edit_omnixpu加速_B70_64G_冷启+热启.txt · 2026-10-23 20:27</p>
+    <div class="chips">
+      <a class="chip" href="../index.html">项目收集</a>
+      <a class="chip" href="../links.html">组件下载</a>
+      <a class="chip" href="../cloud_drive_collection.html">资源聚合</a>
+      <a class="chip" href="../comfyui_opt.html">工作台优化</a>
+      <span class="chip chip-active">执行日志</span>
+      <a class="chip" href="../group.html">互助社群</a>
+      <a class="chip" href="https://blog.blackwood.cv/news/latest" target="_blank" rel="noopener">生态日报 ↗</a>
+    </div>
+  </header>
+
+  <a class="back" href="../logs.html">← 返回执行日志</a>
+
+  <div class="stat-grid">
+    <div class="stat-box"><i>冷启</i><b>71.83 s</b></div>
+    <div class="stat-box"><i>热启</i><b>37.02 s</b></div>
+    <div class="stat-box"><i>热启 vs 冷启</i><b>1.94×</b></div>
+    <div class="stat-box"><i>每步耗时</i><b>2.14 s/it</b></div>
+    <div class="stat-box"><i>峰值 staged</i><b>12,864 MB</b></div>
+    <div class="stat-box"><i>显存回收</i><b>3.5 MB</b></div>
+  </div>
+
+  <h2 class="sec-title">逐次执行</h2>
+    <div class="mx-block">
+      <div class="mx-wrap">
+        <table class="mx">
+          <thead><tr><th>阶段</th><th>耗时</th><th>步数</th><th>s/it</th><th>staged MB</th><th>其他指标</th></tr></thead>
+          <tbody>
+          <tr><td>冷启</td><td class="mx-num">71.83 s</td><td class="mx-num">8</td><td class="mx-num">2.14</td><td class="mx-num">12,864</td><td><span class="pill"><b>3.5</b> MB freed</span><span class="pill pill-attn">fallback ×5</span><span class="pill pill-attn">CUTE ×3</span></td></tr>
+          <tr><td>热启</td><td class="mx-num">37.02 s</td><td class="mx-num">8</td><td class="mx-num">1.88</td><td class="mx-num">12,864</td><td><span class="pill"><b>3.5</b> MB freed</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  <details class="raw" open>
+    <summary>原始日志全文（已脱敏本地路径）</summary>
+    <pre><span class="lg-info">[INFO] got prompt</span>
+<span class="lg-info">[INFO] Using pytorch attention in VAE</span>
+<span class="lg-info">[INFO] Using pytorch attention in VAE</span>
+<span class="lg-info">[INFO] VAE load device: xpu:0, offload device: cpu, dtype: torch.float32</span>
+# 😺dzNodes: LayerStyle -&gt; ImageScaleByAspectRatio V2 Processed 1 image(s).
+# 😺dzNodes: LayerStyle -&gt; ImageScaleByAspectRatio V2 Processed 1 image(s).
+<span class="lg-info">[INFO] Found quantization metadata version 1</span>
+<span class="lg-info">[INFO] Using MixedPrecisionOps for text encoder</span>
+<span class="lg-info">[INFO] CLIP/text encoder model load device: xpu:0, offload device: cpu, current: cpu, dtype: torch.float16</span>
+<span class="lg-info">[INFO] Requested to load Krea2TEModel_</span>
+<span class="lg-info">[INFO] Model Krea2TEModel_ prepared for dynamic VRAM loading. 4999MB Staged. 0 patches attached. Force pre-loaded 249 weights: 627 KB.</span>
+<span class="lg-omni">[INFO] [OmniXPU] norm first use: LayerNorm shape=torch.Size([1728, 1024])</span>
+<span class="lg-info">[INFO] Model Krea2TEModel_ prepared for dynamic VRAM loading. 4999MB Staged. 0 patches attached. Force pre-loaded 249 weights: 627 KB.</span>
+<span class="lg-omni">[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=4406.2MiB</span>
+<span class="lg-info">[INFO] Requested to load WanVAE</span>
+<span class="lg-info">[INFO] Model WanVAE prepared for dynamic VRAM loading. 483MB Staged. 0 patches attached. Force pre-loaded 60 weights: 89 KB.</span>
+<span class="lg-omni">[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=4500.0MiB</span>
+<span class="lg-info">[INFO] Model WanVAE prepared for dynamic VRAM loading. 483MB Staged. 0 patches attached. Force pre-loaded 60 weights: 89 KB.</span>
+<span class="lg-info">[INFO] Found quantization metadata version 1</span>
+<span class="lg-info">[INFO] Detected mixed precision quantization</span>
+<span class="lg-info">[INFO] Using mixed precision operations</span>
+<span class="lg-info">[INFO] Native ops: int8_tensorwise, convrot_w4a4, asym_w4a8_int8 , emulated ops: float8_e4m3fn, float8_e5m2, nvfp4, mxfp8</span>
+<span class="lg-info">[INFO] model weight dtype torch.bfloat16, manual cast: torch.bfloat16</span>
+<span class="lg-info">[INFO] model_type FLUX</span>
+<span class="lg-omni">[INFO] [OmniXPU] LoRA memory budget cached: source=1743.5MiB/512 tensors model_added=1743.5MiB model_budget=1743.5MiB clip_added=0.0MiB clip_budget=0.0MiB</span>
+[krea2edit] pre-encoding sources at target 1024x768px (before sampling, fit_mode=fit)
+[krea2edit] _fit_encode_image: mode=fit in=(1, 1024, 768, 3) target_latent=128x96
+<span class="lg-omni">[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=4500.0MiB</span>
+<span class="lg-info">[INFO] Model WanVAE prepared for dynamic VRAM loading. 483MB Staged. 0 patches attached. Force pre-loaded 60 weights: 89 KB.</span>
+[krea2edit] _fit_encode_image: mode=fit in=(1, 752, 1024, 3) target_latent=128x96
+<span class="lg-omni">[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=2460.9MiB</span>
+<span class="lg-info">[INFO] Model WanVAE prepared for dynamic VRAM loading. 483MB Staged. 0 patches attached. Force pre-loaded 60 weights: 89 KB.</span>
+<span class="lg-omni">[INFO] [OmniXPU] LoRA model budget applied: cached=1743.5MiB/512 tensors requested=1081.3-&gt;2824.8MiB minimum=540.7-&gt;2284.2MiB xpu_allocated=0.7MiB xpu_reserved=2.0MiB xpu_free=20028.0MiB</span>
+<span class="lg-omni">[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=2284.2MiB</span>
+<span class="lg-info">[INFO] Requested to load Krea2</span>
+<span class="lg-info">[INFO] Model Krea2 prepared for dynamic VRAM loading. 12864MB Staged. 256 patches attached. Force pre-loaded 160 weights: 2824 KB.</span>
+<span class="lg-omni">[INFO] [OmniXPU] LoRA model load complete: xpu_allocated=3.5MiB xpu_reserved=4.0MiB xpu_free=20028.0MiB</span>
+<span class="lg-prog">  0%|          | 0/8 [00:00&lt;?, ?it/s,   Model Initializing ...  ][krea2edit] pixel path ACTIVE (fit_mode=fit)</span>
+<span class="lg-omni">[INFO] [OmniXPU] attention fallback: batch=891 (seq=12)</span>
+<span class="lg-omni">[INFO] [OmniXPU] attention fallback: batch=891 (seq=12)</span>
+<span class="lg-omni">[INFO] [OmniXPU] attention CUTE #1: heads=20 seq=891 dtype=torch.bfloat16</span>
+<span class="lg-omni">[INFO] [OmniXPU] attention CUTE #2: heads=20 seq=891 dtype=torch.bfloat16</span>
+[krea2edit] STRIDE1-POS fit: ref grids [(64, 48), (35, 48)] centered in (64,48)
+<span class="lg-omni">[INFO] [OmniXPU] attention CUTE #3: heads=48 seq=8715 dtype=torch.bfloat16</span>
+<span class="lg-omni"> 12%|█▎        | 1/8 [00:22&lt;02:37, 22.45s/it,  Model Initialization complete!  ][INFO] [OmniXPU] attention fallback: batch=891 (seq=12)</span>
+<span class="lg-omni">[INFO] [OmniXPU] attention fallback: batch=891 (seq=12)</span>
+[krea2edit] STRIDE1-POS fit: ref grids [(64, 48), (35, 48)] centered in (64,48)
+<span class="lg-omni"> 25%|██▌       | 2/8 [00:04&lt;00:12,  2.13s/it][INFO] [OmniXPU] attention fallback: batch=891 (seq=12)</span>
+[krea2edit] STRIDE1-POS fit: ref grids [(64, 48), (35, 48)] centered in (64,48)
+<span class="lg-prog"> 38%|███▊      | 3/8 [00:06&lt;00:10,  2.13s/it][krea2edit] STRIDE1-POS fit: ref grids [(64, 48), (35, 48)] centered in (64,48)</span>
+<span class="lg-prog"> 50%|█████     | 4/8 [00:08&lt;00:08,  2.13s/it][krea2edit] STRIDE1-POS fit: ref grids [(64, 48), (35, 48)] centered in (64,48)</span>
+<span class="lg-prog"> 62%|██████▎   | 5/8 [00:10&lt;00:06,  2.14s/it][krea2edit] STRIDE1-POS fit: ref grids [(64, 48), (35, 48)] centered in (64,48)</span>
+<span class="lg-prog"> 75%|███████▌  | 6/8 [00:12&lt;00:04,  2.13s/it][krea2edit] STRIDE1-POS fit: ref grids [(64, 48), (35, 48)] centered in (64,48)</span>
+<span class="lg-prog"> 88%|████████▊ | 7/8 [00:14&lt;00:02,  2.17s/it][krea2edit] STRIDE1-POS fit: ref grids [(64, 48), (35, 48)] centered in (64,48)</span>
+<span class="lg-prog">100%|██████████| 8/8 [00:17&lt;00:00,  2.14s/it]VRAM清理完成 [卸载模型: False, 清空缓存: False]</span>
+
+<span class="lg-omni">[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=550.0MiB</span>
+<span class="lg-info">[INFO] Model WanVAE prepared for dynamic VRAM loading. 483MB Staged. 0 patches attached. Force pre-loaded 60 weights: 89 KB.</span>
+<span class="lg-info">[INFO] VRAMdebug: free memory before: 33,526,931,456</span>
+<span class="lg-info">[INFO] VRAMdebug: free memory after: 33,530,599,936</span>
+<span class="lg-info">[INFO] VRAMdebug: freed memory: 3,668,480</span>
+<span class="lg-info">[INFO] Prompt executed in 71.83 seconds</span>
+<span class="lg-info">[INFO] got prompt</span>
+# 😺dzNodes: LayerStyle -&gt; ImageScaleByAspectRatio V2 Processed 1 image(s).
+<span class="lg-info">[INFO] Requested to load Krea2TEModel_</span>
+<span class="lg-info">[INFO] Model Krea2TEModel_ prepared for dynamic VRAM loading. 4999MB Staged. 0 patches attached. Force pre-loaded 249 weights: 627 KB.</span>
+<span class="lg-info">[INFO] Model Krea2TEModel_ prepared for dynamic VRAM loading. 4999MB Staged. 0 patches attached. Force pre-loaded 249 weights: 627 KB.</span>
+<span class="lg-omni">[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=4125.0MiB</span>
+<span class="lg-info">[INFO] Requested to load WanVAE</span>
+<span class="lg-info">[INFO] Model WanVAE prepared for dynamic VRAM loading. 483MB Staged. 0 patches attached. Force pre-loaded 60 weights: 89 KB.</span>
+[krea2edit] pre-encoding sources at target 1024x704px (before sampling, fit_mode=fit)
+[krea2edit] _fit_encode_image: mode=fit in=(1, 1024, 704, 3) target_latent=128x88
+<span class="lg-omni">[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=4125.0MiB</span>
+<span class="lg-info">[INFO] Model WanVAE prepared for dynamic VRAM loading. 483MB Staged. 0 patches attached. Force pre-loaded 60 weights: 89 KB.</span>
+[krea2edit] _fit_encode_image: mode=fit in=(1, 752, 1024, 3) target_latent=128x88
+<span class="lg-omni">[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=2062.5MiB</span>
+<span class="lg-info">[INFO] Model WanVAE prepared for dynamic VRAM loading. 483MB Staged. 0 patches attached. Force pre-loaded 60 weights: 89 KB.</span>
+<span class="lg-omni">[INFO] [OmniXPU] LoRA model budget applied: cached=1743.5MiB/512 tensors requested=991.2-&gt;2734.7MiB minimum=495.6-&gt;2239.1MiB xpu_allocated=0.9MiB xpu_reserved=4.0MiB xpu_free=19884.3MiB</span>
+<span class="lg-omni">[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=2239.1MiB</span>
+<span class="lg-info">[INFO] Requested to load Krea2</span>
+<span class="lg-info">[INFO] Model Krea2 prepared for dynamic VRAM loading. 12864MB Staged. 256 patches attached. Force pre-loaded 160 weights: 2824 KB.</span>
+<span class="lg-omni">[INFO] [OmniXPU] LoRA model load complete: xpu_allocated=3.6MiB xpu_reserved=4.0MiB xpu_free=19884.3MiB</span>
+<span class="lg-prog">  0%|          | 0/8 [00:00&lt;?, ?it/s,   Model Initializing ...  ][krea2edit] pixel path ACTIVE (fit_mode=fit)</span>
+[krea2edit] STRIDE1-POS fit: ref grids [(64, 44), (32, 44)] centered in (64,44)
+<span class="lg-prog"> 12%|█▎        | 1/8 [00:10&lt;01:12, 10.33s/it,  Model Initialization complete!  ][krea2edit] STRIDE1-POS fit: ref grids [(64, 44), (32, 44)] centered in (64,44)</span>
+<span class="lg-prog"> 25%|██▌       | 2/8 [00:03&lt;00:11,  1.88s/it][krea2edit] STRIDE1-POS fit: ref grids [(64, 44), (32, 44)] centered in (64,44)</span>
+<span class="lg-prog"> 38%|███▊      | 3/8 [00:05&lt;00:09,  1.87s/it][krea2edit] STRIDE1-POS fit: ref grids [(64, 44), (32, 44)] centered in (64,44)</span>
+<span class="lg-prog"> 50%|█████     | 4/8 [00:07&lt;00:07,  1.86s/it][krea2edit] STRIDE1-POS fit: ref grids [(64, 44), (32, 44)] centered in (64,44)</span>
+<span class="lg-prog"> 62%|██████▎   | 5/8 [00:09&lt;00:05,  1.87s/it][krea2edit] STRIDE1-POS fit: ref grids [(64, 44), (32, 44)] centered in (64,44)</span>
+<span class="lg-prog"> 75%|███████▌  | 6/8 [00:11&lt;00:03,  1.87s/it][krea2edit] STRIDE1-POS fit: ref grids [(64, 44), (32, 44)] centered in (64,44)</span>
+<span class="lg-prog"> 88%|████████▊ | 7/8 [00:13&lt;00:01,  1.88s/it][krea2edit] STRIDE1-POS fit: ref grids [(64, 44), (32, 44)] centered in (64,44)</span>
+<span class="lg-prog">100%|██████████| 8/8 [00:15&lt;00:00,  1.88s/it]VRAM清理完成 [卸载模型: False, 清空缓存: False]</span>
+
+<span class="lg-omni">[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=550.0MiB</span>
+<span class="lg-info">[INFO] Model WanVAE prepared for dynamic VRAM loading. 483MB Staged. 0 patches attached. Force pre-loaded 60 weights: 89 KB.</span>
+<span class="lg-info">[INFO] VRAMdebug: free memory before: 33,526,931,456</span>
+<span class="lg-info">[INFO] VRAMdebug: free memory after: 33,530,599,936</span>
+<span class="lg-info">[INFO] VRAMdebug: freed memory: 3,668,480</span>
+<span class="lg-info">[INFO] Prompt executed in 37.02 seconds</span></pre>
+  </details>
+
+  <footer>
+    由 <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection" target="_blank">IntelGpu-ComfyUI-Collection</a> 自动生成 ·
+    <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/log-analysis/20261023_Krea2Edit_omnixpu%E5%8A%A0%E9%80%9F_B70_64G_%E5%86%B7%E5%90%AF%2B%E7%83%AD%E5%90%AF.txt" target="_blank">20261023_Krea2Edit_omnixpu加速_B70_64G_冷启+热启.txt 源文件</a>
+  </footer>
+
+</div>
+</body>
+</html>

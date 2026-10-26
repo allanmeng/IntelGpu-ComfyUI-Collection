@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IntelGpu-ComfyUI-Collection - 执行日志</title>
+<style>
+  :root {
+    --intel-blue: #0071c5;
+    --intel-blue-dark: #005a99;
+    --bg: #f6f8fa;
+    --card: #ffffff;
+    --text: #24292f;
+    --text-muted: #57606a;
+    --border: #d0d7de;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.6;
+  }
+  .container { max-width: 1100px; margin: 0 auto; padding: 24px 20px 48px; }
+  header { text-align: center; padding: 40px 0 24px; }
+  header h1 { font-size: 30px; font-weight: 700; color: var(--intel-blue); }
+  header .note { margin-top: 12px; font-size: 14px; color: var(--text-muted); }
+  .chips { margin-top: 14px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .chip {
+    font-size: 12px; padding: 5px 12px; border-radius: 999px;
+    background: #e8f1fb; color: var(--intel-blue-dark); border: 1px solid #c8e0f5;
+    text-decoration: none; display: inline-block;
+  }
+  .chip-active { background: var(--intel-blue); color: #fff; border-color: var(--intel-blue); }
+  .sec-title { font-size: 17px; font-weight: 600; margin: 32px 0 14px; }
+  .sort-banner {
+    margin: 28px 0 8px; background: linear-gradient(90deg, #e8f1fb, #f0f7fd);
+    border: 1px solid #c8e0f5; border-radius: 10px; padding: 10px 16px;
+    font-size: 13px; color: var(--intel-blue-dark); text-align: center; line-height: 1.8;
+  }
+  .mx-block {
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 16px 18px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(31,35,40,0.06);
+  }
+  .mx-wrap { overflow-x: auto; }
+  table.mx { width: 100%; border-collapse: collapse; font-size: 13px; white-space: nowrap; }
+  table.mx th {
+    text-align: left; font-weight: 600; color: var(--text-muted); font-size: 12px;
+    padding: 6px 10px; border-bottom: 1px solid var(--border);
+  }
+  table.mx td { padding: 7px 10px; border-bottom: 1px solid #eef0f2; }
+  table.mx tr:last-child td { border-bottom: none; }
+  table.mx a { color: var(--intel-blue); text-decoration: none; }
+  table.mx a:hover { text-decoration: underline; }
+  .mx-num { text-align: right; font-variant-numeric: tabular-nums; }
+  .log-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+  .log-card {
+    display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: 0 16px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 16px 18px; text-decoration: none; color: inherit;
+    box-shadow: 0 1px 3px rgba(31,35,40,0.06);
+    transition: box-shadow 0.15s ease, border-color 0.15s ease;
+  }
+  .log-when {
+    display: flex; flex-direction: column; gap: 2px; padding-right: 14px;
+    border-right: 1px solid #eef0f2; text-align: right; font-variant-numeric: tabular-nums;
+  }
+  .log-date { font-size: 13px; font-weight: 600; color: var(--text); }
+  .log-time { font-size: 12px; color: var(--text-muted); }
+  .log-main { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .log-card:hover { box-shadow: 0 4px 12px rgba(31,35,40,0.12); border-color: #c8e0f5; }
+  .log-head { display: flex; align-items: baseline; gap: 8px 12px; flex-wrap: wrap; }
+  .log-wf { font-size: 15px; font-weight: 600; }
+  .log-tags {
+    margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap;
+    justify-content: flex-end; align-items: center;
+  }
+  .tag {
+    font-size: 12px; line-height: 18px; padding: 1px 8px; border-radius: 6px;
+    background: #f3f4f6; border: 1px solid #e5e7eb; color: var(--text-muted);
+    white-space: nowrap;
+  }
+  .tag-scheme {
+    color: var(--intel-blue-dark); background: #e8f1fb; border-color: #c8e0f5;
+  }
+  .tag-card {
+    color: #6b3fc4; background: #f4efff; border-color: #ddd0fa;
+  }
+  .tag-vram {
+    color: #9a5b00; background: #fff5e2; border-color: #f2dcaf;
+  }
+  .log-nums { display: flex; gap: 18px; flex-wrap: wrap; }
+  .log-nums .st { display: flex; flex-direction: column; }
+  .log-nums .st i { font-style: normal; font-size: 11px; color: var(--text-muted); }
+  .log-nums .st b { font-size: 17px; font-variant-numeric: tabular-nums; }
+  .log-models {
+    display: flex; flex-direction: column; gap: 3px;
+    padding-top: 10px; border-top: 1px dashed #e5e7eb;
+  }
+  .model-row { display: flex; gap: 8px; font-size: 12px; align-items: baseline; }
+  .model-row i {
+    font-style: normal; color: var(--text-muted); flex: 0 0 auto;
+    min-width: 32px; font-size: 11px;
+  }
+  .model-row span {
+    color: var(--text); overflow-wrap: anywhere; word-break: normal;
+    font-family: "Cascadia Mono", Consolas, monospace; font-size: 11px; line-height: 1.5;
+  }
+  .model-row span.model-cls { color: var(--text-muted); font-style: italic; cursor: help; }
+  .pill {
+    font-size: 11px; color: var(--text-muted); background: #f3f4f6;
+    border: 1px solid #e5e7eb; border-radius: 999px; padding: 2px 8px;
+  }
+  .pill b { color: var(--text); font-weight: 600; }
+  .pill-attn { background: #f0f7fd; border-color: #c8e0f5; color: var(--intel-blue-dark); }
+  .log-file { font-size: 11px; color: #8c959f; overflow-wrap: anywhere; word-break: normal; }
+  .empty { text-align: center; color: var(--text-muted); font-size: 14px; padding: 48px 0; }
+  footer { text-align: center; margin-top: 40px; font-size: 12px; color: var(--text-muted); }
+  footer a { color: var(--intel-blue); text-decoration: none; }
+  .back { display: inline-block; margin-bottom: 18px; font-size: 13px; color: var(--intel-blue); text-decoration: none; }
+  .back:hover { text-decoration: underline; }
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(150px, 100%), 1fr)); gap: 10px; margin: 18px 0 8px; }
+  .stat-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; }
+  .stat-box i { font-style: normal; display: block; font-size: 11px; color: var(--text-muted); }
+  .stat-box b { font-size: 18px; font-variant-numeric: tabular-nums; }
+  .raw { margin-top: 10px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .raw summary { cursor: pointer; padding: 12px 16px; font-size: 14px; font-weight: 600; background: #fafbfc; }
+  .raw pre {
+    margin: 0; padding: 14px 16px; font-size: 12px; line-height: 1.55;
+    font-family: "Cascadia Mono", Consolas, "Courier New", monospace;
+    overflow-x: auto; white-space: pre; color: #24292f; max-height: 720px; overflow-y: auto;
+  }
+  .lg-info { color: #57606a; }
+  .lg-warn { color: #9a6700; background: #fff8e5; display: block; width: max-content; min-width: 100%; }
+  .lg-err { color: #a40e26; background: #fdecee; display: block; width: max-content; min-width: 100%; }
+  .lg-omni { color: #005a99; }
+  .lg-prog { color: #8c959f; }
+
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>IntelGpu-ComfyUI-Collection</h1>
+    <p class="note">从 ComfyUI 运行日志中自动抽取的性能指标</p>
+    <div class="chips">
+      <a class="chip" href="index.html">项目收集</a>
+      <a class="chip" href="links.html">组件下载</a>
+      <a class="chip" href="cloud_drive_collection.html">资源聚合</a>
+      <a class="chip" href="comfyui_opt.html">工作台优化</a>
+      <span class="chip chip-active">执行日志</span>
+      <a class="chip" href="group.html">互助社群</a>
+      <a class="chip" href="https://blog.blackwood.cv/news/latest" target="_blank" rel="noopener">生态日报 ↗</a>
+    </div>
+  </header>
+
+  <div class="sort-banner">
+    <span class="dot"></span>按时间倒排（新 → 旧） · 指标由脚本从原始日志正则抽取 · 日期取文件名、时刻取文件修改时间 · 点击日志进入全文
+  </div>
+
+  <h2 class="sec-title">全部日志</h2>
+  <div class="log-grid">
+    <a class="log-card" href="logs/20261026-Krea2Edit-omnixpu加速-B70-64G.html">
+      <div class="log-when"><span class="log-date">2026-10-26</span><span class="log-time">21:57</span></div>
+      <div class="log-main">
+        <div class="log-head"><span class="log-wf">Krea2Edit</span><span class="log-tags"><span class="tag tag-scheme">omnixpu加速</span><span class="tag tag-card" title="显卡">B70</span><span class="tag tag-vram" title="显存">64G</span></span></div>
+        <div class="log-nums"><span class="st"><i>冷启</i><b>115.97 s</b></span><span class="st"><i>热启</i><b>36.96 s</b></span></div>
+        <div class="log-models">
+          <div class="model-row"><i>底模</i><span>krea2_<wbr>turbo_<wbr>int8_<wbr>convrot<wbr>.safetensors</span></div>
+          <div class="model-row"><i>TE</i><span>qwen3vl_<wbr>4b_<wbr>fp8_<wbr>scaled<wbr>.safetensors</span></div>
+          <div class="model-row"><i>VAE</i><span>qwen_<wbr>image_<wbr>vae<wbr>.safetensors</span></div>
+        </div>
+        <div class="log-file">20261026_Krea2Edit_omnixpu加速_B70_64G_冷启+热启.txt</div>
+      </div>
+    </a>
+    <a class="log-card" href="logs/20261023-h3_FL2VA-pytorchxpu原生-B70-64G.html">
+      <div class="log-when"><span class="log-date">2026-10-23</span><span class="log-time">20:27</span></div>
+      <div class="log-main">
+        <div class="log-head"><span class="log-wf">h3_FL2VA</span><span class="log-tags"><span class="tag tag-scheme">pytorchxpu原生</span><span class="tag tag-card" title="显卡">B70</span><span class="tag tag-vram" title="显存">64G</span></span></div>
+        <div class="log-nums"><span class="st"><i>冷启</i><b>384.69 s</b></span><span class="st"><i>热启</i><b>204.65 s</b></span></div>
+        <div class="log-models">
+          <div class="model-row"><i>底模</i><span>minimax_<wbr>h3_<wbr>fl2va_<wbr>pruned_<wbr>int8_<wbr>convrot<wbr>.safetensors</span></div>
+          <div class="model-row"><i>TE</i><span>qwen3vl_<wbr>32b_<wbr>minimax_<wbr>h3_<wbr>int8_<wbr>convrot<wbr>.safetensors</span></div>
+          <div class="model-row"><i>VAE</i><span>minimax_<wbr>h3_<wbr>audio_<wbr>vae_<wbr>fp32<wbr>.safetensors /<wbr> minimax_<wbr>h3_<wbr>video_<wbr>vae_<wbr>fp16<wbr>.safetensors</span></div>
+        </div>
+        <div class="log-file">20261023_h3_FL2VA_pytorchxpu原生_B70_64G_冷启+热启.txt</div>
+      </div>
+    </a>
+    <a class="log-card" href="logs/20261023-h3_FL2VA-omnixpu加速-B70-64G.html">
+      <div class="log-when"><span class="log-date">2026-10-23</span><span class="log-time">20:27</span></div>
+      <div class="log-main">
+        <div class="log-head"><span class="log-wf">h3_FL2VA</span><span class="log-tags"><span class="tag tag-scheme">omnixpu加速</span><span class="tag tag-card" title="显卡">B70</span><span class="tag tag-vram" title="显存">64G</span></span></div>
+        <div class="log-nums"><span class="st"><i>冷启</i><b>211.47 s</b></span><span class="st"><i>热启</i><b>182.45 s</b></span></div>
+        <div class="log-models">
+          <div class="model-row"><i>底模</i><span><span class="model-cls" title="该日志未打印文件名，此处为模型类名">MiniMaxH3</span></span></div>
+          <div class="model-row"><i>TE</i><span><span class="model-cls" title="该日志未打印文件名，此处为模型类名">MiniMaxH3TEModel_</span></span></div>
+          <div class="model-row"><i>VAE</i><span><span class="model-cls" title="该日志未打印文件名，此处为模型类名">MiniMaxH3AudioVAE</span> /<wbr> <span class="model-cls" title="该日志未打印文件名，此处为模型类名">MiniMaxH3VideoVAE</span></span></div>
+        </div>
+        <div class="log-file">20261023_h3_FL2VA_omnixpu加速_B70_64G_冷启+热启.txt</div>
+      </div>
+    </a>
+    <a class="log-card" href="logs/20261023-Krea2Edit-pytorchxpu原生-B70-64G.html">
+      <div class="log-when"><span class="log-date">2026-10-23</span><span class="log-time">20:27</span></div>
+      <div class="log-main">
+        <div class="log-head"><span class="log-wf">Krea2Edit</span><span class="log-tags"><span class="tag tag-scheme">pytorchxpu原生</span><span class="tag tag-card" title="显卡">B70</span><span class="tag tag-vram" title="显存">64G</span></span></div>
+        <div class="log-nums"><span class="st"><i>冷启</i><b>122.62 s</b></span><span class="st"><i>热启</i><b>46.66 s</b></span></div>
+        <div class="log-models">
+          <div class="model-row"><i>底模</i><span>krea2_<wbr>turbo_<wbr>int8_<wbr>convrot<wbr>.safetensors</span></div>
+          <div class="model-row"><i>TE</i><span>qwen3vl_<wbr>4b_<wbr>fp8_<wbr>scaled<wbr>.safetensors</span></div>
+          <div class="model-row"><i>VAE</i><span>qwen_<wbr>image_<wbr>vae<wbr>.safetensors</span></div>
+        </div>
+        <div class="log-file">20261023_Krea2Edit_pytorchxpu原生_B70_64G_冷启+热启.txt</div>
+      </div>
+    </a>
+    <a class="log-card" href="logs/20261023-Krea2Edit-omnixpu加速-B70-64G.html">
+      <div class="log-when"><span class="log-date">2026-10-23</span><span class="log-time">20:27</span></div>
+      <div class="log-main">
+        <div class="log-head"><span class="log-wf">Krea2Edit</span><span class="log-tags"><span class="tag tag-scheme">omnixpu加速</span><span class="tag tag-card" title="显卡">B70</span><span class="tag tag-vram" title="显存">64G</span></span></div>
+        <div class="log-nums"><span class="st"><i>冷启</i><b>71.83 s</b></span><span class="st"><i>热启</i><b>37.02 s</b></span></div>
+        <div class="log-models">
+          <div class="model-row"><i>底模</i><span><span class="model-cls" title="该日志未打印文件名，此处为模型类名">Krea2</span></span></div>
+          <div class="model-row"><i>TE</i><span><span class="model-cls" title="该日志未打印文件名，此处为模型类名">Krea2TEModel_</span></span></div>
+          <div class="model-row"><i>VAE</i><span><span class="model-cls" title="该日志未打印文件名，此处为模型类名">WanVAE</span></span></div>
+        </div>
+        <div class="log-file">20261023_Krea2Edit_omnixpu加速_B70_64G_冷启+热启.txt</div>
+      </div>
+    </a>
+  </div>
+
+  <footer>
+    由 <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection" target="_blank">IntelGpu-ComfyUI-Collection</a> 自动生成 ·
+    <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/tree/main/log-analysis" target="_blank">log-analysis/ 原始日志</a>
+  </footer>
+
+</div>
+</body>
+</html>
