@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>h3_FL2VA / omnixpu加速 / B70 / 64G - 执行日志</title>
+<title>h3_FL2VA_1mp10s / omnixpu加速 / B70 / 64G - 执行日志</title>
 <style>
   :root {
     --intel-blue: #0071c5;
@@ -142,7 +142,7 @@
 
   <header>
     <h1>IntelGpu-ComfyUI-Collection</h1>
-    <p class="note">20261023_h3_FL2VA_omnixpu加速_B70_64G_冷启+热启.txt · 2026-10-23 02:52</p>
+    <p class="note">202610271807_h3_FL2VA_1mp10s_omnixpu加速_B70_64G_冷启+热启.txt · 2026-10-27 18:07</p>
     <div class="chips">
       <a class="chip" href="../index.html">项目收集</a>
       <a class="chip" href="../links.html">组件下载</a>
@@ -157,10 +157,10 @@
   <a class="back" href="../logs.html">← 返回执行日志</a>
 
   <div class="stat-grid">
-    <div class="stat-box"><i>冷启</i><b>211.47 s</b></div>
-    <div class="stat-box"><i>热启</i><b>182.45 s</b></div>
-    <div class="stat-box"><i>热启 vs 冷启</i><b>1.16×</b></div>
-    <div class="stat-box"><i>每步耗时</i><b>27.23 s/it</b></div>
+    <div class="stat-box"><i>冷启</i><b>541.03 s</b></div>
+    <div class="stat-box"><i>热启</i><b>475.70 s</b></div>
+    <div class="stat-box"><i>热启 vs 冷启</i><b>1.14×</b></div>
+    <div class="stat-box"><i>每步耗时</i><b>103.80 s/it</b></div>
     <div class="stat-box"><i>峰值 staged</i><b>25,882 MB</b></div>
   </div>
 
@@ -170,8 +170,8 @@
         <table class="mx">
           <thead><tr><th>阶段</th><th class="mx-num">耗时</th><th class="mx-num">步数</th><th class="mx-num">s/it</th><th class="mx-num">staged MB</th><th>其他指标</th></tr></thead>
           <tbody>
-          <tr><td>冷启</td><td class="mx-num">211.47 s</td><td class="mx-num">4</td><td class="mx-num">27.23</td><td class="mx-num">25,882</td><td><span class="pill pill-attn">CUTE_BHLD_D128 ×3</span><span class="pill pill-attn">CUTE_H3_VAE_D64 ×3</span></td></tr>
-          <tr><td>热启</td><td class="mx-num">182.45 s</td><td class="mx-num">4</td><td class="mx-num">27.64</td><td class="mx-num">25,882</td><td>—</td></tr>
+          <tr><td>冷启</td><td class="mx-num">541.03 s</td><td class="mx-num">4</td><td class="mx-num">103.80</td><td class="mx-num">25,882</td><td><span class="pill pill-attn">CUTE_BHLD_D128 ×3</span><span class="pill pill-attn">CUTE_H3_VAE_D64 ×3</span></td></tr>
+          <tr><td>热启</td><td class="mx-num">475.70 s</td><td class="mx-num">4</td><td class="mx-num">103.75</td><td class="mx-num">19,995</td><td>—</td></tr>
           </tbody>
         </table>
       </div>
@@ -180,62 +180,63 @@
   <details class="raw" open>
     <summary>原始日志全文（已脱敏本地路径）</summary>
     <pre><span class="lg-info">[INFO] got prompt</span>
+<span class="lg-info">[INFO] Model storage policy: fast_disk=False paths=[&#x27;&lt;本地路径&gt;/minimax_h3_audio_vae_fp32.safetensors&#x27;]</span>
 <span class="lg-info">[INFO] VAE load device: xpu:0, offload device: cpu, dtype: torch.float32</span>
+<span class="lg-info">[INFO] Model storage policy: fast_disk=False paths=[&#x27;&lt;本地路径&gt;/minimax_h3_video_vae_fp16.safetensors&#x27;]</span>
 <span class="lg-info">[INFO] VAE load device: xpu:0, offload device: cpu, dtype: torch.float16</span>
 <span class="lg-info">[INFO] Found quantization metadata version 1</span>
 <span class="lg-info">[INFO] Using MixedPrecisionOps for text encoder</span>
+<span class="lg-info">[INFO] Model storage policy: fast_disk=False paths=[&#x27;&lt;本地路径&gt;/qwen3vl_32b_minimax_h3_int8_convrot.safetensors&#x27;]</span>
 <span class="lg-info">[INFO] CLIP/text encoder model load device: xpu:0, offload device: cpu, current: cpu, dtype: torch.float16</span>
 <span class="lg-info">[INFO] Requested to load MiniMaxH3TEModel_</span>
 <span class="lg-info">[INFO] Model MiniMaxH3TEModel_ prepared for dynamic VRAM loading. 25882MB Staged. 0 patches attached. Force pre-loaded 310 weights: 1272 KB.</span>
-<span class="lg-omni">[INFO] [OmniXPU] norm first use: LayerNorm shape=torch.Size([1620, 1152])</span>
-<span class="lg-omni">[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=221.8MiB</span>
+<span class="lg-omni">[INFO] [OmniXPU] norm first use: LayerNorm shape=torch.Size([4128, 1152])</span>
+<span class="lg-omni">[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=230.6MiB</span>
 <span class="lg-info">[INFO] Requested to load MiniMaxH3VideoVAE</span>
-<span class="lg-info">[INFO] Model MiniMaxH3VideoVAE prepared for dynamic VRAM loading. 4965MB Staged. 0 patches attached. Force pre-loaded 128 weights: 348 KB.</span>
+<span class="lg-info">[INFO] Model MiniMaxH3VideoVAE prepared for dynamic VRAM loading. 4965MB Staged. 0 patches attached. Force pre-loaded 128 weights: 352 KB.</span>
 <span class="lg-info">[INFO] Found quantization metadata version 1</span>
 <span class="lg-info">[INFO] Detected mixed precision quantization</span>
 <span class="lg-info">[INFO] Using mixed precision operations</span>
-<span class="lg-info">[INFO] Native ops: asym_w4a8_int8, convrot_w4a4, int8_tensorwise , emulated ops: float8_e4m3fn, mxfp8, float8_e5m2, nvfp4</span>
+<span class="lg-info">[INFO] Native ops: int8_tensorwise , emulated ops: float8_e4m3fn, float8_e5m2, mxfp8, convrot_w4a4, asym_w4a8_int8, w6a8_int8, nvfp4</span>
 <span class="lg-info">[INFO] model weight dtype torch.bfloat16, manual cast: torch.bfloat16</span>
 <span class="lg-info">[INFO] model_type FLOW_AV</span>
+<span class="lg-info">[INFO] Model storage policy: fast_disk=False paths=[&#x27;&lt;本地路径&gt;/minimax_h3_fl2va_pruned_int8_convrot.safetensors&#x27;]</span>
 <span class="lg-omni">[INFO] [OmniXPU] LoRA memory budget cached: source=1865.5MiB/416 tensors model_added=1865.5MiB model_budget=1865.5MiB clip_added=0.0MiB clip_budget=0.0MiB</span>
-<span class="lg-omni">[INFO] [OmniXPU] LoRA model budget applied: cached=1865.5MiB/416 tensors requested=12883.3-&gt;14748.8MiB minimum=6441.6-&gt;8307.1MiB xpu_allocated=1.9MiB xpu_reserved=2.0MiB xpu_free=26995.1MiB</span>
-<span class="lg-omni">[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=8307.1MiB</span>
+<span class="lg-omni">[INFO] [OmniXPU] LoRA model budget applied: cached=1865.5MiB/416 tensors requested=32645.5-&gt;34511.0MiB minimum=16322.8-&gt;18188.3MiB xpu_allocated=1.9MiB xpu_reserved=2.0MiB xpu_free=26330.8MiB</span>
+<span class="lg-omni">[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=18188.3MiB</span>
 <span class="lg-info">[INFO] Requested to load MiniMaxH3</span>
 <span class="lg-info">[INFO] Model MiniMaxH3 prepared for dynamic VRAM loading. 19995MB Staged. 208 patches attached. Force pre-loaded 210 weights: 1175 KB.</span>
-<span class="lg-omni">[INFO] [OmniXPU] LoRA model load complete: xpu_allocated=3.1MiB xpu_reserved=4.0MiB xpu_free=26995.2MiB</span>
+<span class="lg-omni">[INFO] [OmniXPU] LoRA model load complete: xpu_allocated=3.1MiB xpu_reserved=4.0MiB xpu_free=26330.8MiB</span>
 <span class="lg-warn">[WARNING] [OmniXPU] experimental capability-driven BMG D128 CUTE route enabled; set OMNI_ATTN_BACKEND=torch to disable it if this workflow shows an issue</span>
-<span class="lg-omni">[INFO] [OmniXPU] attention CUTE_BHLD_D128 #1: heads=56 q=419 kv=419 dtype=torch.bfloat16</span>
-<span class="lg-omni">[INFO] [OmniXPU] attention CUTE_BHLD_D128 #2: heads=56 q=419 kv=419 dtype=torch.bfloat16</span>
-<span class="lg-omni">  0%|          | 0/4 [00:00&lt;?, ?it/s,   Model Initializing ...  ][INFO] [OmniXPU] attention CUTE_BHLD_D128 #3: heads=56 q=30794 kv=30794 dtype=torch.bfloat16</span>
-<span class="lg-prog">100%|██████████| 4/4 [01:48&lt;00:00, 27.23s/it]</span>
+<span class="lg-omni">[INFO] [OmniXPU] attention CUTE_BHLD_D128 #1: heads=56 q=1054 kv=1054 dtype=torch.bfloat16</span>
+<span class="lg-omni">[INFO] [OmniXPU] attention CUTE_BHLD_D128 #2: heads=56 q=1054 kv=1054 dtype=torch.bfloat16</span>
+<span class="lg-omni">  0%|          | 0/4 [00:00&lt;?, ?it/s,   Model Initializing ...  ][INFO] [OmniXPU] attention CUTE_BHLD_D128 #3: heads=56 q=77200 kv=77200 dtype=torch.bfloat16</span>
+<span class="lg-prog">100%|██████████| 4/4 [06:55&lt;00:00, 103.80s/it]</span>
 <span class="lg-omni">[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=358.7MiB</span>
 <span class="lg-info">[INFO] Requested to load MiniMaxH3AudioVAE</span>
 <span class="lg-info">[INFO] Model MiniMaxH3AudioVAE prepared for dynamic VRAM loading. 576MB Staged. 0 patches attached. Force pre-loaded 401 weights: 539 KB.</span>
-<span class="lg-omni">[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=762.6MiB</span>
+<span class="lg-omni">[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=1122.1MiB</span>
 <span class="lg-info">[INFO] Model MiniMaxH3VideoVAE prepared for dynamic VRAM loading. 4965MB Staged. 0 patches attached. Force pre-loaded 128 weights: 348 KB.</span>
 <span class="lg-omni">[INFO] [OmniXPU] attention CUTE_H3_VAE_D64 #1: heads=32 seq=1797 dtype=torch.float16</span>
 <span class="lg-omni">[INFO] [OmniXPU] attention CUTE_H3_VAE_D64 #2: heads=32 seq=1797 dtype=torch.float16</span>
 <span class="lg-omni">[INFO] [OmniXPU] attention CUTE_H3_VAE_D64 #3: heads=32 seq=1797 dtype=torch.float16</span>
-<span class="lg-info">[INFO] Prompt executed in 211.47 seconds</span>
+<span class="lg-info">[INFO] Prompt executed in 541.03 seconds</span>
 <span class="lg-info">[INFO] got prompt</span>
-<span class="lg-info">[INFO] Model MiniMaxH3TEModel_ prepared for dynamic VRAM loading. 25882MB Staged. 0 patches attached. Force pre-loaded 310 weights: 1272 KB.</span>
-<span class="lg-omni">[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=221.8MiB</span>
-<span class="lg-info">[INFO] Model MiniMaxH3VideoVAE prepared for dynamic VRAM loading. 4965MB Staged. 0 patches attached. Force pre-loaded 128 weights: 348 KB.</span>
-<span class="lg-omni">[INFO] [OmniXPU] LoRA model budget applied: cached=1865.5MiB/416 tensors requested=12883.3-&gt;14748.8MiB minimum=6441.6-&gt;8307.1MiB xpu_allocated=4.0MiB xpu_reserved=4.0MiB xpu_free=18443.0MiB</span>
-<span class="lg-omni">[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=8307.1MiB</span>
+<span class="lg-omni">[INFO] [OmniXPU] LoRA model budget applied: cached=1865.5MiB/416 tensors requested=32645.5-&gt;34511.0MiB minimum=16322.8-&gt;18188.3MiB xpu_memory=available xpu_allocated=4.2MiB xpu_reserved=6.0MiB xpu_free=20266.2MiB xpu_total=31977.4MiB</span>
+<span class="lg-omni">[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=18188.3MiB</span>
 <span class="lg-info">[INFO] Model MiniMaxH3 prepared for dynamic VRAM loading. 19995MB Staged. 208 patches attached. Force pre-loaded 210 weights: 1175 KB.</span>
-<span class="lg-omni">[INFO] [OmniXPU] LoRA model load complete: xpu_allocated=4.0MiB xpu_reserved=4.0MiB xpu_free=18407.1MiB</span>
-<span class="lg-prog">100%|██████████| 4/4 [01:50&lt;00:00, 27.64s/it]</span>
+<span class="lg-omni">[INFO] [OmniXPU] LoRA model load complete: xpu_memory=available xpu_allocated=4.2MiB xpu_reserved=6.0MiB xpu_free=20266.2MiB xpu_total=31977.4MiB</span>
+<span class="lg-prog">100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 4/4 [06:54&lt;00:00, 103.75s/it]</span>
 <span class="lg-omni">[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=358.7MiB</span>
 <span class="lg-info">[INFO] Model MiniMaxH3AudioVAE prepared for dynamic VRAM loading. 576MB Staged. 0 patches attached. Force pre-loaded 401 weights: 539 KB.</span>
-<span class="lg-omni">[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=762.6MiB</span>
-<span class="lg-info">[INFO] Model MiniMaxH3VideoVAE prepared for dynamic VRAM loading. 4965MB Staged. 0 patches attached. Force pre-loaded 128 weights: 348 KB.</span>
-<span class="lg-info">[INFO] Prompt executed in 182.45 seconds</span></pre>
+<span class="lg-omni">[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=1122.1MiB</span>
+<span class="lg-info">[INFO] Model MiniMaxH3VideoVAE prepared for dynamic VRAM loading. 4965MB Staged. 0 patches attached. Force pre-loaded 128 weights: 352 KB.</span>
+<span class="lg-info">[INFO] Prompt executed in 475.70 seconds</span></pre>
   </details>
 
   <footer>
     由 <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection" target="_blank">IntelGpu-ComfyUI-Collection</a> 自动生成 ·
-    <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/log-analysis/20261023_h3_FL2VA_omnixpu%E5%8A%A0%E9%80%9F_B70_64G_%E5%86%B7%E5%90%AF%2B%E7%83%AD%E5%90%AF.txt" target="_blank">20261023_h3_FL2VA_omnixpu加速_B70_64G_冷启+热启.txt 源文件</a>
+    <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/log-analysis/202610271807_h3_FL2VA_1mp10s_omnixpu%E5%8A%A0%E9%80%9F_B70_64G_%E5%86%B7%E5%90%AF%2B%E7%83%AD%E5%90%AF.txt" target="_blank">202610271807_h3_FL2VA_1mp10s_omnixpu加速_B70_64G_冷启+热启.txt 源文件</a>
   </footer>
 
 </div>
