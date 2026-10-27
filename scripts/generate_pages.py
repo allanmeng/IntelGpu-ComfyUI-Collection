@@ -1490,7 +1490,7 @@ LOGS_DIRNAME = "log-analysis"
 # 日志格式固定，指标用正则直取（不引第三方解析器）
 _RE_PROMPT_SPLIT = re.compile(r"^\[INFO\] got prompt\s*$", re.M)
 _RE_EXEC = re.compile(r"Prompt executed in ([\d.]+) seconds")
-_RE_PROGRESS = re.compile(r"(\d+)/(\d+) \[[\d:]+<[\d:]+,?\s*([\d.]+)s/it\]")
+_RE_PROGRESS = re.compile(r"(\d+)/(\d+) \[[\d:]+<[\d:]+,?\s*([\d.]+)(s/it|it/s)\]")
 _RE_STAGED = re.compile(r"prepared for dynamic VRAM loading\.\s*(\d+)MB Staged")
 _RE_VRAM_FREE = re.compile(r"VRAMdebug: freed memory:\s*([\d,]+)")
 _RE_ATTN = re.compile(r"attention (CUTE(?:_[A-Za-z0-9_]+)?|fallback)")
@@ -1503,7 +1503,7 @@ _RE_LOAD = re.compile(r"Requested to load ([A-Za-z0-9_]+)")
 _RE_LPATH = re.compile(r"[A-Za-z]:\\\\[^\s'\"\],)]*")
 
 _RE_DATE = re.compile(r"^(20\d{6})$")
-_RE_DATE_TIME = re.compile(r"^(20\d{6})-(\d{2})(\d{2})$")
+_RE_DATE_TIME = re.compile(r"^(20\d{6})-?(\d{2})(\d{2})$")
 _RE_VRAM = re.compile(r"^\d+\s?G(?:B)?$", re.I)
 _RE_CARD = re.compile(r"^(?:A|B)\d{2,4}$", re.I)
 _RE_PRECISION = re.compile(r"^(?:int|fp|bf|nf|w)\d+[a-z0-9_]*$", re.I)
@@ -1561,7 +1561,8 @@ def _logs_parse_name(stem):
     """文件名 → 对比轴。字段位置不限，靠内容识别；识别不了的片段拼回工作流名。
 
     已支持的写法：
-      推荐    20261026-2157_Krea2Edit_omnixpu加速_B70_64G_冷启+热启   （带时刻）
+      推荐    20261026-2157_Krea2Edit_omnixpu加速_B70_64G_冷启+热启   （带时刻，横线分隔）
+      兼容    202610271640_Qwenimage2.1_omnixpu加速_B70_64G_冷启+热启  （时刻连写，命中同名情况）
       新规范  20261026_Krea2Edit_omnixpu加速_B70_64G_冷启+热启        （无时刻）
       旧写法  omnixpu加速_Krea2Edit_B70_64G_冷启+热启                 （字段顺序任意）
     下划线会切断 h3_FL2VA 这类名字，因此识别不了的片段用 _ 拼回，而不是丢弃。
@@ -1602,8 +1603,15 @@ def _logs_scan_segment(seg):
     steps = sec_per_it = None
     prog = _RE_PROGRESS.findall(seg)
     if prog:
-        _, steps, sec_per_it = prog[-1]
-        steps, sec_per_it = int(steps), float(sec_per_it)
+        # tqdm 有两种收尾写法：`1.88s/it`（已有）与 `1.76it/s`（20261027 日志实测），
+        # 后者取倒数换算成 s/it，保持表格同一单位。
+        _, steps, rate, unit = prog[-1]
+        steps = int(steps)
+        rate = float(rate)
+        if unit == "it/s":
+            sec_per_it = round(1.0 / rate, 2) if rate else None
+        else:
+            sec_per_it = rate
 
     staged = [int(x) for x in _RE_STAGED.findall(seg)]
     freed = [int(x.replace(",", "")) for x in _RE_VRAM_FREE.findall(seg)]
@@ -1630,6 +1638,10 @@ def _logs_scan_segment(seg):
     }
 
 
+_RE_TE_NAME = re.compile(
+    r"(?:^|[_\-.])t5(?:$|[_\-.x])|text_encoder|clip|qwen\d(?:\.\d)?vl|umt5|gemma|bert|(?:^|[_\-.])llm")
+
+
 def _logs_model_role(path_lower):
     """按模型目录判定角色（路径已统一成反斜杠小写）。
 
@@ -1637,10 +1649,17 @@ def _logs_model_role(path_lower):
     `Model storage policy` 打印的是 E:\\model\\krea2_turbo_int8_convrot.safetensors
     （模型放在 ComfyUI 目录树之外、目录是单数 model），只认 diffusion_model / unet
     会把底模判成空角色并整行丢掉。
+
+    同理，放在树外的 TE 也没有 text_encoder 目录线索：20261027 的
+    `E:\\model\\qwen3vl_8b_int8_convrot.safetensors` 曾因此被误判成底模，
+    结果是底模出现两个文件名、TE 退化成类名 `QwenImage21TEModel_`。
+    因此目录线索全落空时，再按文件名关键字（t5 / clip / qwen3vl / gemma …）兜底。
     """
+    name = re.split(r"[\\/]", path_lower)[-1]
     if "lora" in path_lower:
         return "lora"
-    if "text_encoder" in path_lower or "clip" in path_lower:
+    if ("text_encoder" in path_lower or "clip" in path_lower
+            or _RE_TE_NAME.search(name)):
         return "te"
     if "vae" in path_lower:
         return "vae"

@@ -1,0 +1,86 @@
+[INFO] got prompt
+[INFO] Model storage policy: fast_disk=False paths=['F:\\ComfyUI-aki-v3\\ComfyUI\\models\\vae\\qwen_image_2.1_vae_bf16.safetensors']
+[INFO] Using pytorch attention in VAE
+[INFO] Using pytorch attention in VAE
+[INFO] VAE load device: xpu:0, offload device: cpu, dtype: torch.bfloat16
+[INFO] Found quantization metadata version 1
+[INFO] Using MixedPrecisionOps for text encoder
+[INFO] Model storage policy: fast_disk=False paths=['E:\\model\\qwen3vl_8b_int8_convrot.safetensors']
+[INFO] CLIP/text encoder model load device: xpu:0, offload device: cpu, current: cpu, dtype: torch.float16
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=1214.1MiB
+[INFO] Requested to load WanVAE
+[INFO] Model WanVAE prepared for dynamic VRAM loading. 644MB Staged. 0 patches attached. Force pre-loaded 68 weights: 102 KB.
+[INFO] Requested to load QwenImage21TEModel_
+[INFO] Model QwenImage21TEModel_ prepared for dynamic VRAM loading. 8916MB Staged. 0 patches attached. Force pre-loaded 255 weights: 849 KB.
+[INFO] [OmniXPU] norm first use: LayerNorm shape=torch.Size([4144, 1152])
+[INFO] Model QwenImage21TEModel_ prepared for dynamic VRAM loading. 8916MB Staged. 0 patches attached. Force pre-loaded 255 weights: 849 KB.
+[INFO] Found quantization metadata version 1
+[INFO] Detected mixed precision quantization
+[INFO] Using mixed precision operations
+[INFO] Native ops: int8_tensorwise , emulated ops: nvfp4, float8_e4m3fn, float8_e5m2, mxfp8, w6a8_int8, asym_w4a8_int8, convrot_w4a4
+[INFO] model weight dtype torch.bfloat16, manual cast: torch.bfloat16
+[INFO] model_type FLUX
+[INFO] Model storage policy: fast_disk=False paths=['E:\\model\\qwen_image_2.1_int8_convrot.safetensors']
+[INFO] [OmniXPU] LoRA memory budget cached: source=152.0MiB/384 tensors model_added=152.0MiB model_budget=152.0MiB clip_added=0.0MiB clip_budget=0.0MiB
+[INFO] [OmniXPU] LoRA model budget applied: cached=152.0MiB/384 tensors requested=1971.4->2123.4MiB minimum=985.7->1137.7MiB xpu_memory=available xpu_allocated=1.5MiB xpu_reserved=4.0MiB xpu_free=20161.8MiB xpu_total=31977.4MiB
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=1137.7MiB
+[INFO] Requested to load QwenImage21
+[INFO] Model QwenImage21 prepared for dynamic VRAM loading. 6920MB Staged. 192 patches attached. Force pre-loaded 65 weights: 63 KB.
+[INFO] [OmniXPU] LoRA model load complete: xpu_memory=available xpu_allocated=1.6MiB xpu_reserved=4.0MiB xpu_free=20193.5MiB xpu_total=31977.4MiB
+  0%|                                                                | 0/8 [00:00<?, ?it/s,   Model Initializing ...  ][INFO] [OmniXPU] attention fallback: mask=torch.Size([8, 8]) (seq=8)
+[WARNING] [OmniXPU] experimental capability-driven BMG D128 CUTE route enabled; set OMNI_ATTN_BACKEND=torch to disable it if this workflow shows an issue
+[INFO] [OmniXPU] attention CUTE_BHLD_D128 #1: heads=32 q=4144 kv=4152 dtype=torch.bfloat16
+[INFO] [OmniXPU] attention fallback: mask=torch.Size([64, 4216]) (seq=64)
+[INFO] [OmniXPU] attention CUTE_BHLD_D128 #2: heads=32 q=4070 kv=8286 dtype=torch.bfloat16
+[INFO] [OmniXPU] attention fallback: mask=torch.Size([8, 8]) (seq=8)
+[INFO] [OmniXPU] attention CUTE_BHLD_D128 #3: heads=32 q=4144 kv=4152 dtype=torch.bfloat16
+[INFO] [OmniXPU] attention fallback: mask=torch.Size([64, 4216]) (seq=64)
+[INFO] [OmniXPU] attention fallback: mask=torch.Size([8, 8]) (seq=8)
+100%|████████████████████████████████████████████████████████████████████████████████████| 8/8 [00:04<00:00,  1.76it/s]
+VRAM清理完成 [卸载模型: True, 清空缓存: True]
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=1788.6MiB
+[INFO] Requested to load WanVAE
+[INFO] Model WanVAE prepared for dynamic VRAM loading. 644MB Staged. 0 patches attached. Force pre-loaded 68 weights: 102 KB.
+[INFO] VRAMdebug: free memory before: 33,529,954,816
+[INFO] VRAMdebug: free memory after: 33,530,075,648
+[INFO] VRAMdebug: freed memory: 120,832
+[INFO] Prompt executed in 99.59 seconds
+[INFO] Using RAM pressure cache.
+[INFO] got prompt
+[INFO] Model storage policy: fast_disk=False paths=['F:\\ComfyUI-aki-v3\\ComfyUI\\models\\vae\\qwen_image_2.1_vae_bf16.safetensors']
+[INFO] Using pytorch attention in VAE
+[INFO] Using pytorch attention in VAE
+[INFO] VAE load device: xpu:0, offload device: cpu, dtype: torch.bfloat16
+[INFO] Found quantization metadata version 1
+[INFO] Using MixedPrecisionOps for text encoder
+[INFO] Model storage policy: fast_disk=False paths=['E:\\model\\qwen3vl_8b_int8_convrot.safetensors']
+[INFO] CLIP/text encoder model load device: xpu:0, offload device: cpu, current: cpu, dtype: torch.float16
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=1214.1MiB
+[INFO] Requested to load WanVAE
+[INFO] Model WanVAE prepared for dynamic VRAM loading. 644MB Staged. 0 patches attached. Force pre-loaded 68 weights: 102 KB.
+[INFO] Requested to load QwenImage21TEModel_
+[INFO] Model QwenImage21TEModel_ prepared for dynamic VRAM loading. 8916MB Staged. 0 patches attached. Force pre-loaded 255 weights: 849 KB.
+[INFO] Model QwenImage21TEModel_ prepared for dynamic VRAM loading. 8916MB Staged. 0 patches attached. Force pre-loaded 255 weights: 849 KB.
+[INFO] Found quantization metadata version 1
+[INFO] Detected mixed precision quantization
+[INFO] Using mixed precision operations
+[INFO] Native ops: int8_tensorwise , emulated ops: nvfp4, float8_e4m3fn, float8_e5m2, mxfp8, w6a8_int8, asym_w4a8_int8, convrot_w4a4
+[INFO] model weight dtype torch.bfloat16, manual cast: torch.bfloat16
+[INFO] model_type FLUX
+[INFO] Model storage policy: fast_disk=False paths=['E:\\model\\qwen_image_2.1_int8_convrot.safetensors']
+[INFO] [OmniXPU] LoRA memory budget cached: source=152.0MiB/384 tensors model_added=152.0MiB model_budget=152.0MiB clip_added=0.0MiB clip_budget=0.0MiB
+[INFO] [OmniXPU] LoRA model budget applied: cached=152.0MiB/384 tensors requested=1971.4->2123.4MiB minimum=985.7->1137.7MiB xpu_memory=available xpu_allocated=1.6MiB xpu_reserved=4.0MiB xpu_free=19567.8MiB xpu_total=31977.4MiB
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=1137.7MiB
+[INFO] Requested to load QwenImage21
+[INFO] Model QwenImage21 prepared for dynamic VRAM loading. 6920MB Staged. 192 patches attached. Force pre-loaded 65 weights: 63 KB.
+[INFO] [OmniXPU] LoRA model load complete: xpu_memory=available xpu_allocated=1.7MiB xpu_reserved=4.0MiB xpu_free=19568.5MiB xpu_total=31977.4MiB
+100%|████████████████████████████████████████████████████████████████████████████████████| 8/8 [00:04<00:00,  1.93it/s]
+VRAM清理完成 [卸载模型: True, 清空缓存: True]
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=1788.6MiB
+[INFO] Requested to load WanVAE
+[INFO] Model WanVAE prepared for dynamic VRAM loading. 644MB Staged. 0 patches attached. Force pre-loaded 68 weights: 102 KB.
+[INFO] VRAMdebug: free memory before: 33,529,954,816
+[INFO] VRAMdebug: free memory after: 33,530,075,648
+[INFO] VRAMdebug: freed memory: 120,832
+[INFO] Prompt executed in 20.88 seconds
+[INFO] Using RAM pressure cache.
