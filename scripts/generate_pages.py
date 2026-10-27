@@ -1639,7 +1639,8 @@ def _logs_scan_segment(seg):
 
 
 _RE_TE_NAME = re.compile(
-    r"(?:^|[_\-.])t5(?:$|[_\-.x])|text_encoder|clip|qwen\d(?:\.\d)?vl|umt5|gemma|bert|(?:^|[_\-.])llm")
+    r"(?:^|[_\-.])t5(?:$|[_\-.x])|text_encoder|clip"
+    r"|qwen\d(?:\.\d)*vl|qwen\d(?:\.\d)+|umt5|gemma|bert|(?:^|[_\-.])llm")
 
 
 def _logs_model_role(path_lower):
@@ -1653,7 +1654,10 @@ def _logs_model_role(path_lower):
     同理，放在树外的 TE 也没有 text_encoder 目录线索：20261027 的
     `E:\\model\\qwen3vl_8b_int8_convrot.safetensors` 曾因此被误判成底模，
     结果是底模出现两个文件名、TE 退化成类名 `QwenImage21TEModel_`。
-    因此目录线索全落空时，再按文件名关键字（t5 / clip / qwen3vl / gemma …）兜底。
+    因此目录线索全落空时，再按文件名关键字兜底：
+      vl 系列 `qwen3vl_8b` / 带小数的 `qwen3.5_9b`（Moss 的 TE）/ t5 / gemma …
+    ⚠️ 不能靠「policy 行后紧跟的 Requested to load 类名」定角色：实测 20261027 的
+    Qwen 日志里 WanVAE 的 Requested 出现在 TE 那行 policy 之后，顺序不可信。
     """
     name = re.split(r"[\\/]", path_lower)[-1]
     if "lora" in path_lower:

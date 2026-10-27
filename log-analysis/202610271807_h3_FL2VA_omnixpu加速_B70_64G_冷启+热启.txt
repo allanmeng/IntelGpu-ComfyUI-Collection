@@ -1,0 +1,53 @@
+[INFO] got prompt
+[INFO] Model storage policy: fast_disk=False paths=['E:\\model\\H3_vae\\minimax_h3_audio_vae_fp32.safetensors']
+[INFO] VAE load device: xpu:0, offload device: cpu, dtype: torch.float32
+[INFO] Model storage policy: fast_disk=False paths=['E:\\model\\H3_vae\\minimax_h3_video_vae_fp16.safetensors']
+[INFO] VAE load device: xpu:0, offload device: cpu, dtype: torch.float16
+[INFO] Found quantization metadata version 1
+[INFO] Using MixedPrecisionOps for text encoder
+[INFO] Model storage policy: fast_disk=False paths=['E:\\model\\H3_clip\\qwen3vl_32b_minimax_h3_int8_convrot.safetensors']
+[INFO] CLIP/text encoder model load device: xpu:0, offload device: cpu, current: cpu, dtype: torch.float16
+[INFO] Requested to load MiniMaxH3TEModel_
+[INFO] Model MiniMaxH3TEModel_ prepared for dynamic VRAM loading. 25882MB Staged. 0 patches attached. Force pre-loaded 310 weights: 1272 KB.
+[INFO] [OmniXPU] norm first use: LayerNorm shape=torch.Size([4128, 1152])
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=230.6MiB
+[INFO] Requested to load MiniMaxH3VideoVAE
+[INFO] Model MiniMaxH3VideoVAE prepared for dynamic VRAM loading. 4965MB Staged. 0 patches attached. Force pre-loaded 128 weights: 352 KB.
+[INFO] Found quantization metadata version 1
+[INFO] Detected mixed precision quantization
+[INFO] Using mixed precision operations
+[INFO] Native ops: int8_tensorwise , emulated ops: float8_e4m3fn, float8_e5m2, mxfp8, convrot_w4a4, asym_w4a8_int8, w6a8_int8, nvfp4
+[INFO] model weight dtype torch.bfloat16, manual cast: torch.bfloat16
+[INFO] model_type FLOW_AV
+[INFO] Model storage policy: fast_disk=False paths=['E:\\model\\H3_diff\\minimax_h3_fl2va_pruned_int8_convrot.safetensors']
+[INFO] [OmniXPU] LoRA memory budget cached: source=1865.5MiB/416 tensors model_added=1865.5MiB model_budget=1865.5MiB clip_added=0.0MiB clip_budget=0.0MiB
+[INFO] [OmniXPU] LoRA model budget applied: cached=1865.5MiB/416 tensors requested=32645.5->34511.0MiB minimum=16322.8->18188.3MiB xpu_allocated=1.9MiB xpu_reserved=2.0MiB xpu_free=26330.8MiB
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=18188.3MiB
+[INFO] Requested to load MiniMaxH3
+[INFO] Model MiniMaxH3 prepared for dynamic VRAM loading. 19995MB Staged. 208 patches attached. Force pre-loaded 210 weights: 1175 KB.
+[INFO] [OmniXPU] LoRA model load complete: xpu_allocated=3.1MiB xpu_reserved=4.0MiB xpu_free=26330.8MiB
+[WARNING] [OmniXPU] experimental capability-driven BMG D128 CUTE route enabled; set OMNI_ATTN_BACKEND=torch to disable it if this workflow shows an issue
+[INFO] [OmniXPU] attention CUTE_BHLD_D128 #1: heads=56 q=1054 kv=1054 dtype=torch.bfloat16
+[INFO] [OmniXPU] attention CUTE_BHLD_D128 #2: heads=56 q=1054 kv=1054 dtype=torch.bfloat16
+  0%|          | 0/4 [00:00<?, ?it/s,   Model Initializing ...  ][INFO] [OmniXPU] attention CUTE_BHLD_D128 #3: heads=56 q=77200 kv=77200 dtype=torch.bfloat16
+100%|██████████| 4/4 [06:55<00:00, 103.80s/it]
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=358.7MiB
+[INFO] Requested to load MiniMaxH3AudioVAE
+[INFO] Model MiniMaxH3AudioVAE prepared for dynamic VRAM loading. 576MB Staged. 0 patches attached. Force pre-loaded 401 weights: 539 KB.
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=1122.1MiB
+[INFO] Model MiniMaxH3VideoVAE prepared for dynamic VRAM loading. 4965MB Staged. 0 patches attached. Force pre-loaded 128 weights: 348 KB.
+[INFO] [OmniXPU] attention CUTE_H3_VAE_D64 #1: heads=32 seq=1797 dtype=torch.float16
+[INFO] [OmniXPU] attention CUTE_H3_VAE_D64 #2: heads=32 seq=1797 dtype=torch.float16
+[INFO] [OmniXPU] attention CUTE_H3_VAE_D64 #3: heads=32 seq=1797 dtype=torch.float16
+[INFO] Prompt executed in 541.03 seconds
+[INFO] got prompt
+[INFO] [OmniXPU] LoRA model budget applied: cached=1865.5MiB/416 tensors requested=32645.5->34511.0MiB minimum=16322.8->18188.3MiB xpu_memory=available xpu_allocated=4.2MiB xpu_reserved=6.0MiB xpu_free=20266.2MiB xpu_total=31977.4MiB
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=18188.3MiB
+[INFO] Model MiniMaxH3 prepared for dynamic VRAM loading. 19995MB Staged. 208 patches attached. Force pre-loaded 210 weights: 1175 KB.
+[INFO] [OmniXPU] LoRA model load complete: xpu_memory=available xpu_allocated=4.2MiB xpu_reserved=6.0MiB xpu_free=20266.2MiB xpu_total=31977.4MiB
+100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 4/4 [06:54<00:00, 103.75s/it]
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=358.7MiB
+[INFO] Model MiniMaxH3AudioVAE prepared for dynamic VRAM loading. 576MB Staged. 0 patches attached. Force pre-loaded 401 weights: 539 KB.
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=1122.1MiB
+[INFO] Model MiniMaxH3VideoVAE prepared for dynamic VRAM loading. 4965MB Staged. 0 patches attached. Force pre-loaded 128 weights: 352 KB.
+[INFO] Prompt executed in 475.70 seconds
