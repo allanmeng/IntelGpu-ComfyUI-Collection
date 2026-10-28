@@ -1566,8 +1566,11 @@ def _logs_parse_name(stem):
       推荐    20261026-2157_Krea2Edit_omnixpu加速_B70_64G_冷启+热启   （带时刻，横线分隔）
       兼容    202610271640_Qwenimage2.1_omnixpu加速_B70_64G_冷启+热启  （时刻连写，命中同名情况）
       新规范  20261026_Krea2Edit_omnixpu加速_B70_64G_冷启+热启        （无时刻）
+      只跑一次 20261028_SeedVR超分放大_omnixpu加速_B70_64G_冷启         （单次：只写实际跑过的）
       旧写法  omnixpu加速_Krea2Edit_B70_64G_冷启+热启                 （字段顺序任意）
     下划线会切断 h3_FL2VA 这类名字，因此识别不了的片段用 _ 拼回，而不是丢弃。
+    「测试类型」段照实写：只跑了一次冷启就只写 冷启，不要补 +热启（页面按日志里
+    实际出现的 got prompt 次数渲染，文件名多写会让卡片信息与详情页自相矛盾）。
     """
     meta = {"date": "", "time": "", "workflow": "", "scheme": "", "card": "",
             "vram": "", "precision": "", "test": ""}
@@ -2090,6 +2093,7 @@ LOGS_CSS = """  :root {
   .stat-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; }
   .stat-box i { font-style: normal; display: block; font-size: 11px; color: var(--text-muted); }
   .stat-box b { font-size: 18px; font-variant-numeric: tabular-nums; }
+  .runs-note { margin-top: 6px; font-size: 12px; color: var(--text-muted); }
   .raw { margin-top: 10px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
   .raw summary { cursor: pointer; padding: 12px 16px; font-size: 14px; font-weight: 600; background: #fafbfc; }
   .raw pre {
@@ -2210,7 +2214,12 @@ def _logs_highlight(body):
 
 
 def _logs_detail(e):
-    """单份日志详情页（独立模板 LOG_DETAIL_HTML）。"""
+    """单份日志详情页（独立模板 LOG_DETAIL_HTML）。
+
+    runs 条数 = 日志里实际出现 Prompt executed 的次数，可以是 1 条：有些工作流
+    只跑一次冷启（如 SeedVR 超分放大单次要十几分钟），此时页面不出现任何「热启」
+    字样，也不留空位，只在指标区补一句说明。
+    """
     first = e["runs"][0] if e["runs"] else {}
 
     boxes = []
@@ -2231,6 +2240,8 @@ def _logs_detail(e):
                      % format(first["freed_mb"], ","))
     stats = ('  <div class="stat-grid">\n    %s\n  </div>' % "\n    ".join(boxes)) if boxes \
         else '  <p class="empty">这份日志里没有抽到可用的耗时指标。</p>'
+    if len(e["runs"]) == 1:
+        stats += ('\n  <p class="runs-note">该工作流仅执行 1 次（冷启），无热启对比数据。</p>')
 
     rows = []
     for i, r in enumerate(e["runs"]):
