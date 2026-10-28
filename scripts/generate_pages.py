@@ -1567,10 +1567,12 @@ def _logs_parse_name(stem):
       兼容    202610271640_Qwenimage2.1_omnixpu加速_B70_64G_冷启+热启  （时刻连写，命中同名情况）
       新规范  20261026_Krea2Edit_omnixpu加速_B70_64G_冷启+热启        （无时刻）
       只跑一次 20261028_SeedVR超分放大_omnixpu加速_B70_64G_冷启         （单次：只写实际跑过的）
+      只跑一次 20261028_SeedVR超分放大_omnixpu加速_B70_64G_热启         （同上，这次是热启）
       旧写法  omnixpu加速_Krea2Edit_B70_64G_冷启+热启                 （字段顺序任意）
     下划线会切断 h3_FL2VA 这类名字，因此识别不了的片段用 _ 拼回，而不是丢弃。
-    「测试类型」段照实写：只跑了一次冷启就只写 冷启，不要补 +热启（页面按日志里
-    实际出现的 got prompt 次数渲染，文件名多写会让卡片信息与详情页自相矛盾）。
+    「测试类型」段必须照实写：只跑了一次就只写那一次的真实身份（冷启 或 热启），
+    不要补 +热启。同一份日志里只有一次执行时，页面无法从日志正文看出它到底是
+    冷启还是热启（正文没有「本次是第几次」的信息），完全依赖这段关键词。
     """
     meta = {"date": "", "time": "", "workflow": "", "scheme": "", "card": "",
             "vram": "", "precision": "", "test": ""}
@@ -1787,6 +1789,19 @@ def _logs_when(path, name_date, name_time=""):
     return gdate, gtime, "git"
 
 
+def _logs_single_label(test):
+    """单次执行日志的冷/热标签：由文件名「测试类型」段决定。
+
+    一份日志里只有一次执行时，**不能**按位置断言「第 1 次 = 冷启」——那次的
+    真实身份取决于跑之前 ComfyUI 有没有刚启动过：
+      · 刚启动 → 冷启
+      · 已跑过别的任务 → 热启（内存/权重已经热了）
+    这种情况只能靠文件名标注，所以测试类型段要照实写（冷启 / 热启）。
+    含「热启」且不含「冷启」判为热启，其余（含只写 冷启、或没写）按冷启。
+    """
+    return "热启" if ("热启" in test and "冷启" not in test) else "冷启"
+
+
 def _logs_analyze(path):
     """读一份日志 → 条目（含逐次执行指标 + 脱敏全文）。"""
     with open(path, encoding="utf-8", errors="replace") as f:
@@ -1800,15 +1815,20 @@ def _logs_analyze(path):
     else:
         segs = [text]
 
+    fname = os.path.basename(path)
+    entry = _logs_parse_name(os.path.splitext(fname)[0])
+
     runs = []
     for i, seg in enumerate(segs):
         st = _logs_scan_segment(seg)
         st["label"] = "冷启" if i == 0 else "热启"
         runs.append(st)
     runs = [r for r in runs if r["seconds"] is not None]
+    # 只有一次执行时不能按位置断言冷启：这次可能是热启（接在别的执行之后跑）。
+    # 由文件名「测试类型」段决定，见 _logs_single_label()。
+    if len(runs) == 1:
+        runs[0]["label"] = _logs_single_label(entry.get("test", ""))
 
-    fname = os.path.basename(path)
-    entry = _logs_parse_name(os.path.splitext(fname)[0])
     date, time_str, time_src = _logs_when(path, entry["date"], entry.get("time", ""))
     entry.update({
         "file": fname,
@@ -1825,8 +1845,8 @@ def _logs_analyze(path):
     entry["title"] = " / ".join(
         x for x in [entry["workflow"], entry["scheme"], entry["card"], entry["vram"]] if x
     ) or os.path.splitext(fname)[0]
-    entry["cold"] = runs[0]["seconds"] if len(runs) >= 1 else None
-    entry["warm"] = runs[1]["seconds"] if len(runs) >= 2 else None
+    entry["cold"] = next((r["seconds"] for r in runs if r["label"] == "冷启"), None)
+    entry["warm"] = next((r["seconds"] for r in runs if r["label"] == "热启"), None)
     return entry
 
 
@@ -2217,8 +2237,9 @@ def _logs_detail(e):
     """单份日志详情页（独立模板 LOG_DETAIL_HTML）。
 
     runs 条数 = 日志里实际出现 Prompt executed 的次数，可以是 1 条：有些工作流
-    只跑一次冷启（如 SeedVR 超分放大单次要十几分钟），此时页面不出现任何「热启」
-    字样，也不留空位，只在指标区补一句说明。
+    只跑一次（如 SeedVR 超分放大单次要十几分钟）。这一次可能是冷启、也可能是
+    热启（接在别的执行之后跑），标签由文件名决定，页面照着渲染——不出现另一种
+    标签的字样，也不留空位，只在指标区补一句说明。
     """
     first = e["runs"][0] if e["runs"] else {}
 
@@ -2241,7 +2262,10 @@ def _logs_detail(e):
     stats = ('  <div class="stat-grid">\n    %s\n  </div>' % "\n    ".join(boxes)) if boxes \
         else '  <p class="empty">这份日志里没有抽到可用的耗时指标。</p>'
     if len(e["runs"]) == 1:
-        stats += ('\n  <p class="runs-note">该工作流仅执行 1 次（冷启），无热启对比数据。</p>')
+        only = e["runs"][0]["label"]
+        other = "热启" if only == "冷启" else "冷启"
+        stats += ('\n  <p class="runs-note">该工作流仅执行 1 次（%s），没有%s对比数据。</p>'
+                  % (only, other))
 
     rows = []
     for i, r in enumerate(e["runs"]):
