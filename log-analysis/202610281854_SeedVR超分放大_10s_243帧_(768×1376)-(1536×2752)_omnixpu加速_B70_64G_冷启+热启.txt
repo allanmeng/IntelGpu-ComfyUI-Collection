@@ -1,0 +1,54 @@
+[INFO] got prompt
+[INFO] Model storage policy: fast_disk=False paths=['F:\\ComfyUI-aki-v3\\ComfyUI\\models\\SEEDVR2\\ema_vae_fp16.safetensors']
+[INFO] Using pytorch attention in VAE
+[INFO] Using pytorch attention in VAE
+[INFO] VAE load device: xpu:0, offload device: cpu, dtype: torch.float16
+[INFO] [OmniXPU] bounded Lanczos preprocessing: frames=243 output=1536x2752 float_bytes=12326141952
+[INFO] [OmniXPU] bounded SeedVR preprocessing: input_shape=(243, 2752, 1536, 3) output_shape=(1, 245, 2752, 1536, 3) output_bytes=12427591680
+[INFO] Requested to load VideoAutoencoderKLWrapper
+[INFO] loaded completely;  478.07 MB loaded, full load: True
+[INFO] [OmniXPU] bounded VAE input staging: shape=(1, 3, 245, 2752, 1536) source_bytes=12427591680 target_dtype=torch.float16
+[INFO] [OmniXPU] norm first use: SeedVR BMG GroupNorm shape=torch.Size([4, 256, 256, 256])
+[INFO] [OmniXPU] SeedVR BMG GroupNorm: shape=(4, 256, 256, 256) stride=(65536, 262144, 256, 1) dtype=torch.float16 groups=32
+[INFO] SeedVR2TemporalChunk auto: free=30.74GiB, 4.23Mpx -> frames_per_chunk=29 (t_pixel=245).
+[INFO] Found quantization metadata version 1
+[INFO] Detected mixed precision quantization
+[INFO] Using mixed precision operations
+[INFO] Native ops: int8_tensorwise , emulated ops: w6a8_int8, nvfp4, float8_e4m3fn, convrot_w4a4, asym_w4a8_int8, mxfp8, float8_e5m2
+[INFO] model weight dtype torch.bfloat16, manual cast: torch.bfloat16
+[INFO] model_type FLOW
+[INFO] Model storage policy: fast_disk=False paths=['F:\\ComfyUI-aki-v3\\ComfyUI\\models\\SEEDVR2\\seedvr2_3b_int8_convrot.safetensors']
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=21135.4MiB
+[INFO] Requested to load SeedVR2
+[INFO] Model SeedVR2 prepared for dynamic VRAM loading. 3295MB Staged. 0 patches attached. Force pre-loaded 339 weights: 2522 KB.
+  0%|                                                                | 0/1 [00:00<?, ?it/s,   Model Initializing ...  ]
+[INFO] [OmniXPU] attention fallback: batch=4 (seq=178)
+[INFO] [OmniXPU] attention fallback: batch=24 (seq=358)
+[INFO] [OmniXPU] attention fallback: batch=24 (seq=382)
+[INFO] [OmniXPU] attention fallback: batch=144 (seq=868)
+[INFO] [OmniXPU] attention fallback: batch=2 (seq=149)
+100%|█████████████████████████████████████████████████| 1/1 [00:15<00:00, 15.32s/it,  Model Initialization complete!  ]
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=21135.4MiB
+[INFO] Model SeedVR2 prepared for dynamic VRAM loading. 3295MB Staged. 0 patches attached. Force pre-loaded 339 weights: 2522 KB.
+100%|█████████████████████████████████████████████████| 1/1 [00:08<00:00,  8.69s/it,  Model Initialization complete!  ]
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=21135.4MiB
+[INFO] Model SeedVR2 prepared for dynamic VRAM loading. 3295MB Staged. 0 patches attached. Force pre-loaded 339 weights: 2522 KB.
+100%|█████████████████████████████████████████████████| 1/1 [00:08<00:00,  8.66s/it,  Model Initialization complete!  ]
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=21135.4MiB
+[INFO] Model SeedVR2 prepared for dynamic VRAM loading. 3295MB Staged. 0 patches attached. Force pre-loaded 339 weights: 2522 KB.
+100%|█████████████████████████████████████████████████| 1/1 [00:08<00:00,  8.61s/it,  Model Initialization complete!  ]
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=21135.4MiB
+[INFO] Model SeedVR2 prepared for dynamic VRAM loading. 3295MB Staged. 0 patches attached. Force pre-loaded 339 weights: 2522 KB.
+100%|█████████████████████████████████████████████████| 1/1 [00:08<00:00,  8.62s/it,  Model Initialization complete!  ]
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=21135.4MiB
+[INFO] Model SeedVR2 prepared for dynamic VRAM loading. 3295MB Staged. 0 patches attached. Force pre-loaded 339 weights: 2522 KB.
+100%|█████████████████████████████████████████████████| 1/1 [00:08<00:00,  8.61s/it,  Model Initialization complete!  ]
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=21135.4MiB
+[INFO] Model SeedVR2 prepared for dynamic VRAM loading. 3295MB Staged. 0 patches attached. Force pre-loaded 339 weights: 2522 KB.
+100%|█████████████████████████████████████████████████| 1/1 [00:08<00:00,  8.61s/it,  Model Initialization complete!  ]
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=15851.5MiB
+[INFO] Model SeedVR2 prepared for dynamic VRAM loading. 3295MB Staged. 0 patches attached. Force pre-loaded 339 weights: 2522 KB.
+100%|█████████████████████████████████████████████████| 1/1 [00:06<00:00,  6.60s/it,  Model Initialization complete!  ]
+[INFO] Requested to load VideoAutoencoderKLWrapper
+[INFO] loaded completely;  478.07 MB loaded, full load: True
+[INFO] Prompt executed in 00:19:14

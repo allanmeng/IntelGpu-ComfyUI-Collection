@@ -1,0 +1,52 @@
+[INFO] got prompt
+[INFO] Model storage policy: fast_disk=False paths=['F:\\ComfyUI-aki-v3\\ComfyUI\\models\\vae\\flux2-vae.safetensors']
+[INFO] Using pytorch attention in VAE
+[INFO] Using pytorch attention in VAE
+[INFO] VAE load device: xpu:0, offload device: cpu, dtype: torch.bfloat16
+# 😺dzNodes: LayerStyle -> ImageScaleByAspectRatio V2 Processed 1 image(s).
+# 😺dzNodes: LayerStyle -> ImageScaleByAspectRatio V2 Processed 1 image(s).
+[INFO] Found quantization metadata version 1
+[INFO] Using MixedPrecisionOps for text encoder
+[INFO] Model storage policy: fast_disk=False paths=['E:\\model\\qwen3vl_4b_int8_convrot.safetensors']
+[INFO] CLIP/text encoder model load device: xpu:0, offload device: cpu, current: cpu, dtype: torch.float16
+[INFO] Requested to load Flux3TEModel_
+[INFO] Model Flux3TEModel_ prepared for dynamic VRAM loading. 4632MB Staged. 0 patches attached. Force pre-loaded 249 weights: 627 KB.
+[INFO] [OmniXPU] norm first use: rms_norm_fn shape=torch.Size([1, 80, 2560])
+[INFO] Model Flux3TEModel_ prepared for dynamic VRAM loading. 4632MB Staged. 0 patches attached. Force pre-loaded 249 weights: 627 KB.
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=2429.6MiB
+[INFO] Requested to load AutoencoderKL
+[INFO] Model AutoencoderKL prepared for dynamic VRAM loading. 160MB Staged. 0 patches attached. Force pre-loaded 112 weights: 101 KB.
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=2595.3MiB
+[INFO] Model AutoencoderKL prepared for dynamic VRAM loading. 160MB Staged. 0 patches attached. Force pre-loaded 112 weights: 101 KB.
+[INFO] Found quantization metadata version 1
+[INFO] Detected mixed precision quantization
+[INFO] Using mixed precision operations
+[INFO] Native ops: int8_tensorwise , emulated ops: w6a8_int8, convrot_w4a4, asym_w4a8_int8, float8_e4m3fn, mxfp8, nvfp4, float8_e5m2
+[INFO] model weight dtype torch.bfloat16, manual cast: torch.bfloat16
+[INFO] model_type FLUX
+[INFO] Model storage policy: fast_disk=False paths=['E:\\model\\flux3-image-klein-int8-convrot.safetensors']
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=2527.8MiB
+[INFO] Requested to load Flux3
+[INFO] Model Flux3 prepared for dynamic VRAM loading. 5557MB Staged. 0 patches attached. Force pre-loaded 86 weights: 60 KB.
+  0%|                                                               | 0/16 [00:00<?, ?it/s,   Model Initializing ...  ]
+[INFO] [OmniXPU] attention CUTE #1: heads=24 seq=80 dtype=torch.bfloat16
+[INFO] [OmniXPU] attention CUTE #2: heads=24 seq=80 dtype=torch.bfloat16
+[INFO] [OmniXPU] attention CUTE #3: heads=24 seq=80 dtype=torch.bfloat16
+0%|                                                        | 0/16 [00:23<?, ?it/s,  Model Initialization complete!]  
+6%|███                                             | 1/16 [00:23<05:54, 23.61s/it,  Model Initialization complete!]
+100%|██████████████████████████████████████████████████████████████████████████████████| 16/16 [00:12<00:00,  1.30it/s]
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=272.2MiB
+[INFO] Model AutoencoderKL prepared for dynamic VRAM loading. 160MB Staged. 0 patches attached. Force pre-loaded 112 weights: 101 KB.
+[INFO] Prompt executed in 70.52 seconds
+[INFO] got prompt
+# 😺dzNodes: LayerStyle -> ImageScaleByAspectRatio V2 Processed 1 image(s).
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=3037.0MiB
+[INFO] Model AutoencoderKL prepared for dynamic VRAM loading. 160MB Staged. 0 patches attached. Force pre-loaded 112 weights: 101 KB.
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=2595.3MiB
+[INFO] Model AutoencoderKL prepared for dynamic VRAM loading. 160MB Staged. 0 patches attached. Force pre-loaded 112 weights: 101 KB.
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=2939.8MiB
+[INFO] Model Flux3 prepared for dynamic VRAM loading. 5557MB Staged. 0 patches attached. Force pre-loaded 86 weights: 60 KB.
+100%|█████████████████████████████████████████████████████████████████████████████████| 16/16 [00:15<00:00,  1.00it/s]
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=272.2MiB
+[INFO] Model AutoencoderKL prepared for dynamic VRAM loading. 160MB Staged. 0 patches attached. Force pre-loaded 112 weights: 101 KB.
+[INFO] Prompt executed in 32.22 seconds

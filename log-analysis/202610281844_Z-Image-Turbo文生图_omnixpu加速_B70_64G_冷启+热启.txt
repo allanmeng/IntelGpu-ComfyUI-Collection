@@ -1,0 +1,61 @@
+[INFO] got prompt
+[INFO] Model storage policy: fast_disk=False paths=['F:\\ComfyUI-aki-v3\\ComfyUI\\models\\vae\\ae.safetensors']
+[INFO] Using pytorch attention in VAE
+[INFO] Using pytorch attention in VAE
+[INFO] VAE load device: xpu:0, offload device: cpu, dtype: torch.float32
+[INFO] Found quantization metadata version 1
+[INFO] Using MixedPrecisionOps for text encoder
+[INFO] Model storage policy: fast_disk=False paths=['F:\\ComfyUI-aki-v3\\ComfyUI\\models\\text_encoders\\qwen_3_4b_int8_convrot.safetensors']
+[INFO] CLIP/text encoder model load device: xpu:0, offload device: cpu, current: cpu, dtype: torch.float16
+[INFO] Requested to load ZImageTEModel_
+[INFO] Model ZImageTEModel_ prepared for dynamic VRAM loading. 4303MB Staged. 0 patches attached. Force pre-loaded 145 weights: 383 KB.
+[INFO] [OmniXPU] norm first use: rms_norm_fn shape=torch.Size([1, 403, 2560])
+[INFO] Found quantization metadata version 1
+[INFO] Detected mixed precision quantization
+[INFO] Using mixed precision operations
+[INFO] Native ops: int8_tensorwise , emulated ops: convrot_w4a4, mxfp8, asym_w4a8_int8, float8_e4m3fn, float8_e5m2, w6a8_int8, nvfp4
+[INFO] model weight dtype torch.bfloat16, manual cast: torch.bfloat16
+[INFO] model_type FLOW
+[INFO] Model storage policy: fast_disk=False paths=['F:\\ComfyUI-aki-v3\\ComfyUI\\models\\diffusion_models\\z_image_turbo_int8_convrot.safetensors']
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=903.2MiB
+[INFO] Requested to load Lumina2
+[INFO] Model Lumina2 prepared for dynamic VRAM loading. 5888MB Staged. 0 patches attached. Force pre-loaded 205 weights: 2087 KB.
+  0%|                                                                | 0/8 [00:00<?, ?it/s,   Model Initializing ...  ]
+[INFO] [OmniXPU] attention CUTE #1: heads=30 seq=416 dtype=torch.bfloat16
+[INFO] [OmniXPU] attention CUTE #2: heads=30 seq=416 dtype=torch.bfloat16
+[INFO] [OmniXPU] attention CUTE #3: heads=30 seq=4032 dtype=torch.bfloat16
+100%|████████████████████████████████████████████████████████████████████████████████████| 8/8 [00:03<00:00,  2.21it/s]
+VRAM清理完成 [卸载模型: False, 清空缓存: True]
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=544.5MiB
+[INFO] Requested to load AutoencodingEngine
+[INFO] Model AutoencodingEngine prepared for dynamic VRAM loading. 319MB Staged. 0 patches attached. Force pre-loaded 108 weights: 182 KB.
+[INFO] Prompt executed in 46.40 seconds
+[INFO] Using RAM pressure cache.
+[INFO] got prompt
+[INFO] Model storage policy: fast_disk=False paths=['F:\\ComfyUI-aki-v3\\ComfyUI\\models\\vae\\ae.safetensors']
+[INFO] Using pytorch attention in VAE
+[INFO] Using pytorch attention in VAE
+[INFO] VAE load device: xpu:0, offload device: cpu, dtype: torch.float32
+[INFO] Found quantization metadata version 1
+[INFO] Using MixedPrecisionOps for text encoder
+[INFO] Model storage policy: fast_disk=False paths=['F:\\ComfyUI-aki-v3\\ComfyUI\\models\\text_encoders\\qwen_3_4b_int8_convrot.safetensors']
+[INFO] CLIP/text encoder model load device: xpu:0, offload device: cpu, current: cpu, dtype: torch.float16
+[INFO] Requested to load ZImageTEModel_
+[INFO] Model ZImageTEModel_ prepared for dynamic VRAM loading. 4303MB Staged. 0 patches attached. Force pre-loaded 145 weights: 383 KB.
+[INFO] Found quantization metadata version 1
+[INFO] Detected mixed precision quantization
+[INFO] Using mixed precision operations
+[INFO] Native ops: int8_tensorwise , emulated ops: convrot_w4a4, mxfp8, asym_w4a8_int8, float8_e4m3fn, float8_e5m2, w6a8_int8, nvfp4
+[INFO] model weight dtype torch.bfloat16, manual cast: torch.bfloat16
+[INFO] model_type FLOW
+[INFO] Model storage policy: fast_disk=False paths=['F:\\ComfyUI-aki-v3\\ComfyUI\\models\\diffusion_models\\z_image_turbo_int8_convrot.safetensors']
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=903.2MiB
+[INFO] Requested to load Lumina2
+[INFO] Model Lumina2 prepared for dynamic VRAM loading. 5888MB Staged. 0 patches attached. Force pre-loaded 205 weights: 2087 KB.
+100%|███████████████████████████████████████████████████████████████████████████████████████████████████████| 8/8 [00:03<00:00,  2.21it/s]
+VRAM清理完成 [卸载模型: False, 清空缓存: True]
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=544.5MiB
+[INFO] Requested to load AutoencodingEngine
+[INFO] Model AutoencodingEngine prepared for dynamic VRAM loading. 319MB Staged. 0 patches attached. Force pre-loaded 108 weights: 182 KB.
+[INFO] Prompt executed in 20.01 seconds
+[INFO] Using RAM pressure cache.

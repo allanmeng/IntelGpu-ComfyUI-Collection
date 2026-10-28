@@ -1489,8 +1489,10 @@ LOGS_DIRNAME = "log-analysis"
 
 # 日志格式固定，指标用正则直取（不引第三方解析器）
 _RE_PROMPT_SPLIT = re.compile(r"^\[INFO\] got prompt\s*$", re.M)
-_RE_EXEC = re.compile(r"Prompt executed in ([\d.]+) seconds")
-_RE_PROGRESS = re.compile(r"(\d+)/(\d+) \[[\d:]+<[\d:]+,?\s*([\d.]+)(s/it|it/s)\]")
+_RE_EXEC = re.compile(
+    r"Prompt executed in (?:(\d+):(\d+):(\d+)|(\d+):(\d+)|([\d.]+) seconds)")
+_RE_PROGRESS = re.compile(
+    r"(\d+)/(\d+) \[[\d:]+<[\d:]+,?\s*([\d.]+)(s/it|it/s)(?=[,\]])")
 _RE_STAGED = re.compile(r"prepared for dynamic VRAM loading\.\s*(\d+)MB Staged")
 _RE_VRAM_FREE = re.compile(r"VRAMdebug: freed memory:\s*([\d,]+)")
 _RE_ATTN = re.compile(r"attention (CUTE(?:_[A-Za-z0-9_]+)?|fallback)")
@@ -1598,20 +1600,31 @@ def _logs_scan_segment(seg):
     seconds = None
     m = _RE_EXEC.search(seg)
     if m:
-        seconds = float(m.group(1))
+        # 两种写法并存：老版打印 `1234.56 seconds`；新版长任务打印 `00:19:14`
+        # （20261028 的 SeedVR 日志实测），也兼容 `19:14`。
+        if m.group(1) is not None:
+            seconds = int(m.group(1)) * 3600 + int(m.group(2)) * 60 + int(m.group(3))
+        elif m.group(4) is not None:
+            seconds = int(m.group(4)) * 60 + int(m.group(5))
+        else:
+            seconds = float(m.group(6))
 
     steps = sec_per_it = None
     prog = _RE_PROGRESS.findall(seg)
     if prog:
         # tqdm 有两种收尾写法：`1.88s/it`（已有）与 `1.76it/s`（20261027 日志实测），
         # 后者取倒数换算成 s/it，保持表格同一单位。
-        _, steps, rate, unit = prog[-1]
-        steps = int(steps)
+        _, total, rate, unit = prog[-1]
         rate = float(rate)
         if unit == "it/s":
             sec_per_it = round(1.0 / rate, 2) if rate else None
         else:
             sec_per_it = rate
+        # total==1 时那不是「步数」，是分块任务的一块（20261028 SeedVR 的超分是
+        # 8 个 chunk 各自 `1/1` 进度条）。写 1 会误导，留空更诚实；s/it 仍然保留，
+        # 它是最后一块的真实速率。
+        total = int(total)
+        steps = total if total > 1 else None
 
     staged = [int(x) for x in _RE_STAGED.findall(seg)]
     freed = [int(x.replace(",", "")) for x in _RE_VRAM_FREE.findall(seg)]
@@ -1668,7 +1681,12 @@ def _logs_model_role(path_lower):
     if "vae" in path_lower:
         return "vae"
     if ("diffusion_model" in path_lower or "unet" in path_lower
-            or "checkpoint" in path_lower or "\\model\\" in path_lower):
+            or "checkpoint" in path_lower or "\\model\\" in path_lower
+            or "\\models\\" in path_lower):
+        # `\models\` 是兜底：底模也可能放在自定义子目录里（20261028 的 SeedVR2 就在
+        # models\SEEDVR2\seedvr2_3b_int8_convrot.safetensors，既没有 diffusion_model
+        # 也没有单数 \model\）。vae / text_encoder / lora 更靠前的判断已经先命中，
+        # 能走到这里的就是底模。
         return "base"
     return ""
 
@@ -1838,7 +1856,10 @@ def _logs_uniq_slug(entries):
             date_part = "%s-%s" % (date_part, e["time"].replace(":", ""))
         base = "-".join(x for x in [date_part, e["workflow"], e["scheme"],
                                     e["card"], e["vram"]] if x)
-        base = re.sub(r"[^0-9A-Za-z\u4e00-\u9fa5._-]+", "-", base).strip("-.") or "log"
+        # 乘号转 x：`(768×1376)` 直接过滤会变成 `-768-1376-`，可读性差。
+        base = base.replace("×", "x").replace("✕", "x")
+        base = re.sub(r"[^0-9A-Za-z\u4e00-\u9fa5._-]+", "-", base)
+        base = re.sub(r"-{2,}", "-", base).strip("-.") or "log"
         n = seen.get(base, 0) + 1
         seen[base] = n
         e["slug"] = base if n == 1 else "%s-%d" % (base, n)
