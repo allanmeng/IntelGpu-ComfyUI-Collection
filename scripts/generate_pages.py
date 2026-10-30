@@ -1480,8 +1480,8 @@ def build_group():
 #
 # 设计要点（2026-10-26 Allan 定）：
 # - 原始日志本体留在 log-analysis/，本模块只读不写，不生成任何中间文件；
-# - 页面产物 = 站根 logs.html（汇总矩阵 + 索引）+ logs/<slug>.html（单份详情）；
-# - 指标全部从日志正文正则抽取，不依赖人工标注；文件名仅提供对比轴（工作流/方案/卡/显存）；
+# - 页面产物 = 站根 logs.html（索引）+ logs/<slug>.html（单份详情）；
+# - 指标全部从日志正文正则抽取，不依赖人工标注；文件名仅提供对比轴（工作流/方案/卡/内存）；
 # - 本地绝对路径在**渲染时**脱敏，原始 txt 保持原样。
 # ---------------------------------------------------------------------------
 
@@ -1506,7 +1506,7 @@ _RE_LPATH = re.compile(r"[A-Za-z]:\\\\[^\s'\"\],)]*")
 
 _RE_DATE = re.compile(r"^(20\d{6})$")
 _RE_DATE_TIME = re.compile(r"^(20\d{6})-?(\d{2})(\d{2})$")
-_RE_VRAM = re.compile(r"^\d+\s?G(?:B)?$", re.I)
+_RE_VRAM = re.compile(r"^\d+\s?G(?:B)?$", re.I)  # 系统内存（64G），非显存；字段名沿用历史命名
 _RE_CARD = re.compile(r"^(?:A|B)\d{2,4}$", re.I)
 _RE_PRECISION = re.compile(r"^(?:int|fp|bf|nf|w)\d+[a-z0-9_]*$", re.I)
 
@@ -1542,8 +1542,12 @@ def _logs_sanitize(text):
 def _logs_expand_parts(parts):
     """拆开 h3_FL2VA-B70 这类「工作流-卡」粘连段。
 
-    仅当段内 token 命中强模式（显卡/显存/精度/日期）时才拆，
+    仅当段内 token 命中强模式（显卡/内存/精度/日期）时才拆，
     且只用强模式 token 判断，避免把 comfy-aimdo-xpu 这类工作流名误拆。
+
+    ⚠️ 第 5 段（如 `64G`）是**系统内存**，不是显存：2026-10-30 Allan 确认，
+    B580 实际 xpu_total≈11.7GB、B70 为 32GB，都不可能标 64G。字段名沿用
+    历史变量名 vram / 正则 _RE_VRAM，但对外文案一律写「内存」。
     """
     out = []
     for p in parts:
@@ -1963,14 +1967,14 @@ def _logs_model_rows(models):
 
 
 def _logs_card(e):
-    """单份日志卡片。方案 / 显卡 / 显存三个标签统一收到右上角。"""
+    """单份日志卡片。方案 / 显卡 / 内存三个标签统一收到右上角。"""
     tags = []
     if e["scheme"]:
         tags.append('<span class="tag tag-scheme">%s</span>' % _esc(e["scheme"]))
     if e["card"]:
         tags.append('<span class="tag tag-card" title="显卡">%s</span>' % _esc(e["card"]))
     if e["vram"]:
-        tags.append('<span class="tag tag-vram" title="显存">%s</span>' % _esc(e["vram"]))
+        tags.append('<span class="tag tag-vram" title="内存">%s</span>' % _esc(e["vram"]))
 
     head = ('<div class="log-head">'
             '<span class="log-wf">%s</span>'
