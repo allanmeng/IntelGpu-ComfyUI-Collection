@@ -54,7 +54,8 @@
   .mx-num { text-align: right; font-variant-numeric: tabular-nums; }
   .log-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
   .log-card {
-    display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: 0 16px;
+    display: grid; grid-template-columns: 88px minmax(0, 1fr) auto; gap: 0 16px;
+    align-items: start;
     background: var(--card); border: 1px solid var(--border); border-radius: 14px;
     padding: 16px 18px; text-decoration: none; color: inherit;
     box-shadow: 0 1px 3px rgba(31,35,40,0.06);
@@ -67,12 +68,20 @@
   .log-date { font-size: 13px; font-weight: 600; color: var(--text); }
   .log-time { font-size: 12px; color: var(--text-muted); }
   .log-main { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .log-side {
+    display: flex; flex-direction: column; gap: 10px; align-items: center;
+    align-self: stretch;
+  }
   .log-card:hover { box-shadow: 0 4px 12px rgba(31,35,40,0.12); border-color: #c8e0f5; }
-  .log-head { display: flex; align-items: baseline; gap: 8px 12px; flex-wrap: wrap; }
   .log-wf { font-size: 15px; font-weight: 600; }
-  .log-tags {
-    margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap;
+  .log-side .log-tags {
+    align-self: flex-end; display: flex; gap: 6px; flex-wrap: nowrap;
     justify-content: flex-end; align-items: center;
+  }
+  .log-gpu {
+    display: block; width: 112px; height: 112px; object-fit: cover;
+    border-radius: 8px; box-shadow: 0 1px 4px rgba(31,35,40,0.18);
+    margin-top: auto; margin-bottom: auto;
   }
   .tag {
     font-size: 12px; line-height: 18px; padding: 1px 8px; border-radius: 6px;
@@ -113,6 +122,18 @@
   .pill b { color: var(--text); font-weight: 600; }
   .pill-attn { background: #f0f7fd; border-color: #c8e0f5; color: var(--intel-blue-dark); }
   .log-file { font-size: 11px; color: #8c959f; overflow-wrap: anywhere; word-break: normal; }
+  @media (max-width: 700px) {
+    .log-card { grid-template-columns: 88px minmax(0, 1fr); }
+    .log-side {
+      grid-column: 1 / -1; flex-direction: row-reverse; align-items: center;
+      justify-content: space-between; gap: 12px;
+      border-top: 1px solid #eef0f2; padding-top: 10px; margin-top: 10px;
+    }
+    .log-side .log-tags {
+      align-self: center; flex-wrap: wrap; justify-content: flex-end;
+    }
+    .log-gpu { width: 88px; height: 88px; margin: 0; }
+  }
   .empty { text-align: center; color: var(--text-muted); font-size: 14px; padding: 48px 0; }
   footer { text-align: center; margin-top: 40px; font-size: 12px; color: var(--text-muted); }
   footer a { color: var(--intel-blue); text-decoration: none; }

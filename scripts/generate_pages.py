@@ -1966,8 +1966,24 @@ def _logs_model_rows(models):
     return "\n          ".join(rows)
 
 
+LOGS_GPU_IMG = {"B70": "assets/b70.jpg", "B580": "assets/b580.jpg"}
+
+
+def _logs_gpu_img(card):
+    """按显卡型号返回右列配图 HTML；未登记的型号不插图。"""
+    m = re.search(r"B(?:70|580)", (card or "").upper())
+    if not m:
+        return ""
+    name = m.group(0)
+    src = LOGS_GPU_IMG.get(name)
+    if not src:
+        return ""
+    return ('        <img class="log-gpu" src="%s" alt="Intel Arc %s" title="%s">\n'
+            % (src, name, name))
+
+
 def _logs_card(e):
-    """单份日志卡片。方案 / 显卡 / 内存三个标签统一收到右上角。"""
+    """单份日志卡片：三列 —— 左=日期时间，中=内容，右=标签（右上）+ 显卡图（居中）。"""
     tags = []
     if e["scheme"]:
         tags.append('<span class="tag tag-scheme">%s</span>' % _esc(e["scheme"]))
@@ -1975,11 +1991,6 @@ def _logs_card(e):
         tags.append('<span class="tag tag-card" title="显卡">%s</span>' % _esc(e["card"]))
     if e["vram"]:
         tags.append('<span class="tag tag-vram" title="内存">%s</span>' % _esc(e["vram"]))
-
-    head = ('<div class="log-head">'
-            '<span class="log-wf">%s</span>'
-            '<span class="log-tags">%s</span>'
-            '</div>' % (_esc(e["workflow"] or "未命名"), "".join(tags)))
 
     nums = []
     for r in e["runs"]:
@@ -2003,14 +2014,18 @@ def _logs_card(e):
         '    <a class="log-card" href="logs/%s.html">\n'
         '      %s\n'
         '      <div class="log-main">\n'
-        '        %s\n'
+        '        <div class="log-wf">%s</div>\n'
         '        <div class="log-nums">%s</div>\n'
         '%s'
         '        <div class="log-file">%s</div>\n'
         '      </div>\n'
+        '      <div class="log-side">\n'
+        '        <div class="log-tags">%s</div>\n'
+        '%s'
+        '      </div>\n'
         '    </a>' % (
-            _esc(e["slug"]), when, head, "".join(nums),
-            models_block, _esc(e["file"])))
+            _esc(e["slug"]), when, _esc(e["workflow"] or "未命名"), "".join(nums),
+            models_block, _esc(e["file"]), "".join(tags), _logs_gpu_img(e["card"])))
 
 
 LOGS_CSS = """  :root {
@@ -2062,7 +2077,8 @@ LOGS_CSS = """  :root {
   .mx-num { text-align: right; font-variant-numeric: tabular-nums; }
   .log-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
   .log-card {
-    display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: 0 16px;
+    display: grid; grid-template-columns: 88px minmax(0, 1fr) auto; gap: 0 16px;
+    align-items: start;
     background: var(--card); border: 1px solid var(--border); border-radius: 14px;
     padding: 16px 18px; text-decoration: none; color: inherit;
     box-shadow: 0 1px 3px rgba(31,35,40,0.06);
@@ -2075,12 +2091,20 @@ LOGS_CSS = """  :root {
   .log-date { font-size: 13px; font-weight: 600; color: var(--text); }
   .log-time { font-size: 12px; color: var(--text-muted); }
   .log-main { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .log-side {
+    display: flex; flex-direction: column; gap: 10px; align-items: center;
+    align-self: stretch;
+  }
   .log-card:hover { box-shadow: 0 4px 12px rgba(31,35,40,0.12); border-color: #c8e0f5; }
-  .log-head { display: flex; align-items: baseline; gap: 8px 12px; flex-wrap: wrap; }
   .log-wf { font-size: 15px; font-weight: 600; }
-  .log-tags {
-    margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap;
+  .log-side .log-tags {
+    align-self: flex-end; display: flex; gap: 6px; flex-wrap: nowrap;
     justify-content: flex-end; align-items: center;
+  }
+  .log-gpu {
+    display: block; width: 112px; height: 112px; object-fit: cover;
+    border-radius: 8px; box-shadow: 0 1px 4px rgba(31,35,40,0.18);
+    margin-top: auto; margin-bottom: auto;
   }
   .tag {
     font-size: 12px; line-height: 18px; padding: 1px 8px; border-radius: 6px;
@@ -2121,6 +2145,18 @@ LOGS_CSS = """  :root {
   .pill b { color: var(--text); font-weight: 600; }
   .pill-attn { background: #f0f7fd; border-color: #c8e0f5; color: var(--intel-blue-dark); }
   .log-file { font-size: 11px; color: #8c959f; overflow-wrap: anywhere; word-break: normal; }
+  @media (max-width: 700px) {
+    .log-card { grid-template-columns: 88px minmax(0, 1fr); }
+    .log-side {
+      grid-column: 1 / -1; flex-direction: row-reverse; align-items: center;
+      justify-content: space-between; gap: 12px;
+      border-top: 1px solid #eef0f2; padding-top: 10px; margin-top: 10px;
+    }
+    .log-side .log-tags {
+      align-self: center; flex-wrap: wrap; justify-content: flex-end;
+    }
+    .log-gpu { width: 88px; height: 88px; margin: 0; }
+  }
   .empty { text-align: center; color: var(--text-muted); font-size: 14px; padding: 48px 0; }
   footer { text-align: center; margin-top: 40px; font-size: 12px; color: var(--text-muted); }
   footer a { color: var(--intel-blue); text-decoration: none; }

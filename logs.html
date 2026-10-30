@@ -54,7 +54,8 @@
   .mx-num { text-align: right; font-variant-numeric: tabular-nums; }
   .log-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
   .log-card {
-    display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: 0 16px;
+    display: grid; grid-template-columns: 88px minmax(0, 1fr) auto; gap: 0 16px;
+    align-items: start;
     background: var(--card); border: 1px solid var(--border); border-radius: 14px;
     padding: 16px 18px; text-decoration: none; color: inherit;
     box-shadow: 0 1px 3px rgba(31,35,40,0.06);
@@ -67,12 +68,20 @@
   .log-date { font-size: 13px; font-weight: 600; color: var(--text); }
   .log-time { font-size: 12px; color: var(--text-muted); }
   .log-main { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .log-side {
+    display: flex; flex-direction: column; gap: 10px; align-items: center;
+    align-self: stretch;
+  }
   .log-card:hover { box-shadow: 0 4px 12px rgba(31,35,40,0.12); border-color: #c8e0f5; }
-  .log-head { display: flex; align-items: baseline; gap: 8px 12px; flex-wrap: wrap; }
   .log-wf { font-size: 15px; font-weight: 600; }
-  .log-tags {
-    margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap;
+  .log-side .log-tags {
+    align-self: flex-end; display: flex; gap: 6px; flex-wrap: nowrap;
     justify-content: flex-end; align-items: center;
+  }
+  .log-gpu {
+    display: block; width: 112px; height: 112px; object-fit: cover;
+    border-radius: 8px; box-shadow: 0 1px 4px rgba(31,35,40,0.18);
+    margin-top: auto; margin-bottom: auto;
   }
   .tag {
     font-size: 12px; line-height: 18px; padding: 1px 8px; border-radius: 6px;
@@ -113,6 +122,18 @@
   .pill b { color: var(--text); font-weight: 600; }
   .pill-attn { background: #f0f7fd; border-color: #c8e0f5; color: var(--intel-blue-dark); }
   .log-file { font-size: 11px; color: #8c959f; overflow-wrap: anywhere; word-break: normal; }
+  @media (max-width: 700px) {
+    .log-card { grid-template-columns: 88px minmax(0, 1fr); }
+    .log-side {
+      grid-column: 1 / -1; flex-direction: row-reverse; align-items: center;
+      justify-content: space-between; gap: 12px;
+      border-top: 1px solid #eef0f2; padding-top: 10px; margin-top: 10px;
+    }
+    .log-side .log-tags {
+      align-self: center; flex-wrap: wrap; justify-content: flex-end;
+    }
+    .log-gpu { width: 88px; height: 88px; margin: 0; }
+  }
   .empty { text-align: center; color: var(--text-muted); font-size: 14px; padding: 48px 0; }
   footer { text-align: center; margin-top: 40px; font-size: 12px; color: var(--text-muted); }
   footer a { color: var(--intel-blue); text-decoration: none; }
@@ -164,7 +185,7 @@
     <a class="log-card" href="logs/20261030-2031-Flux3Edit-omnixpu加速-B580-64G.html">
       <div class="log-when"><span class="log-date">2026-10-30</span><span class="log-time">20:31</span></div>
       <div class="log-main">
-        <div class="log-head"><span class="log-wf">Flux3Edit</span><span class="log-tags"><span class="tag tag-scheme">omnixpu加速</span><span class="tag tag-card" title="显卡">B580</span><span class="tag tag-vram" title="内存">64G</span></span></div>
+        <div class="log-wf">Flux3Edit</div>
         <div class="log-nums"><span class="st"><i>冷启</i><b>90.11 s</b></span><span class="st"><i>热启</i><b>39.33 s</b></span></div>
         <div class="log-models">
           <div class="model-row"><i>底模</i><span>flux3-image-klein-int8-convrot<wbr>.safetensors</span></div>
@@ -173,11 +194,15 @@
         </div>
         <div class="log-file">202610302031_Flux3Edit_omnixpu加速_B580_64G_冷启+热启.txt</div>
       </div>
+      <div class="log-side">
+        <div class="log-tags"><span class="tag tag-scheme">omnixpu加速</span><span class="tag tag-card" title="显卡">B580</span><span class="tag tag-vram" title="内存">64G</span></div>
+        <img class="log-gpu" src="assets/b580.jpg" alt="Intel Arc B580" title="B580">
+      </div>
     </a>
     <a class="log-card" href="logs/20261030-1939-h3_FL2AV_0.4mp5s-omnixpu加速-B580-64G.html">
       <div class="log-when"><span class="log-date">2026-10-30</span><span class="log-time">19:39</span></div>
       <div class="log-main">
-        <div class="log-head"><span class="log-wf">h3_FL2AV_0.4mp5s</span><span class="log-tags"><span class="tag tag-scheme">omnixpu加速</span><span class="tag tag-card" title="显卡">B580</span><span class="tag tag-vram" title="内存">64G</span></span></div>
+        <div class="log-wf">h3_FL2AV_0.4mp5s</div>
         <div class="log-nums"><span class="st"><i>冷启</i><b>371.21 s</b></span><span class="st"><i>热启</i><b>142.30 s</b></span></div>
         <div class="log-models">
           <div class="model-row"><i>底模</i><span><span class="model-cls" title="该日志未打印文件名，此处为模型类名">MiniMaxH3</span></span></div>
@@ -186,11 +211,15 @@
         </div>
         <div class="log-file">202610301939_h3_FL2AV_0.4mp5s_omnixpu加速_B580_64G_冷启+热启.txt</div>
       </div>
+      <div class="log-side">
+        <div class="log-tags"><span class="tag tag-scheme">omnixpu加速</span><span class="tag tag-card" title="显卡">B580</span><span class="tag tag-vram" title="内存">64G</span></div>
+        <img class="log-gpu" src="assets/b580.jpg" alt="Intel Arc B580" title="B580">
+      </div>
     </a>
     <a class="log-card" href="logs/20261028-2123-Flux3Edit-omnixpu加速-B70-64G.html">
       <div class="log-when"><span class="log-date">2026-10-28</span><span class="log-time">21:23</span></div>
       <div class="log-main">
-        <div class="log-head"><span class="log-wf">Flux3Edit</span><span class="log-tags"><span class="tag tag-scheme">omnixpu加速</span><span class="tag tag-card" title="显卡">B70</span><span class="tag tag-vram" title="内存">64G</span></span></div>
+        <div class="log-wf">Flux3Edit</div>
         <div class="log-nums"><span class="st"><i>冷启</i><b>70.52 s</b></span><span class="st"><i>热启</i><b>32.22 s</b></span></div>
         <div class="log-models">
           <div class="model-row"><i>底模</i><span>flux3-image-klein-int8-convrot<wbr>.safetensors</span></div>
@@ -199,11 +228,15 @@
         </div>
         <div class="log-file">202610282123_Flux3Edit_omnixpu加速_B70_64G_冷启+热启.txt</div>
       </div>
+      <div class="log-side">
+        <div class="log-tags"><span class="tag tag-scheme">omnixpu加速</span><span class="tag tag-card" title="显卡">B70</span><span class="tag tag-vram" title="内存">64G</span></div>
+        <img class="log-gpu" src="assets/b70.jpg" alt="Intel Arc B70" title="B70">
+      </div>
     </a>
     <a class="log-card" href="logs/20261028-1854-SeedVR超分放大_10s_243帧_-768x1376-1536x2752-omnixpu加速-B70-64G.html">
       <div class="log-when"><span class="log-date">2026-10-28</span><span class="log-time">18:54</span></div>
       <div class="log-main">
-        <div class="log-head"><span class="log-wf">SeedVR超分放大_10s_243帧_(768×1376)-(1536×2752)</span><span class="log-tags"><span class="tag tag-scheme">omnixpu加速</span><span class="tag tag-card" title="显卡">B70</span><span class="tag tag-vram" title="内存">64G</span></span></div>
+        <div class="log-wf">SeedVR超分放大_10s_243帧_(768×1376)-(1536×2752)</div>
         <div class="log-nums"><span class="st"><i>冷启</i><b>1154.00 s</b></span></div>
         <div class="log-models">
           <div class="model-row"><i>底模</i><span>seedvr2_<wbr>3b_<wbr>int8_<wbr>convrot<wbr>.safetensors</span></div>
@@ -211,11 +244,15 @@
         </div>
         <div class="log-file">202610281854_SeedVR超分放大_10s_243帧_(768×1376)-(1536×2752)_omnixpu加速_B70_64G_冷启.txt</div>
       </div>
+      <div class="log-side">
+        <div class="log-tags"><span class="tag tag-scheme">omnixpu加速</span><span class="tag tag-card" title="显卡">B70</span><span class="tag tag-vram" title="内存">64G</span></div>
+        <img class="log-gpu" src="assets/b70.jpg" alt="Intel Arc B70" title="B70">
+      </div>
     </a>
     <a class="log-card" href="logs/20261028-1844-Z-Image-Turbo文生图-omnixpu加速-B70-64G.html">
       <div class="log-when"><span class="log-date">2026-10-28</span><span class="log-time">18:44</span></div>
       <div class="log-main">
-        <div class="log-head"><span class="log-wf">Z-Image-Turbo文生图</span><span class="log-tags"><span class="tag tag-scheme">omnixpu加速</span><span class="tag tag-card" title="显卡">B70</span><span class="tag tag-vram" title="内存">64G</span></span></div>
+        <div class="log-wf">Z-Image-Turbo文生图</div>
         <div class="log-nums"><span class="st"><i>冷启</i><b>46.40 s</b></span><span class="st"><i>热启</i><b>20.01 s</b></span></div>
         <div class="log-models">
           <div class="model-row"><i>底模</i><span>z_<wbr>image_<wbr>turbo_<wbr>int8_<wbr>convrot<wbr>.safetensors</span></div>
@@ -224,11 +261,15 @@
         </div>
         <div class="log-file">202610281844_Z-Image-Turbo文生图_omnixpu加速_B70_64G_冷启+热启.txt</div>
       </div>
+      <div class="log-side">
+        <div class="log-tags"><span class="tag tag-scheme">omnixpu加速</span><span class="tag tag-card" title="显卡">B70</span><span class="tag tag-vram" title="内存">64G</span></div>
+        <img class="log-gpu" src="assets/b70.jpg" alt="Intel Arc B70" title="B70">
+      </div>
     </a>
     <a class="log-card" href="logs/20261027-1807-h3_FL2VA_1mp10s-omnixpu加速-B70-64G.html">
       <div class="log-when"><span class="log-date">2026-10-27</span><span class="log-time">18:07</span></div>
       <div class="log-main">
-        <div class="log-head"><span class="log-wf">h3_FL2VA_1mp10s</span><span class="log-tags"><span class="tag tag-scheme">omnixpu加速</span><span class="tag tag-card" title="显卡">B70</span><span class="tag tag-vram" title="内存">64G</span></span></div>
+        <div class="log-wf">h3_FL2VA_1mp10s</div>
         <div class="log-nums"><span class="st"><i>冷启</i><b>541.03 s</b></span><span class="st"><i>热启</i><b>475.70 s</b></span></div>
         <div class="log-models">
           <div class="model-row"><i>底模</i><span>minimax_<wbr>h3_<wbr>fl2va_<wbr>pruned_<wbr>int8_<wbr>convrot<wbr>.safetensors</span></div>
@@ -237,11 +278,15 @@
         </div>
         <div class="log-file">202610271807_h3_FL2VA_1mp10s_omnixpu加速_B70_64G_冷启+热启.txt</div>
       </div>
+      <div class="log-side">
+        <div class="log-tags"><span class="tag tag-scheme">omnixpu加速</span><span class="tag tag-card" title="显卡">B70</span><span class="tag tag-vram" title="内存">64G</span></div>
+        <img class="log-gpu" src="assets/b70.jpg" alt="Intel Arc B70" title="B70">
+      </div>
     </a>
     <a class="log-card" href="logs/20261027-1728-Moss文生图-omnixpu加速-B70-64G.html">
       <div class="log-when"><span class="log-date">2026-10-27</span><span class="log-time">17:28</span></div>
       <div class="log-main">
-        <div class="log-head"><span class="log-wf">Moss文生图</span><span class="log-tags"><span class="tag tag-scheme">omnixpu加速</span><span class="tag tag-card" title="显卡">B70</span><span class="tag tag-vram" title="内存">64G</span></span></div>
+        <div class="log-wf">Moss文生图</div>
         <div class="log-nums"><span class="st"><i>冷启</i><b>23.88 s</b></span><span class="st"><i>热启</i><b>7.36 s</b></span></div>
         <div class="log-models">
           <div class="model-row"><i>底模</i><span>moss_<wbr>image_<wbr>sft_<wbr>int8_<wbr>convrot<wbr>.safetensors</span></div>
@@ -250,11 +295,15 @@
         </div>
         <div class="log-file">202610271728_Moss文生图_omnixpu加速_B70_64G_冷启+热启.txt</div>
       </div>
+      <div class="log-side">
+        <div class="log-tags"><span class="tag tag-scheme">omnixpu加速</span><span class="tag tag-card" title="显卡">B70</span><span class="tag tag-vram" title="内存">64G</span></div>
+        <img class="log-gpu" src="assets/b70.jpg" alt="Intel Arc B70" title="B70">
+      </div>
     </a>
     <a class="log-card" href="logs/20261027-1640-Qwenimage2.1Edit-omnixpu加速-B70-64G.html">
       <div class="log-when"><span class="log-date">2026-10-27</span><span class="log-time">16:40</span></div>
       <div class="log-main">
-        <div class="log-head"><span class="log-wf">Qwenimage2.1Edit</span><span class="log-tags"><span class="tag tag-scheme">omnixpu加速</span><span class="tag tag-card" title="显卡">B70</span><span class="tag tag-vram" title="内存">64G</span></span></div>
+        <div class="log-wf">Qwenimage2.1Edit</div>
         <div class="log-nums"><span class="st"><i>冷启</i><b>99.59 s</b></span><span class="st"><i>热启</i><b>20.88 s</b></span></div>
         <div class="log-models">
           <div class="model-row"><i>底模</i><span>qwen_<wbr>image_<wbr>2.1_<wbr>int8_<wbr>convrot<wbr>.safetensors</span></div>
@@ -263,11 +312,15 @@
         </div>
         <div class="log-file">202610271640_Qwenimage2.1Edit_omnixpu加速_B70_64G_冷启+热启.txt</div>
       </div>
+      <div class="log-side">
+        <div class="log-tags"><span class="tag tag-scheme">omnixpu加速</span><span class="tag tag-card" title="显卡">B70</span><span class="tag tag-vram" title="内存">64G</span></div>
+        <img class="log-gpu" src="assets/b70.jpg" alt="Intel Arc B70" title="B70">
+      </div>
     </a>
     <a class="log-card" href="logs/20261026-Krea2Edit-omnixpu加速-B70-64G.html">
       <div class="log-when"><span class="log-date">2026-10-26</span><span class="log-time">22:53</span></div>
       <div class="log-main">
-        <div class="log-head"><span class="log-wf">Krea2Edit</span><span class="log-tags"><span class="tag tag-scheme">omnixpu加速</span><span class="tag tag-card" title="显卡">B70</span><span class="tag tag-vram" title="内存">64G</span></span></div>
+        <div class="log-wf">Krea2Edit</div>
         <div class="log-nums"><span class="st"><i>冷启</i><b>115.97 s</b></span><span class="st"><i>热启</i><b>36.96 s</b></span></div>
         <div class="log-models">
           <div class="model-row"><i>底模</i><span>krea2_<wbr>turbo_<wbr>int8_<wbr>convrot<wbr>.safetensors</span></div>
@@ -276,11 +329,15 @@
         </div>
         <div class="log-file">20261026_Krea2Edit_omnixpu加速_B70_64G_冷启+热启.txt</div>
       </div>
+      <div class="log-side">
+        <div class="log-tags"><span class="tag tag-scheme">omnixpu加速</span><span class="tag tag-card" title="显卡">B70</span><span class="tag tag-vram" title="内存">64G</span></div>
+        <img class="log-gpu" src="assets/b70.jpg" alt="Intel Arc B70" title="B70">
+      </div>
     </a>
     <a class="log-card" href="logs/20261023-h3_FL2VA_0.4mp10s-pytorchxpu原生-B70-64G.html">
       <div class="log-when"><span class="log-date">2026-10-23</span><span class="log-time">03:03</span></div>
       <div class="log-main">
-        <div class="log-head"><span class="log-wf">h3_FL2VA_0.4mp10s</span><span class="log-tags"><span class="tag tag-scheme">pytorchxpu原生</span><span class="tag tag-card" title="显卡">B70</span><span class="tag tag-vram" title="内存">64G</span></span></div>
+        <div class="log-wf">h3_FL2VA_0.4mp10s</div>
         <div class="log-nums"><span class="st"><i>冷启</i><b>384.69 s</b></span><span class="st"><i>热启</i><b>204.65 s</b></span></div>
         <div class="log-models">
           <div class="model-row"><i>底模</i><span>minimax_<wbr>h3_<wbr>fl2va_<wbr>pruned_<wbr>int8_<wbr>convrot<wbr>.safetensors</span></div>
@@ -289,11 +346,15 @@
         </div>
         <div class="log-file">20261023_h3_FL2VA_0.4mp10s_pytorchxpu原生_B70_64G_冷启+热启.txt</div>
       </div>
+      <div class="log-side">
+        <div class="log-tags"><span class="tag tag-scheme">pytorchxpu原生</span><span class="tag tag-card" title="显卡">B70</span><span class="tag tag-vram" title="内存">64G</span></div>
+        <img class="log-gpu" src="assets/b70.jpg" alt="Intel Arc B70" title="B70">
+      </div>
     </a>
     <a class="log-card" href="logs/20261023-Krea2Edit-pytorchxpu原生-B70-64G.html">
       <div class="log-when"><span class="log-date">2026-10-23</span><span class="log-time">03:03</span></div>
       <div class="log-main">
-        <div class="log-head"><span class="log-wf">Krea2Edit</span><span class="log-tags"><span class="tag tag-scheme">pytorchxpu原生</span><span class="tag tag-card" title="显卡">B70</span><span class="tag tag-vram" title="内存">64G</span></span></div>
+        <div class="log-wf">Krea2Edit</div>
         <div class="log-nums"><span class="st"><i>冷启</i><b>122.62 s</b></span><span class="st"><i>热启</i><b>46.66 s</b></span></div>
         <div class="log-models">
           <div class="model-row"><i>底模</i><span>krea2_<wbr>turbo_<wbr>int8_<wbr>convrot<wbr>.safetensors</span></div>
@@ -302,11 +363,15 @@
         </div>
         <div class="log-file">20261023_Krea2Edit_pytorchxpu原生_B70_64G_冷启+热启.txt</div>
       </div>
+      <div class="log-side">
+        <div class="log-tags"><span class="tag tag-scheme">pytorchxpu原生</span><span class="tag tag-card" title="显卡">B70</span><span class="tag tag-vram" title="内存">64G</span></div>
+        <img class="log-gpu" src="assets/b70.jpg" alt="Intel Arc B70" title="B70">
+      </div>
     </a>
     <a class="log-card" href="logs/20261023-h3_FL2VA_0.4mp10s-omnixpu加速-B70-64G.html">
       <div class="log-when"><span class="log-date">2026-10-23</span><span class="log-time">02:52</span></div>
       <div class="log-main">
-        <div class="log-head"><span class="log-wf">h3_FL2VA_0.4mp10s</span><span class="log-tags"><span class="tag tag-scheme">omnixpu加速</span><span class="tag tag-card" title="显卡">B70</span><span class="tag tag-vram" title="内存">64G</span></span></div>
+        <div class="log-wf">h3_FL2VA_0.4mp10s</div>
         <div class="log-nums"><span class="st"><i>冷启</i><b>211.47 s</b></span><span class="st"><i>热启</i><b>182.45 s</b></span></div>
         <div class="log-models">
           <div class="model-row"><i>底模</i><span><span class="model-cls" title="该日志未打印文件名，此处为模型类名">MiniMaxH3</span></span></div>
@@ -315,11 +380,15 @@
         </div>
         <div class="log-file">20261023_h3_FL2VA_0.4mp10s_omnixpu加速_B70_64G_冷启+热启.txt</div>
       </div>
+      <div class="log-side">
+        <div class="log-tags"><span class="tag tag-scheme">omnixpu加速</span><span class="tag tag-card" title="显卡">B70</span><span class="tag tag-vram" title="内存">64G</span></div>
+        <img class="log-gpu" src="assets/b70.jpg" alt="Intel Arc B70" title="B70">
+      </div>
     </a>
     <a class="log-card" href="logs/20261023-Krea2Edit-omnixpu加速-B70-64G.html">
       <div class="log-when"><span class="log-date">2026-10-23</span><span class="log-time">02:52</span></div>
       <div class="log-main">
-        <div class="log-head"><span class="log-wf">Krea2Edit</span><span class="log-tags"><span class="tag tag-scheme">omnixpu加速</span><span class="tag tag-card" title="显卡">B70</span><span class="tag tag-vram" title="内存">64G</span></span></div>
+        <div class="log-wf">Krea2Edit</div>
         <div class="log-nums"><span class="st"><i>冷启</i><b>71.83 s</b></span><span class="st"><i>热启</i><b>37.02 s</b></span></div>
         <div class="log-models">
           <div class="model-row"><i>底模</i><span><span class="model-cls" title="该日志未打印文件名，此处为模型类名">Krea2</span></span></div>
@@ -327,6 +396,10 @@
           <div class="model-row"><i>VAE</i><span><span class="model-cls" title="该日志未打印文件名，此处为模型类名">WanVAE</span></span></div>
         </div>
         <div class="log-file">20261023_Krea2Edit_omnixpu加速_B70_64G_冷启+热启.txt</div>
+      </div>
+      <div class="log-side">
+        <div class="log-tags"><span class="tag tag-scheme">omnixpu加速</span><span class="tag tag-card" title="显卡">B70</span><span class="tag tag-vram" title="内存">64G</span></div>
+        <img class="log-gpu" src="assets/b70.jpg" alt="Intel Arc B70" title="B70">
       </div>
     </a>
   </div>
