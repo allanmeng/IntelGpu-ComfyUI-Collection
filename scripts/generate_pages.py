@@ -1660,6 +1660,12 @@ _RE_TE_NAME = re.compile(
     r"(?:^|[_\-.])t5(?:$|[_\-.x])|text_encoder|clip"
     r"|qwen\d(?:\.\d)*vl|qwen\d(?:\.\d)+|umt5|gemma|bert|(?:^|[_\-.])llm")
 
+# 正文里被引号包住的模型文件名（无反斜杠/斜杠）。用于 policy 的 paths=[] 时兜底：
+# 20261030 的 h3_FL2AV 就是靠 mmproj 报错里的 'qwen3vl_32b_minimax_h3-Q4_K_M.gguf'
+# 才拿到 TE 真名，否则只能显示类名 MiniMaxH3TEModel_。
+_RE_ANYFILE = re.compile(
+    r"'([^'\\/\r\n]+\.(?:gguf|safetensors|ckpt|pth|pt|bin))'")
+
 
 def _logs_model_role(path_lower):
     """按模型目录判定角色（路径已统一成反斜杠小写）。
@@ -1727,6 +1733,13 @@ def _logs_extract_models(text):
             if name not in out[role]:
                 out[role].append(name)
                 out["from_file"] = True
+    # policy 的 paths 可能整个是空的（模型已在显存里，不再打印路径），但正文别处
+    # 仍可能带出文件名。只填空缺的角色，不覆盖 policy 已给出的结果。
+    for name in _RE_ANYFILE.findall(text):
+        role = _logs_model_role(name.lower())
+        if role and not out[role] and name not in out[role]:
+            out[role].append(name)
+            out["from_file"] = True
     missing = [k for k in ("base", "te", "vae") if not out[k]]
     if missing:
         for cls in sorted(set(_RE_LOAD.findall(text))):

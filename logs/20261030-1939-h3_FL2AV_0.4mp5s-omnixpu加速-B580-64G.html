@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>h3_FL2AV_0.4mp5s / omnixpu加速 / B580 / 64G - 执行日志</title>
+<style>
+  :root {
+    --intel-blue: #0071c5;
+    --intel-blue-dark: #005a99;
+    --bg: #f6f8fa;
+    --card: #ffffff;
+    --text: #24292f;
+    --text-muted: #57606a;
+    --border: #d0d7de;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.6;
+  }
+  .container { max-width: 1100px; margin: 0 auto; padding: 24px 20px 48px; }
+  header { text-align: center; padding: 40px 0 24px; }
+  header h1 { font-size: 30px; font-weight: 700; color: var(--intel-blue); }
+  header .note { margin-top: 12px; font-size: 14px; color: var(--text-muted); }
+  .chips { margin-top: 14px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .chip {
+    font-size: 12px; padding: 5px 12px; border-radius: 999px;
+    background: #e8f1fb; color: var(--intel-blue-dark); border: 1px solid #c8e0f5;
+    text-decoration: none; display: inline-block;
+  }
+  .chip-active { background: var(--intel-blue); color: #fff; border-color: var(--intel-blue); }
+  .sec-title { font-size: 17px; font-weight: 600; margin: 32px 0 14px; }
+  .sort-banner {
+    margin: 28px 0 8px; background: linear-gradient(90deg, #e8f1fb, #f0f7fd);
+    border: 1px solid #c8e0f5; border-radius: 10px; padding: 10px 16px;
+    font-size: 13px; color: var(--intel-blue-dark); text-align: center; line-height: 1.8;
+  }
+  .mx-block {
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 16px 18px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(31,35,40,0.06);
+  }
+  .mx-wrap { overflow-x: auto; }
+  table.mx { width: 100%; border-collapse: collapse; font-size: 13px; white-space: nowrap; }
+  table.mx th {
+    text-align: left; font-weight: 600; color: var(--text-muted); font-size: 12px;
+    padding: 6px 10px; border-bottom: 1px solid var(--border);
+  }
+  table.mx th.mx-num { text-align: right; }
+  table.mx td { padding: 7px 10px; border-bottom: 1px solid #eef0f2; }
+  table.mx tr:last-child td { border-bottom: none; }
+  table.mx a { color: var(--intel-blue); text-decoration: none; }
+  table.mx a:hover { text-decoration: underline; }
+  .mx-num { text-align: right; font-variant-numeric: tabular-nums; }
+  .log-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+  .log-card {
+    display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: 0 16px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 16px 18px; text-decoration: none; color: inherit;
+    box-shadow: 0 1px 3px rgba(31,35,40,0.06);
+    transition: box-shadow 0.15s ease, border-color 0.15s ease;
+  }
+  .log-when {
+    display: flex; flex-direction: column; gap: 2px; padding-right: 14px;
+    border-right: 1px solid #eef0f2; text-align: right; font-variant-numeric: tabular-nums;
+  }
+  .log-date { font-size: 13px; font-weight: 600; color: var(--text); }
+  .log-time { font-size: 12px; color: var(--text-muted); }
+  .log-main { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .log-card:hover { box-shadow: 0 4px 12px rgba(31,35,40,0.12); border-color: #c8e0f5; }
+  .log-head { display: flex; align-items: baseline; gap: 8px 12px; flex-wrap: wrap; }
+  .log-wf { font-size: 15px; font-weight: 600; }
+  .log-tags {
+    margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap;
+    justify-content: flex-end; align-items: center;
+  }
+  .tag {
+    font-size: 12px; line-height: 18px; padding: 1px 8px; border-radius: 6px;
+    background: #f3f4f6; border: 1px solid #e5e7eb; color: var(--text-muted);
+    white-space: nowrap;
+  }
+  .tag-scheme {
+    color: var(--intel-blue-dark); background: #e8f1fb; border-color: #c8e0f5;
+  }
+  .tag-card {
+    color: #6b3fc4; background: #f4efff; border-color: #ddd0fa;
+  }
+  .tag-vram {
+    color: #9a5b00; background: #fff5e2; border-color: #f2dcaf;
+  }
+  .log-nums { display: flex; gap: 18px; flex-wrap: wrap; }
+  .log-nums .st { display: flex; flex-direction: column; }
+  .log-nums .st i { font-style: normal; font-size: 11px; color: var(--text-muted); }
+  .log-nums .st b { font-size: 17px; font-variant-numeric: tabular-nums; }
+  .log-models {
+    display: flex; flex-direction: column; gap: 3px;
+    padding-top: 10px; border-top: 1px dashed #e5e7eb;
+  }
+  .model-row { display: flex; gap: 8px; font-size: 12px; align-items: baseline; }
+  .model-row i {
+    font-style: normal; color: var(--text-muted); flex: 0 0 auto;
+    min-width: 32px; font-size: 11px;
+  }
+  .model-row span {
+    color: var(--text); overflow-wrap: anywhere; word-break: normal;
+    font-family: "Cascadia Mono", Consolas, monospace; font-size: 11px; line-height: 1.5;
+  }
+  .model-row span.model-cls { color: var(--text-muted); font-style: italic; cursor: help; }
+  .pill {
+    font-size: 11px; color: var(--text-muted); background: #f3f4f6;
+    border: 1px solid #e5e7eb; border-radius: 999px; padding: 2px 8px;
+  }
+  .pill b { color: var(--text); font-weight: 600; }
+  .pill-attn { background: #f0f7fd; border-color: #c8e0f5; color: var(--intel-blue-dark); }
+  .log-file { font-size: 11px; color: #8c959f; overflow-wrap: anywhere; word-break: normal; }
+  .empty { text-align: center; color: var(--text-muted); font-size: 14px; padding: 48px 0; }
+  footer { text-align: center; margin-top: 40px; font-size: 12px; color: var(--text-muted); }
+  footer a { color: var(--intel-blue); text-decoration: none; }
+  .back { display: inline-block; margin-bottom: 18px; font-size: 13px; color: var(--intel-blue); text-decoration: none; }
+  .back:hover { text-decoration: underline; }
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(150px, 100%), 1fr)); gap: 10px; margin: 18px 0 8px; }
+  .stat-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; }
+  .stat-box i { font-style: normal; display: block; font-size: 11px; color: var(--text-muted); }
+  .stat-box b { font-size: 18px; font-variant-numeric: tabular-nums; }
+  .runs-note { margin-top: 6px; font-size: 12px; color: var(--text-muted); }
+  .raw { margin-top: 10px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .raw summary { cursor: pointer; padding: 12px 16px; font-size: 14px; font-weight: 600; background: #fafbfc; }
+  .raw pre {
+    margin: 0; padding: 14px 16px; font-size: 12px; line-height: 1.55;
+    font-family: "Cascadia Mono", Consolas, "Courier New", monospace;
+    overflow-x: auto; white-space: pre; color: #24292f; max-height: 720px; overflow-y: auto;
+  }
+  .lg-info { color: #57606a; }
+  .lg-warn { color: #9a6700; background: #fff8e5; display: block; width: max-content; min-width: 100%; }
+  .lg-err { color: #a40e26; background: #fdecee; display: block; width: max-content; min-width: 100%; }
+  .lg-omni { color: #005a99; }
+  .lg-prog { color: #8c959f; }
+
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>IntelGpu-ComfyUI-Collection</h1>
+    <p class="note">202610301939_h3_FL2AV_0.4mp5s_omnixpu加速_B580_64G_冷启+热启.txt · 2026-10-30 19:39</p>
+    <div class="chips">
+      <a class="chip" href="../index.html">项目收集</a>
+      <a class="chip" href="../links.html">组件下载</a>
+      <a class="chip" href="../cloud_drive_collection.html">资源聚合</a>
+      <a class="chip" href="../comfyui_opt.html">工作台优化</a>
+      <span class="chip chip-active">执行日志</span>
+      <a class="chip" href="../group.html">互助社群</a>
+      <a class="chip" href="https://blog.blackwood.cv/news/latest" target="_blank" rel="noopener">生态日报 ↗</a>
+    </div>
+  </header>
+
+  <a class="back" href="../logs.html">← 返回执行日志</a>
+
+  <div class="stat-grid">
+    <div class="stat-box"><i>冷启</i><b>371.21 s</b></div>
+    <div class="stat-box"><i>热启</i><b>142.30 s</b></div>
+    <div class="stat-box"><i>热启 vs 冷启</i><b>2.61×</b></div>
+    <div class="stat-box"><i>每步耗时</i><b>22.11 s/it</b></div>
+    <div class="stat-box"><i>峰值 staged</i><b>4,965 MB</b></div>
+  </div>
+
+  <h2 class="sec-title">逐次执行</h2>
+    <div class="mx-block">
+      <div class="mx-wrap">
+        <table class="mx">
+          <thead><tr><th>阶段</th><th class="mx-num">耗时</th><th class="mx-num">步数</th><th class="mx-num">s/it</th><th class="mx-num">staged MB</th><th>其他指标</th></tr></thead>
+          <tbody>
+          <tr><td>冷启</td><td class="mx-num">371.21 s</td><td class="mx-num">4</td><td class="mx-num">22.11</td><td class="mx-num">4,965</td><td><span class="pill pill-attn">CUTE_BHLD_D128 ×3</span><span class="pill pill-attn">CUTE_H3_VAE_D64 ×3</span></td></tr>
+          <tr><td>热启</td><td class="mx-num">142.30 s</td><td class="mx-num">4</td><td class="mx-num">21.95</td><td class="mx-num">4,965</td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  <details class="raw" open>
+    <summary>原始日志全文（已脱敏本地路径）</summary>
+    <pre><span class="lg-info">[INFO] got prompt</span>
+<span class="lg-info">[INFO] Model storage policy: fast_disk=False paths=[&#x27;&lt;本地路径&gt;/minimax_h3_audio_vae_fp32.safetensors&#x27;]</span>
+<span class="lg-info">[INFO] VAE load device: xpu:0, offload device: cpu, dtype: torch.float32</span>
+<span class="lg-info">[INFO] Model storage policy: fast_disk=False paths=[&#x27;&lt;本地路径&gt;/minimax_h3_video_vae_fp16.safetensors&#x27;]</span>
+<span class="lg-info">[INFO] VAE load device: xpu:0, offload device: cpu, dtype: torch.float16</span>
+<span class="lg-info">[INFO] gguf qtypes: Q4_K (390), F32 (433), Q6_K (50), Q5_K (27), F16 (2)</span>
+<span class="lg-info">[INFO] Attenpting to find mmproj file for text encoder...</span>
+<span class="lg-err">[ERROR] Error: Can&#x27;t find mmproj file for &#x27;qwen3vl_32b_minimax_h3-Q4_K_M.gguf&#x27; (matching:&#x27;qwen3vl_32b_minimax_h3&#x27;)! Qwen-Image-Edit will be broken!</span>
+<span class="lg-info">[INFO] Model storage policy: fast_disk=False paths=[]</span>
+<span class="lg-info">[INFO] CLIP/text encoder model load device: xpu:0, offload device: cpu, current: cpu, dtype: torch.float16</span>
+<span class="lg-info">[INFO] Requested to load MiniMaxH3TEModel_</span>
+<span class="lg-info">[INFO] loaded partially; 7031.00 MB usable, 6679.44 MB loaded, 8703.96 MB offloaded, 351.56 MB buffer reserved, lowvram patches: 0</span>
+<span class="lg-info">[INFO] Attempting to release mmap (185)</span>
+<span class="lg-omni">[INFO] [OmniXPU] norm first use: LayerNorm shape=torch.Size([1620, 1152])</span>
+[omni_xpu::device] warning: physical Device ID 0xe20b (physical_sku=b580) uses kernel_profile=b580, policy_id=b580-v1, support=experimental; functional support may be accepted independently, performance_claim=false
+<span class="lg-omni">[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=221.8MiB</span>
+<span class="lg-info">[INFO] Requested to load MiniMaxH3VideoVAE</span>
+<span class="lg-info">[INFO] Unloaded partially: 3653.38 MB freed, 3026.05 MB remains loaded, 351.56 MB buffer reserved, lowvram patches: 0</span>
+<span class="lg-info">[INFO] Model MiniMaxH3VideoVAE prepared for dynamic VRAM loading. 4965MB Staged. 0 patches attached. Force pre-loaded 128 weights: 352 KB.</span>
+<span class="lg-info">[INFO] gguf qtypes: F32 (7), F16 (278), Q3_K (250)</span>
+<span class="lg-info">[INFO] model weight dtype torch.bfloat16, manual cast: None</span>
+<span class="lg-info">[INFO] model_type FLOW_AV</span>
+<span class="lg-info">[INFO] Model storage policy: fast_disk=False paths=[]</span>
+<span class="lg-omni">[INFO] [OmniXPU] LoRA memory budget cached: source=1865.5MiB/416 tensors model_added=1865.5MiB model_budget=1865.5MiB clip_added=0.0MiB clip_budget=0.0MiB</span>
+<span class="lg-omni">[INFO] [OmniXPU] LoRA model budget applied: cached=1865.5MiB/416 tensors requested=6620.2-&gt;8485.7MiB minimum=3310.1-&gt;5175.6MiB xpu_memory=available xpu_allocated=1543.7MiB xpu_reserved=1572.0MiB xpu_free=7282.7MiB xpu_total=11946.2MiB</span>
+<span class="lg-info">[INFO] Requested to load MiniMaxH3</span>
+<span class="lg-info">[INFO] loaded partially; 4778.36 MB usable, 4588.87 MB loaded, 10753.11 MB offloaded, 189.49 MB buffer reserved, lowvram patches: 0</span>
+<span class="lg-omni">[INFO] [OmniXPU] LoRA model load complete: xpu_memory=available xpu_allocated=4110.6MiB xpu_reserved=4376.0MiB xpu_free=5968.2MiB xpu_total=11946.2MiB</span>
+<span class="lg-warn">[WARNING] [OmniXPU] experimental capability-driven BMG D128 CUTE route enabled; set OMNI_ATTN_BACKEND=torch to disable it if this workflow shows an issue</span>
+<span class="lg-omni">[INFO] [OmniXPU] attention CUTE_BHLD_D128 #1: heads=56 q=427 kv=427 dtype=torch.bfloat16</span>
+<span class="lg-omni">[INFO] [OmniXPU] attention CUTE_BHLD_D128 #2: heads=56 q=427 kv=427 dtype=torch.bfloat16</span>
+<span class="lg-omni">  0%|                                                                                               | 0/4 [00:00&lt;?, ?it/s,   Model Initializing ...  ][INFO] [OmniXPU] attention CUTE_BHLD_D128 #3: heads=56 q=16231 kv=16231 dtype=torch.bfloat16</span>
+<span class="lg-prog">100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 4/4 [01:28&lt;00:00, 22.11s/it]</span>
+<span class="lg-omni">[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=221.7MiB</span>
+<span class="lg-info">[INFO] Requested to load MiniMaxH3AudioVAE</span>
+<span class="lg-info">[INFO] Model MiniMaxH3AudioVAE prepared for dynamic VRAM loading. 576MB Staged. 0 patches attached. Force pre-loaded 401 weights: 539 KB.</span>
+<span class="lg-omni">[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=762.6MiB</span>
+<span class="lg-info">[INFO] Requested to load MiniMaxH3VideoVAE</span>
+<span class="lg-info">[INFO] Unloaded partially: 2589.47 MB freed, 1999.40 MB remains loaded, 220.50 MB buffer reserved, lowvram patches: 41</span>
+<span class="lg-info">[INFO] Model MiniMaxH3VideoVAE prepared for dynamic VRAM loading. 4965MB Staged. 0 patches attached. Force pre-loaded 128 weights: 352 KB.</span>
+<span class="lg-omni">[INFO] [OmniXPU] attention CUTE_H3_VAE_D64 #1: heads=32 seq=1797 dtype=torch.float16</span>
+<span class="lg-omni">[INFO] [OmniXPU] attention CUTE_H3_VAE_D64 #2: heads=32 seq=1797 dtype=torch.float16</span>
+<span class="lg-omni">[INFO] [OmniXPU] attention CUTE_H3_VAE_D64 #3: heads=32 seq=1797 dtype=torch.float16</span>
+<span class="lg-info">[INFO] Prompt executed in 371.21 seconds</span>
+<span class="lg-info">[INFO] got prompt</span>
+<span class="lg-omni">[INFO] [OmniXPU] LoRA model budget applied: cached=1865.5MiB/416 tensors requested=6620.2-&gt;8485.7MiB minimum=3310.1-&gt;5175.6MiB xpu_memory=available xpu_allocated=1505.7MiB xpu_reserved=1730.0MiB xpu_free=4321.5MiB xpu_total=11946.2MiB</span>
+<span class="lg-info">[INFO] loaded partially; 4976.40 MB usable, 4779.59 MB loaded, 10562.40 MB offloaded, 189.49 MB buffer reserved, lowvram patches: 0</span>
+<span class="lg-omni">[INFO] [OmniXPU] LoRA model load complete: xpu_memory=available xpu_allocated=4315.5MiB xpu_reserved=4380.0MiB xpu_free=5362.7MiB xpu_total=11946.2MiB</span>
+<span class="lg-prog">100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 4/4 [01:27&lt;00:00, 21.95s/it]</span>
+<span class="lg-omni">[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=221.7MiB</span>
+<span class="lg-info">[INFO] Requested to load MiniMaxH3AudioVAE</span>
+<span class="lg-info">[INFO] Model MiniMaxH3AudioVAE prepared for dynamic VRAM loading. 576MB Staged. 0 patches attached. Force pre-loaded 401 weights: 539 KB.</span>
+<span class="lg-omni">[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=762.6MiB</span>
+<span class="lg-info">[INFO] Requested to load MiniMaxH3VideoVAE</span>
+<span class="lg-info">[INFO] Unloaded partially: 2780.19 MB freed, 1999.40 MB remains loaded, 220.50 MB buffer reserved, lowvram patches: 85</span>
+<span class="lg-info">[INFO] Model MiniMaxH3VideoVAE prepared for dynamic VRAM loading. 4965MB Staged. 0 patches attached. Force pre-loaded 128 weights: 352 KB.</span>
+<span class="lg-info">[INFO] Prompt executed in 142.30 seconds</span></pre>
+  </details>
+
+  <footer>
+    由 <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection" target="_blank">IntelGpu-ComfyUI-Collection</a> 自动生成 ·
+    <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/log-analysis/202610301939_h3_FL2AV_0.4mp5s_omnixpu%E5%8A%A0%E9%80%9F_B580_64G_%E5%86%B7%E5%90%AF%2B%E7%83%AD%E5%90%AF.txt" target="_blank">202610301939_h3_FL2AV_0.4mp5s_omnixpu加速_B580_64G_冷启+热启.txt 源文件</a>
+  </footer>
+
+</div>
+</body>
+</html>
