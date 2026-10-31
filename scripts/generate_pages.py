@@ -1662,7 +1662,7 @@ def _logs_scan_segment(seg):
 
 _RE_TE_NAME = re.compile(
     r"(?:^|[_\-.])t5(?:$|[_\-.x])|text_encoder|clip"
-    r"|qwen\d(?:\.\d)*vl|qwen\d(?:\.\d)+|umt5|gemma|bert|(?:^|[_\-.])llm")
+    r"|qwen[\d_.]*vl|qwen\d(?:\.\d)+|umt5|gemma|bert|(?:^|[_\-.])llm")
 
 # 正文里被引号包住的模型文件名（无反斜杠/斜杠）。用于 policy 的 paths=[] 时兜底：
 # 20261030 的 h3_FL2AV 就是靠 mmproj 报错里的 'qwen3vl_32b_minimax_h3-Q4_K_M.gguf'

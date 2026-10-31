@@ -1,0 +1,70 @@
+[INFO] got prompt
+[INFO] Model storage policy: fast_disk=False paths=['F:\\ComfyUI-aki-v3\\ComfyUI\\models\\vae\\flux2-vae.safetensors']
+[INFO] Using pytorch attention in VAE
+[INFO] Using pytorch attention in VAE
+[INFO] VAE load device: xpu:0, offload device: cpu, dtype: torch.float16
+# 😺dzNodes: LayerStyle -> ImageScaleByAspectRatio V2 Processed 1 image(s).
+# 😺dzNodes: LayerStyle -> ImageScaleByAspectRatio V2 Processed 1 image(s).
+[INFO] Found quantization metadata version 1
+[INFO] Using MixedPrecisionOps for text encoder
+[INFO] Model storage policy: fast_disk=False paths=['E:\\model\\qwen3.5_9b_int8_convrot.safetensors']
+[INFO] CLIP/text encoder model load device: xpu:0, offload device: cpu, current: cpu, dtype: torch.float16
+[INFO] Requested to load MOSSImageTEModel_
+[INFO] Model MOSSImageTEModel_ prepared for dynamic VRAM loading. 9295MB Staged. 0 patches attached. Force pre-loaded 222 weights: 822 KB.
+[INFO] [OmniXPU] norm first use: rms_norm_fn shape=torch.Size([1, 10, 4096])
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=2429.6MiB
+[INFO] Requested to load AutoencoderKL
+[INFO] Model AutoencoderKL prepared for dynamic VRAM loading. 160MB Staged. 0 patches attached. Force pre-loaded 112 weights: 101 KB.
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=2595.3MiB
+[INFO] Model AutoencoderKL prepared for dynamic VRAM loading. 160MB Staged. 0 patches attached. Force pre-loaded 112 weights: 101 KB.
+[INFO] Model MOSSImageTEModel_ prepared for dynamic VRAM loading. 9295MB Staged. 0 patches attached. Force pre-loaded 222 weights: 822 KB.
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=2429.6MiB
+[INFO] Model AutoencoderKL prepared for dynamic VRAM loading. 160MB Staged. 0 patches attached. Force pre-loaded 112 weights: 101 KB.
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=2595.3MiB
+[INFO] Model AutoencoderKL prepared for dynamic VRAM loading. 160MB Staged. 0 patches attached. Force pre-loaded 112 weights: 101 KB.
+[INFO] Found quantization metadata version 1
+[INFO] Detected mixed precision quantization
+[INFO] Using mixed precision operations
+[INFO] Native ops: int8_tensorwise , emulated ops: asym_w4a8_int8, nvfp4, float8_e5m2, mxfp8, float8_e4m3fn, w6a8_int8, convrot_w4a4
+[INFO] model weight dtype torch.bfloat16, manual cast: torch.bfloat16
+[INFO] model_type FLOW
+[INFO] Model storage policy: fast_disk=False paths=['E:\\model\\moss_image_sft_int8_convrot.safetensors']
+[INFO] [OmniXPU] LoRA memory budget cached: source=283.5MiB/504 tensors model_added=283.5MiB model_budget=283.5MiB clip_added=0.0MiB clip_budget=0.0MiB
+[INFO] [OmniXPU] LoRA memory budget cached: source=1134.2MiB/756 tensors model_added=1134.0MiB model_budget=1417.5MiB clip_added=0.0MiB clip_budget=0.0MiB
+[INFO] [OmniXPU] LoRA model budget applied: cached=1417.5MiB/1008 tensors requested=5045.8->6463.3MiB minimum=2522.9->3940.4MiB xpu_memory=available xpu_allocated=1.5MiB xpu_reserved=4.0MiB xpu_free=20910.3MiB xpu_total=31977.4MiB
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=3940.4MiB
+[INFO] Requested to load MOSSImage
+[INFO] Model MOSSImage prepared for dynamic VRAM loading. 5162MB Staged. 168 patches attached. Force pre-loaded 177 weights: 559 KB.
+[INFO] [OmniXPU] LoRA model load complete: xpu_memory=available xpu_allocated=2.0MiB xpu_reserved=4.0MiB xpu_free=20902.8MiB xpu_total=31977.4MiB
+[INFO] [OmniXPU] attention CUTE #1: heads=24 seq=5824 dtype=torch.bfloat16
+[INFO] [OmniXPU] attention CUTE #2: heads=24 seq=5824 dtype=torch.bfloat16
+[INFO] [OmniXPU] attention CUTE #3: heads=24 seq=5824 dtype=torch.bfloat16
+  0%|                                                                | 0/8 [00:00<?, ?it/s,   Model Initializing ...  ][INFO] [OmniXPU] attention fallback: cute_unsupported=dim128,q2858,kv8682 (seq=2858)
+[INFO] [OmniXPU] attention fallback: cute_unsupported=dim128,q2858,kv8682 (seq=2858)
+[INFO] [OmniXPU] attention fallback: cute_unsupported=dim128,q2858,kv8682 (seq=2858)
+[INFO] [OmniXPU] attention fallback: cute_unsupported=dim128,q2858,kv8682 (seq=2858)
+[INFO] [OmniXPU] attention fallback: cute_unsupported=dim128,q2858,kv8682 (seq=2858)
+100%|████████████████████████████████████████████████████████████████████████████████████| 8/8 [00:04<00:00,  1.80it/s]
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=2994.8MiB
+[INFO] Model AutoencoderKL prepared for dynamic VRAM loading. 160MB Staged. 0 patches attached. Force pre-loaded 112 weights: 101 KB.
+[INFO] Prompt executed in 98.08 seconds
+[INFO] got prompt
+# 😺dzNodes: LayerStyle -> ImageScaleByAspectRatio V2 Processed 1 image(s).
+[INFO] Model MOSSImageTEModel_ prepared for dynamic VRAM loading. 9295MB Staged. 0 patches attached. Force pre-loaded 222 weights: 822 KB.
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=2429.6MiB
+[INFO] Model AutoencoderKL prepared for dynamic VRAM loading. 160MB Staged. 0 patches attached. Force pre-loaded 112 weights: 101 KB.
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=2595.3MiB
+[INFO] Model AutoencoderKL prepared for dynamic VRAM loading. 160MB Staged. 0 patches attached. Force pre-loaded 112 weights: 101 KB.
+[INFO] Model MOSSImageTEModel_ prepared for dynamic VRAM loading. 9295MB Staged. 0 patches attached. Force pre-loaded 222 weights: 822 KB.
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=2429.6MiB
+[INFO] Model AutoencoderKL prepared for dynamic VRAM loading. 160MB Staged. 0 patches attached. Force pre-loaded 112 weights: 101 KB.
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=2595.3MiB
+[INFO] Model AutoencoderKL prepared for dynamic VRAM loading. 160MB Staged. 0 patches attached. Force pre-loaded 112 weights: 101 KB.
+[INFO] [OmniXPU] LoRA model budget applied: cached=1417.5MiB/1008 tensors requested=5045.8->6463.3MiB minimum=2522.9->3940.4MiB xpu_memory=available xpu_allocated=2.2MiB xpu_reserved=4.0MiB xpu_free=15269.3MiB xpu_total=31977.4MiB
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=3940.4MiB
+[INFO] Model MOSSImage prepared for dynamic VRAM loading. 5162MB Staged. 168 patches attached. Force pre-loaded 177 weights: 559 KB.
+[INFO] [OmniXPU] LoRA model load complete: xpu_memory=available xpu_allocated=2.2MiB xpu_reserved=4.0MiB xpu_free=15269.3MiB xpu_total=31977.4MiB
+100%|████████████████████████████████████████████████████████████████████████████████████| 8/8 [00:04<00:00,  1.81it/s]
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=2994.8MiB
+[INFO] Model AutoencoderKL prepared for dynamic VRAM loading. 160MB Staged. 0 patches attached. Force pre-loaded 112 weights: 101 KB.
+[INFO] Prompt executed in 9.35 seconds
