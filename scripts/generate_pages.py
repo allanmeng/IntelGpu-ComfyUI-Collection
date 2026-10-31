@@ -1907,9 +1907,21 @@ def _logs_uniq_slug(entries):
 
 
 def _logs_fmt_sec(v):
+    """耗时格式化。600 s 以上改用 M:SS（≥1 h 用 H:MM:SS）。
+
+    分钟级任务写成 `1279.00 s` 又长又难读；而 `21:19` 正好与日志里的
+    `Prompt executed in 00:21:19` 对得上（20261031 的 MiniMaxMusic3 音频日志
+    是首个超过 10 分钟的执行）。600 s 以下维持原来的秒 + 两位小数，已有页面不受影响。
+    """
     if v is None:
         return "—"
-    return ("%.2f s" % v) if v >= 100 else ("%.2f s" % v)
+    if v >= 3600:
+        h, rem = divmod(int(round(v)), 3600)
+        return "%d:%02d:%02d" % (h, rem // 60, rem % 60)
+    if v >= 600:
+        m, sec = divmod(int(round(v)), 60)
+        return "%d:%02d" % (m, sec)
+    return "%.2f s" % v
 
 
 def _logs_stat_pills(run, skip=()):

@@ -1,0 +1,30 @@
+[INFO] got prompt
+[INFO] Model storage policy: fast_disk=False paths=['E:\\model\\minimax_music3\\vae\\minimax_music3_dav.safetensors']
+[INFO] VAE load device: xpu:0, offload device: cpu, dtype: torch.float32
+[INFO] Found quantization metadata version 1
+[INFO] Model storage policy: fast_disk=False paths=['E:\\model\\minimax_music3\\text_encoders\\minimax_music3_text_encoder_pruned_int8_convrot.safetensors']
+[INFO] CLIP/text encoder model load device: xpu:0, offload device: cpu, current: cpu, dtype: torch.float16
+[INFO] Requested to load MiniMaxMusic3TEModel
+[INFO] Model MiniMaxMusic3TEModel prepared for dynamic VRAM loading. 8758MB Staged. 0 patches attached. Force pre-loaded 154 weights: 674 KB.
+[INFO] [OmniXPU] norm first use: rms_norm_fn shape=torch.Size([2, 1075, 4096])
+AR sampling:  58%|█████████████████████████████████████▍                           | 3458/6001 [10:30<07:43,  5.48it/s]
+AR sampling:  90%|██████████████████████████████████████████████████████████▍      | 5392/6001 [16:34<01:52,  5.42it/s]
+[INFO] Found quantization metadata version 1
+[INFO] Detected mixed precision quantization
+[INFO] Using mixed precision operations
+[INFO] Native ops: int8_tensorwise , emulated ops: float8_e4m3fn, w6a8_int8, mxfp8, float8_e5m2, nvfp4, convrot_w4a4, asym_w4a8_int8
+[INFO] model weight dtype torch.float16, manual cast: torch.float16
+[INFO] model_type FLOW
+[INFO] Model storage policy: fast_disk=False paths=['E:\\model\\minimax_music3\\diffusion_models\\minimax_music3_dit_int8_convrot.safetensors']
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=742.8MiB
+[INFO] Requested to load MiniMaxMusic3
+[INFO] Model MiniMaxMusic3 prepared for dynamic VRAM loading. 2385MB Staged. 0 patches attached. Force pre-loaded 73 weights: 580 KB.
+  0%|                                                               | 0/30 [00:00<?, ?it/s,   Model Initializing ...  ][INFO] [OmniXPU] attention fallback: batch=2 (seq=690)
+[INFO] [OmniXPU] attention fallback: batch=2 (seq=690)
+[INFO] [OmniXPU] attention fallback: batch=2 (seq=690)
+[INFO] [OmniXPU] attention fallback: batch=2 (seq=690)
+[INFO] [OmniXPU] attention fallback: batch=2 (seq=690)
+100%|██████████████████████████████████████████████████████████████████████████████████| 30/30 [03:14<00:00,  6.49s/it]
+[INFO] Requested to load MiniMaxMusic3DAV
+[INFO] loaded completely;  206.60 MB loaded, full load: True
+[INFO] Prompt executed in 00:21:19
