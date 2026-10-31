@@ -136,7 +136,7 @@ def repo_path_from_url(url):
 
 NAV_TABS = [
     ("index.html", "项目收集"),
-    ("links.html", "组件下载"),
+    ("links.html", "环境依赖"),
     ("cloud_drive_collection.html", "资源聚合"),
     ("comfyui_opt.html", "工作台优化"),
     ("logs.html", "执行日志"),
@@ -591,7 +591,7 @@ LINKS_HTML = """<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IntelGpu-ComfyUI-Collection - Intel XPU 组件下载</title>
+<title>IntelGpu-ComfyUI-Collection - Intel XPU 运行环境与工具链</title>
 <style>
   :root {
     --intel-blue: #0071c5;
@@ -667,7 +667,7 @@ LINKS_HTML = """<!DOCTYPE html>
 
   <header>
     <h1>IntelGpu-ComfyUI-Collection</h1>
-    <p class="note">Intel XPU 重要组件下载地址</p>
+    <p class="note">Intel XPU 运行环境与工具链下载</p>
     <div class="chips">
 __NAV__
     </div>
