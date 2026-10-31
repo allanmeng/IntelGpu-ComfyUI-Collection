@@ -4,7 +4,7 @@
 
 ## 📖 ComfyUI 软件包
 
-### ComfyUI 官方安装包 ~ 社区版
+### ComfyUI.XPU 官方安装包 ~ 社区版
 
 ComfyUI Portable 是一个独立打包、下载就能用的 Windows 完整版 ComfyUI。它里面已经自带了运行所需的独立 Python 环境（python_embeded），你只需要把它解压出来就能直接使用。
 
@@ -15,41 +15,35 @@ ComfyUI Portable 是一个独立打包、下载就能用的 Windows 完整版 Co
 维护者：[@Comfy Org](https://github.com/Comfy-Org)
 
 
-### ComfyUI-秋叶版-Intel显卡组件整合包
+### ComfyUI-IntelOmni-bmg 加速组件整合包 ~ bmg架构专用（B580 B60 B65 B70...）
 
 基于ComfyUI秋叶版制作，提前置入了 Pytorch, 以及 llama-cpp-python-sycl-windows 和 OpenVino，包含有限数量的 intel GPU专用的插件（群里作者的居多）。
 
 选择秋叶版本作为基底，是因为秋叶启动器很好的支持了 Comfyui的内核 以及 插件的维护升级。整合包有少量第三方插件、没有模型。
 
-整合包已经将[《IntelGPU的ComfyUI系统优化指南》](https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/intel-comfyui-guide/)包含其中（20260905+），支持 A系列（dg2） 和 B系列（bmg） 显卡的优化，请下载加压后按需选择优化路径。
+该整合包在2026年10月之前是A系列、B系列双线版本，包内切换AB加速。10月之后只保留B系列加速，A系列请看下面的dg2架构专用版本。
 
-作者自有B580（bmg）显卡，整合包中的 A系列（dg2）的优化资源来自群友 @Blackwood416 提供。
+该整合包并不经常更新，至随着pytorch版本更新，例如 pytorch214->pytorch215 ，那么该整合包会更新一次。期间的加速组件更新请关注 [《IntelGPU的ComfyUI系统优化指南》](https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/intel-comfyui-guide/)
 
-作者也优化了ComfyUI的 [启动文件bat](https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/comfyui-start/Stable_Start_IntelArc.md)，让Intel GPU适应更多的工作流压力
+整合包作者也优化了ComfyUI的 [启动文件bat](https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/comfyui-start/Stable_Start_IntelArc.md)，让Intel GPU适应更多的工作流压力
 
 地址：https://pan.quark.cn/s/8263a7da1db6
 
 维护者：[@allanmeng](https://github.com/allanmeng)
 
 
-### Minimax-H3 ComfyUI 便携整合包 (Intel Arc A770 专属优化版)
+### ComfyUI-IntelOmni-dg2 加速组件整合包 ~ dg2架构专用（A750 A770...）
 
-提供面向 A770（dg2）加速的 ComfyUI 整合包，包含 模型、工作流、组件、插件，针对 H3 工作流有完善支持。
+提供面向 A770（dg2）加速的 ComfyUI 基础环境包，该包不含模型或工作流，需要自行迁移工作流、插件（custom_nodes）和模型文件。
 
 由于加速跟硬件内核相关，作者自己就是A770显卡，所以该包是 A770 (A系列) 专用。
 
-保内H3的工作流、模型和插件 也适用于 A770之外的Intel GPU
-
-地址：https://pan.quark.cn/s/0f9b1816831c?pwd=S5HC
+地址：https://pan.quark.cn/s/fdc5d881f025?pwd=NAyj
 
 维护者：[@Blackwood416](https://github.com/Blackwood416)
 
 
 ### 备注
-
-- 以上三个安装包之间的关系
-  > <img width="1800" alt="514b26f8e76608ddc1791e37324b6d32" src="https://github.com/user-attachments/assets/ba3db49e-d834-41bc-a903-e7ffe5103657" />
-
 
 - 不管使用哪个整合包，强烈建议安装独立的 [oneAPI环境](https://pan.quark.cn/s/f15076f4f9d0)
 
