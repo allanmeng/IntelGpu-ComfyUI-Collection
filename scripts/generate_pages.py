@@ -1978,12 +1978,16 @@ def _logs_model_rows(models):
     return "\n          ".join(rows)
 
 
-LOGS_GPU_IMG = {"B70": "assets/b70.jpg", "B580": "assets/b580.jpg"}
+LOGS_GPU_IMG = {
+    "B70": "assets/b70.jpg",
+    "B580": "assets/b580.jpg",
+    "B60": "assets/b60.jpg",
+}
 
 
 def _logs_gpu_img(card):
     """按显卡型号返回右列配图 HTML；未登记的型号不插图。"""
-    m = re.search(r"B(?:70|580)", (card or "").upper())
+    m = re.search(r"B(?:580|70|60)", (card or "").upper())
     if not m:
         return ""
     name = m.group(0)
