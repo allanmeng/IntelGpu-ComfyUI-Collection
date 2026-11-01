@@ -1494,6 +1494,13 @@ _RE_EXEC = re.compile(
 _RE_PROGRESS = re.compile(
     r"(\d+)/(\d+) \[[\d:]+<[\d:]+,?\s*([\d.]+)(s/it|it/s)(?=[,\]])")
 _RE_STAGED = re.compile(r"prepared for dynamic VRAM loading\.\s*(\d+)MB Staged")
+# 新版运行时（及 pytorch 原生分支）不打印 Staged，改打
+#   loaded completely; 8596.84 MB usable, 5162.83 MB loaded, full load: True
+#   loaded completely;  2973.72 MB loaded, full load: True      ← 无 usable 段的变体
+# 实测同一底模 moss_image_sft 在 B70 上是 `5162MB Staged`、在 B580 上是 `5162.83 MB
+# loaded` —— 两者是同一个数，可横向比较，所以 Staged 缺失时用 loaded 兜底。
+_RE_LOADED = re.compile(
+    r"loaded completely;\s*(?:[\d.]+ MB usable,\s*)?([\d.]+) MB loaded")
 _RE_VRAM_FREE = re.compile(r"VRAMdebug: freed memory:\s*([\d,]+)")
 _RE_ATTN = re.compile(r"attention (CUTE(?:_[A-Za-z0-9_]+)?|fallback)")
 _RE_QUANT = re.compile(r"Native ops:\s*(.*?)\s*,\s*emulated ops:\s*(.*)")
@@ -1636,6 +1643,13 @@ def _logs_scan_segment(seg):
         steps = total if total > 1 else None
 
     staged = [int(x) for x in _RE_STAGED.findall(seg)]
+    loaded = [int(round(float(x))) for x in _RE_LOADED.findall(seg)]
+    if staged:
+        staged_mb, staged_src = max(staged), "staged"
+    elif loaded:
+        staged_mb, staged_src = max(loaded), "loaded"
+    else:
+        staged_mb, staged_src = None, ""
     freed = [int(x.replace(",", "")) for x in _RE_VRAM_FREE.findall(seg)]
 
     attn = {}
@@ -1652,7 +1666,8 @@ def _logs_scan_segment(seg):
         "seconds": seconds,
         "steps": steps,
         "sec_per_it": sec_per_it,
-        "staged_mb": max(staged) if staged else None,
+        "staged_mb": staged_mb,
+        "staged_src": staged_src,
         "freed_mb": round(sum(freed) / 1048576.0, 1) if freed else None,
         "attn": attn,
         "native_ops": native,
@@ -1924,6 +1939,32 @@ def _logs_fmt_sec(v):
     return "%.2f s" % v
 
 
+_LOGS_LOADED_TIP = ("该日志的运行时不打印 Staged，数值取自 loaded completely; … MB loaded，"
+                    "同样是单模型最大驻留量，可与 Staged 横向比较")
+
+
+def _logs_mem_cell(run):
+    """表格里的「峰值 MB」单元格。loaded 兜底值加 † 并带说明。"""
+    mb = run.get("staged_mb")
+    if not mb:
+        return "—"
+    txt = format(mb, ",")
+    if run.get("staged_src") == "loaded":
+        return '<span class="mx-dagger" title="%s">%s†</span>' % (_esc(_LOGS_LOADED_TIP), txt)
+    return txt
+
+
+def _logs_mem_box(run):
+    """统计框里的「峰值 MB」。† 放在单位后面，读起来更顺。"""
+    mb = run.get("staged_mb")
+    if not mb:
+        return "— MB"
+    if run.get("staged_src") == "loaded":
+        return ('<span class="mx-dagger" title="%s">%s MB†</span>'
+                % (_esc(_LOGS_LOADED_TIP), format(mb, ",")))
+    return "%s MB" % format(mb, ",")
+
+
 def _logs_stat_pills(run, skip=()):
     """一次执行的关键指标 → 徽章组。skip 用于详情页表格里去掉已单独成列的项。"""
     out = []
@@ -1932,7 +1973,10 @@ def _logs_stat_pills(run, skip=()):
     if run.get("steps") and "steps" not in skip:
         out.append('<span class="pill"><b>%d</b> steps</span>' % run["steps"])
     if run.get("staged_mb") and "staged_mb" not in skip:
-        out.append('<span class="pill"><b>%s</b> MB staged</span>' % format(run["staged_mb"], ","))
+        unit = "loaded" if run.get("staged_src") == "loaded" else "staged"
+        tip = ' title="%s"' % _esc(_LOGS_LOADED_TIP) if unit == "loaded" else ""
+        out.append('<span class="pill"%s><b>%s</b> MB %s</span>'
+                   % (tip, format(run["staged_mb"], ","), unit))
     if run.get("freed_mb"):
         out.append('<span class="pill"><b>%s</b> MB freed</span>' % format(run["freed_mb"], ","))
     for name, cnt in sorted((run.get("attn") or {}).items(), key=lambda kv: -kv[1]):
@@ -2091,6 +2135,7 @@ LOGS_CSS = """  :root {
   table.mx a { color: var(--intel-blue); text-decoration: none; }
   table.mx a:hover { text-decoration: underline; }
   .mx-num { text-align: right; font-variant-numeric: tabular-nums; }
+  .mx-dagger { border-bottom: 1px dotted var(--text-muted); cursor: help; }
   .log-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
   .log-card {
     display: grid; grid-template-columns: 88px minmax(0, 1fr) auto; gap: 0 16px;
@@ -2323,8 +2368,8 @@ def _logs_detail(e):
     if first.get("sec_per_it"):
         boxes.append('<div class="stat-box"><i>每步耗时</i><b>%.2f s/it</b></div>' % first["sec_per_it"])
     if first.get("staged_mb"):
-        boxes.append('<div class="stat-box"><i>峰值 staged</i><b>%s MB</b></div>'
-                     % format(first["staged_mb"], ","))
+        boxes.append('<div class="stat-box"><i>峰值 staged</i><b>%s</b></div>'
+                     % _logs_mem_box(first))
     if first.get("freed_mb"):
         boxes.append('<div class="stat-box"><i>显存回收</i><b>%s MB</b></div>'
                      % format(first["freed_mb"], ","))
@@ -2344,11 +2389,16 @@ def _logs_detail(e):
                 _esc(r["label"]), _logs_fmt_sec(r["seconds"]),
                 ("%d" % r["steps"]) if r.get("steps") else "—",
                 ("%.2f" % r["sec_per_it"]) if r.get("sec_per_it") else "—",
-                format(r["staged_mb"], ",") if r.get("staged_mb") else "—",
+                _logs_mem_cell(r),
                 _logs_stat_pills(r, skip=("sec_per_it", "steps", "staged_mb")) or "—"))
 
     runs_tbl = ""
     if rows:
+        legend = ""
+        if any(r.get("staged_src") == "loaded" for r in e["runs"]):
+            legend = ('\n  <p class="runs-note">† 该日志的运行时只打印 '
+                      '<code>loaded completely; … MB loaded</code>，没有 Staged 行；'
+                      '数值为单模型最大驻留量，与 Staged 同一口径，可横向比较。</p>')
         runs_tbl = (
             '  <h2 class="sec-title">逐次执行</h2>\n'
             '    <div class="mx-block">\n'
@@ -2361,7 +2411,7 @@ def _logs_detail(e):
             '          </tbody>\n'
             '        </table>\n'
             '      </div>\n'
-            '    </div>' % "\n".join(rows))
+            '    </div>' % "\n".join(rows)) + legend
 
     stamp = " ".join(x for x in [e.get("date_display"), e.get("time")] if x)
     subtitle = "%s · %s" % (e["file"], stamp) if stamp else e["file"]

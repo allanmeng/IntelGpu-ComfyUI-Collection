@@ -1,0 +1,46 @@
+[INFO] got prompt
+[INFO] Model storage policy: fast_disk=False paths=['F:\\ComfyUI-aki-v3\\ComfyUI\\models\\vae\\flux2-vae.safetensors']
+[INFO] Using pytorch attention in VAE
+[INFO] Using pytorch attention in VAE
+[INFO] VAE load device: xpu:0, offload device: cpu, dtype: torch.float16
+[INFO] Found quantization metadata version 1
+[INFO] Using MixedPrecisionOps for text encoder
+[INFO] Model storage policy: fast_disk=False paths=['E:\\model\\qwen3.5-2b-int8.safetensors']
+[INFO] Requested to load Qwen35TEModel_
+[INFO] loaded completely;  2973.72 MB loaded, full load: True
+[INFO] CLIP/text encoder model load device: cpu, offload device: cpu, current: cpu, dtype: torch.float16
+[INFO] Found quantization metadata version 1
+[INFO] Detected mixed precision quantization
+[INFO] Using mixed precision operations
+[INFO] Native ops: int8_tensorwise , emulated ops: convrot_w4a4, w6a8_int8, asym_w4a8_int8, nvfp4, float8_e4m3fn, float8_e5m2, mxfp8
+[INFO] model weight dtype torch.bfloat16, manual cast: torch.bfloat16
+[INFO] model_type FLOW
+[INFO] Model storage policy: fast_disk=False paths=['E:\\model\\moss_image_sft_int8_convrot.safetensors']
+[INFO] [OmniXPU] LoRA memory budget cached: source=1134.2MiB/756 tensors model_added=1134.0MiB model_budget=1134.0MiB clip_added=0.0MiB clip_budget=0.0MiB
+[INFO] [OmniXPU] LoRA model budget applied: cached=1134.0MiB/504 tensors requested=2382.7->3516.7MiB minimum=1191.4->2325.4MiB xpu_memory=available xpu_allocated=0.0MiB xpu_reserved=2.0MiB xpu_free=10253.6MiB xpu_total=11946.2MiB
+[INFO] Requested to load MOSSImage
+[INFO] loaded completely; 8596.84 MB usable, 5162.83 MB loaded, full load: True
+[INFO] [OmniXPU] LoRA model load complete: xpu_memory=available xpu_allocated=5163.2MiB xpu_reserved=5366.0MiB xpu_free=4740.9MiB xpu_total=11946.2MiB
+  0%|                                                                                            | 0/8 [00:00<?, ?it/s][INFO] [OmniXPU] norm first use: RMSNorm shape=torch.Size([1, 281, 3072])
+[INFO] [OmniXPU] attention CUTE #1: heads=24 seq=281 dtype=torch.bfloat16
+[INFO] [OmniXPU] attention CUTE #2: heads=24 seq=281 dtype=torch.bfloat16
+[INFO] [OmniXPU] attention CUTE #3: heads=24 seq=4361 dtype=torch.bfloat16
+100%|████████████████████████████████████████████████████████████████████████████████████| 8/8 [00:11<00:00,  1.41s/it]
+[INFO] Requested to load AutoencoderKL
+[INFO] loaded completely; 6582.71 MB usable, 160.31 MB loaded, full load: True
+[INFO] Prompt executed in 106.81 seconds
+[INFO] got prompt
+[INFO] Found quantization metadata version 1
+[INFO] Detected mixed precision quantization
+[INFO] Using mixed precision operations
+[INFO] Native ops: int8_tensorwise , emulated ops: convrot_w4a4, w6a8_int8, asym_w4a8_int8, nvfp4, float8_e4m3fn, float8_e5m2, mxfp8
+[INFO] model weight dtype torch.bfloat16, manual cast: torch.bfloat16
+[INFO] model_type FLOW
+[INFO] Model storage policy: fast_disk=False paths=['E:\\model\\moss_image_sft_int8_convrot.safetensors']
+[INFO] [OmniXPU] LoRA memory budget cached: source=1134.2MiB/756 tensors model_added=1134.0MiB model_budget=1134.0MiB clip_added=0.0MiB clip_budget=0.0MiB
+[INFO] [OmniXPU] LoRA model budget applied: cached=1134.0MiB/504 tensors requested=2382.7->3516.7MiB minimum=1191.4->2325.4MiB xpu_memory=available xpu_allocated=166.9MiB xpu_reserved=172.0MiB xpu_free=9638.5MiB xpu_total=11946.2MiB
+[INFO] Requested to load MOSSImage
+[INFO] loaded completely; 8429.90 MB usable, 5162.83 MB loaded, full load: True
+[INFO] [OmniXPU] LoRA model load complete: xpu_memory=available xpu_allocated=5329.8MiB xpu_reserved=5536.0MiB xpu_free=4395.7MiB xpu_total=11946.2MiB
+100%|████████████████████████████████████████████████████████████████████████████████████| 8/8 [00:08<00:00,  1.07s/it]
+[INFO] Prompt executed in 64.03 seconds

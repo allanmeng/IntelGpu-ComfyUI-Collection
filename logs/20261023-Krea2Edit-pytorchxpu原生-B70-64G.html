@@ -52,6 +52,7 @@
   table.mx a { color: var(--intel-blue); text-decoration: none; }
   table.mx a:hover { text-decoration: underline; }
   .mx-num { text-align: right; font-variant-numeric: tabular-nums; }
+  .mx-dagger { border-bottom: 1px dotted var(--text-muted); cursor: help; }
   .log-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
   .log-card {
     display: grid; grid-template-columns: 88px minmax(0, 1fr) auto; gap: 0 16px;
@@ -183,6 +184,7 @@
     <div class="stat-box"><i>热启</i><b>46.66 s</b></div>
     <div class="stat-box"><i>热启 vs 冷启</i><b>2.63×</b></div>
     <div class="stat-box"><i>每步耗时</i><b>3.46 s/it</b></div>
+    <div class="stat-box"><i>峰值 staged</i><b><span class="mx-dagger" title="该日志的运行时不打印 Staged，数值取自 loaded completely; … MB loaded，同样是单模型最大驻留量，可与 Staged 横向比较">12,867 MB†</span></b></div>
     <div class="stat-box"><i>显存回收</i><b>18,381.6 MB</b></div>
   </div>
 
@@ -192,12 +194,13 @@
         <table class="mx">
           <thead><tr><th>阶段</th><th class="mx-num">耗时</th><th class="mx-num">步数</th><th class="mx-num">s/it</th><th class="mx-num">staged MB</th><th>其他指标</th></tr></thead>
           <tbody>
-          <tr><td>冷启</td><td class="mx-num">122.62 s</td><td class="mx-num">8</td><td class="mx-num">3.46</td><td class="mx-num">—</td><td><span class="pill"><b>18,381.6</b> MB freed</span></td></tr>
-          <tr><td>热启</td><td class="mx-num">46.66 s</td><td class="mx-num">8</td><td class="mx-num">3.08</td><td class="mx-num">—</td><td><span class="pill"><b>18,382.1</b> MB freed</span></td></tr>
+          <tr><td>冷启</td><td class="mx-num">122.62 s</td><td class="mx-num">8</td><td class="mx-num">3.46</td><td class="mx-num"><span class="mx-dagger" title="该日志的运行时不打印 Staged，数值取自 loaded completely; … MB loaded，同样是单模型最大驻留量，可与 Staged 横向比较">12,867†</span></td><td><span class="pill"><b>18,381.6</b> MB freed</span></td></tr>
+          <tr><td>热启</td><td class="mx-num">46.66 s</td><td class="mx-num">8</td><td class="mx-num">3.08</td><td class="mx-num"><span class="mx-dagger" title="该日志的运行时不打印 Staged，数值取自 loaded completely; … MB loaded，同样是单模型最大驻留量，可与 Staged 横向比较">12,867†</span></td><td><span class="pill"><b>18,382.1</b> MB freed</span></td></tr>
           </tbody>
         </table>
       </div>
     </div>
+  <p class="runs-note">† 该日志的运行时只打印 <code>loaded completely; … MB loaded</code>，没有 Staged 行；数值为单模型最大驻留量，与 Staged 同一口径，可横向比较。</p>
 
   <details class="raw" open>
     <summary>原始日志全文（已脱敏本地路径）</summary>

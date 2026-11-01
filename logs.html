@@ -52,6 +52,7 @@
   table.mx a { color: var(--intel-blue); text-decoration: none; }
   table.mx a:hover { text-decoration: underline; }
   .mx-num { text-align: right; font-variant-numeric: tabular-nums; }
+  .mx-dagger { border-bottom: 1px dotted var(--text-muted); cursor: help; }
   .log-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
   .log-card {
     display: grid; grid-template-columns: 88px minmax(0, 1fr) auto; gap: 0 16px;
@@ -182,6 +183,23 @@
 
   <h2 class="sec-title">全部日志</h2>
   <div class="log-grid">
+    <a class="log-card" href="logs/20261102-0027-Moss文生图-omnixpu加速-B580-16G.html">
+      <div class="log-when"><span class="log-date">2026-11-02</span><span class="log-time">00:27</span></div>
+      <div class="log-main">
+        <div class="log-wf">Moss文生图</div>
+        <div class="log-nums"><span class="st"><i>冷启</i><b>106.81 s</b></span><span class="st"><i>热启</i><b>64.03 s</b></span></div>
+        <div class="log-models">
+          <div class="model-row"><i>底模</i><span>moss_<wbr>image_<wbr>sft_<wbr>int8_<wbr>convrot<wbr>.safetensors</span></div>
+          <div class="model-row"><i>TE</i><span>qwen3.5-2b-int8<wbr>.safetensors</span></div>
+          <div class="model-row"><i>VAE</i><span>flux2-vae<wbr>.safetensors</span></div>
+        </div>
+        <div class="log-file">202611020027_Moss文生图_omnixpu加速_B580_16G_冷启+热启.txt</div>
+      </div>
+      <div class="log-side">
+        <div class="log-tags"><span class="tag tag-scheme">omnixpu加速</span><span class="tag tag-card" title="显卡">B580</span><span class="tag tag-vram" title="内存">16G</span></div>
+        <img class="log-gpu" src="assets/b580.jpg" alt="Intel Arc B580" title="B580">
+      </div>
+    </a>
     <a class="log-card" href="logs/20261101-1530-FastH3文生图-Sparse-Attention_1mp5s-omnixpu加速-B60-64G.html">
       <div class="log-when"><span class="log-date">2026-11-01</span><span class="log-time">15:30</span></div>
       <div class="log-main">
