@@ -1,0 +1,41 @@
+[INFO] got prompt
+[INFO] Model storage policy: fast_disk=True paths=['E:\\ComfyUI_windows_portable\\ComfyUI\\models\\vae\\minimax_h3_audio_vae_fp32.safetensors']
+[INFO] VAE load device: xpu:0, offload device: cpu, dtype: torch.float32
+[INFO] Model storage policy: fast_disk=True paths=['E:\\ComfyUI_windows_portable\\ComfyUI\\models\\vae\\minimax_h3_video_vae_fp16.safetensors']
+[INFO] VAE load device: xpu:0, offload device: cpu, dtype: torch.float16
+[INFO] Found quantization metadata version 1
+[INFO] Using MixedPrecisionOps for text encoder
+[INFO] Model storage policy: fast_disk=True paths=['E:\\ComfyUI_windows_portable\\ComfyUI\\models\\text_encoders\\qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors']
+[INFO] CLIP/text encoder model load device: xpu:0, offload device: cpu, current: cpu, dtype: torch.float16
+[INFO] Requested to load MiniMaxH3TEModel_
+[INFO] Model MiniMaxH3TEModel_ prepared for dynamic VRAM loading. 14956MB Staged. 0 patches attached. Force pre-loaded 410 weights: 4572 KB.
+[INFO] [OmniXPU] norm first use: rms_norm_fn shape=torch.Size([1, 719, 5120])
+[omni_xpu::device] warning: physical Device ID 0xe211 (physical_sku=b60) uses kernel_profile=b60, policy_id=b60-v1, support=experimental; functional support may be accepted independently, performance_claim=false
+[INFO] Found quantization metadata version 1
+[INFO] Detected mixed precision quantization
+[INFO] Using mixed precision operations
+[INFO] Native ops: int8_tensorwise , emulated ops: float8_e5m2, w6a8_int8, nvfp4, float8_e4m3fn, mxfp8, convrot_w4a4, asym_w4a8_int8
+[INFO] model weight dtype torch.bfloat16, manual cast: torch.bfloat16
+[INFO] model_type FLOW_AV
+[INFO] Model storage policy: fast_disk=True paths=['E:\\ComfyUI_windows_portable\\ComfyUI\\models\\diffusion_models\\minimax_h3_fused_refdelta_r1024_turbo8_mystic07_int8_convrot.safetensors']
+[WARNING] unet unexpected: ['adaln_basis', 'adaln_mean']
+[WARNING] Attention backend 'comfy kitchen attention' is unavailable; using PyTorch attention.
+[INFO] VSA: extra_tokens ignored (the trained sparse pattern is the target)
+[WARNING] VSA: the model has no to_gate_compress layers; running the fine stage without the coarse branch
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=8323.1MiB
+[INFO] Requested to load MiniMaxH3
+[INFO] Model MiniMaxH3 prepared for dynamic VRAM loading. 19995MB Staged. 0 patches attached. Force pre-loaded 210 weights: 1175 KB.
+[WARNING] [OmniXPU] experimental capability-driven BMG D128 CUTE route enabled; set OMNI_ATTN_BACKEND=torch to disable it if this workflow shows an issue
+[INFO] [OmniXPU] attention CUTE_BHLD_D128 #1: heads=56 q=719 kv=719 dtype=torch.bfloat16
+[INFO] [OmniXPU] attention CUTE_BHLD_D128 #2: heads=56 q=719 kv=719 dtype=torch.bfloat16
+100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 4/4 [02:13<00:00, 33.50s/it]
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=221.7MiB
+[INFO] Requested to load MiniMaxH3AudioVAE
+[INFO] Model MiniMaxH3AudioVAE prepared for dynamic VRAM loading. 576MB Staged. 0 patches attached. Force pre-loaded 401 weights: 539 KB.
+[INFO] [OmniXPU] AIMDO inference budget: devices=0 minimum=1117.5MiB
+[INFO] Requested to load MiniMaxH3VideoVAE
+[INFO] Model MiniMaxH3VideoVAE prepared for dynamic VRAM loading. 4965MB Staged. 0 patches attached. Force pre-loaded 128 weights: 352 KB.
+[INFO] [OmniXPU] attention CUTE_H3_VAE_D64 #1: heads=32 seq=1797 dtype=torch.float16
+[INFO] [OmniXPU] attention CUTE_H3_VAE_D64 #2: heads=32 seq=1797 dtype=torch.float16
+[INFO] [OmniXPU] attention CUTE_H3_VAE_D64 #3: heads=32 seq=1797 dtype=torch.float16
+[INFO] Prompt executed in 214.80 seconds
