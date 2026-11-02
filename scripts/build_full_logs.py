@@ -765,6 +765,7 @@ def role_by_key(key, value):
 
     键名优先：「lora_name」比文件名可靠得多（很多 LoRA 文件名里根本没有 lora 字样）。
     """
+    k = (key or "").lower()
     blob = ("%s %s" % (key or "", value or "")).lower()
     if "lora" in blob:
         return "lora"
@@ -772,12 +773,17 @@ def role_by_key(key, value):
         return "controlnet"
     if "vae" in blob:
         return "vae"
-    if any(k in blob for k in ("upscal", "esrgan", "ultrasharp", "swinir", "realesr")):
+    if any(k2 in blob for k2 in ("upscal", "esrgan", "ultrasharp", "swinir", "realesr")):
         return "upscaler"
-    if any(k in blob for k in ("clip", "text_encoder", "temodel", " t5", "_t5", "umt5",
-                               "qwen", "llama", "gemma")):
+    # 底模的**强信号键名**排在 TE 关键词之前：`unet_name = ext\qwen_image_2.1-...gguf`
+    # 同时含 "unet"（底模）与 "qwen"（TE 关键词），先判 TE 会把底模说成文本编码器。
+    # 键名是加载器自己声明的，比文件名里的厂商前缀可靠。
+    if any(k2 in k for k2 in ("unet", "ckpt", "diffusion")):
+        return "base"
+    if any(k2 in blob for k2 in ("clip", "text_encoder", "temodel", " t5", "_t5", "umt5",
+                                 "qwen", "llama", "gemma")):
         return "text_encoder"
-    if any(k in blob for k in ("model", "ckpt", "unet", "diffusion")):
+    if any(k2 in blob for k2 in ("model", "unet", "diffusion")):
         return "base"
     return "other"
 
@@ -827,9 +833,13 @@ def model_rows(models, graph=None):
     # ① 工作流结构（API 图）优先：它是唯一包含 LoRA 与多输入加载器的来源
     for g in graph or []:
         add(g.get("role"), g.get("file"))
-    # ② 日志里记着、但图里找不到对应加载节点的（间接加载）补在后面，不丢信息
+    # ② 日志里记着、但图里找不到对应加载节点的（间接加载）补在后面，不丢信息。
+    #    ⚠️ 只有 file 为空时**绝不**退回类名：`QwenImage21` / `WanVAE` 这类是模型包装类，
+    #    不是文件名，写成"模型"会让卡片出现「底模：QwenImage21」这种令人困惑的行。
+    #    GGUF 工作流的 policy 行是 paths=[]，日志里本来就没有文件名，此时图里已经有真名。
     for m in models or []:
-        add(m.get("role"), m.get("file") or m.get("class"))
+        if m.get("file"):
+            add(m.get("role"), m.get("file"))
 
     out = []
     for role in ROLE_ORDER:
