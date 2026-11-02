@@ -789,11 +789,11 @@ def role_by_key(key, value):
 
 
 def graph_models(rec):
-    """从 API 图（prompt）枚举所有被引用的模型文件，按图里的顺序返回。
+    """从 API 图（完整日志的「工作流结构」部分）枚举所有被引用的模型文件，按图里顺序返回。
 
-    为什么不能只看日志：执行日志只打印真正触发加载的 `Requested to load`，
-    而 LoRA 是打补丁（apply/merge）不是 load 一个 ModelPatcher，日志里根本不出现；
-    多输入加载器（例如 MossCLIPLoader 的 clip_name + adapter 两个 TE）在日志里
+    为什么不能只看工作流执行日志：它只打印真正触发加载的 `Requested to load`，
+    而 LoRA 是打补丁（apply/merge）不是 load 一个 ModelPatcher，执行日志里根本不出现；
+    多输入加载器（例如 MossCLIPLoader 的 clip_name + adapter 两个 TE）在执行日志里
     也可能只落一条。所以「卡片上有哪些模型」以图为唯一权威来源。
     """
     out = []
@@ -833,10 +833,11 @@ def model_rows(models, graph=None):
     # ① 工作流结构（API 图）优先：它是唯一包含 LoRA 与多输入加载器的来源
     for g in graph or []:
         add(g.get("role"), g.get("file"))
-    # ② 日志里记着、但图里找不到对应加载节点的（间接加载）补在后面，不丢信息。
+    # ② 执行日志里记着、但图里找不到对应加载节点的（间接加载）补在后面，不丢信息。
     #    ⚠️ 只有 file 为空时**绝不**退回类名：`QwenImage21` / `WanVAE` 这类是模型包装类，
     #    不是文件名，写成"模型"会让卡片出现「底模：QwenImage21」这种令人困惑的行。
-    #    GGUF 工作流的 policy 行是 paths=[]，日志里本来就没有文件名，此时图里已经有真名。
+    #    GGUF 工作流的 policy 行是 paths=[]，**执行日志里**没有文件名，
+    #    但**完整日志里有**（工作流结构部分的 unet_name / clip_name），所以图里已经有真名。
     for m in models or []:
         if m.get("file"):
             add(m.get("role"), m.get("file"))
