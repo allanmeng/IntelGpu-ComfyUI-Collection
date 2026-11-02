@@ -140,6 +140,7 @@ NAV_TABS = [
     ("cloud_drive_collection.html", "资源聚合"),
     ("comfyui_opt.html", "工作台优化"),
     ("logs.html", "执行日志"),
+    ("full-logs.html", "完整日志"),
     ("group.html", "互助社群"),
 ]
 
