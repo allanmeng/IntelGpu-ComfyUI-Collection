@@ -182,31 +182,36 @@ def stamp_of(base, rec):
 
 
 def title_of(base, rec=None):
-    """卡片上那行大标题 = 档案文件名里的工作流名。
+    """卡片上那行大标题 = `<12位时间>_<工作流名>`（保留时间戳）。
 
     档案名是手工可定义的，约定写法 `<12位时间>_<工作流名>[_<方案>_<卡>_<显存>_<类型>]`，
-    所以取「时间前缀之后、第一个 _ 或 + 之前」那段即可：
-        202611021124_ZIT基础文生图                          → ZIT基础文生图
-        202611021127_ZIT文生图_omnixpu加速_B580_16G_重载    → ZIT文生图
-        202611022310_Moss文生图8步+TE2b优化                 → Moss文生图8步
+    所以标题取「档案名的开头 + 第一个 _ 或 + 之前」那段：
+        202611021124_ZIT基础文生图                          → 202611021124_ZIT基础文生图
+        202611021127_ZIT文生图_omnixpu加速_B580_16G_重载    → 202611021127_ZIT文生图
+        202611022310_Moss文生图8步+TE2b优化                 → 202611022310_Moss文生图8步
+
+    保留时间戳是刻意的：卡片左侧的日期列只有 MM-DD，同名工作流跑多次时靠前缀
+    才能区分（例如 21:56 / 23:10 / 23:13 三份 Moss）。
 
     为什么不读 json 的 tags.workflow：它来自 SaveImage 的 filename_prefix，
-    默认前缀下几份档案全是 "ComfyUI"，与实际工作流完全脱节。只在文件名取不出
-    内容时才退回它（例如有人把文件名改成纯时间戳）。
+    默认前缀下几份档案全是 "ComfyUI"，与实际工作流完全脱节。
     """
     s = (base or "").strip()
-    m = re.match(r"^\d{12}[_\-\s]*", s)
-    if m:
-        s = s[m.end():]
+    # 先切出 12 位时间前缀（原样保留），只在余下部分找第一个分隔符，
+    # 否则时间戳后面的那个 _ 会直接把标题截成纯数字
+    m = re.match(r"^(\d{12})[_\-\s]+", s)
+    prefix, rest = (m.group(1) + "_", s[m.end():]) if m else ("", s)
     for sep in ("_", "+", "（", "("):
-        i = s.find(sep)
+        i = rest.find(sep)
         if i > 0:
-            s = s[:i]
-    s = s.strip()
-    if s:
-        return s
+            rest = rest[:i]
+    rest = rest.strip()
+    if rest:
+        return prefix + rest
     tags = (rec or {}).get("tags") or {}
-    return (tags.get("workflow") or "").strip() or "未命名工作流"
+    stamp = (tags.get("stamp") or "").strip()
+    name = (tags.get("workflow") or "").strip() or "未命名工作流"
+    return ("%s_%s" % (stamp, name)) if stamp else name
 
 
 def summarize(item, rec, max_video_mb):
@@ -867,7 +872,7 @@ def card_html(r):
         '      <div class="log-when"><span class="log-date">%s</span>'
         '<span class="log-time">%s</span>%s</div>\n'
         '      <div class="log-main">\n'
-        '        <div class="log-wf" title="%s">%s%s</div>\n'
+        '        <div class="log-wf">%s%s</div>\n'
         '        <div class="log-nums">%s</div>\n'
         '        %s\n'
         '        <div class="log-file">%s</div>\n'
@@ -877,7 +882,7 @@ def card_html(r):
     ) % (
         tag, attrs,
         esc(r["date"] or "—"), esc(r["clock"] or ""), gpu_tag,
-        esc(r["base"]), esc(r["workflow"]), head_tags,
+        esc(r["base"]), head_tags,
         num_cells(r),
         models_block,
         esc(base + JSON_SUFFIX),
