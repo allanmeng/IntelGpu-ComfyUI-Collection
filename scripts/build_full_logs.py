@@ -48,6 +48,9 @@ IMAGE_EXT = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".bmp"}
 VIDEO_EXT = {".mp4", ".webm", ".mov", ".mkv", ".avi", ".m4v"}
 AUDIO_EXT = {".mp3", ".wav", ".flac", ".ogg", ".m4a", ".opus"}
 
+# 建模文件后缀：卡片上「模型」一行只认这些结尾的输入值
+MODEL_EXTS = (".safetensors", ".ckpt", ".pt", ".pth", ".bin", ".gguf", ".sft")
+
 ROLE_ORDER = ("base", "text_encoder", "vae", "lora", "controlnet", "upscaler", "other")
 ROLE_LABELS = {
     "base": "底模",
@@ -224,6 +227,7 @@ def summarize(item, rec, max_video_mb):
         "steps": m.get("steps"),
         "total_steps": m.get("total_steps"),
         "models": m.get("models") or [],
+        "graph_models": graph_models(rec),
         "deliverable_name": d.get("filename") or "",
     }
 
@@ -678,13 +682,77 @@ CHIPS = """      <a class="chip" href="index.html">项目收集</a>
       <a class="chip" href="https://blog.blackwood.cv/news/latest" target="_blank" rel="noopener">生态日报 ↗</a>"""
 
 
-def model_rows(models):
+def role_by_key(key, value):
+    """按输入键名 + 文件名猜角色。与插件 fulllog_html._role_by_key 保持同一套规则。
+
+    键名优先：「lora_name」比文件名可靠得多（很多 LoRA 文件名里根本没有 lora 字样）。
+    """
+    blob = ("%s %s" % (key or "", value or "")).lower()
+    if "lora" in blob:
+        return "lora"
+    if "control" in blob:
+        return "controlnet"
+    if "vae" in blob:
+        return "vae"
+    if any(k in blob for k in ("upscal", "esrgan", "ultrasharp", "swinir", "realesr")):
+        return "upscaler"
+    if any(k in blob for k in ("clip", "text_encoder", "temodel", " t5", "_t5", "umt5",
+                               "qwen", "llama", "gemma")):
+        return "text_encoder"
+    if any(k in blob for k in ("model", "ckpt", "unet", "diffusion")):
+        return "base"
+    return "other"
+
+
+def graph_models(rec):
+    """从 API 图（prompt）枚举所有被引用的模型文件，按图里的顺序返回。
+
+    为什么不能只看日志：执行日志只打印真正触发加载的 `Requested to load`，
+    而 LoRA 是打补丁（apply/merge）不是 load 一个 ModelPatcher，日志里根本不出现；
+    多输入加载器（例如 MossCLIPLoader 的 clip_name + adapter 两个 TE）在日志里
+    也可能只落一条。所以「卡片上有哪些模型」以图为唯一权威来源。
+    """
+    out = []
+    for nid, n in (rec.get("prompt") or {}).items():
+        if not isinstance(n, dict):
+            continue
+        cls = n.get("class_type") or n.get("type") or "?"
+        for k, v in (n.get("inputs") or {}).items():
+            if not isinstance(v, str):
+                continue
+            s = v.strip()
+            if not s or s.lower() in ("none", "null"):
+                continue
+            if not s.lower().endswith(MODEL_EXTS):
+                continue
+            out.append({"role": role_by_key(k, s), "file": s, "node": nid, "loader": cls,
+                        "key": k})
+    return out
+
+
+def model_rows(models, graph=None):
+    """卡片上的「模型」块：一角色一行，同角色多个文件在同一行用 / 隔开。
+
+    同行合并是卡片特有的取舍——卡片是索引，只需要「这次用了哪些模型」；
+    详情页那张表是一处引用一行（不合并），两者用途不同。
+    """
     by_role = {}
-    for m in models:
-        role = m.get("role") or "other"
-        name = m.get("file") or m.get("class") or ""
-        if name:
-            by_role.setdefault(role, []).append(name)
+
+    def add(role, name):
+        name = os.path.basename((name or "").replace("\\", "/"))
+        if not name:
+            return
+        bucket = by_role.setdefault(role or "other", [])
+        if name not in bucket:  # 同一文件被多个节点引用只算一次
+            bucket.append(name)
+
+    # ① 工作流结构（API 图）优先：它是唯一包含 LoRA 与多输入加载器的来源
+    for g in graph or []:
+        add(g.get("role"), g.get("file"))
+    # ② 日志里记着、但图里找不到对应加载节点的（间接加载）补在后面，不丢信息
+    for m in models or []:
+        add(m.get("role"), m.get("file") or m.get("class"))
+
     out = []
     for role in ROLE_ORDER:
         names = by_role.get(role)
@@ -763,7 +831,7 @@ def card_html(r):
     gpu_tag = ('<img class="log-gpu" src="%s" alt="%s" title="%s" loading="lazy">'
                % (esc(gpu), esc(r["card"]), esc(r["card"]))) if gpu else ""
 
-    models = model_rows(r["models"])
+    models = model_rows(r["models"], r.get("graph_models"))
     models_block = '<div class="log-models">%s</div>' % models if models else ""
 
     return (
