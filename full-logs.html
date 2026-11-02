@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IntelGpu-ComfyUI-Collection - 完整日志</title>
+<style>
+  :root {
+    --intel-blue: #0071c5;
+    --intel-blue-dark: #005a99;
+    --bg: #f6f8fa;
+    --card: #ffffff;
+    --text: #24292f;
+    --text-muted: #57606a;
+    --border: #d0d7de;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.6;
+  }
+  .container { max-width: 1100px; margin: 0 auto; padding: 24px 20px 48px; }
+  header { text-align: center; padding: 40px 0 24px; }
+  header h1 { font-size: 30px; font-weight: 700; color: var(--intel-blue); }
+  header .note { margin-top: 12px; font-size: 14px; color: var(--text-muted); }
+  .chips { margin-top: 14px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .chip {
+    font-size: 12px; padding: 5px 12px; border-radius: 999px;
+    background: #e8f1fb; color: var(--intel-blue-dark); border: 1px solid #c8e0f5;
+    text-decoration: none; display: inline-block;
+  }
+  .chip-active { background: var(--intel-blue); color: #fff; border-color: var(--intel-blue); }
+  .sort-banner {
+    margin: 28px 0 8px; background: linear-gradient(90deg, #e8f1fb, #f0f7fd);
+    border: 1px solid #c8e0f5; border-radius: 10px; padding: 10px 16px;
+    font-size: 13px; color: var(--intel-blue-dark); text-align: center; line-height: 1.8;
+  }
+  .sec-title { font-size: 17px; font-weight: 600; margin: 32px 0 14px; }
+  .log-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+  .log-card {
+    display: grid; grid-template-columns: 88px minmax(0, 1fr) auto; gap: 0 16px;
+    align-items: start;
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    /* 最小高度 + 松内边距：卡片内容多寡不一（有的没模型行/没有图），太矮会显局促 */
+    min-height: 216px; padding: 20px 22px; text-decoration: none; color: inherit;
+    box-shadow: 0 1px 3px rgba(31,35,40,0.06);
+    transition: box-shadow 0.15s ease, border-color 0.15s ease;
+  }
+  .log-card:hover { box-shadow: 0 4px 12px rgba(31,35,40,0.12); border-color: #c8e0f5; }
+  .log-card.is-flat { cursor: default; }
+  .log-when {
+    display: flex; flex-direction: column; gap: 2px; padding-right: 14px;
+    border-right: 1px solid #eef0f2; text-align: right; font-variant-numeric: tabular-nums;
+    align-items: flex-end;
+    /* 卡片是 align-items:start，这里单独拉满整行高度，显卡图才能用 margin-top:auto 贴底 */
+    align-self: stretch;
+  }
+  .log-date { font-size: 13px; font-weight: 600; color: var(--text); }
+  .log-time { font-size: 12px; color: var(--text-muted); }
+  .log-main { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .log-side {
+    display: flex; flex-direction: column; gap: 10px; align-items: center;
+    align-self: stretch;
+  }
+  .log-wf { font-size: 15px; font-weight: 600; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; overflow-wrap: anywhere; }
+  .log-side .log-tags {
+    align-self: flex-end; display: flex; gap: 6px; flex-wrap: wrap;
+    justify-content: flex-end; align-items: center;
+  }
+  .log-thumbs {
+    display: flex; align-items: center; justify-content: center;
+    margin-top: auto; margin-bottom: auto; max-width: 100%;
+  }
+  /* 产物图按原始比例缩放：只限最大宽高，不裁切、不拉伸
+     可用高度算不出来就取不到最大：右侧栏宽度由 tags 撑到 232px，
+     卡片内高 199 − tags 22 − 间距 10 = 167 → 图上限取 160，再大就会把卡片撑高 */
+  .log-thumb {
+    display: block; width: auto; height: auto;
+    max-width: 160px; max-height: 160px; object-fit: contain;
+    border-radius: 8px; box-shadow: 0 1px 4px rgba(31,35,40,0.18);
+    background: #f3f4f6;
+  }
+  /* 显卡图在左列：日期时间下方，靠底对齐 */
+  .log-gpu {
+    display: block; width: 64px; height: 64px; object-fit: cover;
+    border-radius: 8px; box-shadow: 0 1px 4px rgba(31,35,40,0.18);
+    margin-top: auto; margin-bottom: 2px;
+  }
+  .log-thumb.flat {
+    display: flex; align-items: center; justify-content: center;
+    width: 160px; aspect-ratio: 4 / 3; height: auto; max-height: none;
+    font-size: 12px; color: var(--text-muted); box-shadow: none;
+    border: 1px dashed var(--border);
+  }
+  .tag {
+    font-size: 12px; line-height: 18px; padding: 1px 8px; border-radius: 6px;
+    background: #f3f4f6; border: 1px solid #e5e7eb; color: var(--text-muted);
+    /* 标题区是粗体，不显式压回 400 的话 .tag 会继承父级 font-weight 变粗 */
+    font-weight: 400;
+    white-space: nowrap;
+  }
+  .tag-scheme { color: var(--intel-blue-dark); background: #e8f1fb; border-color: #c8e0f5; }
+  .tag-card { color: #6b3fc4; background: #f4efff; border-color: #ddd0fa; }
+  .tag-vram { color: #9a5b00; background: #fff5e2; border-color: #f2dcaf; }
+  .tag-err { color: #a40e26; background: #fdecee; border-color: #f5c2c7; }
+  /* 冷启/重载/热启 一套独立的冷热度色阶，与右侧三色 tag 无关（同详情页 badge） */
+  .tag-cold { color: #1f6feb; background: #e8f1fb; border-color: #c9dffb; }
+  .tag-reload { color: #0f766e; background: #e3f4f2; border-color: #bfe3df; }
+  .tag-warm { color: #b45309; background: #fff2dc; border-color: #f7d9a4; }
+  .log-nums { display: flex; gap: 34px; flex-wrap: wrap; }
+  .log-nums .st { display: flex; flex-direction: column; gap: 2px; }
+  .log-nums .st i { font-style: normal; font-size: 11px; color: var(--text-muted); }
+  .log-nums .st b { font-size: 17px; font-variant-numeric: tabular-nums; }
+  .log-models {
+    display: flex; flex-direction: column; gap: 3px;
+    padding-top: 10px; border-top: 1px dashed #e5e7eb;
+  }
+  /* 档案文件名（含后缀）单独占最后一行，样式对齐 logs.html 的同名行 */
+  .log-file { font-size: 11px; color: #8c959f; overflow-wrap: anywhere; word-break: normal; }
+  .model-row { display: flex; gap: 8px; font-size: 12px; align-items: baseline; }
+  .model-row i {
+    font-style: normal; color: var(--text-muted); flex: 0 0 auto;
+    min-width: 32px; font-size: 11px;
+  }
+  .model-row span {
+    color: var(--text); overflow-wrap: anywhere; word-break: normal;
+    font-family: "Cascadia Mono", Consolas, monospace; font-size: 11px; line-height: 1.5;
+  }
+  @media (max-width: 700px) {
+    .log-card { grid-template-columns: 88px minmax(0, 1fr); }
+    .log-side {
+      grid-column: 1 / -1; flex-direction: row-reverse; align-items: center;
+      justify-content: space-between; gap: 12px;
+      border-top: 1px solid #eef0f2; padding-top: 10px; margin-top: 10px;
+    }
+    .log-side .log-tags { align-self: center; flex-wrap: wrap; justify-content: flex-end; }
+    /* 窄屏主列实际只有 ~187px（375 − 页面 40 − 日期列 88 − 卡片内边距 44 − 栅格 16），
+       4 字标签 + 17px 数值三项放不下（实测「采样步数」会掉到第二行）：
+       数值降到 15px、栏距 12px，三项稳在一行；桌面不受影响 */
+    .log-nums { gap: 12px; }
+    .log-nums .st b { font-size: 15px; }
+    .log-thumb { max-width: 84px; max-height: 104px; margin: 0; }
+    /* 占位框是 4:3，比竖版产物图矮；窄屏单独放开 max-width，否则会被 84 卡成又矮又窄 */
+    .log-thumb.flat { width: 96px; max-width: none; }
+    .log-gpu { width: 48px; height: 48px; }
+  }
+  .empty { text-align: center; color: var(--text-muted); font-size: 14px; padding: 48px 0; }
+  footer { text-align: center; margin-top: 40px; font-size: 12px; color: var(--text-muted); }
+  footer a { color: var(--intel-blue); text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>IntelGpu-ComfyUI-Collection</h1>
+    <p class="note">每份档案 = 一次执行的完整上下文：运行环境、模型加载、时间轴、原始日志、工作流结构、产物</p>
+    <div class="chips">
+      <a class="chip" href="index.html">项目收集</a>
+      <a class="chip" href="links.html">环境依赖</a>
+      <a class="chip" href="cloud_drive_collection.html">资源聚合</a>
+      <a class="chip" href="comfyui_opt.html">工作台优化</a>
+      <a class="chip" href="logs.html">执行日志</a>
+      <span class="chip chip-active">完整日志</span>
+      <a class="chip" href="group.html">互助社群</a>
+      <a class="chip" href="https://blog.blackwood.cv/news/latest" target="_blank" rel="noopener">生态日报 ↗</a>
+    </div>
+  </header>
+
+  <div class="sort-banner">
+    共 2 份档案 · 按时间倒排（新 → 旧）· 由本地脚本从各档案的 <code>.full_log.json</code> 渲染，远端不参与生成 · 点击卡片进入完整档案
+  </div>
+
+  <h2 class="sec-title">全部档案</h2>
+<div class="log-grid">
+    <a class="log-card" href="full-logs/202611021127_ZIT文生图_omnixpu加速_B580_16G_重载.full_log.html">
+      <div class="log-when"><span class="log-date">2026-11-02</span><span class="log-time">11:27</span><img class="log-gpu" src="assets/b580.jpg" alt="B580" title="B580" loading="lazy"></div>
+      <div class="log-main">
+        <div class="log-wf">202611021127_ZIT文生图_omnixpu加速_B580_16G_重载</div>
+        <div class="log-nums"><span class="st"><i>总耗时</i><b>66.89 s</b></span><span class="st"><i>每步采样</i><b>0.67 s/it</b></span><span class="st"><i>采样步数</i><b>8</b></span></div>
+        <div class="log-models"><div class="model-row"><i>底模</i><span>ZIT_<wbr>REDZimageTurbo2.<wbr>0-<wbr>INT8-<wbr>Convrot-<wbr>Comfyui_<wbr>redzit222026HD.<wbr>safetensors</span></div><div class="model-row"><i>TE</i><span>qwen_<wbr>3_<wbr>4b_<wbr>int8_<wbr>convrot.<wbr>safetensors</span></div><div class="model-row"><i>VAE</i><span>ae.<wbr>safetensors</span></div></div>
+        <div class="log-file">202611021127_ZIT文生图_omnixpu加速_B580_16G_重载.full_log.json</div>
+      </div>
+      <div class="log-side"><div class="log-tags"><span class="tag tag-reload" title="测试类型">重载</span><span class="tag tag-scheme" title="加速方案">omnixpu加速</span><span class="tag tag-card" title="显卡">B580</span><span class="tag tag-vram" title="内存">16G</span></div><div class="log-thumbs"><div class="log-thumb flat" title="另存为时选了「只存档案，不搬图」，档案目录里本来就没有这张产物">不显示</div></div></div>
+    </a>
+    <a class="log-card" href="full-logs/202611021124_ZIT文生图_omnixpu加速_B580_16G_冷启.full_log.html">
+      <div class="log-when"><span class="log-date">2026-11-02</span><span class="log-time">11:24</span><img class="log-gpu" src="assets/b580.jpg" alt="B580" title="B580" loading="lazy"></div>
+      <div class="log-main">
+        <div class="log-wf">202611021124_ZIT文生图_omnixpu加速_B580_16G_冷启</div>
+        <div class="log-nums"><span class="st"><i>总耗时</i><b>102.01 s</b></span><span class="st"><i>每步采样</i><b>0.95 s/it</b></span><span class="st"><i>采样步数</i><b>8</b></span></div>
+        <div class="log-models"><div class="model-row"><i>底模</i><span>ZIT_<wbr>REDZimageTurbo2.<wbr>0-<wbr>INT8-<wbr>Convrot-<wbr>Comfyui_<wbr>redzit222026HD.<wbr>safetensors</span></div><div class="model-row"><i>TE</i><span>qwen_<wbr>3_<wbr>4b_<wbr>int8_<wbr>convrot.<wbr>safetensors</span></div><div class="model-row"><i>VAE</i><span>ae.<wbr>safetensors</span></div></div>
+        <div class="log-file">202611021124_ZIT文生图_omnixpu加速_B580_16G_冷启.full_log.json</div>
+      </div>
+      <div class="log-side"><div class="log-tags"><span class="tag tag-cold" title="测试类型">冷启</span><span class="tag tag-scheme" title="加速方案">omnixpu加速</span><span class="tag tag-card" title="显卡">B580</span><span class="tag tag-vram" title="内存">16G</span></div><div class="log-thumbs"><img class="log-thumb" src="full-logs/202611021124_ZIT文生图_omnixpu加速_B580_16G_冷启.png" alt="ComfyUI_1057334871997312_.png" loading="lazy"></div></div>
+    </a>
+  </div>
+
+  <footer>
+    <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection" target="_blank">IntelGpu-ComfyUI-Collection</a> ·
+    <a href="full-logs/" target="_blank">full-logs/ 档案目录</a>
+  </footer>
+
+</div>
+</body>
+</html>
