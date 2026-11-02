@@ -351,10 +351,31 @@ def parse_picks(text, upper):
     return sorted(set(picks))
 
 
+def same_file(a, b):
+    """两个文件是否逐字节相同（先比大小、再分块比内容）。
+
+    只比大小是不够的：档案的 json/html 经常是「改了内容但字节数恰好不变」
+    （例如同长度的时间戳、等长的模型名替换），那时会被误判成已同步而静默跳过。
+    """
+    try:
+        if os.path.getsize(a) != os.path.getsize(b):
+            return False
+        with open(a, "rb") as fa, open(b, "rb") as fb:
+            while True:
+                x = fa.read(1 << 20)
+                y = fb.read(1 << 20)
+                if x != y:
+                    return False
+                if not x:
+                    return True
+    except OSError:
+        return False
+
+
 def copy_one(src, dst, dry):
     if not src or not os.path.exists(src):
         return "missing"
-    if os.path.exists(dst) and os.path.getsize(dst) == os.path.getsize(src):
+    if os.path.exists(dst) and same_file(src, dst):
         return "same"
     if dry:
         return "would-copy"
@@ -440,23 +461,39 @@ def chrome_block():
 %s""" % (CHROME_START, note_html, "".join(chips), CHROME_END)
 
 
-def decorate_html(path, dry=False):
-    """把站点头部插进详情页 <main> 的第一个子元素位置；已注入则先剥旧块再写，保证幂等。"""
-    with open(path, encoding="utf-8") as f:
-        s = f.read()
+def decorate_text(s):
+    """把站点头部插进详情页 <main>，返回 (新文本, 状态)。
+
+    状态：ok（需要写）/ same（已是注入态）/ no-anchor（页面里找不到 <main>）。
+    与落盘分开，好让 dry-run 用源文件内容预演 —— dry-run 时目标文件还没拷过去。
+    """
     orig = s
     s = CHROME_RE.sub("", s)
     if "<main>" not in s:
-        return "no-anchor"
+        return orig, "no-anchor"
     if CHROME_START in s:  # 只可能出现在正文里，别乱插
-        return "no-anchor"
+        return orig, "no-anchor"
     s = s.replace("<main>", "<main>\n" + chrome_block(), 1)
     if s == orig:
-        return "same"
+        return orig, "same"
+    return s, "ok"
+
+
+def decorate_html(path, dry=False):
+    """把站点头部注入已存在的详情页；已注入则先剥旧块再写，保证幂等。"""
+    if not os.path.exists(path):
+        # 调用方没先拷文件就来了（旧版 --sync N --dry-run 就是这么崩的）：
+        # 明确回报，别再往上抛 FileNotFoundError。
+        return "missing"
+    with open(path, encoding="utf-8") as f:
+        s = f.read()
+    new, st = decorate_text(s)
+    if st != "ok":
+        return st
     if dry:
         return "would-write"
     with open(path, "w", encoding="utf-8", newline="\n") as f:
-        f.write(s)
+        f.write(new)
     return "written"
 
 
@@ -485,7 +522,9 @@ def cmd_restyle(dry):
 
 def html_matches(src, dst):
     """dst 是不是 src 的等价副本（忽略已注入的站点头部）。"""
-    if not (os.path.exists(src) and os.path.exists(dst)):
+    # src 可能是 None：插件没生成 html 的档案（渲染失败 / 手工删了）也会出现在列表里，
+    # 不挡住的话 os.path.exists(None) 会抛 TypeError 把整次 --sync 打断。
+    if not (src and dst and os.path.exists(src) and os.path.exists(dst)):
         return False
     with open(src, encoding="utf-8") as f:
         a = f.read()
@@ -510,28 +549,34 @@ def cmd_sync(rows, picks, max_video_mb, dry):
             ("html", r["html"], os.path.join(DST_DIR, base + HTML_SUFFIX)),
         ):
             if label == "html":
-                if html_matches(src, dst):
-                    res = "same"
-                elif dry:
-                    res = "would-copy"
-                else:
-                    res = copy_one(src, dst, dry)
+                # 目标 html 可能带着已注入的头部，逐字节比会永远不相等，
+                # 所以先用「剥掉头部再比」判断内容是否等价，等价就不必重拷。
+                res = "same" if html_matches(src, dst) else copy_one(src, dst, dry)
             else:
                 res = copy_one(src, dst, dry)
             print("    %-5s %s" % (label, {
                 "copied": "已拷贝",
-                "same": "已存在且大小一致，跳过",
+                "same": "内容一致，跳过",
                 "missing": "源文件缺失",
                 "would-copy": "将拷贝",
             }[res]))
-            if label == "html" and res in ("copied", "would-copy"):
+            if label != "html" or res not in ("copied", "same", "would-copy"):
+                continue
+            if res in ("copied", "same"):
+                # 已落盘：直接对目标文件做幂等注入（已有头部时返回 same）
                 d = decorate_html(dst, dry)
-                print("    %-5s %s" % ("头部", {
-                    "written": "已注入返回 + 导航",
-                    "would-write": "将注入返回 + 导航",
-                    "no-anchor": "⚠ 页面里找不到 <main>，未注入",
-                    "same": "已是最新",
-                }[d]))
+            else:
+                # dry-run 且目标还不存在：拿源文件内容预演，不碰磁盘
+                with open(src, encoding="utf-8") as f:
+                    _new, st = decorate_text(f.read())
+                d = {"ok": "would-write", "same": "same", "no-anchor": "no-anchor"}[st]
+            print("    %-5s %s" % ("头部", {
+                "written": "已注入返回 + 导航",
+                "would-write": "将注入返回 + 导航",
+                "no-anchor": "⚠ 页面里找不到 <main>，未注入",
+                "same": "已是最新",
+                "missing": "⚠ 目标文件不存在，未注入",
+            }.get(d, d)))
         if r["media"]:
             if r["media_skip"]:
                 print("    %-5s 跳过：%s（%.1f MB，超过 %.0f MB 上限）" % (
@@ -541,7 +586,7 @@ def cmd_sync(rows, picks, max_video_mb, dry):
                 res = copy_one(r["media"], os.path.join(DST_DIR, os.path.basename(r["media"])), dry)
                 print("    %-5s %s%s" % ("产物", {
                     "copied": "已拷贝 ",
-                    "same": "已存在且大小一致，跳过 ",
+                    "same": "内容一致，跳过 ",
                     "missing": "源文件缺失 ",
                     "would-copy": "将拷贝 ",
                 }[res], os.path.basename(r["media"])))
