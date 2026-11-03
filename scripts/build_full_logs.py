@@ -1329,8 +1329,11 @@ def main(argv):
     ap.add_argument("--sync-all", action="store_true",
                     help="同步全部档案，末尾自动重建聚合页")
     ap.add_argument("--build", action="store_true", help="只重建 full-logs.html，不动档案")
-    ap.add_argument("--rm", default="", metavar="1,3",
-                    help="从站点移除这些档案（移到 _trash，可还原）；不加 --yes 只预览")
+    # nargs="?"：裸 --rm 直接列站点清单（挑序号用），带参数才进预览/删除流程。
+    # 少了这个，`--rm` 不带值会被 argparse 判成「缺少参数」直接报错退出。
+    ap.add_argument("--rm", nargs="?", default=None, const="", metavar="1,3",
+                    help="从站点移除这些档案（移到 _trash，可还原）；不给序号则只列清单，"
+                         "不加 --yes 只预览")
     ap.add_argument("--yes", action="store_true",
                     help="确认执行不可逆操作（目前只有 --rm 需要）")
     ap.add_argument("--restyle", action="store_true",
@@ -1344,12 +1347,14 @@ def main(argv):
 
     # --rm 最先处理：它走的是**站点**列表，与 --sync/--list 的源列表序号不是一回事，
     # 两者同时给容易把序号搞混，直接拒绝。
-    if a.rm:
+    # 用 is not None 判："" 是「裸 --rm，只列清单」，与「没给这个参数」不是一回事
+    if a.rm is not None:
         if a.sync or a.sync_all:
             print("--rm 与 --sync 不能同时用：两者的序号来自不同列表"
                   "（--rm 按站点现存档案，--sync 按插件源目录）。")
             return 2
-        return cmd_rm(a.rm, dry=a.dry_run or not a.yes)
+        # 裸 --rm 只列清单：dry 强制为 True，连 --yes 也不执行
+        return cmd_rm(a.rm, dry=True if not a.rm else (a.dry_run or not a.yes))
 
     if a.restyle and not (a.sync or a.sync_all):
         return cmd_restyle(a.dry_run)
