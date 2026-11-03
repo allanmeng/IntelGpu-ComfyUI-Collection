@@ -843,13 +843,22 @@ def model_rows(models, graph=None):
             add(m.get("role"), m.get("file"))
 
     out = []
+    seen = set()
     for role in ROLE_ORDER:
         names = by_role.get(role)
         if not names:
             continue
+        # 同一个文件名只留在**优先级最高**的那一行：checkpoint（一体化模型，如
+        # Illustrious / SDXL 的 CheckpointLoaderKJ）的 base / TE / VAE 是三次加载，
+        # 但共用同一个 .safetensors 文件。卡片是索引，重复写两遍只是噪音。
+        # 详情页那张表不做这个去重 —— 那里要看清三次加载各自的 MB / 耗时。
+        keep = [n for n in names if n not in seen]
+        if not keep:
+            continue
+        seen.update(keep)
         out.append(
             '<div class="model-row"><i>%s</i><span>%s</span></div>'
-            % (esc(ROLE_LABELS.get(role, role)), " / ".join(soft(n) for n in names))
+            % (esc(ROLE_LABELS.get(role, role)), " / ".join(soft(n) for n in keep))
         )
     return "".join(out)
 
