@@ -12,8 +12,10 @@ log-analysis/，也不碰 scripts/generate_pages.py。
     python scripts/build_full_logs.py --sync-all       # 同步全部，然后重建页面
     python scripts/build_full_logs.py --build          # 只重建聚合页
     python scripts/build_full_logs.py --restyle        # 只重灌详情页头部（返回 + 导航）
+    python scripts/build_full_logs.py --rm 1,3         # 预览：要从站点移除哪几份
+    python scripts/build_full_logs.py --rm 1,3 --yes   # 真删（移到 _trash，可还原）
 
-四个命令的边界（容易混，写死在这里）：
+五个命令的边界（容易混，写死在这里）：
 
     --list   **只读**：列出源目录里的档案与同步状态，供挑选序号用。
              不写任何文件，聚合页一个字节都不变。
@@ -22,11 +24,18 @@ log-analysis/，也不碰 scripts/generate_pages.py。
              所以「--sync 完再跑 --build」是多余的，两者本来就是一步。
     --build  只按 full-logs/ 现有内容重建 full-logs.html，不碰任何档案。
     --restyle 只改详情页头部，不动 json / 产物 / 插件原件。
+    --rm     从**站点**移除档案（撤销发布），插件 logs/ 里的原件一概不动——
+             上不上站点本来就是人工决定的，删站内副本不该牵连源档案。
+             文件不真删，移到 full-logs/_trash/<时间戳>/（已 gitignore），
+             拷回 full-logs/ 再跑 --build 即可还原。不加 --yes 只打印清单。
+
+⚠️ --rm 的序号来自**站点现存档案**，与 --list/--sync 的**插件源**列表不是一回事，
+   两边档数常常不同（源里常有没发布的）。所以 --rm 与 --sync 不允许同时给。
 
 三个位置别混淆：
     插件 logs/      源：ComfyUI 里另存出来的原件（本脚本只读）
-    full-logs/      站内副本：json + html + 产物（--sync 拷进来）
-    full-logs.html  站内聚合页（--build / --sync 末尾生成）
+    full-logs/      站内副本：json + html + 产物（--sync 拷进来，--rm 挪走）
+    full-logs.html  站内聚合页（--build / --sync / --rm 末尾生成）
 
 站点头部（返回按钮 + 导航 chips）不写进插件产物，而是在「同步进 full-logs/」这一步
 注入，并用 <!--fl-chrome:start/end--> 包住。所以改头部只要跑一次 --restyle，
@@ -41,6 +50,7 @@ log-analysis/，也不碰 scripts/generate_pages.py。
 """
 
 import argparse
+import datetime
 import glob
 import html
 import json
@@ -53,6 +63,11 @@ import unicodedata
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DST_DIR = os.path.join(ROOT, "full-logs")
 PAGE = os.path.join(ROOT, "full-logs.html")
+# --rm 不直接删文件，一律先挪进这里（按时间戳分目录）。
+# 放在 full-logs 下而不是项目根：删的东西和它在同一处，找回来直观；
+# 已在 .gitignore 里排除，不会被 git 跟踪，也不会被 scan_src 当成档案
+# （scan_src 只列一级目录、只认 *.full_log.json 结尾）。
+TRASH_DIR = os.path.join(DST_DIR, "_trash")
 
 DEFAULT_SRC = r"F:/ComfyUI-aki-v3/ComfyUI/custom_nodes/ComfyUI-FullLog/logs"
 
@@ -381,6 +396,138 @@ def collect(src, max_video_mb):
 def dst_state(base):
     """目标目录里这份档案的状态：new / exist。"""
     return "exist" if os.path.exists(os.path.join(DST_DIR, base + JSON_SUFFIX)) else "new"
+
+
+# ------------------------------------------------------------------ --rm
+def show_path(p):
+    """给人看的路径：能相对就相对，不能（跨盘符）就用绝对，绝不抛异常。
+
+    os.path.relpath 在 Windows 上跨驱动器会 ValueError（比如项目在 D:、
+    目标在 C:），生产路径虽然同盘，但打印路径这种小事不值得让它把删除流程打断。
+    """
+    try:
+        r = os.path.relpath(p, ROOT)
+        return p if r.startswith("..") else r
+    except ValueError:
+        return p
+
+
+def scan_dst():
+    """列出**站点里已有**的档案，顺序与聚合页一致（时间倒序）。
+
+    --rm 必须用这份列表而不是 scan_src(插件源)：上不上站点是人工决定的，
+    两边档案数并不相同（源里常有没发布的），用源的序号删站点会张冠李戴。
+    """
+    items, err = scan_src(DST_DIR)
+    if err:
+        return [], err
+    rows = [summarize(it, read_json(it["json"]), 20.0) for it in items.values()]
+    rows.sort(key=lambda r: (r["stamp"], r["base"]), reverse=True)
+    return rows, None
+
+
+def files_of(r):
+    """一份档案在站点上占用的全部文件（绝对路径）。
+
+    三部分：json、html、逐个产物。产物靠 summarize 的 media_list
+    （已由 locate_local 三级兜底定位），所以老档案的 `<基名>.png`
+    和新档案的 `<基名>_N.png` 都能准确收全，不会漏也不会误伤别的档案。
+    """
+    out = []
+    for name in (r["base"] + JSON_SUFFIX, r["base"] + HTML_SUFFIX):
+        p = os.path.join(DST_DIR, name)
+        if os.path.exists(p):
+            out.append(p)
+    for m in r.get("media_list") or []:
+        if m.get("local"):
+            p = os.path.join(DST_DIR, m["local"])
+            if os.path.exists(p):
+                out.append(p)
+    return out
+
+
+def cmd_rm(picks_text, dry):
+    """从站点移除选中的档案：移到 _trash/<时间戳>/，然后重建聚合页。
+
+    dry=True 时只打印清单，一个字节都不动。
+    """
+    rows, err = scan_dst()
+    if err:
+        print(err)
+        return 1
+    if not rows:
+        print("站点里没有档案可删：%s" % DST_DIR)
+        return 0
+
+    picks = parse_picks(picks_text, len(rows))
+    if not picks:
+        print("没有选中任何档案。可删的序号见下方清单。")
+        picks = []
+
+    # 先不管有没有选中都把清单打出来，省得用户回头再查一遍序号
+    print("站点现有档案（%d 份）：" % len(rows))
+    for i, r in enumerate(rows, 1):
+        mark = "→" if i in picks else " "
+        print("  %s %-2d  %-8s  %-46s %d 个产物" % (
+            mark, i, ("%s %s" % (r["date"], r["clock"])).strip() or "—",
+            r["base"][:46], r["deliverable_count"]))
+    if not picks:
+        print()
+        print("用法：--rm 1,3        （只看清单）")
+        print("      --rm 1,3 --yes  （真的移到 _trash）")
+        return 0
+
+    total_files, total_bytes = 0, 0
+    plan = []
+    for i in picks:
+        r = rows[i - 1]
+        fs = files_of(r)
+        # 档案里记着产物、站点上却没有对应文件：如实说，不假装删干净了
+        missing = [m["name"] for m in (r.get("media_list") or [])
+                   if not m.get("local")]
+        plan.append((r, fs, missing))
+        total_files += len(fs)
+        total_bytes += sum(os.path.getsize(p) for p in fs)
+
+    print()
+    print("将移除 %d 份档案，共 %d 个文件（%s）：" % (
+        len(plan), total_files, human(total_bytes)))
+    for r, fs, missing in plan:
+        print("  [%s]" % r["base"])
+        for p in fs:
+            print("      %s  (%s)" % (os.path.basename(p), human(os.path.getsize(p))))
+        for n in missing:
+            print("      ⚠ %s 档案里记着但站点上没有，跳过" % n)
+
+    if dry:
+        print()
+        print("以上为预览。确认无误后加 --yes 真正执行（文件移到 %s）。"
+              % show_path(TRASH_DIR))
+        return 0
+
+    stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    dest_dir = os.path.join(TRASH_DIR, stamp)
+    os.makedirs(dest_dir, exist_ok=True)
+    moved, failed = 0, []
+    for r, fs, missing in plan:
+        for p in fs:
+            dst = os.path.join(dest_dir, os.path.basename(p))
+            try:
+                shutil.move(p, dst)
+                moved += 1
+            except Exception as e:
+                failed.append((os.path.basename(p), repr(e)))
+    print()
+    print("已移到 %s：%d 个文件" % (show_path(dest_dir), moved))
+    if failed:
+        print("⚠ 有 %d 个文件没能移动：" % len(failed))
+        for n, e in failed:
+            print("    %s: %s" % (n, e))
+        return 1
+    print("要还原：把 %s 里的文件拷回 full-logs/ 再跑一次 --build"
+          % show_path(dest_dir))
+    print()
+    return cmd_build(False)
 
 
 # ------------------------------------------------------------------ --list
@@ -1182,6 +1329,10 @@ def main(argv):
     ap.add_argument("--sync-all", action="store_true",
                     help="同步全部档案，末尾自动重建聚合页")
     ap.add_argument("--build", action="store_true", help="只重建 full-logs.html，不动档案")
+    ap.add_argument("--rm", default="", metavar="1,3",
+                    help="从站点移除这些档案（移到 _trash，可还原）；不加 --yes 只预览")
+    ap.add_argument("--yes", action="store_true",
+                    help="确认执行不可逆操作（目前只有 --rm 需要）")
     ap.add_argument("--restyle", action="store_true",
                     help="只重灌详情页的站点头部（返回 + 导航），不碰 json/产物/本地原件")
     ap.add_argument("--src", default=os.environ.get("FULLLOG_SRC") or DEFAULT_SRC,
@@ -1190,6 +1341,15 @@ def main(argv):
                     help="视频超过该体积就不随档案发布（0 = 不限）")
     ap.add_argument("--dry-run", action="store_true", help="只打印计划，不写文件")
     a = ap.parse_args(argv)
+
+    # --rm 最先处理：它走的是**站点**列表，与 --sync/--list 的源列表序号不是一回事，
+    # 两者同时给容易把序号搞混，直接拒绝。
+    if a.rm:
+        if a.sync or a.sync_all:
+            print("--rm 与 --sync 不能同时用：两者的序号来自不同列表"
+                  "（--rm 按站点现存档案，--sync 按插件源目录）。")
+            return 2
+        return cmd_rm(a.rm, dry=a.dry_run or not a.yes)
 
     if a.restyle and not (a.sync or a.sync_all):
         return cmd_restyle(a.dry_run)

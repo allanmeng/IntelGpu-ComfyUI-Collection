@@ -1,3 +1,6 @@
 # Python 运行产物（脚本在本地跑，不应入库）
 __pycache__/
 *.pyc
+
+# build_full_logs.py --rm 的回收站：删掉的档案挪到这里，不入库也不发布
+full-logs/_trash/
