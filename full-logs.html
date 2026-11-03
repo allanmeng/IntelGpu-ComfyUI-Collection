@@ -92,6 +92,15 @@
     font-size: 12px; color: var(--text-muted); box-shadow: none;
     border: 1px dashed var(--border);
   }
+  /* 缩略图容器：多张产物时在首图右下角压一个「N 张」角标。
+     容器用 inline-block 让角标贴着图片边界，而不是贴着右侧栏宽度。 */
+  .thumb-wrap { position: relative; display: inline-block; line-height: 0; }
+  .thumb-count {
+    position: absolute; right: 6px; bottom: 6px;
+    background: rgba(15,23,32,0.72); color: #eaf2fa;
+    font-size: 11px; line-height: 1.6; padding: 0 6px; border-radius: 999px;
+    pointer-events: none;
+  }
   .tag {
     font-size: 12px; line-height: 18px; padding: 1px 8px; border-radius: 6px;
     background: #f3f4f6; border: 1px solid #e5e7eb; color: var(--text-muted);
@@ -168,11 +177,21 @@
   </header>
 
   <div class="sort-banner">
-    共 6 份档案 · 按时间倒排（新 → 旧）· 由本地脚本从各档案的 <code>.full_log.json</code> 渲染，远端不参与生成 · 点击卡片进入完整档案
+    共 7 份档案 · 按时间倒排（新 → 旧）· 由本地脚本从各档案的 <code>.full_log.json</code> 渲染，远端不参与生成 · 点击卡片进入完整档案
   </div>
 
   <h2 class="sec-title">全部档案</h2>
 <div class="log-grid">
+    <a class="log-card" href="full-logs/202611031216_Moss文生图8步+TE2b优化.full_log.html">
+      <div class="log-when"><span class="log-date">2026-11-03</span><span class="log-time">12:16</span><img class="log-gpu" src="assets/b580.jpg" alt="B580" title="B580" loading="lazy"></div>
+      <div class="log-main">
+        <div class="log-wf">202611031216_Moss文生图8步+TE2b优化</div>
+        <div class="log-nums"><span class="st"><i>总耗时</i><b>111.89 s</b></span><span class="st"><i>每步采样</i><b>4.07 s/it</b></span><span class="st"><i>采样步数</i><b>8</b></span></div>
+        <div class="log-models"><div class="model-row"><i>底模</i><span>moss_<wbr>image_<wbr>sft_<wbr>int8_<wbr>convrot.<wbr>safetensors</span></div><div class="model-row"><i>TE</i><span>qwen3.<wbr>5-<wbr>2b-<wbr>int8.<wbr>safetensors / qwen3.<wbr>5-<wbr>2b_<wbr>int8_<wbr>linear.<wbr>safetensors</span></div><div class="model-row"><i>VAE</i><span>flux2-<wbr>vae.<wbr>safetensors</span></div><div class="model-row"><i>LoRA</i><span>MOSS-<wbr>Image-<wbr>SFT-<wbr>8-<wbr>steps.<wbr>safetensors</span></div></div>
+        <div class="log-file">202611031216_Moss文生图8步+TE2b优化.full_log.json</div>
+      </div>
+      <div class="log-side"><div class="log-tags"><span class="tag tag-reload" title="测试类型">重载</span><span class="tag tag-scheme" title="加速方案">omnixpu加速</span><span class="tag tag-card" title="显卡">B580</span><span class="tag tag-vram" title="内存">16G</span></div><div class="log-thumbs"><span class="thumb-wrap"><img class="log-thumb" src="full-logs/202611031216_Moss文生图8步+TE2b优化_1.png" alt="Moss-20261103121605_00001_.png" loading="lazy"><span class="thumb-count">3 张</span></span></div></div>
+    </a>
     <a class="log-card" href="full-logs/202611031055_Illustrious-XL文生图.full_log.html">
       <div class="log-when"><span class="log-date">2026-11-03</span><span class="log-time">10:55</span><img class="log-gpu" src="assets/b580.jpg" alt="B580" title="B580" loading="lazy"></div>
       <div class="log-main">
@@ -181,7 +200,7 @@
         <div class="log-models"><div class="model-row"><i>底模</i><span>IL-<wbr>Gembyte_<wbr>20Emerald.<wbr>safetensors</span></div></div>
         <div class="log-file">202611031055_Illustrious-XL文生图.full_log.json</div>
       </div>
-      <div class="log-side"><div class="log-tags"><span class="tag tag-cold" title="测试类型">冷启</span><span class="tag tag-scheme" title="加速方案">omnixpu加速</span><span class="tag tag-card" title="显卡">B580</span><span class="tag tag-vram" title="内存">16G</span></div><div class="log-thumbs"><img class="log-thumb" src="full-logs/202611031055_Illustrious-XL文生图.png" alt="ComfyUI_temp_mbzlu_00001_.png" loading="lazy"></div></div>
+      <div class="log-side"><div class="log-tags"><span class="tag tag-cold" title="测试类型">冷启</span><span class="tag tag-scheme" title="加速方案">omnixpu加速</span><span class="tag tag-card" title="显卡">B580</span><span class="tag tag-vram" title="内存">16G</span></div><div class="log-thumbs"><span class="thumb-wrap"><img class="log-thumb" src="full-logs/202611031055_Illustrious-XL文生图.png" alt="ComfyUI_temp_mbzlu_00001_.png" loading="lazy"></span></div></div>
     </a>
     <a class="log-card" href="full-logs/202611030251_QwenImage2.1文生图_viggle.full_log.html">
       <div class="log-when"><span class="log-date">2026-11-03</span><span class="log-time">02:51</span><img class="log-gpu" src="assets/b580.jpg" alt="B580" title="B580" loading="lazy"></div>
@@ -191,7 +210,7 @@
         <div class="log-models"><div class="model-row"><i>底模</i><span>qwen_<wbr>image_<wbr>2.<wbr>1-<wbr>viggle-<wbr>4-<wbr>steps-<wbr>turbo_<wbr>Q4_<wbr>K_<wbr>M.<wbr>gguf</span></div><div class="model-row"><i>TE</i><span>Qwen3VL-<wbr>8B-<wbr>Instruct-<wbr>Q4_<wbr>K_<wbr>M.<wbr>gguf</span></div><div class="model-row"><i>VAE</i><span>qwen_<wbr>image_<wbr>2.<wbr>1_<wbr>vae_<wbr>bf16.<wbr>safetensors</span></div></div>
         <div class="log-file">202611030251_QwenImage2.1文生图_viggle.full_log.json</div>
       </div>
-      <div class="log-side"><div class="log-tags"><span class="tag tag-reload" title="测试类型">重载</span><span class="tag tag-scheme" title="加速方案">omnixpu加速</span><span class="tag tag-card" title="显卡">B580</span><span class="tag tag-vram" title="内存">16G</span></div><div class="log-thumbs"><img class="log-thumb" src="full-logs/202611030251_QwenImage2.1文生图_viggle.png" alt="ComfyUI_1057334871997320_.png" loading="lazy"></div></div>
+      <div class="log-side"><div class="log-tags"><span class="tag tag-reload" title="测试类型">重载</span><span class="tag tag-scheme" title="加速方案">omnixpu加速</span><span class="tag tag-card" title="显卡">B580</span><span class="tag tag-vram" title="内存">16G</span></div><div class="log-thumbs"><span class="thumb-wrap"><img class="log-thumb" src="full-logs/202611030251_QwenImage2.1文生图_viggle.png" alt="ComfyUI_1057334871997320_.png" loading="lazy"></span></div></div>
     </a>
     <a class="log-card" href="full-logs/202611030246_QwenImage2.1文生图_viggle.full_log.html">
       <div class="log-when"><span class="log-date">2026-11-03</span><span class="log-time">02:46</span><img class="log-gpu" src="assets/b580.jpg" alt="B580" title="B580" loading="lazy"></div>
@@ -201,7 +220,7 @@
         <div class="log-models"><div class="model-row"><i>底模</i><span>qwen_<wbr>image_<wbr>2.<wbr>1-<wbr>viggle-<wbr>4-<wbr>steps-<wbr>turbo_<wbr>Q4_<wbr>K_<wbr>M.<wbr>gguf</span></div><div class="model-row"><i>TE</i><span>Qwen3VL-<wbr>8B-<wbr>Instruct-<wbr>Q4_<wbr>K_<wbr>M.<wbr>gguf</span></div><div class="model-row"><i>VAE</i><span>qwen_<wbr>image_<wbr>2.<wbr>1_<wbr>vae_<wbr>bf16.<wbr>safetensors</span></div></div>
         <div class="log-file">202611030246_QwenImage2.1文生图_viggle.full_log.json</div>
       </div>
-      <div class="log-side"><div class="log-tags"><span class="tag tag-cold" title="测试类型">冷启</span><span class="tag tag-scheme" title="加速方案">omnixpu加速</span><span class="tag tag-card" title="显卡">B580</span><span class="tag tag-vram" title="内存">16G</span></div><div class="log-thumbs"><img class="log-thumb" src="full-logs/202611030246_QwenImage2.1文生图_viggle.png" alt="ComfyUI_1057334871997319_.png" loading="lazy"></div></div>
+      <div class="log-side"><div class="log-tags"><span class="tag tag-cold" title="测试类型">冷启</span><span class="tag tag-scheme" title="加速方案">omnixpu加速</span><span class="tag tag-card" title="显卡">B580</span><span class="tag tag-vram" title="内存">16G</span></div><div class="log-thumbs"><span class="thumb-wrap"><img class="log-thumb" src="full-logs/202611030246_QwenImage2.1文生图_viggle.png" alt="ComfyUI_1057334871997319_.png" loading="lazy"></span></div></div>
     </a>
     <a class="log-card" href="full-logs/202611022310_Moss文生图8步+TE2b优化.full_log.html">
       <div class="log-when"><span class="log-date">2026-11-02</span><span class="log-time">23:10</span><img class="log-gpu" src="assets/b580.jpg" alt="B580" title="B580" loading="lazy"></div>
@@ -211,7 +230,7 @@
         <div class="log-models"><div class="model-row"><i>底模</i><span>moss_<wbr>image_<wbr>sft_<wbr>int8_<wbr>convrot.<wbr>safetensors</span></div><div class="model-row"><i>TE</i><span>qwen3.<wbr>5-<wbr>2b-<wbr>int8.<wbr>safetensors / qwen3.<wbr>5-<wbr>2b_<wbr>int8_<wbr>linear.<wbr>safetensors</span></div><div class="model-row"><i>VAE</i><span>flux2-<wbr>vae.<wbr>safetensors</span></div><div class="model-row"><i>LoRA</i><span>MOSS-<wbr>Image-<wbr>SFT-<wbr>8-<wbr>steps.<wbr>safetensors</span></div></div>
         <div class="log-file">202611022310_Moss文生图8步+TE2b优化.full_log.json</div>
       </div>
-      <div class="log-side"><div class="log-tags"><span class="tag tag-cold" title="测试类型">冷启</span><span class="tag tag-scheme" title="加速方案">omnixpu加速</span><span class="tag tag-card" title="显卡">B580</span><span class="tag tag-vram" title="内存">16G</span></div><div class="log-thumbs"><img class="log-thumb" src="full-logs/202611022310_Moss文生图8步+TE2b优化.png" alt="Moss-20261102231042_00001_.png" loading="lazy"></div></div>
+      <div class="log-side"><div class="log-tags"><span class="tag tag-cold" title="测试类型">冷启</span><span class="tag tag-scheme" title="加速方案">omnixpu加速</span><span class="tag tag-card" title="显卡">B580</span><span class="tag tag-vram" title="内存">16G</span></div><div class="log-thumbs"><span class="thumb-wrap"><img class="log-thumb" src="full-logs/202611022310_Moss文生图8步+TE2b优化.png" alt="Moss-20261102231042_00001_.png" loading="lazy"></span></div></div>
     </a>
     <a class="log-card" href="full-logs/202611021127_ZIT文生图_omnixpu加速_B580_16G_重载.full_log.html">
       <div class="log-when"><span class="log-date">2026-11-02</span><span class="log-time">11:27</span><img class="log-gpu" src="assets/b580.jpg" alt="B580" title="B580" loading="lazy"></div>
@@ -231,7 +250,7 @@
         <div class="log-models"><div class="model-row"><i>底模</i><span>ZIT_<wbr>REDZimageTurbo2.<wbr>0-<wbr>INT8-<wbr>Convrot-<wbr>Comfyui_<wbr>redzit222026HD.<wbr>safetensors</span></div><div class="model-row"><i>TE</i><span>qwen_<wbr>3_<wbr>4b_<wbr>int8_<wbr>convrot.<wbr>safetensors</span></div><div class="model-row"><i>VAE</i><span>ae.<wbr>safetensors</span></div></div>
         <div class="log-file">202611021124_ZIT基础文生图.full_log.json</div>
       </div>
-      <div class="log-side"><div class="log-tags"><span class="tag tag-cold" title="测试类型">冷启</span><span class="tag tag-scheme" title="加速方案">omnixpu加速</span><span class="tag tag-card" title="显卡">B580</span><span class="tag tag-vram" title="内存">16G</span></div><div class="log-thumbs"><img class="log-thumb" src="full-logs/202611021124_ZIT基础文生图.png" alt="ComfyUI_1057334871997312_.png" loading="lazy"></div></div>
+      <div class="log-side"><div class="log-tags"><span class="tag tag-cold" title="测试类型">冷启</span><span class="tag tag-scheme" title="加速方案">omnixpu加速</span><span class="tag tag-card" title="显卡">B580</span><span class="tag tag-vram" title="内存">16G</span></div><div class="log-thumbs"><span class="thumb-wrap"><img class="log-thumb" src="full-logs/202611021124_ZIT基础文生图.png" alt="ComfyUI_1057334871997312_.png" loading="lazy"></span></div></div>
     </a>
   </div>
 

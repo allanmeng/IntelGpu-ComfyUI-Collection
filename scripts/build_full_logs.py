@@ -13,6 +13,21 @@ log-analysis/，也不碰 scripts/generate_pages.py。
     python scripts/build_full_logs.py --build          # 只重建聚合页
     python scripts/build_full_logs.py --restyle        # 只重灌详情页头部（返回 + 导航）
 
+四个命令的边界（容易混，写死在这里）：
+
+    --list   **只读**：列出源目录里的档案与同步状态，供挑选序号用。
+             不写任何文件，聚合页一个字节都不变。
+    --sync   把选中档案从插件 logs/ **复制**到 full-logs/（原件不动），
+             顺带注入站点头部，末尾自动调一次 --build 重建聚合页。
+             所以「--sync 完再跑 --build」是多余的，两者本来就是一步。
+    --build  只按 full-logs/ 现有内容重建 full-logs.html，不碰任何档案。
+    --restyle 只改详情页头部，不动 json / 产物 / 插件原件。
+
+三个位置别混淆：
+    插件 logs/      源：ComfyUI 里另存出来的原件（本脚本只读）
+    full-logs/      站内副本：json + html + 产物（--sync 拷进来）
+    full-logs.html  站内聚合页（--build / --sync 末尾生成）
+
 站点头部（返回按钮 + 导航 chips）不写进插件产物，而是在「同步进 full-logs/」这一步
 注入，并用 <!--fl-chrome:start/end--> 包住。所以改头部只要跑一次 --restyle，
 不用重新生成任何档案、也不用重启 ComfyUI：
@@ -124,11 +139,59 @@ def read_json(path):
         return {}
 
 
-def media_kind(path, rec):
-    d = rec.get("deliverable") or {}
-    kind = (d.get("media") or "").lower()
-    if kind in ("image", "video", "audio"):
-        return kind
+def deliverables_of(rec):
+    """读出档案里的全部产物，统一成列表（与插件 fulllog_core.deliverables_of 同义）。
+
+    新档案有复数 `deliverables`；存量档案只有单数 `deliverable`。
+    """
+    lst = (rec or {}).get("deliverables")
+    if isinstance(lst, list) and lst:
+        return [dict(x) for x in lst if isinstance(x, dict)]
+    one = (rec or {}).get("deliverable")
+    if isinstance(one, dict) and one:
+        return [dict(one)]
+    return []
+
+
+def locate_local(d, base, src_dir, names, idx=None):
+    """定位一个产物在 src_dir 里的实际文件名。
+
+    三级兜底，**优先信档案里的记录**，不靠文件名猜：
+      ① d["archive_name"] —— 插件搬图时回写的真实落盘名，最权威
+      ② `<base>_<n><ext>` —— 新规则（单图也带 _1），应对 archive_name 缺失
+      ③ `<base><ext>` —— 老规则（存量 8 份都是这个名字）
+    三条都落空 = 真的没有图（没搬图 / 被移走），返回 None。
+
+    ⚠️ 不靠「以 base 开头」去模糊匹配：`unique_path` 撞名时会生成
+    `<base>_1-2.png` 这种带 `-2` 的名字，模糊匹配可能认错；而且
+    `<base>_1.png` 与 `<base>_10.png` 用 startswith 会互相干扰。
+
+    ⚠️ 即便只有一张产物也要试 `<base>_1<ext>`：插件的新规则**单张也带 _1**，
+    只有老档案才是 `<base><ext>`。idx 为 None 时按第 1 张处理。
+    """
+    fn = (d or {}).get("filename") or ""
+    ext = os.path.splitext(fn)[1]
+    idx = 0 if idx is None else idx
+    cands = []
+    if d.get("archive_name"):
+        cands.append(d["archive_name"])
+    if base and ext:
+        cands.append("%s_%d%s" % (base, idx + 1, ext))
+        cands.append(base + ext)
+    if fn:
+        cands.append(fn)          # 产物被原样拷进来、没改名的情况
+    for c in cands:
+        if c and c in names:
+            return c
+    return None
+
+
+def media_kind(path, rec=None):
+    """产物类型：先看档案里记的 media，再按扩展名兜底。"""
+    if isinstance(rec, dict):
+        kind = (rec.get("media") or "").lower()
+        if kind in ("image", "video", "audio"):
+            return kind
     ext = os.path.splitext(path or "")[1].lower()
     if ext in IMAGE_EXT:
         return "image"
@@ -141,28 +204,39 @@ def media_kind(path, rec):
 
 # ------------------------------------------------------------------ 扫描
 def scan_src(src):
-    """返回 {base: {"base","json","html","media"}}，按 base 排序。"""
+    """返回 {base: {"base","json","html","deliverables"}}，按 base 排序。
+
+    产物定位见 locate_local()：先信 json 里的 archive_name，再按文件名兜底。
+    一份档案可以有 0~N 个产物（一次执行批量出图就是 N>1）。
+    """
     try:
         names = os.listdir(src)
     except OSError:
         return {}, "源目录不存在：%s" % src
+    nameset = set(names)
     items = {}
     for n in sorted(names):
         if not n.endswith(JSON_SUFFIX):
             continue
         base = n[: -len(JSON_SUFFIX)]
-        item = {"base": base, "json": os.path.join(src, n), "html": None, "media": None}
+        item = {"base": base, "json": os.path.join(src, n), "html": None, "deliverables": []}
         h = os.path.join(src, base + HTML_SUFFIX)
         if os.path.exists(h):
             item["html"] = h
-        # 产物：同基名、非档案本体、非备份
-        for m in sorted(names):
-            if not m.startswith(base + "."):
-                continue
-            if m.endswith((".json", ".html", ".bak")):
-                continue
-            item["media"] = os.path.join(src, m)
-            break
+        rec = read_json(item["json"])
+        dels = deliverables_of(rec)
+        for i, d in enumerate(dels):
+            # idx 一律传 i：单产物也按第 1 张处理（新规则单张也叫 _1.png）
+            local = locate_local(d, base, src, nameset, i)
+            kind = media_kind(local, d)
+            item["deliverables"].append({
+                "d": d,
+                "local": local,
+                "path": os.path.join(src, local) if local else None,
+                "kind": kind,
+                "name": d.get("filename") or "",
+                "size": (os.path.getsize(os.path.join(src, local)) if local else None),
+            })
         items[base] = item
     return items, None
 
@@ -215,25 +289,49 @@ def title_of(base, rec=None):
 
 
 def summarize(item, rec, max_video_mb):
-    """把一份档案压成列表/卡片要用的字段。"""
-    d = rec.get("deliverable") or {}
+    """把一份档案压成列表/卡片要用的字段。
+
+    产物分两层：
+      * `media_*`    —— 第一个产物（兼容既有调用方：卡片缩略图、--list 产物列）
+      * `media_list` —— 全部产物，每项 {path,name,kind,size,skip,missing,missing_kind,local}
+    一次执行批量出图时 media_list 有 N 项，其它字段（耗时/步数/模型）仍是同一份。
+    """
     m = rec.get("metrics") or {}
     run = rec.get("run") or {}
     tags = rec.get("tags") or {}
 
-    media_path = item.get("media")
-    kind = media_kind(media_path, rec) if media_path else (d.get("media") or "")
-    size = os.path.getsize(media_path) if media_path else None
-    over = bool(kind == "video" and max_video_mb > 0 and size
-                and size > max_video_mb * 1024 * 1024)
-    # 档案里记着产物、插件 logs 目录里却没有这个文件。两种成因要分开说：
-    #   present=true  → 另存为时原文件还在，只是勾了「只存档案，不搬图」，
-    #                   所以插件目录本来就没有它（同步的取数边界就是插件目录，不回溯 output/）
-    #   present=false → 另存那一刻原文件就已经不在原路径了
-    missing = bool(not media_path and d.get("filename"))
-    missing_kind = ""
-    if missing:
-        missing_kind = "gone" if d.get("present") is False else "unmoved"
+    media_list = []
+    for x in item.get("deliverables") or []:
+        d = x.get("d") or {}
+        path = x.get("path")
+        kind = x.get("kind") or "file"
+        size = x.get("size")
+        over = bool(kind == "video" and max_video_mb > 0 and size
+                    and size > max_video_mb * 1024 * 1024)
+        # 档案里记着产物、插件 logs 目录里却没有这个文件。两种成因要分开说：
+        #   present=true  → 另存为时原文件还在，只是勾了「只存档案，不搬图」，
+        #                   所以插件目录本来就没有它（同步的取数边界就是插件目录，不回溯 output/）
+        #   present=false → 另存那一刻原文件就已经不在原路径了
+        missing = bool(not path and (x.get("name") or d.get("filename")))
+        missing_kind = ""
+        if missing:
+            missing_kind = "gone" if d.get("present") is False else "unmoved"
+        media_list.append({
+            "path": path,
+            "local": x.get("local"),
+            "name": x.get("name") or d.get("filename") or "",
+            "kind": kind,
+            "size": size,
+            "skip": over,
+            "missing": missing,
+            "missing_kind": missing_kind,
+        })
+
+    # 第一个「能用」的产物当作代表：优先有文件的，全都没有就取第一个（用于展示缺失原因）
+    head = next((x for x in media_list if x["path"]), media_list[0] if media_list else None)
+    media_path = head["path"] if head else None
+    kind = head["kind"] if head else ""
+    size = head["size"] if head else None
 
     date, clock, stamp = stamp_of(item["base"], rec)
     return {
@@ -243,9 +341,10 @@ def summarize(item, rec, max_video_mb):
         "media": media_path,
         "media_kind": kind,
         "media_size": size,
-        "media_skip": over,
-        "media_missing": missing,
-        "media_missing_kind": missing_kind,
+        "media_skip": bool(head["skip"]) if head else False,
+        "media_missing": bool(head["missing"]) if head else False,
+        "media_missing_kind": head["missing_kind"] if head else "",
+        "media_list": media_list,
         "date": date,
         "clock": clock,
         "stamp": stamp,
@@ -261,7 +360,8 @@ def summarize(item, rec, max_video_mb):
         "total_steps": m.get("total_steps"),
         "models": m.get("models") or [],
         "graph_models": graph_models(rec),
-        "deliverable_name": d.get("filename") or "",
+        "deliverable_name": (head["name"] if head else ""),
+        "deliverable_count": len(media_list),
     }
 
 
@@ -293,15 +393,26 @@ def cmd_list(rows, src, max_video_mb):
     head = ["#", "状态", "时间", "工作流", "方案", "卡", "内存", "类型", "产物", "总体积"]
     table = [head]
     for i, r in enumerate(rows, 1):
-        if r["media_missing"]:
-            prod = "未搬图" if r["media_missing_kind"] == "unmoved" else "原件已失"
-        else:
-            prod = {"image": "图片", "video": "视频", "audio": "音频"}.get(r["media_kind"], "无")
-            if r["media_skip"]:
+        mlist = r.get("media_list") or []
+        present = [x for x in mlist if x["path"]]
+        # 产物列：有图时写类型 + 张数（多图时明示）；一张都没有时说清原因
+        if present:
+            kinds = {x["kind"] for x in present}
+            base_kind = {"image": "图片", "video": "视频", "audio": "音频"}.get(
+                r["media_kind"], "文件")
+            prod = base_kind if len(kinds) == 1 else "混合"
+            if len(present) > 1:
+                prod += " ×%d" % len(present)
+            if any(x["skip"] for x in present):
                 prod += " ⚠超限"
+            type_cell = "—" if len(kinds) > 1 else r["media_kind"]
+        else:
+            prod = ("未搬图" if r["media_missing_kind"] == "unmoved"
+                    else "原件已失") if r["media_missing"] else "无"
+            type_cell = "—"
         total = (os.path.getsize(r["json"]) if os.path.exists(r["json"]) else 0)
         total += os.path.getsize(r["html"]) if r["html"] else 0
-        total += r["media_size"] or 0
+        total += sum(x["size"] or 0 for x in present)
         table.append([
             str(i),
             "已同步" if dst_state(r["base"]) == "exist" else "新增",
@@ -310,8 +421,7 @@ def cmd_list(rows, src, max_video_mb):
             r["scheme"] or "—",
             r["card"] or "—",
             r["memory"] or "—",
-            "—" if r["media_missing"] else {
-                "image": "image", "video": "video", "audio": "audio"}.get(r["media_kind"], "—"),
+            type_cell,
             prod,
             human(total),
         ])
@@ -577,26 +687,33 @@ def cmd_sync(rows, picks, max_video_mb, dry):
                 "same": "已是最新",
                 "missing": "⚠ 目标文件不存在，未注入",
             }.get(d, d)))
-        if r["media"]:
-            if r["media_skip"]:
-                print("    %-5s 跳过：%s（%.1f MB，超过 %.0f MB 上限）" % (
-                    "产物", os.path.basename(r["media"]),
-                    (r["media_size"] or 0) / 1048576.0, max_video_mb))
-            else:
-                res = copy_one(r["media"], os.path.join(DST_DIR, os.path.basename(r["media"])), dry)
-                print("    %-5s %s%s" % ("产物", {
-                    "copied": "已拷贝 ",
-                    "same": "内容一致，跳过 ",
-                    "missing": "源文件缺失 ",
-                    "would-copy": "将拷贝 ",
-                }[res], os.path.basename(r["media"])))
-        elif r["media_missing"]:
-            if r["media_missing_kind"] == "unmoved":
-                print("    %-5s 无：%s 另存时选了「只存档案，不搬图」，插件目录本来就没有它"
-                      % ("产物", r["deliverable_name"]))
-            else:
-                print("    %-5s 无：另存那一刻 %s 就已不在原路径"
-                      % ("产物", r["deliverable_name"]))
+        # 产物：一次执行可能有多张（批量出图），逐张处理。
+        # 目标文件名沿用源名（`<基名>_N.png` / 老档案的 `<基名>.png`），
+        # 这样档案里的 archive_name 与站点上的实际文件名保持一致，详情页的
+        # <img src> 不用改写就能直接用。
+        mlist = r.get("media_list") or []
+        if mlist:
+            for item in mlist:
+                nm = os.path.basename(item["path"]) if item["path"] else item["name"]
+                if item["skip"]:
+                    print("    %-5s 跳过：%s（%.1f MB，超过 %.0f MB 上限）" % (
+                        "产物", nm, (item["size"] or 0) / 1048576.0, max_video_mb))
+                elif item["path"]:
+                    res = copy_one(item["path"],
+                                   os.path.join(DST_DIR, os.path.basename(item["path"])), dry)
+                    print("    %-5s %s%s" % ("产物", {
+                        "copied": "已拷贝 ",
+                        "same": "内容一致，跳过 ",
+                        "missing": "源文件缺失 ",
+                        "would-copy": "将拷贝 ",
+                    }[res], os.path.basename(item["path"])))
+                elif item["missing"]:
+                    if item["missing_kind"] == "unmoved":
+                        print("    %-5s 无：%s 另存时选了「只存档案，不搬图」，插件目录本来就没有它"
+                              % ("产物", item["name"]))
+                    else:
+                        print("    %-5s 无：另存那一刻 %s 就已不在原路径"
+                              % ("产物", item["name"]))
         else:
             print("    %-5s 无" % "产物")
         done += 1
@@ -692,6 +809,15 @@ CSS = """
     width: 160px; aspect-ratio: 4 / 3; height: auto; max-height: none;
     font-size: 12px; color: var(--text-muted); box-shadow: none;
     border: 1px dashed var(--border);
+  }
+  /* 缩略图容器：多张产物时在首图右下角压一个「N 张」角标。
+     容器用 inline-block 让角标贴着图片边界，而不是贴着右侧栏宽度。 */
+  .thumb-wrap { position: relative; display: inline-block; line-height: 0; }
+  .thumb-count {
+    position: absolute; right: 6px; bottom: 6px;
+    background: rgba(15,23,32,0.72); color: #eaf2fa;
+    font-size: 11px; line-height: 1.6; padding: 0 6px; border-radius: 999px;
+    pointer-events: none;
   }
   .tag {
     font-size: 12px; line-height: 18px; padding: 1px 8px; border-radius: 6px;
@@ -909,13 +1035,20 @@ def card_html(r):
     if not href:
         head_tags += '<span class="tag tag-err" title="缺少 html">缺 html</span>'
 
-    # 缩略图：产物图按原始比例缩放（不做裁切）；显卡图挪到左列日期下方
+    # 缩略图：产物图按原始比例缩放（不做裁切）；显卡图挪到左列日期下方。
+    # 多张产物只在卡片上放**首图**，右上角标张数——卡片是索引，
+    # 全部图片和逐张信息去详情页看（详情页有 slide 可切换）。
     thumbs = []
-    if r["media"] and r["media_kind"] == "image":
-        thumbs.append('<img class="log-thumb" src="%s" alt="%s" loading="lazy">' % (
-            esc("full-logs/" + url_of(os.path.basename(r["media"]))),
-            esc(r["deliverable_name"] or base)))
-    elif r["media_kind"] in ("video", "audio"):
+    mlist = r.get("media_list") or []
+    imgs = [x for x in mlist if x["path"] and x["kind"] == "image"]
+    if imgs:
+        first = imgs[0]
+        badge = ('<span class="thumb-count">%d 张</span>' % len(imgs)) if len(imgs) > 1 else ""
+        thumbs.append(
+            '<span class="thumb-wrap"><img class="log-thumb" src="%s" alt="%s" loading="lazy">%s</span>'
+            % (esc("full-logs/" + url_of(os.path.basename(first["path"]))),
+               esc(first["name"] or base), badge))
+    elif any(x["kind"] in ("video", "audio") for x in mlist):
         note = "视频" if r["media_kind"] == "video" else "音频"
         tip = ("视频超过体积上限，未随档案发布" if r["media_skip"] else note)
         thumbs.append('<div class="log-thumb flat" title="%s">%s</div>' % (esc(tip), esc(note)))
@@ -973,23 +1106,16 @@ def cmd_build(dry):
     if not os.path.isdir(DST_DIR):
         print("目录不存在：%s（先跑 --sync 同步至少一份档案）" % DST_DIR)
         return 1
+    # 直接复用 scan_src：产物定位规则（archive_name → 名字_N → 名字）只写一处，
+    # 免得 --build 与 --sync 对「哪张图算这份档案的」判断不一致。
+    items, err = scan_src(DST_DIR)
+    if err:
+        print(err)
+        return 1
     rows = []
-    for n in sorted(os.listdir(DST_DIR)):
-        if not n.endswith(JSON_SUFFIX):
-            continue
-        base = n[: -len(JSON_SUFFIX)]
-        rec = read_json(os.path.join(DST_DIR, n))
-        media = None
-        for f in os.listdir(DST_DIR):
-            if f.startswith(base + ".") and not f.endswith((".json", ".html", ".bak")):
-                media = os.path.join(DST_DIR, f)
-                break
-        rows.append(summarize(
-            {"base": base, "json": os.path.join(DST_DIR, n),
-             "html": (os.path.join(DST_DIR, base + HTML_SUFFIX)
-                      if os.path.exists(os.path.join(DST_DIR, base + HTML_SUFFIX)) else None),
-             "media": media},
-            rec, 20.0))
+    for base, item in items.items():
+        rec = read_json(item["json"])
+        rows.append(summarize(item, rec, 20.0))
     rows.sort(key=lambda r: (r["stamp"], r["base"]), reverse=True)
 
     if rows:
@@ -1049,10 +1175,13 @@ def cmd_build(dry):
 def main(argv):
     ap = argparse.ArgumentParser(
         description="full-logs 聚合页生成 + 档案同步", add_help=True)
-    ap.add_argument("--list", action="store_true", help="列出源目录里的档案与同步状态")
-    ap.add_argument("--sync", default="", metavar="1,3,5", help="按序号同步这些档案")
-    ap.add_argument("--sync-all", action="store_true", help="同步全部档案")
-    ap.add_argument("--build", action="store_true", help="只重建 full-logs.html")
+    ap.add_argument("--list", action="store_true",
+                    help="只读：列出源目录里的档案与同步状态（不写任何文件）")
+    ap.add_argument("--sync", default="", metavar="1,3,5",
+                    help="按序号同步这些档案，末尾自动重建聚合页")
+    ap.add_argument("--sync-all", action="store_true",
+                    help="同步全部档案，末尾自动重建聚合页")
+    ap.add_argument("--build", action="store_true", help="只重建 full-logs.html，不动档案")
     ap.add_argument("--restyle", action="store_true",
                     help="只重灌详情页的站点头部（返回 + 导航），不碰 json/产物/本地原件")
     ap.add_argument("--src", default=os.environ.get("FULLLOG_SRC") or DEFAULT_SRC,
