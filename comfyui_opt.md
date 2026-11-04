@@ -72,7 +72,7 @@ ComfyUI这个工作台项目的更新频率很快，很多情况是 Comfyui的�
 - **形成协同的整体**：内核 + 配套插件 + 显存管理（动态加载/卸载）是成套配合的，单独优化其中一块收益有限，整体成套才发挥最大效果——这也是"系统"二字的含义。
 - **解锁 Intel GPU 专属能力**：这套系统里往往包含针对 Arc 架构专门调优的实现（如 esimd 注意力、动态显存等），用上之后能获得通用方案给不了的性能与稳定性。
 
-地址：【[IntelGPU的ComfyUI系统优化指南](https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/intel-comfyui-guide/)】
+地址：【[IntelGPU的ComfyUI系统优化指南](https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/intel-comfyui-guide/)】    【[视频：Intel OmniXPU的加速原理](https://www.bilibili.com/video/BV1SPno6bE4w/?vd_source=5a0c570ba8f8a2a0a349fe78d49411d5)】
 
 ---
 
