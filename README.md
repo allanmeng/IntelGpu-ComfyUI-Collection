@@ -44,7 +44,7 @@ Tag: 社群
 为 Intel Arc（Alchemist / Battlemage）预编译的 **llama-cpp-python SYCL** wheel 集合，Windows 免编译直接安装。
 
 
-【[网盘下载](https://pan.quark.cn/s/e20e16cb7c4f) 】
+【[网盘下载](https://pan.quark.cn/s/e20e16cb7c4f) 】 【[提示词反推插件](https://github.com/allanmeng/comfyui-sg-llama-cpp)】  【[环境要求：OneAPI2026.1](https://pan.quark.cn/s/5c5292635ee1)】
 
 项目地址：https://github.com/allanmeng/llama-cpp-python-sycl-windows
 
@@ -83,7 +83,10 @@ Tag: 社群
 
 ## comfyui-sg-llama-cpp
 
-在 ComfyUI 中加载 GGUF 大模型的节点封装（SYCL 加速 fork），支持纯文本 / 视觉多模态与 JSON Schema 输出，配套 llama-cpp-python-sycl-windows 使用。
+与 llama-cpp-python-sycl 搭配，让用户能够在 ComfyUI 工作流中直接调用 llama.cpp 进行本地大语言模型推理。该节点核心功能是从提示词生成文本响应，并原生支持视觉模型与多模态输入（图像），因此常被用于 ComfyUI 中的提示词反推、提示词增强等场景。
+
+
+【[搭配引擎 llama-cpp-python-sycl](https://pan.quark.cn/s/e20e16cb7c4f) 】  【[环境要求：OneAPI2026.1](https://pan.quark.cn/s/5c5292635ee1)】
 
 项目地址：https://github.com/allanmeng/comfyui-sg-llama-cpp
 
