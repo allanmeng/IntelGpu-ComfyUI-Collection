@@ -8,7 +8,10 @@
 log-analysis/，也不碰 scripts/generate_pages.py。
 
     python scripts/build_full_logs.py                  # 列出待同步（等同 --list）
+    python scripts/build_full_logs.py --list --names   # 只列「序号 + 完整档案名」，方便复制
     python scripts/build_full_logs.py --sync 1,3       # 按序号同步，然后重建页面
+    python scripts/build_full_logs.py --sync 202611031216_xxx_16G_测试
+                                                       # 按完整档案名同步（永不漂移）
     python scripts/build_full_logs.py --sync-all       # 同步全部，然后重建页面
     python scripts/build_full_logs.py --build          # 只重建聚合页
     python scripts/build_full_logs.py --restyle        # 只重灌详情页头部（返回 + 导航）
@@ -32,6 +35,14 @@ log-analysis/，也不碰 scripts/generate_pages.py。
 ⚠️ --rm 的序号来自**站点现存档案**，与 --list/--sync 的**插件源**列表不是一回事，
    两边档数常常不同（源里常有没发布的）。所以 --rm 与 --sync 不允许同时给。
 
+选择串两种模式（--sync / --rm 通用，同一串可混写）：
+    ① 序号       1,3,5 / 1-3,7     本次列表里的位置。快，但档案增删后会整体漂移。
+    ② 完整档案名 202611031216_xxx_16G_测试
+                                    精确匹配，永不漂移，可写进脚本/隔天执行；
+                                    也认 .full_log / .full_log.json / .html 后缀。
+    **不做前缀匹配**：前缀只到分钟，同分钟同参数跑两次会存成 `...-2`，前缀会命中两份。
+    匹配不上就报错并给最接近的候选，绝不猜。
+
 三个位置别混淆：
     插件 logs/      源：ComfyUI 里另存出来的原件（本脚本只读）
     full-logs/      站内副本：json + html + 产物（--sync 拷进来，--rm 挪走）
@@ -45,12 +56,14 @@ log-analysis/，也不碰 scripts/generate_pages.py。
 
 可选：
     --src DIR            插件日志目录（默认见 DEFAULT_SRC，可用 FULLLOG_SRC 覆盖）
+    --names              配合 --list：只打印「序号 + 完整档案名」，方便复制粘贴
     --max-video-mb N     视频超过 N MB 就不随档案发布（0 = 不限，默认 20）
     --dry-run            只打印计划，不写任何文件
 """
 
 import argparse
 import datetime
+import difflib
 import glob
 import html
 import json
@@ -459,22 +472,24 @@ def cmd_rm(picks_text, dry):
         print("站点里没有档案可删：%s" % DST_DIR)
         return 0
 
-    picks = parse_picks(picks_text, len(rows))
+    picks = parse_picks(picks_text, rows)
     if not picks:
         print("没有选中任何档案。可删的序号见下方清单。")
         picks = []
 
-    # 先不管有没有选中都把清单打出来，省得用户回头再查一遍序号
+    # 先不管有没有选中都把清单打出来，省得用户回头再查一遍序号。
+    # 基名不截断：--rm 现在既收序号也收完整名，截断了就没法复制粘贴。
     print("站点现有档案（%d 份）：" % len(rows))
+    width = max(len(r["base"]) for r in rows)
     for i, r in enumerate(rows, 1):
         mark = "→" if i in picks else " "
-        print("  %s %-2d  %-8s  %-46s %d 个产物" % (
+        print("  %s %-2d  %-8s  %-*s %d 个产物" % (
             mark, i, ("%s %s" % (r["date"], r["clock"])).strip() or "—",
-            r["base"][:46], r["deliverable_count"]))
+            width, r["base"], r["deliverable_count"]))
     if not picks:
         print()
-        print("用法：--rm 1,3        （只看清单）")
-        print("      --rm 1,3 --yes  （真的移到 _trash）")
+        print("用法：--rm 1,3  或  --rm <完整档案名>        （只看清单）")
+        print("      --rm 1,3 --yes                        （真的移到 _trash）")
         return 0
 
     total_files, total_bytes = 0, 0
@@ -531,10 +546,20 @@ def cmd_rm(picks_text, dry):
 
 
 # ------------------------------------------------------------------ --list
-def cmd_list(rows, src, max_video_mb):
+def cmd_list(rows, src, max_video_mb, names=False):
     if not rows:
         print("源目录里没有档案：%s" % src)
         print("（插件在 ComfyUI 里另存一份完整日志后，这里才会出现条目）")
+        return
+
+    # --names：只吐「序号 + 完整基名」两列，方便直接复制给 --sync / --rm。
+    # 宽表那一列「工作流」是被拆过的短名（方案/卡/显存各占一列），不是基名，
+    # 照抄过去匹配不上——要写进脚本时用这个，别用宽表。
+    if names:
+        for i, r in enumerate(rows, 1):
+            print("%-3d %s" % (i, r["base"]))
+        print()
+        print("复制上面的完整名：python scripts/build_full_logs.py --sync <完整档案名>")
         return
 
     head = ["#", "状态", "时间", "工作流", "方案", "卡", "内存", "类型", "产物", "总体积"]
@@ -587,24 +612,99 @@ def cmd_list(rows, src, max_video_mb):
         ("，%d 份视频超限不会拷" % skip_n) if skip_n else ""))
     if new_n:
         print("下一步：python scripts/build_full_logs.py --sync 1,3,5   （只挑要发布的序号）")
+        print("        序号会随档案增删漂移；要写进脚本就用 --list --names 取完整档案名")
 
 
 # ------------------------------------------------------------------ --sync
-def parse_picks(text, upper):
-    picks = []
-    for chunk in re.split(r"[,\s]+", (text or "").strip()):
-        if not chunk:
+def norm_pick(s):
+    """把用户写的档案名归一成基名（`base`）。
+
+    容忍三种写法，剥掉后缀后等价：
+        202611031216_Moss文生图8步+TE2b优化                    ← 裸基名（--list --names 直接给这个）
+        202611031216_Moss文生图8步+TE2b优化.full_log           ← 半截后缀
+        202611031216_Moss文生图8步+TE2b优化.full_log.json      ← 完整文件名
+    顺手容忍：整条路径（粘贴时带目录）、首尾引号、Windows 反斜杠。
+    """
+    t = (s or "").strip().strip('"').strip("'")
+    t = os.path.basename(t.replace("\\", "/"))
+    for suf in (JSON_SUFFIX, HTML_SUFFIX, ".full_log"):
+        if t.lower().endswith(suf):
+            t = t[: -len(suf)]
+            break
+    return t.strip()
+
+
+def parse_picks(text, rows):
+    """把选择串解析成 1-based 行号列表。**两种模式，不混用**：
+
+        ① 序号      `1,3,5` / `1-3,7`  —— 本次列表里的位置。快，但会随档案增删漂移，
+                                          所以只适合「先 --list 紧接着 --sync」。
+        ② 完整档案名 `202611031216_Moss文生图8步+TE2b优化`
+                                      —— 精确匹配，永不漂移，可写进脚本或隔天执行。
+                                          允许带 .full_log / .full_log.json / .html 后缀。
+
+    **不做前缀匹配**：前缀只能精确到分钟，同一分钟内同工作流同参数的两次执行会撞名
+    （插件侧会存成 `...-2`），前缀就会命中两份。宁可报错让人补全，也不猜。
+    同一串里可以混写：`--sync 1,202611031055_Illustrious-XL文生图`。
+    """
+    text = (text or "").strip()
+    # 有逗号就只按逗号切（档案名里万一带空格也不会被切碎）；没逗号才退回空白分隔
+    chunks = text.split(",") if "," in text else re.split(r"\s+", text)
+
+    index = {}                     # casefold(base) -> [行号…]（Windows 文件名不分大小写）
+    for i, r in enumerate(rows, 1):
+        index.setdefault(r["base"].casefold(), []).append(i)
+
+    picks, unknown = [], []
+    ranges, singles = [], []        # 数字分两种收：区间只认位置，单值可退回名字匹配
+    for chunk in chunks:
+        tok = chunk.strip()
+        if not tok:
             continue
-        if re.match(r"^\d+-\d+$", chunk):
-            a, b = chunk.split("-")
-            picks.extend(range(int(a), int(b) + 1))
-        elif chunk.isdigit():
-            picks.append(int(chunk))
+        m = re.match(r"^(\d+)-(\d+)$", tok)
+        if m:
+            a, b = int(m.group(1)), int(m.group(2))
+            if a > b:
+                raise SystemExit("区间写反了：%s（应写成 小的-大的）" % tok)
+            ranges.extend(range(a, b + 1))
+        elif tok.isdigit():
+            singles.append(int(tok))
         else:
-            raise SystemExit("看不懂的序号：%s" % chunk)
-    bad = [p for p in picks if p < 1 or p > upper]
+            hit = index.get(norm_pick(tok).casefold()) or []
+            if len(hit) == 1:
+                picks.append(hit[0])
+            else:
+                # 0 命中（写错/已不存在）或 >1（理论上完整名唯一，撞了就如实报）
+                unknown.append(norm_pick(tok))
+
+    upper = len(rows)
+    bad = [p for p in ranges if p < 1 or p > upper]
     if bad:
         raise SystemExit("序号超范围：%s（1..%d）" % (bad, upper))
+    picks.extend(ranges)
+
+    # 纯数字但超出 1..N：很可能是被截断的档案名（只打了日期 `202611031216` 之类），
+    # 这一支退回名字匹配，别让「序号超范围」把真实原因盖住。
+    for n in singles:
+        if 1 <= n <= upper:
+            picks.append(n)
+            continue
+        hit = index.get(str(n).casefold()) or []
+        if len(hit) == 1:
+            picks.append(hit[0])
+        else:
+            unknown.append(str(n))
+
+    if unknown:
+        print("认不出这些选择（既不是 1..%d 的序号，也不是档案名）：" % upper)
+        for name in unknown:
+            print("  × %s" % name)
+            for n in difflib.get_close_matches(name, [r["base"] for r in rows],
+                                               n=3, cutoff=0.4):
+                print("      是不是要：%s" % n)
+        print()
+        print("--list --names 可列出全部完整档案名（完整名永不漂移，推荐写这个）")
+        raise SystemExit(1)
     return sorted(set(picks))
 
 
@@ -1324,15 +1424,17 @@ def main(argv):
         description="full-logs 聚合页生成 + 档案同步", add_help=True)
     ap.add_argument("--list", action="store_true",
                     help="只读：列出源目录里的档案与同步状态（不写任何文件）")
-    ap.add_argument("--sync", default="", metavar="1,3,5",
-                    help="按序号同步这些档案，末尾自动重建聚合页")
+    ap.add_argument("--names", action="store_true",
+                    help="配合 --list：只打印「序号 + 完整档案名」，方便复制给 --sync / --rm")
+    ap.add_argument("--sync", default="", metavar="1,3 或 完整档案名",
+                    help="同步这些档案（序号或完整档案名，可混写），末尾自动重建聚合页")
     ap.add_argument("--sync-all", action="store_true",
                     help="同步全部档案，末尾自动重建聚合页")
     ap.add_argument("--build", action="store_true", help="只重建 full-logs.html，不动档案")
     # nargs="?"：裸 --rm 直接列站点清单（挑序号用），带参数才进预览/删除流程。
     # 少了这个，`--rm` 不带值会被 argparse 判成「缺少参数」直接报错退出。
-    ap.add_argument("--rm", nargs="?", default=None, const="", metavar="1,3",
-                    help="从站点移除这些档案（移到 _trash，可还原）；不给序号则只列清单，"
+    ap.add_argument("--rm", nargs="?", default=None, const="", metavar="1,3 或 完整档案名",
+                    help="从站点移除这些档案（移到 _trash，可还原）；不给则只列清单，"
                          "不加 --yes 只预览")
     ap.add_argument("--yes", action="store_true",
                     help="确认执行不可逆操作（目前只有 --rm 需要）")
@@ -1368,13 +1470,13 @@ def main(argv):
         return 2
 
     if not (a.sync or a.sync_all):
-        cmd_list(rows, a.src, a.max_video_mb)
+        cmd_list(rows, a.src, a.max_video_mb, names=a.names)
         return 0
 
     if a.sync_all:
         picks = list(range(1, len(rows) + 1))
     else:
-        picks = parse_picks(a.sync, len(rows))
+        picks = parse_picks(a.sync, rows)
     if not picks:
         print("没有选中任何档案。")
         return 0
