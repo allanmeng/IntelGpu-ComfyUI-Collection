@@ -2,6 +2,17 @@
 # -*- coding: utf-8 -*-
 """full-logs 聚合页 + 档案同步（纯标准库）。
 
+⚠️ 两个项目，别混：
+    ComfyUI-FullLog 插件  —— **通用方案**，任何 ComfyUI 用户都能装。它在 logs/ 里
+                             产出 `<基名>.full_log.json` + `.full_log.html` + 产物，
+                             单文件可分发、不含任何站内链接/导航/配色约定。
+                             它不知道本站存在，也不该知道。
+    本脚本（本站专属）    —— 只服务 allanmeng 的 IntelGpu-ComfyUI-Collection：
+                             **单向**从插件 logs/ 读取（只读），复制进 full-logs/，
+                             再补站点头部、生成聚合页。
+所以「要不要给插件加个功能」和「站点怎么展示」是两个独立问题：
+插件侧只对「档案本身」负责，站点侧的排版/导航/删改一律在这里解决。
+
 背景：exelog 走远端生成（推 txt → Action 出 html），full-logs 反过来——
 插件在本地产出 json / html / 产物，人工挑选后同步进仓库，页面也在本地渲染。
 远端只接收静态文件，不跑任何生成逻辑；本脚本不碰 logs.html、logs/、
