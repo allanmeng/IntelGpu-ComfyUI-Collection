@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>如何手工安装 Intel Omni 加速组件</title>
+<style>
+:root{
+  --bg:#ffffff;
+  --bg-page:#ffffff;
+  --bg-soft:#f7f8fa;
+  --bg-code:#f6f8fa;
+  --text:#1f2328;
+  --text-dim:#57606a;
+  --text-faint:#8b949e;
+  --border:#d8dee4;
+  --border-soft:#eaeef2;
+  --link:#0969da;
+  --accent:#0969da;
+  --warn-bg:#fff8e6; --warn-bd:#d4a72c;
+  --tip-bg:#eef6ff;  --tip-bd:#54aeff;
+  --note-bg:#f6f3fb; --note-bd:#a475f9;
+  --danger-bg:#fff1f0; --danger-bd:#cf222e;
+  --radius:10px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:var(--bg-page);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei","PingFang SC","Hiragino Sans GB","Source Han Sans SC",sans-serif;
+  font-size:16px;
+  line-height:1.78;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+
+/* ---------- hero ---------- */
+.hero{
+  background:linear-gradient(135deg,#f2f7ff 0%,#fbfcfe 55%,#f7f4fd 100%);
+  border-bottom:1px solid var(--border-soft);
+}
+.hero-inner{max-width:1400px;margin:0 auto;padding:54px 48px 44px}
+.kicker{
+  font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:#6e7781;font-weight:600;margin-bottom:12px;
+}
+.hero h1{
+  margin:0;font-size:32px;line-height:1.3;font-weight:700;letter-spacing:-.01em;
+  color:#0d1117;
+}
+.chips{margin-top:18px;display:flex;flex-wrap:wrap;gap:8px}
+.chips span{
+  font-size:12.5px;line-height:1;padding:7px 12px;border-radius:999px;
+  background:#fff;border:1px solid #dbe4f0;color:#3b4a5a;font-weight:500;
+  box-shadow:0 1px 2px rgba(9,105,218,.05);
+}
+
+/* ---------- layout：正文铺满全宽，目录浮在页面上方 ---------- */
+.shell{max-width:none;margin:0;padding:0}
+
+.sidebar{
+  position:fixed;left:0;top:50%;z-index:90;
+  width:260px;max-height:calc(100vh - 48px);
+  transform:translateY(-50%);
+  padding:9px 10px 12px;
+  background:rgba(255,255,255,.93);
+  -webkit-backdrop-filter:blur(16px) saturate(170%);
+  backdrop-filter:blur(16px) saturate(170%);
+  border:1px solid rgba(208,215,222,.92);border-left:none;
+  border-radius:0 14px 14px 0;
+  box-shadow:0 16px 42px -14px rgba(31,35,40,.3),0 2px 8px rgba(31,35,40,.05);
+  overflow:auto;overscroll-behavior:contain;
+  transition:transform .28s cubic-bezier(.4,0,.2,1),opacity .2s ease;
+}
+.sidebar::-webkit-scrollbar{width:6px}
+.sidebar::-webkit-scrollbar-thumb{background:#d8dee4;border-radius:3px}
+.sidebar.hidden{transform:translateY(-50%) translateX(-300px);opacity:0;pointer-events:none}
+
+.toc-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:2px 2px 8px 10px;margin-bottom:5px;
+  border-bottom:1px solid rgba(208,215,222,.62);
+}
+.toc-title{
+  font-size:11.5px;letter-spacing:.14em;color:var(--text-faint);
+  font-weight:700;margin:0;
+}
+#tocClose{
+  border:none;background:transparent;color:var(--text-faint);
+  font-family:inherit;font-size:15px;line-height:1;padding:4px 8px;
+  border-radius:6px;cursor:pointer;transition:background .12s,color .12s;
+}
+#tocClose:hover{background:#eff1f4;color:var(--text)}
+
+/* 收起后贴在左边缘的「目录」把手 */
+#tocOpen{
+  position:fixed;left:0;top:50%;z-index:90;
+  transform:translateY(-50%) translateX(-100%);
+  display:flex;align-items:center;justify-content:center;
+  width:34px;height:104px;padding:0;
+  writing-mode:vertical-rl;letter-spacing:.32em;text-indent:.32em;
+  font-size:12.5px;font-weight:600;
+  font-family:inherit;color:#3d4d63;background:#f6fafe;
+  border:1px solid #cddbeb;border-left:none;border-radius:0 12px 12px 0;
+  box-shadow:4px 0 18px -8px rgba(31,35,40,.3);
+  cursor:pointer;
+  transition:transform .28s cubic-bezier(.4,0,.2,1),color .15s,background .15s,border-color .15s;
+}
+#tocOpen.show{transform:translateY(-50%) translateX(0);animation:nudge 2.2s ease-in-out .9s 1}
+#tocOpen:hover{color:var(--accent);background:#fff;border-color:#a9c8f0}
+@keyframes nudge{
+  0%,100%{transform:translateY(-50%) translateX(0)}
+  35%{transform:translateY(-50%) translateX(8px)}
+  70%{transform:translateY(-50%) translateX(0)}
+}
+.toc ul{list-style:none;margin:0;padding:0}
+.toc>ul>li{margin:1px 0}
+.toc li ul{margin:2px 0 6px 0}
+.toc a{
+  display:block;padding:5px 12px;font-size:13.5px;line-height:1.5;
+  color:var(--text-dim);text-decoration:none;border-radius:6px;
+  border-left:2px solid transparent;transition:color .12s,background .12s;
+}
+.toc li li a{padding-left:24px;font-size:12.8px;color:#6e7781}
+.toc a:hover{background:#f0f3f6;color:var(--text)}
+.toc a.active{color:var(--accent);background:#eef5ff;border-left-color:var(--accent);font-weight:600}
+/* 关键步骤：目录项标红 */
+.toc a.key{color:var(--danger-bd);font-weight:600}
+.toc a.key:hover{background:#fff1f0;color:var(--danger-bd)}
+.toc a.key.active{color:var(--danger-bd);background:#fff1f0;border-left-color:var(--danger-bd)}
+
+/* ---------- article：与参考页同比例的居中内容列 ---------- */
+.doc{
+  max-width:1400px;width:100%;min-width:0;margin:0 auto;
+  padding:46px 48px 110px;
+  background:var(--bg);
+}
+.doc p{margin:.95em 0}
+.doc strong{font-weight:650;color:#0d1117}
+
+.doc h2{
+  position:relative;margin:2.5em 0 .9em;padding:1.5em 0 0 17px;
+  font-size:23px;line-height:1.4;font-weight:700;color:#0d1117;
+  border-top:1px solid var(--border-soft);
+}
+.doc>h2:first-of-type{border-top:none;padding-top:0;margin-top:0}
+.doc h2::before{
+  content:"";position:absolute;left:0;top:calc(1.5em + 5px);
+  width:5px;height:20px;background:var(--accent);border-radius:3px;
+}
+.doc>h2:first-of-type::before{top:5px}
+.doc h3{
+  margin:2em 0 .7em;font-size:17.5px;line-height:1.5;font-weight:650;color:#24292f;
+  padding-left:11px;border-left:3px solid #c8d6e8;
+}
+.doc h1{font-size:26px;margin:1.4em 0 .8em}
+
+/* 关键步骤：正文标题标红 */
+.doc h2.key{color:var(--danger-bd)}
+.doc h2.key::before{background:var(--danger-bd)}
+
+.hlink{
+  margin-left:8px;font-size:.72em;font-weight:400;color:#b8c0c8;
+  text-decoration:none;opacity:0;transition:opacity .15s;
+}
+.doc h2:hover .hlink,.doc h3:hover .hlink{opacity:1}
+
+/* ---------- links / inline code ---------- */
+.doc a{color:var(--link);text-decoration:none;border-bottom:1px solid rgba(9,105,218,.25)}
+.doc a:hover{border-bottom-color:var(--link)}
+.doc a.hlink,.toc a{border-bottom:none}
+
+.doc code{
+  font-family:"Cascadia Mono","JetBrains Mono",Consolas,"Courier New",monospace;
+  font-size:.86em;background:#eff1f4;border:1px solid #e3e8ee;border-radius:5px;
+  padding:.1em .36em;color:#1f2328;white-space:pre-wrap;overflow-wrap:anywhere;
+}
+
+/* ---------- code block ---------- */
+pre{
+  position:relative;margin:1.5em 0;padding:16px 18px;
+  background:var(--bg-code);border:1px solid var(--border-soft);border-radius:var(--radius);
+  overflow-x:auto;line-height:1.62;
+}
+pre code{
+  display:block;background:none;border:none;padding:0;
+  font-size:13.2px;color:#24292f;white-space:pre;overflow-wrap:normal;
+}
+.copy-btn{
+  position:absolute;top:8px;right:8px;padding:3px 10px;font-size:12px;
+  font-family:inherit;color:var(--text-dim);background:#fff;
+  border:1px solid var(--border);border-radius:6px;cursor:pointer;
+  opacity:0;transition:opacity .15s,color .15s;
+}
+pre:hover .copy-btn{opacity:1}
+.copy-btn:hover{color:var(--accent);border-color:#b6d3f5}
+.copy-btn.done{color:#1a7f37;border-color:#aedcb9}
+
+/* ---------- tables ---------- */
+.table-wrap{
+  margin:1.5em 0;overflow-x:auto;border:1px solid var(--border-soft);border-radius:var(--radius);
+}
+table{border-collapse:collapse;width:100%;font-size:14.2px;line-height:1.65}
+thead th{
+  background:#f6f8fa;text-align:left;font-weight:650;color:#24292f;
+  padding:11px 15px;border-bottom:1px solid var(--border);vertical-align:bottom;
+}
+tbody td{padding:11px 15px;border-bottom:1px solid var(--border-soft);vertical-align:top}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:#fafbfc}
+td code,th code{white-space:normal;overflow-wrap:anywhere;font-size:.84em}
+
+/* ---------- blockquote ---------- */
+.doc blockquote{
+  margin:1.5em 0;padding:14px 20px;border-radius:0 8px 8px 0;
+  border-left:4px solid var(--border);background:var(--bg-soft);color:var(--text);
+}
+.doc blockquote p{margin:.45em 0}
+.doc blockquote p:first-child{margin-top:0}
+.doc blockquote p:last-child{margin-bottom:0}
+.doc blockquote.bq.warn{background:var(--warn-bg);border-left-color:var(--warn-bd)}
+.doc blockquote.bq.tip{background:var(--tip-bg);border-left-color:var(--tip-bd)}
+.doc blockquote.bq.note{background:var(--note-bg);border-left-color:var(--note-bd)}
+.doc blockquote.bq.danger{background:var(--danger-bg);border-left-color:var(--danger-bd)}
+.doc blockquote code{background:#ffffffcc}
+
+/* ---------- misc ---------- */
+.doc ul,.doc ol{margin:.9em 0;padding-left:1.65em}
+.doc li{margin:.34em 0}
+.doc li::marker{color:#8b949e}
+.doc hr{border:none;border-top:1px solid var(--border-soft);margin:2.6em 0}
+.doc img{max-width:100%;height:auto;border-radius:8px}
+
+/* ---------- back to top ---------- */
+#toTop{
+  position:fixed;right:26px;bottom:26px;width:42px;height:42px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:50%;border:1px solid var(--border);background:#fff;
+  color:var(--text-dim);cursor:pointer;font-size:16px;
+  box-shadow:0 2px 10px rgba(31,35,40,.1);
+  opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;
+}
+#toTop.show{opacity:1;pointer-events:auto}
+#toTop:hover{transform:translateY(-2px);color:var(--accent)}
+
+/* ---------- responsive ---------- */
+@media (max-width:1280px){
+  .sidebar{width:248px}
+}
+@media (max-width:900px){
+  .sidebar{width:min(282px,calc(100vw - 74px));max-height:70vh}
+  .doc{padding:34px 20px 84px}
+  .hero-inner{padding:34px 20px 28px}
+  .hero h1{font-size:25px}
+  .chips span{font-size:12px;padding:6px 10px}
+  pre code{font-size:12.4px}
+  #tocOpen{height:82px;font-size:12px}
+}
+
+@media print{
+  .hero{background:#fff;border-bottom:1px solid #ccc}
+  .sidebar,#tocOpen,#toTop,.copy-btn,.hlink{display:none!important}
+  .doc{padding:0}
+  pre,blockquote,.table-wrap{break-inside:avoid}
+  .doc h2{break-after:avoid}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="kicker">IntelGPU · ComfyUI 系统优化指南</div>
+    <h1>如何手工安装 Intel Omni 加速组件</h1>
+    <div class="chips">
+      <span>通用流程 · 不限版本</span>
+      <span>B 系列 / A770 双线</span>
+      <span>AI Agent 代装</span>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+  <aside class="sidebar" id="tocPanel">
+    <div class="toc-head">
+      <p class="toc-title">目录</p>
+      <button id="tocClose" type="button" title="收起目录" aria-label="收起目录">×</button>
+    </div>
+    <nav class="toc"><ul>
+<li><a href="#前言这套东西是干什么的">前言：这套东西是干什么的</a><ul>
+<li><a href="#omni-是什么">Omni 是什么</a></li>
+<li><a href="#所以我们做了两件事">所以我们做了两件事</a></li>
+</ul>
+</li>
+<li><a href="#开始之前三分钟自查">开始之前：三分钟自查</a></li>
+<li><a href="#第-1-步下载优化指南放进-comfyui-目录">第 1 步：下载优化指南，放进 ComfyUI 目录</a></li>
+<li><a href="#第-2-步开一个-ai-agent把工作空间指向-comfyui-目录">第 2 步：开一个 AI Agent，把工作空间指向 ComfyUI 目录</a></li>
+<li><a class="key" href="#第-3-步把这段任务描述贴给-agent">第 3 步：把这段任务描述贴给 Agent</a><ul>
+<li><a href="#关于这段提示词的几点说明">关于这段提示词的几点说明</a></li>
+</ul>
+</li>
+<li><a href="#第-4-步安装完成后怎么看它真的生效了">第 4 步：安装完成后，怎么看它真的生效了</a><ul>
+<li><a href="#第一层包在不在">第一层：包在不在</a></li>
+<li><a href="#第二层能不能-import">第二层：能不能 import</a></li>
+<li><a href="#第三层启动日志-这才是真凭据">第三层：启动日志 —— 这才是真凭据</a></li>
+<li><a href="#第四层跑一个工作流看运行期自证">第四层：跑一个工作流，看运行期自证</a></li>
+</ul>
+</li>
+<li><a href="#常见坑速查">常见坑速查</a></li>
+<li><a href="#附录-a验证命令速查">附录 A：验证命令速查</a></li>
+<li><a href="#附录-b两条线的组件对照以-20261031-版为例">附录 B：两条线的组件对照（以 20261031 版为例）</a></li>
+<li><a href="#装完之后">装完之后</a></li>
+</ul></nav>
+  </aside>
+  <article class="doc">
+<blockquote class="bq note">
+<p>面向普通 ComfyUI 用户的「零命令行」安装路线：你只需要复制粘贴一段话，剩下的交给 AI Agent。<br>
+<strong>这是通用流程说明，适用于任意版本的《优化指南》安装包。</strong> 文中出现的 <code>20261031</code>、具体 wheel 文件名、版本号，都是<strong>示例</strong>——每一版的组件版本会变，但安装步骤、版本核对逻辑、验证信号基本不变。<br>
+<strong>示例版本</strong>：优化指南 20261031（PyTorch 2.15 栈 / ComfyUI 0.43.x）<br>
+<strong>适配显卡</strong>：Intel Arc <strong>B 系列</strong>（B580 / B60 / B70，BMG 架构）、<strong>A770</strong>（DG2 架构）</p>
+</blockquote>
+<hr>
+<h2 id="前言这套东西是干什么的">前言：这套东西是干什么的<a class="hlink" href="#前言这套东西是干什么的" aria-label="本节链接">#</a></h2>
+<h3 id="omni-是什么">Omni 是什么<a class="hlink" href="#omni-是什么" aria-label="本节链接">#</a></h3>
+<p><strong>Intel Omni 加速组件</strong>（<code>llm-scaler-omni</code>）是 Intel 官方持续维护的项目，它给 ComfyUI 补上 Intel 显卡缺失的那一层加速：</p>
+<ul>
+<li><strong><code>omni_xpu_kernel</code></strong>：真正跑在 XPU 上的高性能算子库（INT8 / FP8 量化矩阵乘、注意力、归一化等）</li>
+<li><strong><code>ComfyUI-OmniXPU</code></strong>：把上面的算子接进 ComfyUI 的适配插件</li>
+<li><strong><code>comfy-kitchen</code> XPU provider</strong>：让 ComfyUI 原生的量化算子调度器认 Intel 显卡</li>
+<li><strong><code>comfy-aimdo</code> XPU provider</strong>：DynamicVRAM —— 显存不够时把权重挪到内存，而不是直接 OOM</li>
+</ul>
+<p>官方仓库一直以<strong>源码</strong>和 <strong>Docker</strong> 两种形式输出。对 Linux 服务器是对的，对 Windows 上跑着秋叶整合包的普通用户就不太友好了：要装 oneAPI、要调编译器、要按 torch 版本改代码。</p>
+<h3 id="所以我们做了两件事">所以我们做了两件事<a class="hlink" href="#所以我们做了两件事" aria-label="本节链接">#</a></h3>
+<p><strong>第一，为 Windows 用户提供预编译好的 whl。</strong> 上面四个组件全部编译、打包成 <code>pip install</code> 就能装的轮子，不需要你装 oneAPI，不需要 C++ 编译器。</p>
+<p><strong>第二，把 A770 也拉进来。</strong> Omni 的主要目标是 <strong>BMG 架构</strong>（B 系列独显）。但 <strong>DG2 架构</strong>（A770 等）还有大量用户在用，官方并不直接支持。社群里的高手 fork 了 BMG 版本，改写、优化、在 A770 实机上验证，让 A 系列用户也能吃到同一套加速。</p>
+<p>这两条线的预编译包被放在一起，就是 <strong>《IntelGPU 的 ComfyUI 系统优化指南》</strong>。它是一个压缩包，解开之后长这样（下面以 <strong>20261031</strong> 版为例；你手上的版本日期号和文件名会不同，但目录骨架是一样的）：</p>
+<pre><code class="language-text">IntelGPU-ComfyUI-系统优化指南-20261031\
+├─ Intel GPU 的 ComfyUI 系统优化指南-20261031.md   ← 完整说明（你不需要逐行读）
+├─ B系列(bmg)\                                    ← B580 / B60 / B70 用这一份
+│   ├─ omni_xpu_kernel-0.2.0b3+torch215.bmg-20261031.g57686349-cp313-cp313-win_amd64.whl
+│   ├─ comfy_kitchen_xpu_runtime-0.2.40-py3-none-any.whl
+│   ├─ comfy_aimdo_xpu_runtime-0.6.0+torch215.bmg-cp39-abi3-win_amd64.whl
+│   └─ ComfyUI-OmniXPU.bmg-20261031.zip
+├─ A770(dg2)\                                     ← A770 用这一份（三件，不含 kitchen provider）
+│   ├─ omni_xpu_kernel-0.2.0b3+torch215.dg2-cp313-cp313-win_amd64.whl
+│   ├─ comfy_aimdo_xpu_runtime-0.6.0+xpu.1.g1378a3f-cp39-abi3-win_amd64.whl
+│   └─ ComfyUI-OmniXPU.dg2-20261031.zip
+├─ ComfyUI-GGUF-XPU-20260912.zip                  ← 用 GGUF 模型的装这个（强烈建议）
+└─ check_provider_alignment.py                    ← 一条命令体检版本是否对齐
+</code></pre>
+<blockquote class="bq plain">
+<p>注意：B 系列是<strong>四件</strong>，A770 是<strong>三件</strong>。A770 不需要单独的 kitchen provider —— 它的插件里已经内置了一份 XPU 后端，安装时自动接上。</p>
+</blockquote>
+<hr>
+<h2 id="开始之前三分钟自查">开始之前：三分钟自查<a class="hlink" href="#开始之前三分钟自查" aria-label="本节链接">#</a></h2>
+<p>不用命令行，打开「设置 → 系统 → 显示 → 高级显示」或者「任务管理器 → 性能 → GPU」，看清你的显卡型号：</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>你的显卡</th>
+<th>归属</th>
+<th>该用哪个目录</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Arc B580 / B570 / B60 / B70</td>
+<td>BMG（B 系列）</td>
+<td><code>B系列(bmg)\</code></td>
+</tr>
+<tr>
+<td>Arc A770</td>
+<td>DG2（A 系列）</td>
+<td><code>A770(dg2)\</code></td>
+</tr>
+<tr>
+<td>Arc A750 / A580</td>
+<td>DG2，但<strong>可能报错</strong></td>
+<td>可以试 <code>A770(dg2)\</code>，失败请回退</td>
+</tr>
+</tbody>
+</table></div>
+<p>然后确认三件事（都是硬要求，不满足装不上）：</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>项目</th>
+<th>要求</th>
+<th>怎么确认</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>系统</td>
+<td>Windows 10 / 11 <strong>64 位</strong>（x64）</td>
+<td><code>设置 → 系统 → 关于</code></td>
+</tr>
+<tr>
+<td>Python</td>
+<td><strong>3.13</strong></td>
+<td>看你的整合包目录下 <code>python\python.exe</code>，一般整合包自带</td>
+</tr>
+<tr>
+<td>ComfyUI</td>
+<td><strong>0.43.x</strong></td>
+<td>看 ComfyUI 启动日志第一行，或 <code>ComfyUI\comfyui_version.py</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>还有一个必须提前处理的风险项：<strong>如果你之前手动装过 <code>pyzes</code>，请先卸掉。</strong></p>
+<pre><code class="language-text">python -m pip uninstall -y pyzes
+</code></pre>
+<p><code>pyzes</code> 是 Level Zero Sysman 的第三方绑定，torch 只在 Linux 上声明它，Windows 上装了纯属多余，而且会让 <code>torch.xpu.device_count()</code> 第二次调用直接崩，<strong>导致 ComfyUI 在导入阶段就起不来</strong>（报 <code>Torch not compiled with CUDA enabled</code>，很容易被误判成 torch 装坏了）。卸载它没有任何功能损失。</p>
+<blockquote class="bq plain">
+<p><strong>备份提醒</strong>：动手前把整个 ComfyUI 目录里的 <code>python\Lib\site-packages</code> 中相关目录、以及 <code>custom_nodes\ComfyUI-OmniXPU</code> 复制一份留底，或者直接给整个 ComfyUI 目录打个压缩包。装错了有得退。</p>
+</blockquote>
+<hr>
+<h2 id="第-1-步下载优化指南放进-comfyui-目录">第 1 步：下载优化指南，放进 ComfyUI 目录<a class="hlink" href="#第-1-步下载优化指南放进-comfyui-目录" aria-label="本节链接">#</a></h2>
+<p>打开优化指南的下载页，取最新一版压缩包：</p>
+<ul>
+<li>优化指南：<a href="https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/intel-comfyui-guide/">https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/intel-comfyui-guide/</a></li>
+<li>项目主页：<a href="https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/">https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/</a></li>
+</ul>
+<p>下载下来是一个类似 <code>IntelGPU-ComfyUI-系统优化指南-20261031.zip</code> 的压缩包。<strong>解压到你的 ComfyUI 目录里</strong>，让它成为 ComfyUI 的一个子目录。</p>
+<p>假设你的 ComfyUI 装在 <code>D:\ComfyUI-aki-v3-IntelArc</code>，那么最终路径应该是：</p>
+<pre><code class="language-text">D:\ComfyUI-aki-v3-IntelArc\
+├─ ComfyUI\                    ← 程序本体
+├─ python\                     ← 整合包自带的 Python 3.13
+├─ 启动器.bat / run_nvidia_gpu.bat 等
+└─ IntelGPU-ComfyUI-系统优化指南-20261031\   ← 新解压进来的
+    ├─ Intel GPU 的 ComfyUI 系统优化指南-20261031.md
+    ├─ B系列(bmg)\
+    ├─ A770(dg2)\
+    └─ ...
+</code></pre>
+<p><strong>为什么要放在 ComfyUI 目录里面？</strong> 因为下一步 AI Agent 的工作空间会指向 ComfyUI 根目录 —— 它在同一个"视野"里，才能既看到安装包，又看到 ComfyUI 自己的 Python 和插件目录。</p>
+<blockquote class="bq note">
+<p>路径里<strong>不要有中文以外的奇怪字符</strong>，也不要放在 OneDrive 同步目录里。解压时如果软件问"是否保留目录结构"，选是。</p>
+<p>📌 <strong>目录名带日期是有意为之</strong>：每一版指南是独立发布的完整包，保留 <code>20261031</code> 这种日期后缀，方便你同时留着旧版——万一新版装出问题，删掉新目录、回到旧目录重装即可。<strong>不要覆盖旧的，也不要把两版的目录混在一起。</strong></p>
+</blockquote>
+<hr>
+<h2 id="第-2-步开一个-ai-agent把工作空间指向-comfyui-目录">第 2 步：开一个 AI Agent，把工作空间指向 ComfyUI 目录<a class="hlink" href="#第-2-步开一个-ai-agent把工作空间指向-comfyui-目录" aria-label="本节链接">#</a></h2>
+<p>这里的关键不是"聊天"，而是让 Agent <strong>能读你的文件、能执行命令</strong>。以 WorkBuddy 为例：</p>
+<ol>
+<li>打开 WorkBuddy，<strong>新建一个任务</strong>（不要用历史会话接着聊，容易串上下文）</li>
+<li>把这个任务的<strong>工作空间</strong>设为你的 ComfyUI 根目录：<code>D:\ComfyUI-aki-v3-IntelArc</code></li>
+<li>确认当前是 <strong>Agent 模式</strong>（能动手，而不是只回答问题的 Ask 模式）</li>
+<li>如果软件询问文件访问权限，<strong>允许</strong>对工作空间内文件的读写</li>
+</ol>
+<p>工作空间设对之后，Agent 才能：</p>
+<ul>
+<li>读到 <code>IntelGPU-ComfyUI-系统优化指南-&lt;日期版本&gt;\</code> 里的说明和 whl</li>
+<li>用 <code>D:\ComfyUI-aki-v3-IntelArc\python\python.exe</code> 装包，而不是误用系统 Python</li>
+<li>直接把插件解压到 <code>ComfyUI\custom_nodes\</code> 并改启动 bat</li>
+</ul>
+<hr>
+<h2 id="第-3-步把这段任务描述贴给-agent" class="key">第 3 步：把这段任务描述贴给 Agent<a class="hlink" href="#第-3-步把这段任务描述贴给-agent" aria-label="本节链接">#</a></h2>
+<p>下面是给你<strong>整段复制</strong>用的。把尖括号 <code>&lt; &gt;</code> 里的内容改成你自己的，然后一次性发给 Agent：</p>
+<pre><code class="language-text">任务：请把 Intel Omni 加速组件安装到我的 ComfyUI 里。
+
+【我的环境】
+- ComfyUI 目录：&lt;你的 ComfyUI 根目录，例如 D:\ComfyUI-aki-v3-IntelArc&gt;
+- 优化指南目录：&lt;ComfyUI 根目录&gt;\IntelGPU-ComfyUI-系统优化指南-&lt;日期版本&gt;\
+  （把 &lt;日期版本&gt; 换成你实际解压出来的那个目录名）
+- 我的显卡：&lt;填型号，例如 Intel Arc B580 / Intel Arc A770&gt;
+
+【硬性规则，全程不得违反】
+1. 只许使用 ComfyUI 目录下的 Python：&lt;ComfyUI 根目录&gt;\python\python.exe。
+   禁止使用系统 Python、其他 venv、conda 环境，也禁止 pip 全局安装。
+2. 安装参数用 --ignore-installed，不要用 --force-reinstall。
+   （--force-reinstall 中途被打断会留下删不掉的 ~xxx 残留目录，之后所有 pip 操作都报
+    &quot;no RECORD file&quot;，很麻烦。）
+3. 不要安装 pyzes。我的环境里如果存在，请先用 pip uninstall -y pyzes 卸掉。
+4. B 系列和 A770 两条线的内核、插件绝对不能混装。我的显卡是哪条线，就只装那条线的文件。
+5. 每完成一个阶段先向我汇报，再做下一步；不要一路闷头装完。
+
+【第 1 项：确认 Python 工具】
+先确认要用的 Python 是 ComfyUI 自带的那个，打印它的路径、版本号，以及它属于哪个环境。
+同时确认它识别到的 torch 版本、以及 torch.xpu 是否可用。
+注意：检查 device_count / is_available 时，必须在同一个进程里连续调用 3 次，
+不能只调一次 —— 第一次必然成功，问题在第二次才暴露。
+
+【第 2 项：完整阅读安装说明】
+把优化指南目录里的 md 文档完整读一遍（至少读完「第三部分：安装」和「第四部分：验证与故障排查」），
+然后给我一份组件清单，说明这次要装哪些组件、各自版本号、以及它们之间的版本对应关系。
+
+【第 3 项：版本核对与决策 —— 这一步最重要，请先决策再动手】
+请把下面四个维度的&quot;当前实际版本&quot;和&quot;指南期望版本&quot;列成一张对照表：
+  a) ComfyUI 内核版本
+  b) PyTorch（torch 与 torch.version.xpu）
+  c) comfy-kitchen（官方包版本）
+  d) comfy-aimdo（官方包版本）
+
+然后按下面的规则决定怎么做，并把你的判断依据告诉我：
+- 指南包的组件版本 == 我当前 ComfyUI 的原生版本 → 直接完整安装。
+- 指南包的组件版本 &lt; 我当前的原生版本（即我的 ComfyUI 比指南新）→
+  立刻停止安装，只输出反馈，不要尝试装、不要尝试降级 ComfyUI。
+  告诉我：我的哪个组件超前了、需要等哪一版的指南包。
+- 指南包的组件版本 &gt; 我当前的原生版本（即我的 ComfyUI 比指南旧）→
+  先向我说明升级 ComfyUI 的影响面（会动哪些目录、能否回退），得到我确认后再升级，
+  升级完成、四个维度重新核对一致后，再继续安装。
+- 如果显卡架构与所选目录不匹配（例如 A770 拿了 B系列(bmg) 的文件）→ 停止，先纠正。
+
+另外请注意：这套组件的版本锚是&quot;精确匹配&quot;关系。torch 换一个小版本、
+或 ComfyUI 抬了 comfy-kitchen / comfy-aimdo 的 pin，对应的 provider 就会被明确拒绝
+（会打印拒绝原因并退回官方包，不会崩，但加速会失效、明显变慢）。
+所以在决定&quot;装&quot;之前，请确认四个维度是真正对齐的，不要靠&quot;看起来差不多&quot;。
+
+【第 4 项：执行安装】
+按我显卡对应的那条线，依次安装：内核 wheel →（B 系列）kitchen provider wheel
+→ aimdo provider wheel → 解压 ComfyUI-OmniXPU 插件到 ComfyUI\custom_nodes\
+→ 如果包里有 ComfyUI-GGUF-XPU，也一并装上（我用 GGUF 模型）。
+插件解压后目录名必须是 ComfyUI-OmniXPU，并删掉包里的 __pycache__。
+我这一版里的组件如果还有需要改启动配置的地方（环境变量、启动参数），
+请一并帮我改好，并告诉我改的是哪个 bat、改了哪几行、原值是什么。
+
+【第 5 项：验证所有组件正确可用】
+分层验证，每层都要给我实际输出：
+  1) pip 层：确认四个包都已安装、版本号与指南一致。
+  2) import 层：确认 omni_xpu_kernel 能 import，并打印它的版本、目标架构、is_available。
+  3) 启动日志层：启动一次 ComfyUI，把相关日志行抓出来给我看 ——
+     应该能看到 [OmniXPU] 开头的适配器日志、comfy_kitchen backend xpu 的 available 状态、
+     以及 aimdo 的 DynamicVRAM 提示。
+  4) 如果有 check_provider_alignment.py，跑一次，把结果贴给我。
+验证不通过的项目，逐条说明是什么、为什么、怎么修，不要含糊带过。
+
+【第 6 项：输出安装报告】
+最后给我一份表格，列：组件 | 安装前版本 | 安装后版本 | 状态 | 备注。
+外加一段&quot;我改动了什么&quot;的清单（哪些文件、哪些配置被改了），
+以及回退方法。
+</code></pre>
+<h3 id="关于这段提示词的几点说明">关于这段提示词的几点说明<a class="hlink" href="#关于这段提示词的几点说明" aria-label="本节链接">#</a></h3>
+<p><strong>为什么强调"四个维度"而不是只看 ComfyUI 版本？</strong> 因为这套组件是精确匹配的：核 wheel 绑死 torch 的 C++ ABI，两个 provider 各自写死了能接受的官方包版本。ComfyUI 版本对了但 torch 换了，照样装不上或者静默失效。</p>
+<p><strong>为什么要先决策再动手？</strong> 因为"我的 ComfyUI 比指南新"这种情况，硬装的下场是内核加载失败或者 provider 被拒。这时候正确的动作是<strong>等新包</strong>，而不是降级 ComfyUI —— 降级会把你的插件生态一起拖下水。</p>
+<p><strong>为什么要连调三次 <code>device_count</code>？</strong> 这是踩过的坑：某些情况下第一次调用正常、第二次崩。独立测一次会得出"一切正常"的错误结论。</p>
+<hr>
+<h2 id="第-4-步安装完成后怎么看它真的生效了">第 4 步：安装完成后，怎么看它真的生效了<a class="hlink" href="#第-4-步安装完成后怎么看它真的生效了" aria-label="本节链接">#</a></h2>
+<p>装完不要只看"pip 说装成功了"。分三层看。</p>
+<h3 id="第一层包在不在">第一层：包在不在<a class="hlink" href="#第一层包在不在" aria-label="本节链接">#</a></h3>
+<p>用 ComfyUI 的 Python 执行：</p>
+<pre><code class="language-text">D:\ComfyUI-aki-v3-IntelArc\python\python.exe -m pip show omni-xpu-kernel comfy-kitchen-xpu-runtime comfy-aimdo-xpu-runtime
+</code></pre>
+<blockquote class="bq plain">
+<p>A770 用户如果没装 kitchen provider，<code>comfy-kitchen-xpu-runtime</code> 没有输出是正常的。</p>
+</blockquote>
+<h3 id="第二层能不能-import">第二层：能不能 import<a class="hlink" href="#第二层能不能-import" aria-label="本节链接">#</a></h3>
+<pre><code class="language-text">D:\ComfyUI-aki-v3-IntelArc\python\python.exe -c &quot;import omni_xpu_kernel as o; print(o.__version__, o.__xpu_target__, o.is_available())&quot;
+</code></pre>
+<p>期望输出：</p>
+<ul>
+<li>B 系列：<code>0.2.0b3+torch215.bmg bmg True</code></li>
+<li>A770：<code>0.2.0b3+torch215.dg2 dg2 True</code></li>
+</ul>
+<blockquote class="bq warn">
+<p>⚠️ 执行这条命令时<strong>不要在 <code>omni_xpu_kernel</code> 的源码目录里</strong>，那里残留的 <code>*.egg-info</code> 会让 import 读到错的版本号。</p>
+</blockquote>
+<h3 id="第三层启动日志-这才是真凭据">第三层：启动日志 —— 这才是真凭据<a class="hlink" href="#第三层启动日志-这才是真凭据" aria-label="本节链接">#</a></h3>
+<p>启动 ComfyUI，从日志里找这几行：</p>
+<p><strong>通用（两线都该有）</strong></p>
+<pre><code class="language-text">[OmniXPU] omni_xpu_kernel 0.2.0b3+torch215.bmg - available: sdp, norm, rotary, linear_fp8, int8, layout
+[OmniXPU] quantized_matmul_adapter: applied
+[OmniXPU] attention_adapter: applied
+Found comfy_kitchen backend xpu: {'available': True, 'disabled': False, ...}
+DynamicVRAM support detected and enabled
+</code></pre>
+<p>判读要点：</p>
+<ul>
+<li><code>available: True</code> —— 量化加速路由真的接上了。如果是 <code>False</code>，会附带 <code>unavailable_reason</code>，那是版本三角没对齐。</li>
+<li><code>..._adapter: applied</code> —— 该挂的适配器挂上了。</li>
+<li><code>..._adapter: skipped</code> —— <strong>先看括号里的理由再判断</strong>。有些是设计如此（<code>rotary_adapter: skipped (LTX split-half RoPE function not available)</code>、<code>legacy_*_fix: skipped (disabled by env)</code>），属正常；本该 applied 的变 skipped 才是问题。</li>
+<li><code>DynamicVRAM support detected and enabled</code> —— aimdo 生效了。</li>
+</ul>
+<p><strong>A770 会多出来的专属行</strong>（B 系列不会有）：</p>
+<pre><code class="language-text">[OmniXPU] Kitchen XPU backend grafted onto comfy-kitchen 0.2.40: N modules, M capabilities
+[OmniXPU] Kitchen backend priority: ['xpu', 'ascend', 'cuda', 'triton', 'eager']
+[OmniXPU] a770_rms_rope_bridge: applied
+[OmniXPU] int4_gemm_adapter: applied
+[OmniXPU] a770_int8_native_gate: applied
+</code></pre>
+<p><strong>A770 允许缺席的</strong>：<code>sol_attn</code> 能力、<code>sparse_attention_adapter</code>（DG2 不支持，显示 skipped 是正常的）、<code>supports_group_norm_stats3d</code>（dg2 内核比 bmg 少一项）。</p>
+<h3 id="第四层跑一个工作流看运行期自证">第四层：跑一个工作流，看运行期自证<a class="hlink" href="#第四层跑一个工作流看运行期自证" aria-label="本节链接">#</a></h3>
+<p>这一步最硬。随便跑一个 <strong>INT8 量化模型</strong>的工作流，采样阶段的日志里出现：</p>
+<pre><code class="language-text">Native ops: int8_tensorwise , emulated ops: ...
+</code></pre>
+<p>就说明厨房 XPU 后端<strong>真的在服务 INT8 路径</strong>，不是"装上了但没人用"。ComfyUI 官方对 Intel XPU 的 INT8 判断是硬编码 False，只有当 OmniXPU 把六个 int8 算子全部交给 xpu 后端认领时，这行才会从 <code>emulated</code> 翻回 <code>Native</code>。</p>
+<p>用 GGUF 模型的话，注意节点选择：<strong>用 <code>UnetLoaderGGUF</code>，不要用 <code>GGUFLoaderKJ</code></strong> —— 后者不走内核加速，你会觉得"装了没效果"。</p>
+<hr>
+<h2 id="常见坑速查">常见坑速查<a class="hlink" href="#常见坑速查" aria-label="本节链接">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>现象</th>
+<th>原因</th>
+<th>处理</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pip install</code> 报版本不匹配</td>
+<td>wheel 与 torch / Python 不匹配</td>
+<td>确认 torch 是 2.15.0+xpu、Python 是 3.13（3.12 装不上）</td>
+</tr>
+<tr>
+<td><code>pip</code> 报 <code>Invalid wheel filename (invalid version)</code></td>
+<td>拿了 20261026 及更早版本的 aimdo 包（旧命名不合 PEP 440）</td>
+<td>换 20261031 或更新版本的包，文件名里应是 <code>+torch215.bmg</code> 这种形式</td>
+</tr>
+<tr>
+<td><code>pip</code> 说 <code>already installed with the same version</code>，然后什么都没干</td>
+<td>B 系列的 aimdo provider 包内版本号仍是 <code>0.6.0</code>，pip 认为不需要装</td>
+<td>加 <code>--ignore-installed</code>（不要用 <code>--force-reinstall</code>）</td>
+</tr>
+<tr>
+<td><code>Cannot uninstall ... no RECORD file</code></td>
+<td>之前用 <code>--force-reinstall</code> 被中途打断，留下 <code>~xxx</code> 残留</td>
+<td>去 site-packages 找残留目录清掉，之后改用 <code>--ignore-installed</code></td>
+</tr>
+<tr>
+<td>ComfyUI 直接崩：<code>AssertionError: Torch not compiled with CUDA enabled</code></td>
+<td>装了多余的 <code>pyzes</code></td>
+<td><code>pip uninstall -y pyzes</code>，再连测三次 <code>device_count</code> 应为 <code>[1,1,1]</code></td>
+</tr>
+<tr>
+<td>启动日志完全没有 <code>[OmniXPU]</code></td>
+<td>插件目录名不对，或残留 <code>__pycache__</code></td>
+<td>目录名必须是 <code>ComfyUI-OmniXPU</code>，删掉 <code>__pycache__</code> 重启</td>
+</tr>
+<tr>
+<td><code>comfy_kitchen backend xpu: available False</code></td>
+<td>版本三角不匹配（ComfyUI pin ↔ 官方包 ↔ provider 锚）</td>
+<td>三者对齐到文档给的版本；A770 确认插件版本与指南包一致（如 <code>dg2-20261031</code>）且没设 <code>OMNIXPU_KITCHEN_GRAFT=0</code></td>
+</tr>
+<tr>
+<td>aimdo 装了但日志没有 DynamicVRAM 行</td>
+<td>启动 bat 没有显式加 <code>--enable-dynamic-vram</code></td>
+<td>在启动参数里补上</td>
+</tr>
+<tr>
+<td><code>runtime provider rejected: comfy_aimdo.xpu ...</code></td>
+<td>provider 的版本锚和已装的官方 <code>comfy-aimdo</code> 对不上</td>
+<td>官方包对齐到 <code>0.6.0</code>（0.43.x 自带），或换对应版本的 provider</td>
+</tr>
+<tr>
+<td>开了 aimdo 之后卡死 / 极慢</td>
+<td>aimdo 仍在演进，个别工作流有回归</td>
+<td>把 <code>--enable-dynamic-vram</code> 改成 <code>--disable-dynamic-vram</code>，并把日志反馈给维护者</td>
+</tr>
+<tr>
+<td>A770 跑 H3 报 <code>UR_RESULT_ERROR_DEVICE_LOST</code></td>
+<td>缺环境变量</td>
+<td>bat 里补 <code>UR_L0_USE_IMMEDIATE_COMMANDLISTS=1</code></td>
+</tr>
+<tr>
+<td>A770 装了包但 <code>_C</code> 加载失败</td>
+<td>装错架构线（拿了 bmg 那份），或 oneAPI 环境残缺</td>
+<td>换 <code>A770(dg2)\</code> 里的 dg2 包</td>
+</tr>
+<tr>
+<td>GGUF 模型没提速</td>
+<td>用了 <code>GGUFLoaderKJ</code></td>
+<td>换成 <code>UnetLoaderGGUF</code></td>
+</tr>
+<tr>
+<td>装的时候好好的，升了 ComfyUI 之后变慢</td>
+<td>ComfyUI 抬了 <code>comfy-kitchen</code> / <code>comfy-aimdo</code> 的 pin，provider 被拒</td>
+<td>跑 <code>check_provider_alignment.py</code>，等对应新版的指南包</td>
+</tr>
+</tbody>
+</table></div>
+<hr>
+<h2 id="附录-a验证命令速查">附录 A：验证命令速查<a class="hlink" href="#附录-a验证命令速查" aria-label="本节链接">#</a></h2>
+<p>以下都用 ComfyUI 自带的 Python（把 <code>D:\ComfyUI-aki-v3-IntelArc</code> 换成你的路径）：</p>
+<pre><code class="language-text">:: 确认 torch 与 XPU 可用
+D:\ComfyUI-aki-v3-IntelArc\python\python.exe -c &quot;import torch; print(torch.__version__, torch.xpu.is_available())&quot;
+
+:: 确认 device_count 稳定（必须连测多次）
+D:\ComfyUI-aki-v3-IntelArc\python\python.exe -c &quot;import torch; print([torch.xpu.device_count() for _ in range(3)])&quot;
+
+:: 确认 pyzes 不存在（能 import 成功才是问题）
+D:\ComfyUI-aki-v3-IntelArc\python\python.exe -c &quot;import pyzes&quot;
+
+:: 确认内核就位
+D:\ComfyUI-aki-v3-IntelArc\python\python.exe -c &quot;import omni_xpu_kernel as o; print(o.__version__, o.__xpu_target__, o.is_available())&quot;
+
+:: 确认已装组件
+D:\ComfyUI-aki-v3-IntelArc\python\python.exe -m pip show omni-xpu-kernel comfy-kitchen-xpu-runtime comfy-aimdo-xpu-runtime
+
+:: 体检版本三角
+D:\ComfyUI-aki-v3-IntelArc\python\python.exe IntelGPU-ComfyUI-系统优化指南-&lt;日期版本&gt;\check_provider_alignment.py
+</code></pre>
+<p>期望值：torch 输出 <code>2.15.0+xpu True</code>，device_count 输出 <code>[1, 1, 1]</code>，pyzes 报 <code>ModuleNotFoundError</code>。</p>
+<hr>
+<h2 id="附录-b两条线的组件对照以-20261031-版为例">附录 B：两条线的组件对照（以 20261031 版为例）<a class="hlink" href="#附录-b两条线的组件对照以-20261031-版为例" aria-label="本节链接">#</a></h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>组件</th>
+<th>B 系列（BMG）</th>
+<th>A770（DG2）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>内核</td>
+<td><code>omni_xpu_kernel 0.2.0b3+torch215.bmg</code></td>
+<td><code>omni_xpu_kernel 0.2.0b3+torch215.dg2</code></td>
+</tr>
+<tr>
+<td>适配插件</td>
+<td><code>ComfyUI-OmniXPU.bmg-20261031</code>（19 个 Component）</td>
+<td><code>ComfyUI-OmniXPU.dg2-20261031</code>（32 个 Component，自带 kitchen graft）</td>
+</tr>
+<tr>
+<td>kitchen provider</td>
+<td><code>comfy-kitchen-xpu-runtime 0.2.40</code>（<strong>必须装</strong>）</td>
+<td>不需要（插件内置）</td>
+</tr>
+<tr>
+<td>aimdo provider</td>
+<td><code>comfy-aimdo-xpu-runtime 0.6.0+torch215.bmg</code></td>
+<td><code>comfy-aimdo-xpu-runtime 0.6.0+xpu.1.g1378a3f</code></td>
+</tr>
+<tr>
+<td>注意力加速路径</td>
+<td>CUTE 二进制快路径</td>
+<td>ESIMD / DPAS 侧车</td>
+</tr>
+<tr>
+<td>已知缺口</td>
+<td>无</td>
+<td>缺 <code>supports_group_norm_stats3d</code>；无 <code>sol_attn</code></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>一句话记住</strong>：看文件名里的 <code>torch215</code> + <code>bmg</code>/<code>dg2</code> 后缀判断这条线适不适合你，<strong>不要看 <code>bN</code> 那个数字</strong> —— 两条线是独立发版，不保证同步。</p>
+<hr>
+<h2 id="装完之后">装完之后<a class="hlink" href="#装完之后" aria-label="本节链接">#</a></h2>
+<p>进 ComfyUI 正常跑工作流就行。想确认加速还在工作，就看采样日志里有没有 <code>Native ops: int8_tensorwise</code>；想看显存管理有没有生效，就看加载模型时有没有 DynamicVRAM 相关输出。</p>
+<p>如果出现"以前很快、现在变慢"的情况，<strong>第一个该怀疑的不是显卡，是版本</strong>：ComfyUI 或 torch 的任何一次升级都可能让 provider 失效。跑一次 <code>check_provider_alignment.py</code>，比翻日志快得多。</p>
+<p>遇到问题，把完整日志（不是截图，是文本）发到 Intel GPU &amp; ComfyUI 折腾群里，通常比自己在网上乱搜快。</p>
+<ul>
+<li>项目主页：<a href="https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/">https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/</a></li>
+<li>交流群：<a href="https://qm.qq.com/q/gls9aI3lgA">https://qm.qq.com/q/gls9aI3lgA</a></li>
+</ul>
+<hr>
+<p><strong>说明</strong>：本文是一份<strong>通用流程说明</strong>，适用于任意版本的《优化指南》安装包；文中所有日期号、wheel 文件名与版本号均以 20261031 版为示例。指南会随上游持续更新，装之前请以你手上那一版的说明文档和文件清单为准 —— <strong>流程不变，版本以实物为准。</strong></p>
+  </article>
+</div>
+
+<button id="tocOpen" type="button" title="展开目录">目录</button>
+<button id="toTop" title="回到顶部">↑</button>
+
+<script>
+(function(){
+  // 悬浮目录：展开 / 收起
+  var panel = document.getElementById('tocPanel');
+  var openBtn = document.getElementById('tocOpen');
+  var closeBtn = document.getElementById('tocClose');
+  function setToc(open){
+    panel.classList.toggle('hidden', !open);
+    openBtn.classList.toggle('show', !open);
+  }
+  closeBtn.addEventListener('click', function(){ setToc(false); });
+  openBtn.addEventListener('click', function(){ setToc(true); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape') setToc(false);
+  });
+  // 默认收起：让正文保持真正全宽、无遮挡；点左侧「目录」把手随时滑出
+  setToc(false);
+  panel.addEventListener('click', function(e){
+    if (e.target && e.target.tagName === 'A') setToc(false);
+  });
+
+  // 目录高亮
+  var links = Array.prototype.slice.call(document.querySelectorAll('.toc a'));
+  var map = new Map();
+  links.forEach(function(a){
+    var hid = a.getAttribute('href').slice(1);
+    var el = document.getElementById(hid) || document.getElementById(decodeURIComponent(hid));
+    if (el) map.set(el, a);
+  });
+  if ('IntersectionObserver' in window && map.size) {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (!e.isIntersecting) return;
+        links.forEach(function(l){ l.classList.remove('active'); });
+        var a = map.get(e.target);
+        if (a) a.classList.add('active');
+      });
+    }, { rootMargin: '-8% 0px -82% 0px' });
+    map.forEach(function(a, el){ io.observe(el); });
+  }
+
+  // 代码块复制
+  document.querySelectorAll('pre').forEach(function(pre){
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.type = 'button';
+    btn.textContent = '复制';
+    btn.addEventListener('click', function(){
+      var code = pre.querySelector('code');
+      var txt = code ? code.innerText : pre.innerText;
+      var done = function(){
+        btn.textContent = '已复制';
+        btn.classList.add('done');
+        setTimeout(function(){ btn.textContent = '复制'; btn.classList.remove('done'); }, 1600);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(txt).then(done, function(){});
+      } else {
+        var ta = document.createElement('textarea');
+        ta.value = txt; document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); done(); } catch(e){}
+        document.body.removeChild(ta);
+      }
+    });
+    pre.appendChild(btn);
+  });
+
+  // 回到顶部
+  var top = document.getElementById('toTop');
+  window.addEventListener('scroll', function(){
+    if (window.scrollY > 480) top.classList.add('show');
+    else top.classList.remove('show');
+  }, { passive: true });
+  top.addEventListener('click', function(){ window.scrollTo({ top: 0, behavior: 'smooth' }); });
+})();
+</script>
+</body>
+</html>
