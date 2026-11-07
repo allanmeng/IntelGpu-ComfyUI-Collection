@@ -14,7 +14,9 @@
 该优化的 B系列(BMG)显卡,来自官方的**llm-scaler-omni**官方項目；由社区补齐了**A770(DG2) 系列显卡**的支持缺口，针对Comfyui中工作流的执行速度和稳定性，提供了**Windows 平台**的支持，并整合为一份开箱即用的优化指南。建议Agent协助安装
 
 
-【[Release](https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/releases?q=intel-comfyui-guide&expanded=true)】【[网盘分流](https://pan.quark.cn/s/ba0d8aa09638)】【安装好指南的整合包：[A系列](https://pan.quark.cn/s/fdc5d881f025?pwd=NAyj)　[B系列](https://pan.quark.cn/s/8263a7da1db6)】【[关联视频](https://www.bilibili.com/video/BV1okYX6FEH8/)】
+【[Release](https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/releases?q=intel-comfyui-guide&expanded=true)】【[网盘分流](https://pan.quark.cn/s/ba0d8aa09638)】  
+【[如何独立安装](https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/docs/%E5%A6%82%E4%BD%95%E6%89%8B%E5%B7%A5%E5%AE%89%E8%A3%85Intel-Omni%E5%8A%A0%E9%80%9F%E7%BB%84%E4%BB%B6.html)】【安装好指南的整合包：[A系列](https://pan.quark.cn/s/fdc5d881f025?pwd=NAyj)　[B系列](https://pan.quark.cn/s/8263a7da1db6)】  
+【[关联视频](https://www.bilibili.com/video/BV1okYX6FEH8/)】
 
 项目地址：https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/intel-comfyui-guide/
 
