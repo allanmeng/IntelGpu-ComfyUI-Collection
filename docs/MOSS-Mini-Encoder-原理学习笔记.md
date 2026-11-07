@@ -9,7 +9,6 @@
 本文所有 `src/...`、`docs/...` 路径均相对于本插件目录。表格与公式一律放在代码块中，避免不同 Markdown 渲染器的样式差异。
 
 ---
-<img width="680" height="524" alt="moss-mini-encoder-diagram" src="https://github.com/user-attachments/assets/a663da3c-166b-4ffa-8345-88e2ea429156" />
 
 ## 0. 这篇笔记能帮你学到什么
 
