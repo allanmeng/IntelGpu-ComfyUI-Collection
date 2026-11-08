@@ -770,7 +770,8 @@ CHROME_CHIPS = (
     ("../logs.html", "执行日志", 0),
     ("../full-logs.html", "完整日志", 1),
     ("../group.html", "互助社群", 0),
-    ("https://blog.blackwood.cv/news/latest", "生态日报 ↗", 2),
+    ("https://blog.blackwood.cv/news/latest", "Intel GPU生态日报 ↗", 2),
+    ("https://comfyui-wiki.com/zh/news", "ComfyUI新闻动态 ↗", 2),
 )
 
 # 头部说明行：固定文案，不随档案变化（档案名/时间在分割线下面的正文标题里）
@@ -1141,7 +1142,8 @@ CHIPS = """      <a class="chip" href="index.html">项目收集</a>
       <a class="chip" href="logs.html">执行日志</a>
       <span class="chip chip-active">完整日志</span>
       <a class="chip" href="group.html">互助社群</a>
-      <a class="chip" href="https://blog.blackwood.cv/news/latest" target="_blank" rel="noopener">生态日报 ↗</a>"""
+      <a class="chip" href="https://blog.blackwood.cv/news/latest" target="_blank" rel="noopener">Intel GPU生态日报 ↗</a>
+      <a class="chip" href="https://comfyui-wiki.com/zh/news" target="_blank" rel="noopener">ComfyUI新闻动态 ↗</a>"""
 
 
 def role_by_key(key, value):

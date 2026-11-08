@@ -146,7 +146,8 @@ NAV_TABS = [
 
 # 站外导航（chips 末尾追加，新标签页打开）
 EXTERNAL_NAV = [
-    ("生态日报", "https://blog.blackwood.cv/news/latest"),
+    ("Intel GPU生态日报", "https://blog.blackwood.cv/news/latest"),
+    ("ComfyUI新闻动态", "https://comfyui-wiki.com/zh/news"),
 ]
 
 
