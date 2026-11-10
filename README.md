@@ -134,12 +134,11 @@ Tag: fork,社群,dg2
 
 Intel llm-scaler 中 omni_xpu_kernel 的独立 fork，为 **DG2（A770）** 增加 DPAS attention、ConvRot 融合量化、INT8 快速路径等原生内核，提供 Windows 预编译 wheel。
 
-
 【[A770专用_ComfyUI_加速组件_整合包](https://pan.quark.cn/s/fdc5d881f025?pwd=NAyj#/list/share)】    【[关联视频](https://www.bilibili.com/video/BV1pNHs6aEZD/)】   
-  最新版本由oneAPI 2026.2编译，所以使用预编译包前,请做如下准备升级：  
-【<ComfyUI根>\python\python.exe" -m pip install --no-deps intel-sycl-rt==2026.2.0】   
-【<ComfyUI根>\python\python.exe" -m pip install --no-deps intel-sycl-rt==2026.2.0】   
-【"<ComfyUI根>\python\python.exe" -m pip install --no-deps intel-cmplr-lib-rt==2026.2.0】   
+最新版本由oneAPI 2026.2编译，所以使用预编译包前,请做如下准备升级：  
+ComfyUI根\python\python.exe -m pip install --no-deps intel-sycl-rt==2026.2.0   
+ComfyUI根\python\python.exe -m pip install --no-deps intel-sycl-rt==2026.2.0   
+ComfyUI根>\python\python.exe -m pip install --no-deps intel-cmplr-lib-rt==2026.2.0   
 
 项目地址：https://github.com/Blackwood416/omni-xpu-kernel
 
