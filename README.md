@@ -135,8 +135,9 @@ Tag: fork,社群,dg2
 Intel llm-scaler 中 omni_xpu_kernel 的独立 fork，为 **DG2（A770）** 增加 DPAS attention、ConvRot 融合量化、INT8 快速路径等原生内核，提供 Windows 预编译 wheel。
 
 
-【[A770专用_ComfyUI_加速组件_整合包](https://pan.quark.cn/s/fdc5d881f025?pwd=NAyj#/list/share)】    【[关联视频](https://www.bilibili.com/video/BV1pNHs6aEZD/)】    
-【使用预编译包,请升级 pip install --no-deps intel-sycl-rt==2026.2.0】(最新版本由oneAPI 2026.2编译)
+【[A770专用_ComfyUI_加速组件_整合包](https://pan.quark.cn/s/fdc5d881f025?pwd=NAyj#/list/share)】    【[关联视频](https://www.bilibili.com/video/BV1pNHs6aEZD/)】   
+ 最新版本由oneAPI 2026.2编译，所以
+【使用预编译包,请升级 pip install --no-deps intel-sycl-rt==2026.2.0】
 
 如果你找B系列（bmg）适配，请查阅[系统优化指南](https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/intel-comfyui-guide/)
 
@@ -243,7 +244,8 @@ Tag: fork,社群
 给 **A770（DG2 架构）** 用户准备的显存管家。它解决的是很实际的麻烦：跑大模型时显存不够，ComfyUI 常常直接报错、卡死，甚至整个崩掉。这个组件让模型权重「暂时用不上就先挪到内存里，需要时再搬回显存」，等于变相扩大了可用显存——同样的卡，能跑起更大的模型。已经打包成 Windows 现成安装包，下载装上就能用，不需要自己编译。
 
 【[A770专用_ComfyUI_加速组件_整合包](https://pan.quark.cn/s/fdc5d881f025?pwd=NAyj#/list/share)】    【[关联视频](https://www.bilibili.com/video/BV1pNHs6aEZD/)】    
-【使用预编译包,请升级 pip install --no-deps intel-sycl-rt==2026.2.0】(最新版本由oneAPI 2026.2编译)
+ 最新版本由oneAPI 2026.2编译，所以
+【使用预编译包,请升级 pip install --no-deps intel-sycl-rt==2026.2.0】
 
 项目地址：https://github.com/Blackwood416/comfy-aimdo-xpu
 
