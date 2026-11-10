@@ -136,8 +136,10 @@ Intel llm-scaler 中 omni_xpu_kernel 的独立 fork，为 **DG2（A770）** 增�
 
 
 【[A770专用_ComfyUI_加速组件_整合包](https://pan.quark.cn/s/fdc5d881f025?pwd=NAyj#/list/share)】    【[关联视频](https://www.bilibili.com/video/BV1pNHs6aEZD/)】   
-
-如果你找B系列（bmg）适配，请查阅[系统优化指南](https://allanmeng.github.io/IntelGpu-ComfyUI-Collection/intel-comfyui-guide/)
+  最新版本由oneAPI 2026.2编译，所以使用预编译包前,请做如下准备升级：  
+【<ComfyUI根>\python\python.exe" -m pip install --no-deps intel-sycl-rt==2026.2.0】   
+【<ComfyUI根>\python\python.exe" -m pip install --no-deps intel-sycl-rt==2026.2.0】   
+【"<ComfyUI根>\python\python.exe" -m pip install --no-deps intel-cmplr-lib-rt==2026.2.0】   
 
 项目地址：https://github.com/Blackwood416/omni-xpu-kernel
 
