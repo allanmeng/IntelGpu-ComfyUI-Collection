@@ -1,0 +1,1946 @@
+{
+  "schema": "comfy-full-log/1",
+  "id": "fulllog-ab6e0b8f-ad23-4997-aac6-5b3cd98898b7-minimax_h3_image_t2i_00001_.png",
+  "generated_at": "2026-11-11T21:02:55.502+08:00",
+  "run": {
+    "run_id": "ab6e0b8f-ad23-4997-aac6-5b3cd98898b7",
+    "session_id": "sess-20261111-205736",
+    "sequence": 1,
+    "started_at": "2026-11-11T20:58:10.285+08:00",
+    "ended_at": "2026-11-11T21:00:57.364+08:00",
+    "duration_s": 173.93,
+    "duration_event_s": 167.08,
+    "status": "success",
+    "error": null,
+    "label": "冷启",
+    "label_basis": "本会话首次加载：Qwen3VLTEModel_、MiniMaxH3Image、MiniMaxH3ImageVAE",
+    "load_classes": [
+      "Qwen3VLTEModel_",
+      "MiniMaxH3Image",
+      "MiniMaxH3ImageVAE"
+    ],
+    "deliverable_count": 1,
+    "log_ref": {
+      "file": "user/comfyui.log",
+      "line_count": 35,
+      "segment_seconds": 167.08,
+      "seconds_from_log": 173.93,
+      "mode": "file"
+    }
+  },
+  "deliverable": {
+    "filename": "minimax_h3_image_t2i_00001_.png",
+    "subfolder": "",
+    "type": "output",
+    "node_id": "1",
+    "batch_index": 0,
+    "format": null,
+    "media": "image",
+    "size_bytes": 2183183,
+    "mtime": "2026-11-11T21:00:57.352+08:00",
+    "fingerprint": {
+      "algo": "sha256",
+      "value": "e41b75b7f3c276e67423948a49411e45b4896749a213029bd362242def37c016"
+    },
+    "present": true,
+    "media_meta": {
+      "width": 1120,
+      "height": 1120,
+      "pixels": 1254400,
+      "source": "header",
+      "kind": "image"
+    },
+    "archive_name": "202611112058_H3_image文生图+TE4b优化_omnixpu加速_B580_16G_冷启_1.png"
+  },
+  "deliverables": [
+    {
+      "filename": "minimax_h3_image_t2i_00001_.png",
+      "subfolder": "",
+      "type": "output",
+      "node_id": "1",
+      "batch_index": 0,
+      "format": null,
+      "media": "image",
+      "size_bytes": 2183183,
+      "mtime": "2026-11-11T21:00:57.352+08:00",
+      "fingerprint": {
+        "algo": "sha256",
+        "value": "e41b75b7f3c276e67423948a49411e45b4896749a213029bd362242def37c016"
+      },
+      "present": true,
+      "media_meta": {
+        "width": 1120,
+        "height": 1120,
+        "pixels": 1254400,
+        "source": "header",
+        "kind": "image"
+      },
+      "archive_name": "202611112058_H3_image文生图+TE4b优化_omnixpu加速_B580_16G_冷启_1.png"
+    }
+  ],
+  "repro": {
+    "env_hash": "1777bfad820441c9",
+    "config_hash": "cdc4387957c7c41b",
+    "run_hash": "83ebc1d3ca80b129",
+    "seed": 789160442308073,
+    "note": "统计时按 run.run_id 去重：同一次执行的多份 full_log 共用同一 run_id，不是独立样本。"
+  },
+  "tags": {
+    "stamp": "202611112058",
+    "workflow": "minimax_h3_image_t2i",
+    "scheme": "omnixpu加速",
+    "card": "B580",
+    "memory": "16G",
+    "test": "冷启",
+    "suggested_name": "202611112058_minimax_h3_image_t2i_omnixpu加速_B580_16G_冷启",
+    "sources": {
+      "workflow": "输出节点 filename_prefix",
+      "scheme": "工作流执行日志中 omni_xpu_kernel 0.2.0b3+torch215.bmg 生效，且出现 [OmniXPU] 插件标记",
+      "card": "torch.xpu device_id",
+      "memory": "psutil 物理内存",
+      "test": "同一会话内模型加载顺序"
+    }
+  },
+  "accel": {
+    "scheme": "omnixpu加速",
+    "omnixpu": true,
+    "kernel": {
+      "active": true,
+      "version": "0.2.0b3+torch215.bmg",
+      "ops": "sdp, norm, rotary, linear_fp8, int8, layout",
+      "evidence": "omni_xpu_kernel 0.2.0b3+torch215.bmg - available: sdp, norm, rotary, linear_fp8, int8, layout"
+    },
+    "plugin": {
+      "active": true,
+      "installed": true,
+      "commit": null,
+      "adapters": {
+        "aimdo_memory_compiler_adapter": {
+          "state": "skipped",
+          "note": "disabled by env"
+        },
+        "quantized_matmul_adapter": {
+          "state": "applied",
+          "note": ""
+        },
+        "sparse_attention_adapter": {
+          "state": "applied",
+          "note": ""
+        },
+        "attention_adapter": {
+          "state": "applied",
+          "note": ""
+        },
+        "rotary_adapter": {
+          "state": "skipped",
+          "note": "LTX split-half RoPE function not available"
+        },
+        "norm_adapter": {
+          "state": "applied",
+          "note": ""
+        },
+        "h3_rms_modulation_adapter": {
+          "state": "applied",
+          "note": ""
+        },
+        "fp8_model_adapter": {
+          "state": "applied",
+          "note": ""
+        },
+        "int8_ffn_adapter": {
+          "state": "applied",
+          "note": ""
+        },
+        "dynamic_vram_boundary_trim": {
+          "state": "applied",
+          "note": ""
+        },
+        "xpu_ram_staging_adapter": {
+          "state": "applied",
+          "note": ""
+        },
+        "lora_memory_adapter": {
+          "state": "applied",
+          "note": ""
+        },
+        "writable_weight_adapter": {
+          "state": "applied",
+          "note": ""
+        },
+        "qwen_image21_qkv_adapter": {
+          "state": "applied",
+          "note": ""
+        },
+        "qwen_image21_cache_adapter": {
+          "state": "applied",
+          "note": ""
+        },
+        "seedvr_ada_reshape_patch": {
+          "state": "applied",
+          "note": ""
+        },
+        "seedvr_capacity_adapter": {
+          "state": "applied",
+          "note": ""
+        },
+        "large_video_preprocess_adapter": {
+          "state": "applied",
+          "note": ""
+        },
+        "legacy_interpolate_fix": {
+          "state": "skipped",
+          "note": "disabled by env"
+        },
+        "legacy_median_fix": {
+          "state": "skipped",
+          "note": "disabled by env"
+        }
+      },
+      "applied_count": 16,
+      "skipped_count": 4,
+      "evidence": "日志 42 行 [OmniXPU] 标记；日志有 ComfyUI-OmniXPU 加载耗时行"
+    },
+    "aimdo": {
+      "active": false,
+      "state": "skipped",
+      "version": "0.6.0",
+      "note": "disabled by env"
+    },
+    "kitchen": {
+      "active": true,
+      "state": "available",
+      "version": "0.2.41",
+      "backend": "xpu",
+      "caps": "adaln, apply_rope, apply_rope1, apply_rope1_…",
+      "caps_count": 50
+    },
+    "env_flag": "1",
+    "basis": "工作流执行日志中 omni_xpu_kernel 0.2.0b3+torch215.bmg 生效，且出现 [OmniXPU] 插件标记",
+    "log_file": "F:\\ComfyUI-aki-v3\\ComfyUI\\user\\comfyui.log"
+  },
+  "env": {
+    "os": {
+      "platform": "Windows-11-10.0.22000-SP0",
+      "machine": "AMD64",
+      "hostname": "DESKTOP-53P5FI9",
+      "windows_build": "10.0.22000"
+    },
+    "python": {
+      "version": "3.13.11",
+      "executable": "F:\\ComfyUI-aki-v3\\python\\python.exe"
+    },
+    "torch": {
+      "version": "2.15.0+xpu",
+      "xpu_available": true,
+      "xpu_device_count": 1,
+      "mkldnn_enabled": true
+    },
+    "devices": [
+      {
+        "index": 0,
+        "name": "Intel(R) Arc(TM) B580 Graphics",
+        "device_id": 57867,
+        "device_id_hex": "0xE20B",
+        "model": "B580",
+        "total_memory_mb": 11946.2,
+        "driver_version": "1.17.39894+4",
+        "platform_name": "Intel(R) oneAPI Unified Runtime over Level-Zero V2",
+        "max_compute_units": 160
+      }
+    ],
+    "memory": {
+      "total_gb": 15.9,
+      "total_mb": 16253,
+      "label": "16G"
+    },
+    "comfy": {
+      "version": "0.45.2",
+      "argv": [],
+      "cpu": false,
+      "highvram": false,
+      "preview_method": "Latent2RGB",
+      "packages": {
+        "torch": "2.15.0+xpu",
+        "torchvision": "0.29.2+xpu",
+        "torchaudio": "2.11.1+xpu",
+        "psutil": "6.0.0",
+        "numpy": "2.3.2",
+        "accelerate": "1.12.0",
+        "transformers": "5.21.0",
+        "safetensors": "0.8.0",
+        "comfyui-frontend-package": "1.58.5",
+        "comfyui-workflow-templates": "0.11.106",
+        "comfyui-embedded-docs": "0.5.16",
+        "pillow": "12.3.0",
+        "aiohttp": "3.13.3"
+      }
+    },
+    "custom_nodes": [
+      {
+        "name": ".disabled",
+        "commit": null,
+        "remote": null
+      },
+      {
+        "name": "ComfyUI-AdvancedLivePortrait",
+        "commit": "3bba732915e22f18af0d221b9c5c282990181f1b",
+        "remote": "https://github.com/PowerHouseMan/ComfyUI-AdvancedLivePortrait"
+      },
+      {
+        "name": "ComfyUI-Aila-XPU",
+        "commit": "740fcd50be35ab172e19f98db06f7a172a577cc5",
+        "remote": "https://github.com/allanmeng/ComfyUI-Aila-XPU.git"
+      },
+      {
+        "name": "ComfyUI-CacheDiT",
+        "commit": "1d92bbd86ec59aa6223fe2368849b7413a1acb93",
+        "remote": "https://github.com/Jasonzzt/ComfyUI-CacheDiT"
+      },
+      {
+        "name": "ComfyUI-ClipProj",
+        "commit": "c01ba8fb8f41b4f2094dbd0b185cdc238fb6134c",
+        "remote": "https://github.com/nicolab28/ComfyUI-ClipProj"
+      },
+      {
+        "name": "ComfyUI-ConditioningKrea2Rebalance",
+        "commit": "53c147c72c2fbd9444765af87118caee81a26d01",
+        "remote": "https://github.com/nova452/ComfyUI-ConditioningKrea2Rebalance"
+      },
+      {
+        "name": "ComfyUI-Custom-Scripts",
+        "commit": "609f3afaa74b2f88ef9ce8d939626065e3247469",
+        "remote": "https://github.com/pythongosssss/ComfyUI-Custom-Scripts"
+      },
+      {
+        "name": "ComfyUI-Easy-Use",
+        "commit": "b0b47ca1372117fce575d9e744655344ebff6bef",
+        "remote": "https://github.com/yolain/ComfyUI-Easy-Use"
+      },
+      {
+        "name": "ComfyUI-EasyColorCorrector",
+        "commit": null,
+        "remote": null
+      },
+      {
+        "name": "ComfyUI-Frame-Interpolation",
+        "commit": "26545cc2dd95bc3d27f056016300673bdeee78f5",
+        "remote": "https://github.com/Fannovel16/ComfyUI-Frame-Interpolation"
+      },
+      {
+        "name": "ComfyUI-FreeMemory",
+        "commit": "44fc13f97feec9fdb50ccf342ad64eeb52a95512",
+        "remote": "https://github.com/ShmuelRonen/ComfyUI-FreeMemory"
+      },
+      {
+        "name": "ComfyUI-FullLog",
+        "commit": null,
+        "remote": null
+      },
+      {
+        "name": "ComfyUI-GGUF",
+        "commit": "6ea2651e7df66d7585f6ffee804b20e92fb38b8a",
+        "remote": "https://github.com/city96/ComfyUI-GGUF"
+      },
+      {
+        "name": "ComfyUI-GGUF-XPU",
+        "commit": "39671fe73117ba97de7011e7e06e32599dcda06d",
+        "remote": "https://github.com/analytics-zoo/ComfyUI-GGUF-XPU"
+      },
+      {
+        "name": "ComfyUI-Image-Saver",
+        "commit": "dbf94571699d6750182821cfe7d90c4e8840257d",
+        "remote": "https://github.com/alexopus/ComfyUI-Image-Saver"
+      },
+      {
+        "name": "ComfyUI-Impact-Pack",
+        "commit": "ed1bd80650a1d9c9f5d17d6411455e65ad43b58b",
+        "remote": "https://github.com/ltdrdata/ComfyUI-Impact-Pack"
+      },
+      {
+        "name": "ComfyUI-Impact-Subpack",
+        "commit": "50c7b71a6a224734cc9b21963c6d1926816a97f1",
+        "remote": "https://github.com/ltdrdata/ComfyUI-Impact-Subpack"
+      },
+      {
+        "name": "ComfyUI-Inpaint-CropAndStitch",
+        "commit": "6005efc02f7745649118edd89cdd084c2b9bd3ae",
+        "remote": "https://github.com/lquesada/ComfyUI-Inpaint-CropAndStitch"
+      },
+      {
+        "name": "ComfyUI-Inspire-Pack",
+        "commit": "d23db9aa544de9a6d4c609cb7005fa9e0d42031d",
+        "remote": "https://github.com/ltdrdata/ComfyUI-Inspire-Pack"
+      },
+      {
+        "name": "ComfyUI-KJNodes",
+        "commit": "ab72eda7ffad6280422d71ab7d54d3fb87c0ba18",
+        "remote": "https://github.com/kijai/ComfyUI-KJNodes"
+      },
+      {
+        "name": "ComfyUI-LTXVideo",
+        "commit": "220e1d45aa0469f518e982102fca4dca92a61862",
+        "remote": "https://github.com/Lightricks/ComfyUI-LTXVideo"
+      },
+      {
+        "name": "ComfyUI-MMAudio",
+        "commit": "8eaeb72edc3aaf2059b57f2d96a1f6f689f19ae2",
+        "remote": "https://github.com/kijai/ComfyUI-MMAudio"
+      },
+      {
+        "name": "ComfyUI-Manager",
+        "commit": "15e49ea544a4b20627c2eec01341843e8c4b6d49",
+        "remote": "https://github.com/Comfy-Org/ComfyUI-Manager"
+      },
+      {
+        "name": "ComfyUI-MimoV2TTS",
+        "commit": "af5284d6967989d6de8dea7bd6051b4b05c93c9d",
+        "remote": "https://github.com/allanmeng/ComfyUI-MimoV2TTS.git"
+      },
+      {
+        "name": "ComfyUI-OmniXPU",
+        "commit": null,
+        "remote": null
+      },
+      {
+        "name": "ComfyUI-Qwen3TTS-XPU",
+        "commit": "26b7caef49e9fb0f0d82eec232e8280c02bcbad1",
+        "remote": "https://github.com/allanmeng/ComfyUI-Qwen3TTS-XPU.git"
+      },
+      {
+        "name": "ComfyUI-QwenVL",
+        "commit": "1b67b443918801f571714bab636edc1845b7002a",
+        "remote": "https://github.com/1038lab/ComfyUI-QwenVL"
+      },
+      {
+        "name": "ComfyUI-RMBG",
+        "commit": "a66a5e641a54988d80ed6aad18946081c85f309e",
+        "remote": "https://github.com/1038lab/ComfyUI-RMBG"
+      },
+      {
+        "name": "ComfyUI-ReActor",
+        "commit": "0763f707e3f791323f2e7450d100a25860df546c",
+        "remote": "https://github.com/Gourieff/ComfyUI-ReActor"
+      },
+      {
+        "name": "ComfyUI-ReservedVRAM",
+        "commit": "cd9f1911d960e3d31b3908867c638a19e5d42af3",
+        "remote": "https://github.com/Windecay/ComfyUI-ReservedVRAM"
+      },
+      {
+        "name": "ComfyUI-SAM2",
+        "commit": "1d29f4eda7ee00a639014f5e0833d4599276d2c0",
+        "remote": "https://github.com/neverbiasu/ComfyUI-SAM2"
+      },
+      {
+        "name": "ComfyUI-SeedVR2_VideoUpscaler",
+        "commit": "4490bd1f482e026674543386bb2a4d176da245b9",
+        "remote": "https://github.com/numz/ComfyUI-SeedVR2_VideoUpscaler"
+      },
+      {
+        "name": "ComfyUI-SolAttn",
+        "commit": "ba969bf03814506264e35ba02bcadbc889c814c0",
+        "remote": "https://github.com/xiangyuT/ComfyUI-SolAttn_xpu.git"
+      },
+      {
+        "name": "ComfyUI-TiledDiffusion",
+        "commit": "a155b1bac39147381aeaa52b9be42e545626a44f",
+        "remote": "https://github.com/shiimizu/ComfyUI-TiledDiffusion"
+      },
+      {
+        "name": "ComfyUI-UnetBnbModelLoader",
+        "commit": "af96deedad835cd11a502717b7d364e33a1d55a0",
+        "remote": "https://github.com/mengqin/ComfyUI-UnetBnbModelLoader"
+      },
+      {
+        "name": "ComfyUI-Unload-Model",
+        "commit": "ac5ffb4ed05546545ce7cf38e7b69b5152714eed",
+        "remote": "https://github.com/SeanScripts/ComfyUI-Unload-Model"
+      },
+      {
+        "name": "ComfyUI-VFI",
+        "commit": "6176a430f12cd16003f4664c1e3c6af8e96cc3c6",
+        "remote": "https://github.com/GACLove/ComfyUI-VFI.git"
+      },
+      {
+        "name": "ComfyUI-VideoHelperSuite",
+        "commit": "4d907bee61e92c2e65af3bd6383a4e4d356126d1",
+        "remote": "https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite"
+      },
+      {
+        "name": "ComfyUI-WD14-Tagger",
+        "commit": "9e0a6e700299182fc05c58b62e7ad9f72182a78b",
+        "remote": "https://github.com/pythongosssss/ComfyUI-WD14-Tagger.git"
+      },
+      {
+        "name": "ComfyUI-WanVideoWrapper",
+        "commit": "088128b224242e110d3906c6750e9a3a348a659b",
+        "remote": "https://github.com/kijai/ComfyUI-WanVideoWrapper"
+      },
+      {
+        "name": "ComfyUI-XPUSYS-Monitor",
+        "commit": "cbdf87c2a6354f4bdf2696b010697be2fccdcf49",
+        "remote": "https://github.com/allanmeng/ComfyUI-XPUSYS-Monitor.git"
+      },
+      {
+        "name": "ComfyUI-XeSS",
+        "commit": null,
+        "remote": null
+      },
+      {
+        "name": "ComfyUI-YarvixPA",
+        "commit": "2d87f9d4a66556a8de7596045d427348e2b830ff",
+        "remote": "https://github.com/YarvixPA/ComfyUI-YarvixPA"
+      },
+      {
+        "name": "ComfyUI_Comfyroll_CustomNodes",
+        "commit": "d78b780ae43fcf8c6b7c6505e6ffb4584281ceca",
+        "remote": "https://github.com/Suzie1/ComfyUI_Comfyroll_CustomNodes"
+      },
+      {
+        "name": "ComfyUI_Custom_Nodes_AlekPet",
+        "commit": "8111722784733b4d5d85096ae1fb3cdef32742ca",
+        "remote": "https://github.com/AlekPet/ComfyUI_Custom_Nodes_AlekPet"
+      },
+      {
+        "name": "ComfyUI_IPAdapter_plus",
+        "commit": "a0f451a5113cf9becb0847b92884cb10cbdec0ef",
+        "remote": "https://github.com/cubiq/ComfyUI_IPAdapter_plus"
+      },
+      {
+        "name": "ComfyUI_KV_Edit",
+        "commit": "7edc4823e6710d4cbd540c70e966ddfafef9843e",
+        "remote": "https://github.com/smthemex/ComfyUI_KV_Edit"
+      },
+      {
+        "name": "ComfyUI_LayerStyle",
+        "commit": "1f7edb65371526195621fdde274bf895e117120e",
+        "remote": "https://github.com/chflame163/ComfyUI_LayerStyle.git"
+      },
+      {
+        "name": "ComfyUI_TiledKSampler",
+        "commit": "2fd9b05d97ecffc604c642ffbb40220b182966b2",
+        "remote": "https://github.com/BlenderNeko/ComfyUI_TiledKSampler"
+      },
+      {
+        "name": "ComfyUI_UltimateSDUpscale",
+        "commit": "a5547db9e1d07d3318bb21e9e9c474f4c1e9c8df",
+        "remote": "https://github.com/ssitu/ComfyUI_UltimateSDUpscale"
+      },
+      {
+        "name": "ComfyUI_bnb_nf4_fp4_Loaders",
+        "commit": null,
+        "remote": null
+      },
+      {
+        "name": "ComfyUI_essentials",
+        "commit": "9d9f4bedfc9f0321c19faf71855e228c93bd0dc9",
+        "remote": "https://github.com/cubiq/ComfyUI_essentials"
+      },
+      {
+        "name": "Comfyui-Simple-Json-Node",
+        "commit": "7fd5864c1dcb16f3da267aea829ca32abff68b96",
+        "remote": "https://github.com/Q-Bug4/Comfyui-Simple-Json-Node"
+      },
+      {
+        "name": "ControlNet-LLLite-ComfyUI",
+        "commit": "103a4457d44fe0d3be586c6d6b32ec5ccdbd0793",
+        "remote": "https://github.com/kohya-ss/ControlNet-LLLite-ComfyUI"
+      },
+      {
+        "name": "HivisionIDPhotos-ComfyUI",
+        "commit": "dbff026bad34f1d68eb2a89705681488f68e7c5e",
+        "remote": "https://github.com/AIFSH/HivisionIDPhotos-ComfyUI"
+      },
+      {
+        "name": "TE-Speed-MiniMaxH3",
+        "commit": null,
+        "remote": null
+      },
+      {
+        "name": "anima_sampler_kit",
+        "commit": null,
+        "remote": null
+      },
+      {
+        "name": "comfyui-krea2edit",
+        "commit": "13ef60f20828949becada815d3cbc371eb5ccaab",
+        "remote": "https://github.com/lbouaraba/comfyui-krea2edit"
+      },
+      {
+        "name": "comfyui-openvino",
+        "commit": null,
+        "remote": null
+      },
+      {
+        "name": "comfyui-sg-llama-cpp",
+        "commit": "9f4aca211680fec75627e168eb27a392da5f5c7f",
+        "remote": "https://github.com/allanmeng/comfyui-sg-llama-cpp.git"
+      },
+      {
+        "name": "comfyui_controlnet_aux",
+        "commit": "a587a4c1594524c1d2de5cd1a86cd868ff448e1c",
+        "remote": "https://github.com/Fannovel16/comfyui_controlnet_aux.git"
+      },
+      {
+        "name": "comfyui_memory_cleanup",
+        "commit": null,
+        "remote": null
+      },
+      {
+        "name": "comfyui_openvino",
+        "commit": "ff731d2f473219cb4b35d0c0c3d1fec4a7c98b38",
+        "remote": "https://github.com/openvino-dev-samples/comfyui_openvino"
+      },
+      {
+        "name": "comfyui_prompt_assistant",
+        "commit": "e0587e6d50939ae05e92922f1ed2fce008c7f622",
+        "remote": "https://github.com/yawiii/comfyui_prompt_assistant"
+      },
+      {
+        "name": "efficiency-nodes-comfyui",
+        "commit": "4579b7d6076b2870998a08f5d37883fbc8261ff2",
+        "remote": "https://github.com/jags111/efficiency-nodes-comfyui"
+      },
+      {
+        "name": "int4-omnixpu",
+        "commit": "6bd15fd0805e303c305cf04ae2a20b66a5cd2f7a",
+        "remote": "https://github.com/JWLHS/int4-omnixpu"
+      },
+      {
+        "name": "moss-image-mini-encoder",
+        "commit": "bf285735b1968d1980dac0712d55adc81117893d",
+        "remote": "https://github.com/1cyberlangke1/moss-image-mini-encoder"
+      },
+      {
+        "name": "rgthree-comfy",
+        "commit": "bc48c6aaeca87bedbc14245d89f9bc6be37a630e",
+        "remote": "https://github.com/rgthree/rgthree-comfy"
+      }
+    ],
+    "runtime": {
+      "env_vars": {
+        "OCL_ICD_FILENAMES": ";F:\\Intel-oneAPI\\compiler\\latest\\bin\\intelocl64.dll",
+        "OMNIXPU_DEBUG": "0",
+        "OMNIXPU_ENABLE": "1",
+        "OMNIXPU_QWEN_IMAGE21_QKV": "1",
+        "ONEAPI_CLANG_VERSION": "23",
+        "ONEAPI_DEVICE_SELECTOR": "level_zero:0",
+        "ONEAPI_PATH": "F:\\Intel-oneAPI",
+        "ONEAPI_ROOT": "F:\\Intel-oneAPI",
+        "SYCL_CACHE_MAX_SIZE": "8192",
+        "SYCL_CACHE_THRESHOLD": "7",
+        "SYCL_DEVICE_FILTER": "level_zero",
+        "SYCL_PI_LEVEL_ZERO_DEVICE_SCOPE_EVENTS": "0",
+        "SYCL_PI_LEVEL_ZERO_TRACK_INDIRECT_ACCESS_MEMORY": "1",
+        "SYCL_PI_LEVEL_ZERO_USE_IMMEDIATE_COMMANDLISTS": "1",
+        "UR_L0_ENABLE_RELAXED_ALLOCATION_LIMITS": "1",
+        "UR_L0_USE_IMMEDIATE_COMMANDLISTS": "1",
+        "ZES_ENABLE_SYSMAN": "1",
+        "ZE_DEVICE_SLEEP": "0",
+        "ZE_ENABLE_PCI_ID_DEVICE_ORDER": "1"
+      }
+    },
+    "captured_at": "2026-11-11T21:00:57.364+08:00",
+    "custom_nodes_total": 68,
+    "custom_nodes_with_commit": 58
+  },
+  "structure": {
+    "ui_node_count": 14,
+    "api_node_count": 14,
+    "mode_distribution": {
+      "active": 14,
+      "muted": 0,
+      "bypassed": 0
+    },
+    "bypassed_node_ids": [],
+    "muted_node_ids": [],
+    "stale_bypass_node_ids": [],
+    "stale_mute_node_ids": [],
+    "ui_only_node_ids": [],
+    "bypassed_titles": {},
+    "stale_titles": {},
+    "packages_used": [
+      {
+        "cnr_id": "comfy-core",
+        "version": "0.45.2",
+        "nodes": 6
+      },
+      {
+        "cnr_id": "comfyui-kjnodes",
+        "version": "50a0837f9aea602b184bbf6dbabf66ed2c7a1d22",
+        "nodes": 1
+      },
+      {
+        "cnr_id": "(local/unknown)",
+        "version": "c01ba8fb8f41b4f2094dbd0b185cdc238fb6134c",
+        "nodes": 1
+      },
+      {
+        "cnr_id": "comfy-core",
+        "version": "0.42.5",
+        "nodes": 1
+      },
+      {
+        "cnr_id": "comfyui_memory_cleanup",
+        "version": "1.1.3",
+        "nodes": 1
+      },
+      {
+        "cnr_id": "comfy-core",
+        "version": "0.11.1",
+        "nodes": 1
+      },
+      {
+        "cnr_id": "comfyui-kjnodes",
+        "version": "9b565354e32a7061296ac598d9c7f445e10d31ed",
+        "nodes": 1
+      },
+      {
+        "cnr_id": "(local/unknown)",
+        "version": null,
+        "nodes": 1
+      },
+      {
+        "cnr_id": "(local/unknown)",
+        "version": "39671fe73117ba97de7011e7e06e32599dcda06d",
+        "nodes": 1
+      }
+    ],
+    "workflow_format": {
+      "version": 0.4,
+      "revision": 0
+    }
+  },
+  "metrics": {
+    "steps": 6,
+    "total_steps": 6,
+    "sec_per_it": 3.94,
+    "sampling_s": 23,
+    "peak_model_mb": 8791.8,
+    "peak_model_src": "loaded",
+    "attention": [
+      {
+        "kernel": "CUTE_BHLD_D128",
+        "count": 3,
+        "heads": [
+          56
+        ],
+        "seq": []
+      }
+    ],
+    "quantization": null,
+    "models": [
+      {
+        "role": "text_encoder",
+        "class": "Qwen3VLTEModel_",
+        "file": "qwen3vl_4b_int8_convrot.safetensors",
+        "path": "E:\\\\model\\\\qwen3vl_4b_int8_convrot.safetensors",
+        "mem_mb": 4633.3,
+        "mem_src": "loaded",
+        "load_s": 0.104,
+        "mb_per_s": 44551.3,
+        "path_source": "policy-adjacent"
+      },
+      {
+        "role": "base",
+        "class": "MiniMaxH3Image",
+        "file": null,
+        "path": null,
+        "mem_mb": 8791.8,
+        "mem_src": "loaded",
+        "load_s": 67.092,
+        "mb_per_s": 131.0,
+        "path_source": "unknown"
+      },
+      {
+        "role": "vae",
+        "class": "MiniMaxH3ImageVAE",
+        "file": "minimax_h3_image_vae_fp16.safetensors",
+        "path": "E:\\\\model\\\\H3_vae\\\\minimax_h3_image_vae_fp16.safetensors",
+        "mem_mb": 1114.2,
+        "mem_src": "loaded",
+        "load_s": 3.749,
+        "mb_per_s": 297.2,
+        "path_source": "policy-role"
+      }
+    ],
+    "model_count": 3,
+    "loaded_total_mb": 14539.3,
+    "omnixpu_markers": 10,
+    "timeline": [
+      {
+        "t": "2026-11-11 20:58:10.640",
+        "offset_s": 0.27,
+        "delta_s": 0.27,
+        "event": "下发存储策略 · minimax_h3_image_vae_fp16.safetensors",
+        "kind": "policy"
+      },
+      {
+        "t": "2026-11-11 20:58:17.209",
+        "offset_s": 6.84,
+        "delta_s": 6.57,
+        "event": "下发存储策略 · qwen3vl_4b_int8_convrot.safetensors",
+        "kind": "policy"
+      },
+      {
+        "t": "2026-11-11 20:58:17.331",
+        "offset_s": 6.96,
+        "delta_s": 0.12,
+        "event": "请求加载 Qwen3VLTEModel_",
+        "kind": "req"
+      },
+      {
+        "t": "2026-11-11 20:58:17.435",
+        "offset_s": 7.07,
+        "delta_s": 0.11,
+        "event": "qwen3vl_4b_int8_convrot.safetensors 就绪（4633.34 MB）",
+        "kind": "loaded"
+      },
+      {
+        "t": "2026-11-11 20:58:54.133",
+        "offset_s": 43.77,
+        "delta_s": 36.7,
+        "event": "请求加载 MiniMaxH3Image",
+        "kind": "req"
+      },
+      {
+        "t": "2026-11-11 21:00:01.225",
+        "offset_s": 110.86,
+        "delta_s": 67.09,
+        "event": "MiniMaxH3Image 就绪（8791.75 MB）",
+        "kind": "loaded"
+      },
+      {
+        "t": "2026-11-11 21:00:50.719",
+        "offset_s": 160.35,
+        "delta_s": 49.49,
+        "event": "请求加载 MiniMaxH3ImageVAE",
+        "kind": "req"
+      },
+      {
+        "t": "2026-11-11 21:00:54.468",
+        "offset_s": 164.1,
+        "delta_s": 3.75,
+        "event": "minimax_h3_image_vae_fp16.safetensors 就绪（1114.23 MB）",
+        "kind": "loaded"
+      },
+      {
+        "t": "2026-11-11 21:01:04.218",
+        "offset_s": 173.85,
+        "delta_s": 9.75,
+        "event": "执行完成",
+        "kind": "done"
+      }
+    ]
+  },
+  "log": {
+    "file": "user/comfyui.log",
+    "mode": "file",
+    "line_count": 35,
+    "seconds_from_log": 173.93,
+    "text": "[2026-11-11 20:58:10.368] gguf qtypes: F32 (320), Q3_K (208)\r\n[2026-11-11 20:58:10.399] model weight dtype torch.bfloat16, manual cast: None\r\n[2026-11-11 20:58:10.409] model_type FLOW\r\n[2026-11-11 20:58:10.424] Model storage policy: fast_disk=False paths=[]\r\n[2026-11-11 20:58:10.640] Model storage policy: fast_disk=False paths=['E:\\\\model\\\\H3_vae\\\\minimax_h3_image_vae_fp16.safetensors']\r\n[2026-11-11 20:58:16.382] VAE load device: xpu:0, offload device: cpu, dtype: torch.float16\r\n[2026-11-11 20:58:16.841] Found quantization metadata version 1\r\n[2026-11-11 20:58:16.842] Using MixedPrecisionOps for text encoder\r\n[2026-11-11 20:58:17.209] Model storage policy: fast_disk=False paths=['E:\\\\model\\\\qwen3vl_4b_int8_convrot.safetensors']\r\n[2026-11-11 20:58:17.331] Requested to load Qwen3VLTEModel_\r\n[2026-11-11 20:58:17.435] loaded completely;  4633.34 MB loaded, full load: True\r\n[2026-11-11 20:58:17.458] CLIP/text encoder model load device: cpu, offload device: cpu, current: cpu, dtype: torch.float16\r\n[2026-11-11 20:58:17.536] [ClipProj] mmh3-4b-ClipProj-v3.1.safetensors | tap 24 | 2560 -> 5120 | cos_test 0.6874\r\n[2026-11-11 20:58:54.133] Requested to load MiniMaxH3Image\r\n[2026-11-11 21:00:01.225] loaded completely; 10103.00 MB usable, 8791.75 MB loaded, full load: True\r\n[2026-11-11 21:00:02.129] [OmniXPU] norm first use: RMSNorm shape=torch.Size([452, 5376])\r\n[2026-11-11 21:00:02.793] [OmniXPU] experimental capability-driven BMG D128 CUTE route enabled; set OMNI_ATTN_BACKEND=torch to disable it if this workflow shows an issue\r\n[2026-11-11 21:00:02.794] [OmniXPU] attention CUTE_BHLD_D128 #1: heads=56 q=452 kv=452 dtype=torch.bfloat16\r\n[2026-11-11 21:00:02.899] [OmniXPU] attention CUTE_BHLD_D128 #2: heads=56 q=452 kv=452 dtype=torch.bfloat16\r\n[2026-11-11 21:00:02.962] [OmniXPU] attention CUTE_BHLD_D128 #3: heads=56 q=452 kv=452 dtype=torch.bfloat16\r\n[2026-11-11 21:00:26.760] \r100%|████████████████████████████████████████████████████████████████████████████████████| 6/6 [00:23<00:00,  3.77s/it]\r100%|████████████████████████████████████████████████████████████████████████████████████| 6/6 [00:23<00:00,  3.94s/it]\r\n[2026-11-11 21:00:50.091] VRAM清理完成 [卸载模型: True, 清空缓存: True]\r\n[2026-11-11 21:00:50.719] Requested to load MiniMaxH3ImageVAE\r\n[2026-11-11 21:00:54.468] loaded completely; 10103.00 MB usable, 1114.23 MB loaded, full load: True\r\n[2026-11-11 21:00:55.092] [OmniXPU] attention fallback: batch=4 (seq=261)\r\n[2026-11-11 21:00:55.802] [OmniXPU] attention fallback: batch=4 (seq=261)\r\n[2026-11-11 21:00:55.804] [OmniXPU] attention fallback: batch=4 (seq=261)\r\n[2026-11-11 21:00:55.806] [OmniXPU] attention fallback: batch=4 (seq=261)\r\n[2026-11-11 21:00:55.807] [OmniXPU] attention fallback: batch=4 (seq=261)\r\n[2026-11-11 21:00:56.390] VRAMdebug: free memory before: 11,346,875,904\r\n[2026-11-11 21:00:57.181] VRAMdebug: free memory after: 12,526,496,768\r\n[2026-11-11 21:00:57.181] VRAMdebug: freed memory: 1,179,620,864\r\n[2026-11-11 21:01:04.218] Prompt executed in 173.93 seconds"
+  },
+  "workflow": {
+    "id": "390a093b-9e88-4cbe-91c1-4a4b3d3c14ff",
+    "revision": 0,
+    "last_node_id": 37,
+    "last_link_id": 43,
+    "nodes": [
+      {
+        "id": 1,
+        "type": "SaveImage",
+        "pos": [
+          1743.6939880541777,
+          568.1026881276637
+        ],
+        "size": [
+          560,
+          540
+        ],
+        "flags": {},
+        "order": 13,
+        "mode": 0,
+        "inputs": [
+          {
+            "name": "images",
+            "type": "IMAGE",
+            "link": 39
+          }
+        ],
+        "outputs": [
+          {
+            "name": "images",
+            "type": "IMAGE",
+            "links": []
+          }
+        ],
+        "properties": {
+          "cnr_id": "comfy-core",
+          "ver": "0.45.2",
+          "Node name for S&R": "SaveImage"
+        },
+        "widgets_values": [
+          "minimax_h3_image_t2i"
+        ],
+        "widgets_values_named": {
+          "filename_prefix": "minimax_h3_image_t2i"
+        }
+      },
+      {
+        "id": 4,
+        "type": "KSampler",
+        "pos": [
+          910.1010002089619,
+          560.9848537808454
+        ],
+        "size": [
+          320,
+          480
+        ],
+        "flags": {},
+        "order": 9,
+        "mode": 0,
+        "inputs": [
+          {
+            "name": "model",
+            "type": "MODEL",
+            "link": 43
+          },
+          {
+            "name": "positive",
+            "type": "CONDITIONING",
+            "link": 6
+          },
+          {
+            "name": "negative",
+            "type": "CONDITIONING",
+            "link": 7
+          },
+          {
+            "name": "latent_image",
+            "type": "LATENT",
+            "link": 8
+          }
+        ],
+        "outputs": [
+          {
+            "name": "LATENT",
+            "type": "LATENT",
+            "links": [
+              37
+            ]
+          }
+        ],
+        "properties": {
+          "cnr_id": "comfy-core",
+          "ver": "0.45.2",
+          "Node name for S&R": "KSampler"
+        },
+        "widgets_values": [
+          789160442308073,
+          "randomize",
+          6,
+          1,
+          "euler",
+          "simple",
+          1
+        ],
+        "widgets_values_named": {
+          "seed": 789160442308073,
+          "control_after_generate": "randomize",
+          "steps": 6,
+          "cfg": 1,
+          "sampler_name": "euler",
+          "scheduler": "simple",
+          "denoise": 1
+        }
+      },
+      {
+        "id": 5,
+        "type": "MiniMaxH3ImageConditioning",
+        "pos": [
+          308.94321916054713,
+          541.9902363502604
+        ],
+        "size": [
+          440,
+          400
+        ],
+        "flags": {},
+        "order": 7,
+        "mode": 0,
+        "inputs": [
+          {
+            "name": "clip",
+            "type": "CLIP",
+            "link": 31
+          },
+          {
+            "name": "vae",
+            "shape": 7,
+            "type": "VAE",
+            "link": 32
+          },
+          {
+            "name": "images.image_0",
+            "shape": 7,
+            "type": "IMAGE",
+            "link": null
+          },
+          {
+            "name": "prompt",
+            "type": "STRING",
+            "widget": {
+              "name": "prompt"
+            },
+            "link": 22
+          },
+          {
+            "name": "width",
+            "type": "INT",
+            "widget": {
+              "name": "width"
+            },
+            "link": 29
+          },
+          {
+            "name": "height",
+            "type": "INT",
+            "widget": {
+              "name": "height"
+            },
+            "link": 28
+          },
+          {
+            "name": "images.image_1",
+            "shape": 7,
+            "type": "IMAGE",
+            "link": null
+          }
+        ],
+        "outputs": [
+          {
+            "name": "positive",
+            "type": "CONDITIONING",
+            "links": [
+              6,
+              12
+            ]
+          },
+          {
+            "name": "LATENT",
+            "type": "LATENT",
+            "links": [
+              8
+            ]
+          }
+        ],
+        "properties": {
+          "cnr_id": "comfy-core",
+          "ver": "0.45.2",
+          "Node name for S&R": "MiniMaxH3ImageConditioning"
+        },
+        "widgets_values": [
+          "",
+          3104,
+          3104
+        ],
+        "widgets_values_named": {
+          "prompt": "",
+          "width": 3104,
+          "height": 3104
+        }
+      },
+      {
+        "id": 6,
+        "type": "ConditioningZeroOut",
+        "pos": [
+          340.59350177543905,
+          1075.1829308178071
+        ],
+        "size": [
+          300,
+          50
+        ],
+        "flags": {},
+        "order": 8,
+        "mode": 0,
+        "inputs": [
+          {
+            "name": "conditioning",
+            "type": "CONDITIONING",
+            "link": 12
+          }
+        ],
+        "outputs": [
+          {
+            "name": "CONDITIONING",
+            "type": "CONDITIONING",
+            "links": [
+              7
+            ]
+          }
+        ],
+        "properties": {
+          "cnr_id": "comfy-core",
+          "ver": "0.45.2",
+          "Node name for S&R": "ConditioningZeroOut"
+        }
+      },
+      {
+        "id": 18,
+        "type": "PrimitiveStringMultiline",
+        "pos": [
+          -518.235454898966,
+          1180.6319445832476
+        ],
+        "size": [
+          460,
+          580
+        ],
+        "flags": {},
+        "order": 0,
+        "mode": 0,
+        "inputs": [],
+        "outputs": [
+          {
+            "name": "STRING",
+            "type": "STRING",
+            "links": [
+              22
+            ]
+          }
+        ],
+        "title": "Text (user_prompt)",
+        "properties": {
+          "cnr_id": "comfy-core",
+          "ver": "0.45.2",
+          "Node name for S&R": "PrimitiveStringMultiline"
+        },
+        "widgets_values": [
+          "The image is a charming storybook cover and diorama scene featuring a handcrafted clay badger baker standing outside a tiny rustic bakery, designed in an earthy, warm palette: terracotta brick, buttery golden pastry crust, soft sage green woodwork, flour-dusted white, and evening twilight periwinkle, illuminated by warm lantern light pouring from the bakery window and overhead golden hour rays. The badger is the hero, sculpted from matte polymer clay with visible, delightful fingerprint textures and fine wooden tool marks along his fur; he wears a slightly wrinkled blue linen apron dusted with white chalky flour and tiny round wire spectacles balanced on his sculpted snout. He stands proud on short stout legs, holding a wooden baker's peel loaded with three freshly baked, braided golden brioche loaves. Surrounding the entrance, the scene is lively and meticulously crafted: the bakery window has curved sage-green wooden frames displaying tiny clay croissants, red-glazed fruit tarts, and stacked miniature sourdough rounds; to the left, a sleeping calico cat sculpted from clay curls atop a burlap sack labeled with a tiny stitched grain emblem; a wrought-iron lantern hangs by the oak door, casting a radial warm glow across cobblestones where scattered fallen golden leaves lie. Floating in the soft evening sky above the roof are three sculpted paper-cutout clouds on thin wires, accompanied by small golden four-point foil stars. The typography is integrated as tactile signage: mounted above the bakery door, an arched wooden sign is carved with raised cream lettering that reads \"THE CRUMB & HEARTH\"; directly below it, painted on the glass in bouncy hand-lettered script, is \"ARTISAN SOURDOUGH\". Stamped into the cream border across the bottom of the cover in bold rustic capitals is \"A BAKER'S TALE\", flanked at the lower right by four neat stacked lines reading \"FRESH BREAD\", \"WARM HEARTH\", \"DAILY BAKE\", and \"SPRING FEAST\". All lettering is English only, with no Chinese characters anywhere on the cover, and every clay surface shows soft natural ambient occlusion and realistic matte depth."
+        ],
+        "widgets_values_named": {
+          "value": "The image is a charming storybook cover and diorama scene featuring a handcrafted clay badger baker standing outside a tiny rustic bakery, designed in an earthy, warm palette: terracotta brick, buttery golden pastry crust, soft sage green woodwork, flour-dusted white, and evening twilight periwinkle, illuminated by warm lantern light pouring from the bakery window and overhead golden hour rays. The badger is the hero, sculpted from matte polymer clay with visible, delightful fingerprint textures and fine wooden tool marks along his fur; he wears a slightly wrinkled blue linen apron dusted with white chalky flour and tiny round wire spectacles balanced on his sculpted snout. He stands proud on short stout legs, holding a wooden baker's peel loaded with three freshly baked, braided golden brioche loaves. Surrounding the entrance, the scene is lively and meticulously crafted: the bakery window has curved sage-green wooden frames displaying tiny clay croissants, red-glazed fruit tarts, and stacked miniature sourdough rounds; to the left, a sleeping calico cat sculpted from clay curls atop a burlap sack labeled with a tiny stitched grain emblem; a wrought-iron lantern hangs by the oak door, casting a radial warm glow across cobblestones where scattered fallen golden leaves lie. Floating in the soft evening sky above the roof are three sculpted paper-cutout clouds on thin wires, accompanied by small golden four-point foil stars. The typography is integrated as tactile signage: mounted above the bakery door, an arched wooden sign is carved with raised cream lettering that reads \"THE CRUMB & HEARTH\"; directly below it, painted on the glass in bouncy hand-lettered script, is \"ARTISAN SOURDOUGH\". Stamped into the cream border across the bottom of the cover in bold rustic capitals is \"A BAKER'S TALE\", flanked at the lower right by four neat stacked lines reading \"FRESH BREAD\", \"WARM HEARTH\", \"DAILY BAKE\", and \"SPRING FEAST\". All lettering is English only, with no Chinese characters anywhere on the cover, and every clay surface shows soft natural ambient occlusion and realistic matte depth."
+        },
+        "color": "#232",
+        "bgcolor": "#353"
+      },
+      {
+        "id": 21,
+        "type": "VAELoaderKJ",
+        "pos": [
+          -433.1076744774856,
+          962.9479196882711
+        ],
+        "size": [
+          380.19419128417974,
+          140.38669128417973
+        ],
+        "flags": {},
+        "order": 1,
+        "mode": 0,
+        "inputs": [],
+        "outputs": [
+          {
+            "name": "VAE",
+            "type": "VAE",
+            "links": [
+              32,
+              35
+            ]
+          }
+        ],
+        "properties": {
+          "cnr_id": "comfyui-kjnodes",
+          "ver": "50a0837f9aea602b184bbf6dbabf66ed2c7a1d22",
+          "Node name for S&R": "VAELoaderKJ"
+        },
+        "widgets_values": [
+          "H3_vae\\minimax_h3_image_vae_fp16.safetensors",
+          "main_device",
+          "fp16"
+        ],
+        "widgets_values_named": {
+          "vae_name": "H3_vae\\minimax_h3_image_vae_fp16.safetensors",
+          "device": "main_device",
+          "weight_dtype": "fp16"
+        }
+      },
+      {
+        "id": 23,
+        "type": "ResolutionSelector",
+        "pos": [
+          57.04426153507009,
+          1323.449390279203
+        ],
+        "size": [
+          270,
+          150
+        ],
+        "flags": {},
+        "order": 2,
+        "mode": 0,
+        "showAdvanced": true,
+        "inputs": [],
+        "outputs": [
+          {
+            "name": "width",
+            "type": "INT",
+            "links": [
+              29
+            ]
+          },
+          {
+            "name": "height",
+            "type": "INT",
+            "links": [
+              28
+            ]
+          }
+        ],
+        "properties": {
+          "cnr_id": "comfy-core",
+          "ver": "0.45.2",
+          "Node name for S&R": "ResolutionSelector"
+        },
+        "widgets_values": [
+          "1:1 (Square)",
+          1.2,
+          32
+        ],
+        "widgets_values_named": {
+          "aspect_ratio": "1:1 (Square)",
+          "megapixels": 1.2,
+          "multiple": 32
+        }
+      },
+      {
+        "id": 25,
+        "type": "ClipProjApply",
+        "pos": [
+          -359.1431431434444,
+          718.1413578368962
+        ],
+        "size": [
+          348.200835040657,
+          66.95430243255237
+        ],
+        "flags": {},
+        "order": 6,
+        "mode": 0,
+        "inputs": [
+          {
+            "name": "clip",
+            "type": "CLIP",
+            "link": 30
+          }
+        ],
+        "outputs": [
+          {
+            "name": "clip",
+            "type": "CLIP",
+            "links": [
+              31
+            ]
+          }
+        ],
+        "properties": {
+          "aux_id": "nicolab28/ComfyUI-ClipProj",
+          "ver": "c01ba8fb8f41b4f2094dbd0b185cdc238fb6134c",
+          "Node name for S&R": "ClipProjApply"
+        },
+        "widgets_values": [
+          "mmh3-4b-ClipProj-v3.1.safetensors"
+        ],
+        "widgets_values_named": {
+          "projection": "mmh3-4b-ClipProj-v3.1.safetensors"
+        }
+      },
+      {
+        "id": 29,
+        "type": "CLIPLoader",
+        "pos": [
+          -808.9811259046704,
+          715.942306306185
+        ],
+        "size": [
+          380.3483524579708,
+          148.71550328855733
+        ],
+        "flags": {},
+        "order": 3,
+        "mode": 0,
+        "inputs": [],
+        "outputs": [
+          {
+            "name": "CLIP",
+            "type": "CLIP",
+            "links": [
+              30
+            ]
+          }
+        ],
+        "properties": {
+          "cnr_id": "comfy-core",
+          "ver": "0.42.5",
+          "Node name for S&R": "CLIPLoader"
+        },
+        "widgets_values": [
+          "ext\\qwen3vl_4b_int8_convrot.safetensors",
+          "minimax",
+          "default"
+        ],
+        "widgets_values_named": {
+          "clip_name": "ext\\qwen3vl_4b_int8_convrot.safetensors",
+          "type": "minimax",
+          "device": "default"
+        }
+      },
+      {
+        "id": 30,
+        "type": "VRAMCleanup",
+        "pos": [
+          1299.9105388188757,
+          574.8595362587216
+        ],
+        "size": [
+          342.3513356097237,
+          82
+        ],
+        "flags": {
+          "collapsed": false
+        },
+        "order": 10,
+        "mode": 0,
+        "inputs": [
+          {
+            "name": "anything",
+            "shape": 7,
+            "type": "*",
+            "link": 37
+          }
+        ],
+        "outputs": [
+          {
+            "name": "output",
+            "type": "*",
+            "links": [
+              38
+            ]
+          }
+        ],
+        "properties": {
+          "cnr_id": "comfyui_memory_cleanup",
+          "ver": "1.1.3",
+          "Node name for S&R": "VRAMCleanup"
+        },
+        "widgets_values": [
+          true,
+          true
+        ],
+        "widgets_values_named": {
+          "offload_model": true,
+          "offload_cache": true
+        }
+      },
+      {
+        "id": 31,
+        "type": "VAEDecodeTiled",
+        "pos": [
+          1304.518652001959,
+          727.4578610895006
+        ],
+        "size": [
+          253.06060236150597,
+          172.4242054332385
+        ],
+        "flags": {},
+        "order": 11,
+        "mode": 0,
+        "inputs": [
+          {
+            "name": "samples",
+            "type": "LATENT",
+            "link": 38
+          },
+          {
+            "name": "vae",
+            "type": "VAE",
+            "link": 35
+          }
+        ],
+        "outputs": [
+          {
+            "name": "IMAGE",
+            "type": "IMAGE",
+            "links": [
+              34
+            ]
+          }
+        ],
+        "properties": {
+          "cnr_id": "comfy-core",
+          "ver": "0.11.1",
+          "Node name for S&R": "VAEDecodeTiled"
+        },
+        "widgets_values": [
+          256,
+          32,
+          32,
+          8
+        ],
+        "widgets_values_named": {
+          "tile_size": 256,
+          "overlap": 32,
+          "temporal_size": 32,
+          "temporal_overlap": 8
+        }
+      },
+      {
+        "id": 32,
+        "type": "VRAM_Debug",
+        "pos": [
+          1310.7982522352115,
+          956.2463115447033
+        ],
+        "size": [
+          310.121249112216,
+          186
+        ],
+        "flags": {},
+        "order": 12,
+        "mode": 0,
+        "inputs": [
+          {
+            "name": "any_input",
+            "shape": 7,
+            "type": "*",
+            "link": 34
+          },
+          {
+            "name": "image_pass",
+            "shape": 7,
+            "type": "IMAGE",
+            "link": null
+          },
+          {
+            "name": "model_pass",
+            "shape": 7,
+            "type": "MODEL",
+            "link": null
+          }
+        ],
+        "outputs": [
+          {
+            "name": "any_output",
+            "type": "*",
+            "links": [
+              39
+            ]
+          },
+          {
+            "name": "image_pass",
+            "type": "IMAGE",
+            "links": []
+          },
+          {
+            "name": "model_pass",
+            "type": "MODEL",
+            "links": []
+          },
+          {
+            "label": "freemem_before",
+            "name": "freemem_before",
+            "type": "INT",
+            "links": []
+          },
+          {
+            "label": "freemem_after",
+            "name": "freemem_after",
+            "type": "INT",
+            "links": []
+          }
+        ],
+        "properties": {
+          "cnr_id": "comfyui-kjnodes",
+          "ver": "9b565354e32a7061296ac598d9c7f445e10d31ed",
+          "Node name for S&R": "VRAM_Debug"
+        },
+        "widgets_values": [
+          true,
+          true,
+          true
+        ],
+        "widgets_values_named": {
+          "empty_cache": true,
+          "gc_collect": true,
+          "unload_all_models": true
+        }
+      },
+      {
+        "id": 34,
+        "type": "LogCollection",
+        "pos": [
+          -1337.2065092240884,
+          629.6457321283137
+        ],
+        "size": [
+          430,
+          340
+        ],
+        "flags": {},
+        "order": 4,
+        "mode": 0,
+        "inputs": [],
+        "outputs": [],
+        "properties": {
+          "Node name for S&R": "LogCollection"
+        },
+        "widgets_values": [
+          ""
+        ],
+        "widgets_values_named": {
+          "fulllog_panel": ""
+        }
+      },
+      {
+        "id": 37,
+        "type": "UnetLoaderGGUFAdvanced",
+        "pos": [
+          -654.8631758588799,
+          377.12827867317696
+        ],
+        "size": [
+          513.5559938991211,
+          132.38363530754543
+        ],
+        "flags": {},
+        "order": 5,
+        "mode": 0,
+        "inputs": [],
+        "outputs": [
+          {
+            "name": "MODEL",
+            "type": "MODEL",
+            "links": [
+              43
+            ]
+          }
+        ],
+        "properties": {
+          "aux_id": "analytics-zoo/ComfyUI-GGUF-XPU",
+          "ver": "39671fe73117ba97de7011e7e06e32599dcda06d",
+          "Node name for S&R": "UnetLoaderGGUFAdvanced"
+        },
+        "widgets_values": [
+          "ext\\H3_diff\\MiniMax-H3-Image-Pruned-Q3_K_M.gguf",
+          "default",
+          "default",
+          false
+        ],
+        "widgets_values_named": {
+          "unet_name": "ext\\H3_diff\\MiniMax-H3-Image-Pruned-Q3_K_M.gguf",
+          "dequant_dtype": "default",
+          "patch_dtype": "default",
+          "patch_on_device": false
+        }
+      }
+    ],
+    "links": [
+      [
+        6,
+        5,
+        0,
+        4,
+        1,
+        "CONDITIONING"
+      ],
+      [
+        7,
+        6,
+        0,
+        4,
+        2,
+        "CONDITIONING"
+      ],
+      [
+        8,
+        5,
+        1,
+        4,
+        3,
+        "LATENT"
+      ],
+      [
+        12,
+        5,
+        0,
+        6,
+        0,
+        "CONDITIONING"
+      ],
+      [
+        22,
+        18,
+        0,
+        5,
+        3,
+        "STRING"
+      ],
+      [
+        28,
+        23,
+        1,
+        5,
+        5,
+        "INT"
+      ],
+      [
+        29,
+        23,
+        0,
+        5,
+        4,
+        "INT"
+      ],
+      [
+        30,
+        29,
+        0,
+        25,
+        0,
+        "CLIP"
+      ],
+      [
+        31,
+        25,
+        0,
+        5,
+        0,
+        "CLIP"
+      ],
+      [
+        32,
+        21,
+        0,
+        5,
+        1,
+        "VAE"
+      ],
+      [
+        34,
+        31,
+        0,
+        32,
+        0,
+        "IMAGE"
+      ],
+      [
+        35,
+        21,
+        0,
+        31,
+        1,
+        "VAE"
+      ],
+      [
+        37,
+        4,
+        0,
+        30,
+        0,
+        "LATENT"
+      ],
+      [
+        38,
+        30,
+        0,
+        31,
+        0,
+        "LATENT"
+      ],
+      [
+        39,
+        32,
+        0,
+        1,
+        0,
+        "IMAGE"
+      ],
+      [
+        43,
+        37,
+        0,
+        4,
+        0,
+        "MODEL"
+      ]
+    ],
+    "groups": [],
+    "config": {},
+    "extra": {
+      "ds": {
+        "scale": 0.630394086312854,
+        "offset": [
+          1517.1105970491094,
+          81.47671255347485
+        ]
+      },
+      "frontendVersion": "1.58.5",
+      "VHS_latentpreview": false,
+      "VHS_latentpreviewrate": 0,
+      "VHS_MetadataImage": true,
+      "VHS_KeepIntermediate": true
+    },
+    "version": 0.4,
+    "seed_widgets": {
+      "4": 0
+    },
+    "widget_idx_map": {
+      "4": {
+        "seed": 0,
+        "sampler_name": 4,
+        "scheduler": 5
+      }
+    }
+  },
+  "prompt": {
+    "1": {
+      "inputs": {
+        "filename_prefix": "minimax_h3_image_t2i",
+        "images": [
+          "32",
+          0
+        ]
+      },
+      "class_type": "SaveImage",
+      "_meta": {
+        "title": "保存图像",
+        "cnr_id": "comfy-core",
+        "ver": "0.45.2"
+      }
+    },
+    "4": {
+      "inputs": {
+        "seed": 789160442308073,
+        "steps": 6,
+        "cfg": 1.0,
+        "sampler_name": "euler",
+        "scheduler": "simple",
+        "denoise": 1.0,
+        "model": [
+          "37",
+          0
+        ],
+        "positive": [
+          "5",
+          0
+        ],
+        "negative": [
+          "6",
+          0
+        ],
+        "latent_image": [
+          "5",
+          1
+        ]
+      },
+      "class_type": "KSampler",
+      "_meta": {
+        "title": "K采样器",
+        "cnr_id": "comfy-core",
+        "ver": "0.45.2"
+      }
+    },
+    "5": {
+      "inputs": {
+        "prompt": [
+          "18",
+          0
+        ],
+        "width": [
+          "23",
+          0
+        ],
+        "height": [
+          "23",
+          1
+        ],
+        "clip": [
+          "25",
+          0
+        ],
+        "vae": [
+          "21",
+          0
+        ]
+      },
+      "class_type": "MiniMaxH3ImageConditioning",
+      "_meta": {
+        "title": "MiniMax H3 Image Conditioning",
+        "cnr_id": "comfy-core",
+        "ver": "0.45.2"
+      }
+    },
+    "6": {
+      "inputs": {
+        "conditioning": [
+          "5",
+          0
+        ]
+      },
+      "class_type": "ConditioningZeroOut",
+      "_meta": {
+        "title": "条件零化",
+        "cnr_id": "comfy-core",
+        "ver": "0.45.2"
+      }
+    },
+    "18": {
+      "inputs": {
+        "value": "The image is a charming storybook cover and diorama scene featuring a handcrafted clay badger baker standing outside a tiny rustic bakery, designed in an earthy, warm palette: terracotta brick, buttery golden pastry crust, soft sage green woodwork, flour-dusted white, and evening twilight periwinkle, illuminated by warm lantern light pouring from the bakery window and overhead golden hour rays. The badger is the hero, sculpted from matte polymer clay with visible, delightful fingerprint textures and fine wooden tool marks along his fur; he wears a slightly wrinkled blue linen apron dusted with white chalky flour and tiny round wire spectacles balanced on his sculpted snout. He stands proud on short stout legs, holding a wooden baker's peel loaded with three freshly baked, braided golden brioche loaves. Surrounding the entrance, the scene is lively and meticulously crafted: the bakery window has curved sage-green wooden frames displaying tiny clay croissants, red-glazed fruit tarts, and stacked miniature sourdough rounds; to the left, a sleeping calico cat sculpted from clay curls atop a burlap sack labeled with a tiny stitched grain emblem; a wrought-iron lantern hangs by the oak door, casting a radial warm glow across cobblestones where scattered fallen golden leaves lie. Floating in the soft evening sky above the roof are three sculpted paper-cutout clouds on thin wires, accompanied by small golden four-point foil stars. The typography is integrated as tactile signage: mounted above the bakery door, an arched wooden sign is carved with raised cream lettering that reads \"THE CRUMB & HEARTH\"; directly below it, painted on the glass in bouncy hand-lettered script, is \"ARTISAN SOURDOUGH\". Stamped into the cream border across the bottom of the cover in bold rustic capitals is \"A BAKER'S TALE\", flanked at the lower right by four neat stacked lines reading \"FRESH BREAD\", \"WARM HEARTH\", \"DAILY BAKE\", and \"SPRING FEAST\". All lettering is English only, with no Chinese characters anywhere on the cover, and every clay surface shows soft natural ambient occlusion and realistic matte depth."
+      },
+      "class_type": "PrimitiveStringMultiline",
+      "_meta": {
+        "title": "Text (user_prompt)",
+        "cnr_id": "comfy-core",
+        "ver": "0.45.2"
+      }
+    },
+    "21": {
+      "inputs": {
+        "vae_name": "H3_vae\\minimax_h3_image_vae_fp16.safetensors",
+        "device": "main_device",
+        "weight_dtype": "fp16"
+      },
+      "class_type": "VAELoaderKJ",
+      "_meta": {
+        "title": "VAELoader KJ",
+        "cnr_id": "comfyui-kjnodes",
+        "ver": "50a0837f9aea602b184bbf6dbabf66ed2c7a1d22"
+      }
+    },
+    "23": {
+      "inputs": {
+        "aspect_ratio": "1:1 (Square)",
+        "megapixels": 1.2,
+        "multiple": 32
+      },
+      "class_type": "ResolutionSelector",
+      "_meta": {
+        "title": "分辨率选择器",
+        "cnr_id": "comfy-core",
+        "ver": "0.45.2"
+      }
+    },
+    "25": {
+      "inputs": {
+        "projection": "mmh3-4b-ClipProj-v3.1.safetensors",
+        "clip": [
+          "29",
+          0
+        ]
+      },
+      "class_type": "ClipProjApply",
+      "_meta": {
+        "title": "ClipProj Apply",
+        "aux_id": "nicolab28/ComfyUI-ClipProj",
+        "ver": "c01ba8fb8f41b4f2094dbd0b185cdc238fb6134c"
+      }
+    },
+    "29": {
+      "inputs": {
+        "clip_name": "ext\\qwen3vl_4b_int8_convrot.safetensors",
+        "type": "minimax",
+        "device": "default"
+      },
+      "class_type": "CLIPLoader",
+      "_meta": {
+        "title": "加载CLIP",
+        "cnr_id": "comfy-core",
+        "ver": "0.42.5"
+      }
+    },
+    "30": {
+      "inputs": {
+        "offload_model": true,
+        "offload_cache": true,
+        "anything": [
+          "4",
+          0
+        ]
+      },
+      "class_type": "VRAMCleanup",
+      "_meta": {
+        "title": "🎈VRAM-Cleanup",
+        "cnr_id": "comfyui_memory_cleanup",
+        "ver": "1.1.3"
+      },
+      "is_changed": [
+        1794401890.2867832
+      ]
+    },
+    "31": {
+      "inputs": {
+        "tile_size": 256,
+        "overlap": 32,
+        "temporal_size": 32,
+        "temporal_overlap": 8,
+        "samples": [
+          "30",
+          0
+        ],
+        "vae": [
+          "21",
+          0
+        ]
+      },
+      "class_type": "VAEDecodeTiled",
+      "_meta": {
+        "title": "VAE解码（分块）",
+        "cnr_id": "comfy-core",
+        "ver": "0.11.1"
+      }
+    },
+    "32": {
+      "inputs": {
+        "empty_cache": true,
+        "gc_collect": true,
+        "unload_all_models": true,
+        "any_input": [
+          "31",
+          0
+        ]
+      },
+      "class_type": "VRAM_Debug",
+      "_meta": {
+        "title": "VRAM Debug",
+        "cnr_id": "comfyui-kjnodes",
+        "ver": "9b565354e32a7061296ac598d9c7f445e10d31ed"
+      }
+    },
+    "34": {
+      "inputs": {},
+      "class_type": "LogCollection",
+      "_meta": {
+        "title": "LogCollection"
+      }
+    },
+    "37": {
+      "inputs": {
+        "unet_name": "ext\\H3_diff\\MiniMax-H3-Image-Pruned-Q3_K_M.gguf",
+        "dequant_dtype": "default",
+        "patch_dtype": "default",
+        "patch_on_device": false
+      },
+      "class_type": "UnetLoaderGGUFAdvanced",
+      "_meta": {
+        "title": "Unet Loader (GGUF/Advanced)",
+        "aux_id": "analytics-zoo/ComfyUI-GGUF-XPU",
+        "ver": "39671fe73117ba97de7011e7e06e32599dcda06d"
+      }
+    }
+  },
+  "degraded": []
+}
