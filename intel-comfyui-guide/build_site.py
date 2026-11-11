@@ -34,6 +34,13 @@ md = markdown.Markdown(extensions=['tables', 'fenced_code', 'toc'],
 body = md.convert(md_text)
 toc = md.toc
 
+# 主内容区顶部不再重复大标题（深蓝 header 里已经有 h1 了），
+# 只剥掉正文首个 h1，其余内容原样保留；md 文件本身仍保留 h1 供独立阅读。
+body = re.sub(r'<h1[^>]*>.*?</h1>\s*', '', body, count=1)
+
+# 顶部四行版本信息单独上底色，与正文区隔（md 里仍是普通段落，不引入额外标记）
+body = body.replace('<p>优化指南版本：', '<p class="verplate">优化指南版本：', 1)
+
 page = f"""<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -61,6 +68,7 @@ body {{ font-family:-apple-system,'Segoe UI','Microsoft YaHei',sans-serif; color
 .content h3 {{ font-size:17px; margin:22px 0 10px; color:#333; }}
 .content h4 {{ font-size:15px; margin:18px 0 8px; }}
 .content p {{ margin:10px 0; font-size:14.5px; }}
+.content .verplate {{ background:#eef3fb; border-left:4px solid #1a2d5c; border-radius:0 6px 6px 0; padding:12px 18px; margin:2px 0 18px; font-size:14px; color:#1a2d5c; line-height:2; }}
 .content ul, .content ol {{ margin:10px 0 10px 22px; font-size:14.5px; }}
 .content li {{ margin:4px 0; }}
 .content blockquote {{ border-left:4px solid #ff7a1a; background:#fff7ef; padding:10px 14px; margin:12px 0; border-radius:0 6px 6px 0; font-size:14px; }}
