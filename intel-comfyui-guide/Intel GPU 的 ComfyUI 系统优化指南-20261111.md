@@ -2,21 +2,21 @@
 
 优化指南版本：**20261111**  
 适配 aimdo 版本：**0.6.0**  
-适配 kitchen 版本：**0.2.40**（仅 bmg 需要）  
-符合以上 aimdo 版本和 kitchen 版本的 ComfyUI 内核最新版本：**0.44.2**
+适配 kitchen 版本：**0.2.41**（仅 bmg 需要）  
+符合以上 aimdo 版本和 kitchen 版本的 ComfyUI 内核最新版本：**0.45.2**
 
 **📌 本版本更新说明（20261111）**：
 
 - 🔴 **最重要的一条（必读）：本版双线组件全部改用 oneAPI 2026.2 编译，用户端必须把三个 Intel runtime 包一起升到 2026.2.0。** 不升的后果不是"慢"，是 **ComfyUI 直接起不来**（`_C` 加载失败 / `0xc0000139`）。命令见下方「1.1 oneAPI runtime 三包」一节，**装组件之前先做这一步**。
-- ✅ **ComfyUI 0.43.1 → 0.44.2**：`requirements.txt` 的 pin 不变（`comfy-kitchen==0.2.40` + `comfy-aimdo==0.6.0`），所以**两个 provider 的版本锚继续命中**，不需要重打 provider。两线组件与 0.44.x 的 pin 三方对齐（已实读核对：pin ↔ 官方已装版 ↔ provider 锚）。
+- ✅ **ComfyUI 0.43.1 → 0.45.2**：`requirements.txt` 的 pin **动了半格** —— `comfy-kitchen` 从 `0.2.40` 抬到 **`0.2.41`**，`comfy-aimdo` 仍是 `0.6.0`。所以 **kitchen provider 必须换成本版这份 0.2.41**（旧的 0.2.40 provider 锚对不上，会被明确拒绝、落回慢路径），**aimdo provider 完全不必重装**。两线组件与 0.45.x 的 pin 三方对齐（已实读核对：pin ↔ 官方已装版 ↔ provider 锚）。
 - **omni_xpu_kernel（B 系列）**：`0.2.0b3+torch215.bmg-20261031.g57686349` → **`0.2.0b3+torch215.bmg-20261111.gb348fc1b.oneapi262`**
     - 📛 文件名 build tag 由两段变**三段**：`<日期>.g<commit 8 位>.<oneAPI 版本>`。新增的 `oneapi262` 就是**工具链标记**——它明确告诉你这份产物是**用 oneAPI 2026.2 编译的**，装它就必须是 2026.2.0 runtime。
     - ✅ `_build_info.py` 新增 **`oneapi` 字段**，可以直接查工具链：输出 `20261111.gb348fc1b.oneapi262 2.15.0+xpu 2026.2`。oneDNN 用的是 **2026.1 发行包（3.13.2）**，`dnnl.dll` 77,463,616 B —— 与 torch 2.15 内置的 3.13.3 不同源，但 kernel 走绝对路径加载自己的那份，两者隔离。
     - 📊 **能力位 `supports_*` 17 项全 True**（与上一版同口径），kitchen 侧 17/17 命中。
     - 🔧 本地编译改动继续保留（相对上游）：`supported_torch_minors` 含 `2.15`；`get_torch_cxx_standard()` 由 `== "2.14"` 改为 `(major, minor) >= (2, 14)`。**不改第二处 2.15 必编不过**（会掉回 c++17）。
-- **comfy-kitchen XPU provider**：**仍为 `0.2.40`**，只是重打了一份带 `oneapi262` 标记的产物 —— `comfy_kitchen_xpu_runtime-0.2.40-20261111.oneapi262-py3-none-any.whl`。
+- **comfy-kitchen XPU provider**：**`0.2.40` → `0.2.41`**（跟随 ComfyUI 0.45.x 的 pin），产物 `comfy_kitchen_xpu_runtime-0.2.41-20261111.oneapi262-py3-none-any.whl`（**206,628 B**）。
     - ⚠️ **这个标记的性质与 kernel 不同，别误解**：kitchen XPU 是**纯 Python 包**（`setup.py` 的 `get_extensions()` 直接 `return []`，包内 **0 个** `.pyd` / `.dll`，71 个成员全是 .py + json）。它**不链接、不加载任何 oneAPI 库**，所以 `oneapi262` 在这里只是**发布批次标记**，`2026.1.2` 环境下功能上照样能跑。真正要求 2026.2.0 的是 kernel。
-    - ✅ 包内容与上一份 `0.2.40` **逐成员一致**（已核对 69 个成员内容哈希全等），**只是文件名多了标记**，`provider.json` 的 `runtime`、锚、rev 全部未变（`torch_version: 2.15.0+xpu`、`xpu_targets: ["bmg","dg2"]`）。已装旧名的用户**不必重装**。
+    - ⚠️ **这份不是「只换个文件名」，是真正的版本升级**：官方 `comfy-kitchen` 从 0.2.40 抬到 0.2.41，所以 provider 的锚变成 `compatible_versions: ["0.2.41"]`、rev 变为 `bf4392731fd6`（merge 上游 0.2.41）。**装了 ComfyUI 0.45.x 就必须换这份**——旧的 0.2.40 provider 会被明确拒绝。`torch_version` 仍是 `2.15.0+xpu`、`xpu_targets` 仍是 `["bmg","dg2"]`，包内仍是 **0 个** `.pyd` / `.dll`（71 个成员）。
 - **comfy-aimdo XPU provider**：版本仍 `0.6.0`（锚 `["0.6.0"]`、rev `6472c2dd`），按 oneAPI 2026.2 **重编**，文件名加 `.oneapi262`。B 系列 `0.6.0+torch215.bmg.oneapi262`（`aimdo_xpu.dll` **253,440 B** / 89 导出），A770 `0.6.0+xpu.2.g7e7b686`（**262,144 B** / 93 导出）。
 - **ComfyUI-OmniXPU**：`ComfyUI-OmniXPU.bmg-20261111.zip`（**36 个文件 / 20 个 Component**，96,345 B）
     - 🆕 **新增 `adapters/qwen_image21_qkv.py`**（Qwen-Image 2.1 的 QKV 融合适配），用 `OMNIXPU_QWEN_IMAGE21_QKV=1` 打开。
@@ -28,7 +28,7 @@
 - ⚠️ **本包不含一键安装 bat**：安装 bat 由维护者单独发布，本版未随包提供。
 - ⭐ **仍然不要装 `pyzes`**（详见「常见问题表」与 6.10）：它会让 `torch.xpu.device_count()` 第二次调用崩掉，进而让 ComfyUI 在导入阶段直接起不来。**换 oneAPI 版本不会改变这条结论。**
 
-> 🔮 **前瞻提醒**：本包锚定 **PyTorch 2.15.0+xpu + ComfyUI 0.44.x + oneAPI runtime 2026.2.0**。前两个锚是**精确匹配**：torch 换 minor、或 ComfyUI 再抬依赖，provider 就会被**明确拒绝**（响亮失败、退回纯官方包，不会半残运行，但会明显变慢）。oneAPI 那一层则是**硬 ABI 依赖**（见 1.1）。
+> 🔮 **前瞻提醒**：本包锚定 **PyTorch 2.15.0+xpu + ComfyUI 0.45.x + oneAPI runtime 2026.2.0**。前两个锚是**精确匹配**：torch 换 minor、或 ComfyUI 再抬依赖，provider 就会被**明确拒绝**（响亮失败、退回纯官方包，不会半残运行，但会明显变慢）。oneAPI 那一层则是**硬 ABI 依赖**（见 1.1）。
 
 
 
@@ -168,7 +168,7 @@ AI 助手会替你完成以下全部工作：
 | 硬件平台    | **x64**（本包 kernel wheel 的 tag 是 `cp313-cp313-win_amd64`，ARM64 装不上）                               |
 | Python  | **3.13**（3.12 装不上——wheel 的 `cp313` tag 是硬约束）                                                     |
 | PyTorch | **2.15.0+xpu**（ComfyUI XPU 版自带；`torch.version.xpu` 应为 `20260101`）                                |
-| ComfyUI | **0.44.x**（本版实测 0.44.2；pin 为 `comfy-kitchen==0.2.40` / `comfy-aimdo==0.6.0`）                     |
+| ComfyUI | **0.45.x**（本版实测 0.45.2；pin 为 `comfy-kitchen==0.2.41` / `comfy-aimdo==0.6.0`）                     |
 | 显卡驱动    | Intel Arc 最新驱动                                                                                   |
 | oneAPI  | **仅编译需要**；runtime 不需要（本包 wheel 已自带 `dnnl.dll` 与全部 `.pyd`）                                             |
 
@@ -281,7 +281,7 @@ python -m pip install omni_xpu_kernel-0.2.0b3+torch215.dg2.1-cp313-cp313-win_amd
 | `supports_*` 能力位 | **16 项**（缺 `supports_group_norm_stats3d`） | **17 项** |
 | 构建溯源 | **无** `_build_info.py`，文件名也无 build tag | 有 `_build_info.py`，文件名带 `20261111.gb348fc1b.oneapi262` |
 
-> ⚠️ **A770 少的那一项是 `supports_group_norm_stats3d`**：comfy-kitchen 0.2.40 里依赖这项能力的 3D group-norm VAE 提速会回落 eager（**按能力门控推断，未在 A770 实机复测**）。这是社区 fork 尚**未跟进**的算子，**不是安装错误**，等它出新版即可。
+> ⚠️ **A770 少的那一项是 `supports_group_norm_stats3d`**：comfy-kitchen 0.2.41 里依赖这项能力的 3D group-norm VAE 提速会回落 eager（**按能力门控推断，未在 A770 实机复测**）。这是社区 fork 尚**未跟进**的算子，**不是安装错误**，等它出新版即可。
 >
 > 📌 **所以 2.2 里那条 `_build_info` 命令在 A770 上跑不了**（文件不存在）。A770 查版本用：
 
@@ -342,7 +342,7 @@ python -c "import omni_xpu_kernel as o; n=[x for x in dir(o.kitchen) if x.starts
 :: 应输出: 17 项; False: 无
 ```
 
-> ⭐ **`supports_group_norm_stats3d` 在 20261031 版就已补齐，本版保持不变** —— `supports_*` 仍为 17 项全 True。20261026 及更早的 kernel 缺这个符号，导致 comfy-kitchen 0.2.40 的 VAE 提速项一直走 eager 回退；本版继续带着它，这条链路不会再退回去。
+> ⭐ **`supports_group_norm_stats3d` 在 20261031 版就已补齐，本版保持不变** —— `supports_*` 仍为 17 项全 True。20261026 及更早的 kernel 缺这个符号，导致 comfy-kitchen 0.2.41 的 VAE 提速项一直走 eager 回退；本版继续带着它，这条链路不会再退回去。
 
 ### 3. ComfyUI-OmniXPU 安装
 
@@ -364,17 +364,19 @@ SHA256: 8D60598B6575904601279CA80450E357451760686AA543B327ED32516FDB1310
 
 **它自带厨房后端，不需要再装 kitchen provider**
 
-ComfyUI 0.44.x 的 `requirements.txt` 强制 `comfy-kitchen>=0.2.40`，而**官方 PyPI 包不含 XPU 后端**（只有 `ascend` / `cuda` / `eager` / `hip` / `triton`）。这份插件在 `vendor/kitchen/` 里内置了同一套后端（钉 `xiangyuT/comfy-kitchen-xpu@3a5728c`），**插件 import 时**把官方包缺的那 5 组模块 graft 进 `comfy_kitchen`，并把 `xpu` 提到 registry 分发优先级第一位：
+ComfyUI 0.45.x 的 `requirements.txt` 固定 `comfy-kitchen==0.2.41`，而**官方 PyPI 包不含 XPU 后端**（只有 `ascend` / `cuda` / `eager` / `hip` / `triton`）。这份插件在 `vendor/kitchen/` 里内置了同一套后端（钉 `xiangyuT/comfy-kitchen-xpu@3a5728c`），**插件 import 时**把官方包缺的那 5 组模块 graft 进 `comfy_kitchen`，并把 `xpu` 提到 registry 分发优先级第一位：
 
 ```text
-[OmniXPU] Kitchen XPU backend grafted onto comfy-kitchen 0.2.40: 14 modules, … capabilities
+[OmniXPU] Kitchen XPU backend grafted onto comfy-kitchen 0.2.41: 14 modules, … capabilities
 [OmniXPU] Kitchen backend priority: ['xpu', 'ascend', 'cuda', 'triton', 'eager']
 ```
+
+> 📌 **官方 0.2.41 上 graft 依然会打**：插件里的门槛是 `patches/kitchen_backend.py` 的 `REQUIRED_KITCHEN = (0, 2, 40)`，`0.2.41 >= 0.2.40` 成立（已读插件源码核对）。它做的是「官方包缺哪几个模块就补哪几个」，与具体版本号无关。
 
 | 场景 | 行为 |
 |---|---|
 | 没装 kitchen provider（**推荐**） | 走 vendor graft，两组件（内核 + 插件）即可 |
-| 装了 `comfy_kitchen_xpu_runtime-0.2.40` | graft 检测到已有 xpu 后端 → **自动跳过**，改走正式 provider 分发层（两者不打架） |
+| 装了 `comfy_kitchen_xpu_runtime-0.2.41` | graft 检测到已有 xpu 后端 → **自动跳过**，改走正式 provider 分发层（两者不打架） |
 | `comfy-kitchen` 低于 0.2.40 | graft 跳过 → 厨房加速整体不可用，但**不崩** |
 | 想回到原版行为 | `set OMNIXPU_KITCHEN_GRAFT=0` |
 
@@ -534,7 +536,7 @@ Model loader → 可选模型 LoRA → MiniMaxH3SigmaShift
 
 > ⚠️ **provider 架构说明**：kitchen 走 **xiangyuT provider 架构**——官方 `comfy-kitchen` 由 ComfyUI `requirements.txt` 自动安装（官方 PyPI 版，不含 xpu 后端），XPU 实现打包为独立 **provider 发行 `comfy_kitchen_xpu_runtime`**，由 ComfyUI-OmniXPU 启动时（prestartup）按契约路由激活。**不再互相覆盖，与 ComfyUI 依赖管理兼容**。
 
-> ⚠️ **本版为 0.2.40，必须配 ComfyUI 0.44.x**：ComfyUI 的 `requirements.txt` 固定官方 `comfy-kitchen==0.2.40`，provider 内部写死了可接受的版本（`compatible_versions: ["0.2.40"]`）。**三方必须同时对齐**：ComfyUI 的 pin ↔ 官方包版本 ↔ provider 锚。若你的 ComfyUI 不是 0.44.x（官方包不是 0.2.40），请勿使用本 provider，否则会在启动日志看到 `compatible_versions` 不匹配的拒绝提示（见第四部分）。
+> ⚠️ **本版为 0.2.41，必须配 ComfyUI 0.45.x**：ComfyUI 的 `requirements.txt` 固定官方 `comfy-kitchen==0.2.41`，provider 内部写死了可接受的版本（`compatible_versions: ["0.2.41"]`）。**三方必须同时对齐**：ComfyUI 的 pin ↔ 官方包版本 ↔ provider 锚。若你的 ComfyUI 不是 0.45.x（官方包不是 0.2.41），请勿使用本 provider，否则会在启动日志看到 `compatible_versions` 不匹配的拒绝提示（见第四部分）。
 
 > kitchen **不分显卡系列**：provider wheel 本版位于 **`B系列(bmg)/`**（**本版起从包根目录移入**），manifest 里 `xpu_targets: ["bmg", "dg2"]`，两种架构都认——所以 **A770 也能装同一份**（`A770(dg2)/` 里没有单独的 kitchen 包）。但 A770 **默认不需要**它，见下一条；官方 comfy-kitchen 由 ComfyUI 自动装好，无需手动处理。
 
@@ -543,12 +545,14 @@ Model loader → 可选模型 LoRA → MiniMaxH3SigmaShift
 **安装方法（装 provider wheel）**
 
 ```text
-python -m pip install comfy_kitchen_xpu_runtime-0.2.40-20261111.oneapi262-py3-none-any.whl
+python -m pip install comfy_kitchen_xpu_runtime-0.2.41-20261111.oneapi262-py3-none-any.whl
 ```
 
-**生效前提**：ComfyUI-OmniXPU 为 20261111 版（含 `runtime_bootstrap.py`，本包已带）+ 官方 comfy-kitchen 0.2.40（ComfyUI 0.44.x 自动装好）；安装后 **重启 ComfyUI**，启动日志出现 provider active（bootstrap 路由）即生效。
+**生效前提**：ComfyUI-OmniXPU 为 20261111 版（含 `runtime_bootstrap.py`，本包已带）+ 官方 comfy-kitchen 0.2.41（ComfyUI 0.45.x 自动装好）；安装后 **重启 ComfyUI**，启动日志出现 provider active（bootstrap 路由）即生效。
 
-> 🔄 **本版重建（20261111）**：fork revision `194e2716` → **`f083ed73`**（merge 上游 kitchen 0.2.40，零冲突），对应官方 `comfy-kitchen 0.2.40`；`torch_version` 重打到 **`2.15.0+xpu`**；`xpu_targets` 仍为 **`["bmg", "dg2"]`**（架构无关的纯 Python 包）。上游 XPU 侧改动集中在 `backends/xpu/__init__.py`（+164）、`decode.py`、`flash_attention.py`、`gated_delta.py`、`tensor/int8.py`。因此**请先装本版 kernel wheel（torch215 版），再装本 provider**——provider 的 decode/stats 路由依赖 kernel 新暴露的算子（含 `group_norm_stats3d`），顺序反了会回落慢路径（不崩）。
+> 🔄 **本版第二次打包（20261111，对齐 ComfyUI 0.45.2）**：fork revision `3b476408` → **`bf4392731fd6f1c602488834a0fd9e8051405093`**（merge 上游 kitchen **0.2.41**，零冲突），对应官方 `comfy-kitchen 0.2.41`；`torch_version` 仍是 **`2.15.0+xpu`**；`xpu_targets` 仍为 **`["bmg", "dg2"]`**（架构无关的纯 Python 包）。
+>
+> 📌 **0.2.41 在 XPU 侧只改了一个文件**：`backends/xpu/w4a8_int8.py`（+33 / −5）。内容是给 **W4A8（INT4 权重）decode 的 1–8 行小批量**加一条预量化快路径 —— 满足条件时不再先把 INT4 反量化成 INT8 权重，而是直接调 `_int8.w4a8_linear_prequantized(...)`。⚠️ **它现在会硬性校验 kernel 是否导出这个符号**：缺 `supports_w4a8_linear_prequantized()` 或返回 False 时**直接抛 `RuntimeError`**（不是静默回退）。本版 kernel `0.2.0b3+torch215.bmg-20261111` 已导出该符号（实测 `supports_w4a8_linear_prequantized() → True`），两边配套、不会触发；但顺序要求更硬了 —— **必须先装本版 kernel wheel，再装本 provider**（provider 的 decode/stats 路由同样仍依赖 kernel 新暴露的算子，含 `group_norm_stats3d`）。
 
 > 💡 kitchen provider 起，`sol_attn`（内核 CUTE sidecar）也纳入 kitchen 分发——即 ComfyUI **原生** Model Sparse Attention 的 `sol-attn` 方法可以在 kitchen 这一层被调度（见第 4 节）。
 
@@ -557,7 +561,7 @@ python -m pip install comfy_kitchen_xpu_runtime-0.2.40-20261111.oneapi262-py3-no
 
 provider 架构下官方版与 XPU provider 各司其职，升级 ComfyUI 内核**不会**把 provider 冲掉；但 ComfyUI 抬高了 `comfy-kitchen` 的 pin 时，**版本三角会被打破**：provider 的版本锚不匹配 → 启动日志打印明确拒绝 → **XPU 路由回落 PyTorch 慢路径（不崩，只是变慢）**。此时需要安装与新官方包版本对齐的新 provider（联系包提供者）。
 
-**若升级后发现 xpu 路由未生效**：确认 provider 已装（`pip show comfy-kitchen-xpu-runtime`）+ 官方包版本与 provider 锚一致（0.2.40）+ OmniXPU 为 20261111 版 + 重启 ComfyUI。
+**若升级后发现 xpu 路由未生效**：确认 provider 已装（`pip show comfy-kitchen-xpu-runtime`）+ 官方包版本与 provider 锚一致（0.2.41）+ OmniXPU 为 20261111 版 + 重启 ComfyUI。
 
 
 
@@ -582,7 +586,7 @@ provider 架构下官方版与 XPU provider 各司其职，升级 ComfyUI 内核
 
 > ⚠️ **20260912 起改用 provider 架构**：**不再**用 `deploy.bat` 覆盖官方 `comfy_aimdo` 包——XPU 实现改为独立发行 **`comfy-aimdo-xpu-runtime`**，与官方 `comfy-aimdo` **精确配对、各司其职**：官方包由 pip 管理，XPU provider 常驻 `site-packages`，**互不覆盖**。旧的"解压 zip + 双击 deploy.bat"装法作废。
 >
-> ⚠️ **本版两线都有**：B 系列（bmg）与 A770（dg2）各一份，**按显卡装对应那份**。A770 那份的 `torch_version` 同样是 **`2.15.0+xpu`**、锚接受四值（含 `0.6.0`）→ 与 ComfyUI 0.44.x 的 `comfy-aimdo==0.6.0` **精确命中**，A770 也终于能用上 0.6.0 的 writable VBAR。⚠️ 20261026 版那份 `0.5.6+xpu.1.gf39fb01` 是 **torch 2.14 栈**，本版环境（2.15）**不能**再用。
+> ⚠️ **本版两线都有**：B 系列（bmg）与 A770（dg2）各一份，**按显卡装对应那份**。A770 那份的 `torch_version` 同样是 **`2.15.0+xpu`**、锚接受四值（含 `0.6.0`）→ 与 ComfyUI 0.45.x 的 `comfy-aimdo==0.6.0` **精确命中**，A770 也终于能用上 0.6.0 的 writable VBAR。⚠️ 20261026 版那份 `0.5.6+xpu.1.gf39fb01` 是 **torch 2.14 栈**，本版环境（2.15）**不能**再用。
 >
 > 🔄 **本版（20261111）B 系列那份**：版本号与锚均为 **`0.6.0` / `["0.6.0"]`**；`torch_version` = **`2.15.0+xpu`**；`source.revision` = **`6472c2dd`**；`aimdo_xpu.dll` **253,440 B / sha256 `A4D7FDB6…`**、89 个导出（新增 writable VBAR 三件：`aimdo_xpu_is_mapped_pinned_vbar` / `aimdo_xpu_copy_host_to_vbar` / `aimdo_xpu_needs_small_vbar_copy_workaround`）；vendored 11 个文件、包内 19 个条目。
 
@@ -607,7 +611,7 @@ SHA256: C49819C05DF568C18963C5021357E954EB83AFC38B5EF2CA577A08FF35815B2A
         xpu_targets ["dg2"] · 锚 ["0.5.5","0.5.6","0.6.0","0.6.0+xpu.2.g7e7b686"] · rev 7e7b6863
 ```
 
-> ⚠️ **两份的差别不止架构**：B 系列锚**只有 `0.6.0`**（严格对齐 0.44.x）；A770 那份锚**接受四值**（含 `0.5.5` / `0.5.6`，向后兼容旧 ComfyUI），`aimdo_xpu.dll` 也更大（262,144 vs 253,440 B、导出 93 vs 89）。**装错架构或 torch 版本不对都会被明确拒绝（跳过）**。内核 wheel 同理分 `bmg` / `dg2`，别混装。
+> ⚠️ **两份的差别不止架构**：B 系列锚**只有 `0.6.0`**（严格对齐 0.45.x）；A770 那份锚**接受四值**（含 `0.5.5` / `0.5.6`，向后兼容旧 ComfyUI），`aimdo_xpu.dll` 也更大（262,144 vs 253,440 B、导出 93 vs 89）。**装错架构或 torch 版本不对都会被明确拒绝（跳过）**。内核 wheel 同理分 `bmg` / `dg2`，别混装。
 
 **包名含义（两份命名规则不同，别看错）**
 
@@ -644,12 +648,12 @@ python -m pip install --no-deps comfy_aimdo_xpu_runtime-0.6.0+xpu.2.g7e7b686-cp3
 | # | 前置 | 具体要求 | 缺了会怎样 |
 |---|---|---|---|
 | 1 | **ComfyUI-OmniXPU 插件** | 版本已认识 `comfy_aimdo.xpu` 这个 provider 契约（本包 20261111 版即满足） | 装了等于没装，**而且不报错** |
-| 2 | **官方 `comfy-aimdo`** | **精确等于 `0.6.0`**（这也是 ComfyUI 0.44.x 的 pin）；provider 侧 B 系列锚 `["0.6.0"]`、A770 锚四值（含 `0.6.0`） | 启动打印 `is incompatible`，provider 被拒 |
+| 2 | **官方 `comfy-aimdo`** | **精确等于 `0.6.0`**（这也是 ComfyUI 0.45.x 的 pin）；provider 侧 B 系列锚 `["0.6.0"]`、A770 锚四值（含 `0.6.0`） | 启动打印 `is incompatible`，provider 被拒 |
 | 3 | **PyTorch** | 官方 XPU wheel，**精确 `2.15.0+xpu`** | 打印 `does not match provider`，被拒 |
 | 4 | **显卡驱动 + VC++ 运行库** | 系统目录有 `ze_loader.dll`（显卡驱动带）与 `MSVCP140.dll`（VC++ 2015-2022 运行库） | `aimdo_xpu.dll` 加载失败 |
 | 5 | **启动参数** | 启动 bat 的 python 那行显式加 `--enable-dynamic-vram` | provider 被标成 `skipped`，静默退回旧路径 |
 
-**关于第 2 条（重要）**：不要用 `pip install -U comfy-aimdo`，也不要用别人给的任意版本。官方包和 provider 是**精确配对**的：provider 内部写死了 `compatible_versions`，命中不了就会被拒（拒绝是"响亮"的，会打印原因并退回纯官方包，不会半残运行）。**本版三方已对齐**：ComfyUI 0.44.x 的 `requirements.txt` 里是 `comfy-aimdo==0.6.0`；`B系列(bmg)/` 那份的锚是 `["0.6.0"]`、`A770(dg2)/` 那份的锚是 `["0.5.5", "0.5.6", "0.6.0", "0.6.0+xpu.2.g7e7b686"]` —— **两条线都能命中 `0.6.0`**。
+**关于第 2 条（重要）**：不要用 `pip install -U comfy-aimdo`，也不要用别人给的任意版本。官方包和 provider 是**精确配对**的：provider 内部写死了 `compatible_versions`，命中不了就会被拒（拒绝是"响亮"的，会打印原因并退回纯官方包，不会半残运行）。**本版三方已对齐**：ComfyUI 0.45.x 的 `requirements.txt` 里是 `comfy-aimdo==0.6.0`；`B系列(bmg)/` 那份的锚是 `["0.6.0"]`、`A770(dg2)/` 那份的锚是 `["0.5.5", "0.5.6", "0.6.0", "0.6.0+xpu.2.g7e7b686"]` —— **两条线都能命中 `0.6.0`**。
 
 **关于第 3 条**：B 系列的目录名 `torch2.15`、A770 的文件名 `+xpu.2.g7e7b686`，两份 manifest 的 `torch_version` 都写死 `2.15.0+xpu` —— 对不上就别装。核对：
 
@@ -677,7 +681,7 @@ python -c "import torch; print(torch.__version__)"
 
 ```text
 python -c "import importlib.metadata as m;v=m.version('comfy-aimdo');print(v,'-> OK' if v=='0.6.0' else '-> MISMATCH')"
-:: 期望: 0.6.0 -> OK    （这也是 ComfyUI 0.44.x 的 pin）
+:: 期望: 0.6.0 -> OK    （这也是 ComfyUI 0.45.x 的 pin）
 ```
 
 再检查宿主插件是否认识这个 provider（在 ComfyUI 根目录下执行）：
@@ -776,7 +780,7 @@ python -m pip show comfy-kitchen-xpu-runtime   :: 有输出 = provider 已装
 dir ComfyUI\custom_nodes\ComfyUI-OmniXPU\vendor\kitchen\backends\xpu\__init__.py
 ```
 
-- 重启 ComfyUI：B 系列看 **provider active** / bootstrap 路由行；A770 看 `[OmniXPU] Kitchen XPU backend grafted onto comfy-kitchen 0.2.40: N modules, M capabilities` + `[OmniXPU] Kitchen backend priority: [...]`（见 3.1）
+- 重启 ComfyUI：B 系列看 **provider active** / bootstrap 路由行；A770 看 `[OmniXPU] Kitchen XPU backend grafted onto comfy-kitchen 0.2.41: N modules, M capabilities` + `[OmniXPU] Kitchen backend priority: [...]`（见 3.1）
 - ⚠️ xpu backend 在 OmniXPU prestartup / import 阶段才挂载：独立 python 下 `import comfy_kitchen` 看到的是官方版（无 xpu），**两条线都属正常**，勿按旧版方式独立验证
 - **实测铁证（推荐）**：随便跑一个 INT8 量化模型的工作流，日志里出现
 
@@ -824,7 +828,7 @@ Found comfy_kitchen backend xpu: {'available': True, 'disabled': False, ... 'cap
 
 ```
 [OmniXPU] omni_xpu_kernel 0.2.0b3+torch215.dg2.1 - available: sdp, norm, rotary, linear_fp8, int8, layout
-[OmniXPU] Kitchen XPU backend grafted onto comfy-kitchen 0.2.40: 14 modules, … capabilities
+[OmniXPU] Kitchen XPU backend grafted onto comfy-kitchen 0.2.41: 14 modules, … capabilities
 [OmniXPU] Kitchen backend priority: ['xpu', 'ascend', 'cuda', 'triton', 'eager']
 [OmniXPU] quantized_matmul_adapter: applied
 [OmniXPU] sparse_attention_adapter: skipped (complete native XPU Sol API is unavailable)   ← DG2 无 sol_attn，预期
@@ -876,16 +880,16 @@ Found comfy_kitchen backend xpu: {'available': True, 'disabled': False, ...}
 | 症状 | 原因 | 解决 |
 |---|---|---|
 | `pip install` 报错版本不匹配 | wheel 与 torch/Python 不匹配 | 确认 torch 2.15.0+xpu、Python 3.13 |
-| kitchen xpu 路由没生效 | **B 系列**：provider 未装 / 官方包版本与锚不一致 / 未重启；**A770**：插件 `vendor/kitchen` 缺失或被 `OMNIXPU_KITCHEN_GRAFT=0` 关掉 | B 系列装 provider wheel + 确认官方 kitchen 0.2.40；A770 确认插件是 `dg2-20261111` 版（见 3.1） |
-| 启动日志 `comfy_kitchen backend xpu: available False` | **B 系列**：版本三角不匹配（ComfyUI pin ↔ 官方包 ↔ provider 锚）；**A770**：graft 被跳过（`comfy-kitchen < 0.2.40` 或 env 关闭） | B 系列三者对齐到 0.2.40；A770 升到 ComfyUI 0.44.x 并确认没有设 `OMNIXPU_KITCHEN_GRAFT=0` |
+| kitchen xpu 路由没生效 | **B 系列**：provider 未装 / 官方包版本与锚不一致 / 未重启；**A770**：插件 `vendor/kitchen` 缺失或被 `OMNIXPU_KITCHEN_GRAFT=0` 关掉 | B 系列装 provider wheel + 确认官方 kitchen 0.2.41；A770 确认插件是 `dg2-20261111` 版（见 3.1） |
+| 启动日志 `comfy_kitchen backend xpu: available False` | **B 系列**：版本三角不匹配（ComfyUI pin ↔ 官方包 ↔ provider 锚）；**A770**：graft 被跳过（`comfy-kitchen < 0.2.40` 或 env 关闭） | B 系列三者对齐到 0.2.41；A770 升到 ComfyUI 0.45.x 并确认没有设 `OMNIXPU_KITCHEN_GRAFT=0` |
 | 节点没加载（无 `[OmniXPU]` 日志） | 解压目录名不对/有 `__pycache__` 残留 | 确认目录名为 `ComfyUI-OmniXPU`，删除 `__pycache__` |
 | GGUF 没加速 | 用了 GGUFLoaderKJ 节点 | 改用 **UnetLoaderGGUF** |
 | aimdo 装了但没生效（无 XPU 独占日志行） | 启动 bat 没显式加 `--enable-dynamic-vram` | 见第三部分第 6 节前置条件表 |
-| `runtime provider rejected: comfy_aimdo.xpu ... provider accepts ['…']` | provider 版本锚与已装官方包不配对（B 系列锚只有 `0.6.0`；A770 收 `0.5.5`/`0.5.6`/`0.6.0`/`0.6.0+xpu.2.g7e7b686`） | 两线都对齐到 `0.6.0`（ComfyUI 0.44.x 自带）；仍失败见 6.7 |
+| `runtime provider rejected: comfy_aimdo.xpu ... provider accepts ['…']` | provider 版本锚与已装官方包不配对（B 系列锚只有 `0.6.0`；A770 收 `0.5.5`/`0.5.6`/`0.6.0`/`0.6.0+xpu.2.g7e7b686`） | 两线都对齐到 `0.6.0`（ComfyUI 0.45.x 自带）；仍失败见 6.7 |
 | 开启 aimdo 后卡死/极慢 | aimdo 仍在演进，个别工作流可能有回归 | **关闭 aimdo**（把 `--enable-dynamic-vram` 改成 `--disable-dynamic-vram`）并反馈日志 |
 | 启动即崩，报 `0xc0000139`（找不到指定的入口点） | **oneAPI runtime 三包没升到 2026.2.0**（本版最常见） | 三条一起升（见 1.1）；**详解见下方「0xc0000139 报错」** |
 | 启动时报 `WinError 126`（找不到指定的模块） | 缺 `sycl9.dll`（torch 不是 XPU 版）或 runtime 三包没装 | 确认 torch 2.15.0+xpu；确认三包已装（见 1.1） |
-| 找不到 **Model Sparse Attention** 节点 | ComfyUI 低于 0.35.0；或旧 `ComfyUI-SolAttn*` 残留干扰 | 升到 0.44.x；把旧插件移出 `custom_nodes`（见第三部分 4.3） |
+| 找不到 **Model Sparse Attention** 节点 | ComfyUI 低于 0.35.0；或旧 `ComfyUI-SolAttn*` 残留干扰 | 升到 0.45.x；把旧插件移出 `custom_nodes`（见第三部分 4.3） |
 | **A770** 跑 H3 报 `UR_RESULT_ERROR_DEVICE_LOST` | 没设 `UR_L0_USE_IMMEDIATE_COMMANDLISTS=1` | bat 里补上该变量（见 3.1） |
 | **A770** 装了 dg2 内核但 `_C` 加载失败 | 残缺的 oneAPI 安装缺 `pi_level_zero.dll` | 确认 torch 为 XPU 版（其 pip 包会拉齐 Unified Runtime）；见 2.1 |
 | **A770** 装了 bmg 包报 target 不符 | 装错架构线（`bmg` 是 B 系列的） | 换装本包 `A770(dg2)/` 里的 `dg2` 包（见 2.1） |
@@ -1008,7 +1012,7 @@ ImportError: DLL load failed while importing _C: 找不到指定的程序。
 
 > 📌 **最近一次实测（B580 / torch 2.14 栈 / 20260928 版，升级上游 #732 后复测）**：ZIT_REDzimageTurbo2.0 INT8-ConvRot（8 步）——**整任务 75.29 s（~1.17 it/s）**，DiT 加载 **6850.19 MB**（= 20260921 基线 6850 MB，**显存占用无回归**）。
 >
-> ⚠️ **本版（20261111）尚未重新跑该工作流**；性能预期与上版**基本持平**——本版 kernel 是**同一份源码**在 torch 2.15 下的重编（上游代码未变），算子层面没有新增。**唯一实质变化是补上了 `group_norm_stats3d`**，让 comfy-kitchen 0.2.40 的 VAE 提速项不再走 eager 回退——收益集中在含 VAE 3D groupnorm 的链路。装好后建议自行复测一次。
+> ⚠️ **本版（20261111）尚未重新跑该工作流**；性能预期与上版**基本持平**——本版 kernel 是**同一份源码**在 torch 2.15 下的重编（上游代码未变），算子层面没有新增。**唯一实质变化是补上了 `group_norm_stats3d`**，让 comfy-kitchen 0.2.41 的 VAE 提速项不再走 eager 回退——收益集中在含 VAE 3D groupnorm 的链路。装好后建议自行复测一次。
 >
 > 该次的实测证据：**kitchen xpu 后端在服务 INT8 路径**（`Native ops: int8_tensorwise`），**omni_xpu_kernel 在服务 norm 与 CUTE attention**（`[OmniXPU] norm first use` / `attention CUTE #1..#3`）。两条**不同加速链**同时出现在一段日志里是正常的（见 FAQ Q3）。
 >
@@ -1023,7 +1027,7 @@ ImportError: DLL load failed while importing _C: 找不到指定的程序。
 A：架构不同（DG2 vs BMG），内核 wheel 不通用，**注意力引擎也不同**——A770 走 **ESIMD/DPAS 侧车**，B 系列走 **CUTE / sol_attn**（对照见 6.9）。**两线分包**：B 系列文件在 `B系列(bmg)/`，A 系列文件在 `A770(dg2)/`，各自的 kernel wheel 与插件 zip **不要交叉装**。
 两线的"第三件"也不一样：
 
-- **kitchen**：B 系列要单独装 `B系列(bmg)/` 的 `comfy_kitchen_xpu_runtime-0.2.40`（manifest `xpu_targets` 含 `bmg`+`dg2`，但请按线使用）；**A770 不需要**——插件自带 `vendor/kitchen`，import 时把 XPU 后端 graft 进官方 `comfy-kitchen`。
+- **kitchen**：B 系列要单独装 `B系列(bmg)/` 的 `comfy_kitchen_xpu_runtime-0.2.41`（manifest `xpu_targets` 含 `bmg`+`dg2`，但请按线使用）；**A770 不需要**——插件自带 `vendor/kitchen`，import 时把 XPU 后端 graft 进官方 `comfy-kitchen`。
 - **aimdo**：两线各一份，**版本号与锚不同**——B 系列 `0.6.0+torch215.bmg.oneapi262`（锚只有 `["0.6.0"]`）、A770 `0.6.0+xpu.2.g7e7b686`（锚四值，含 `0.6.0`）。**装错架构会被明确拒绝**（见 6.7 / 6.9）。
 
 
@@ -1093,7 +1097,7 @@ A：可以试——bf16 + D128 + 长序列（实测 seq=4224）匹配，cross-at
 
 | 锚 | 校验内容 | 当前值 |
 |---|---|---|
-| ① 官方包版本 | provider 清单里写死 `compatible_versions`，必须**命中**已装官方版本。**单值 = 精确匹配；多值 = 允许其中任一个**（本版 A770 的 aimdo 就是四值） | kitchen `["0.2.40"]`；aimdo B 系列 `["0.6.0"]`、A770 `["0.5.5", "0.5.6", "0.6.0", "0.6.0+xpu.2.g7e7b686"]` |
+| ① 官方包版本 | provider 清单里写死 `compatible_versions`，必须**命中**已装官方版本。**单值 = 精确匹配；多值 = 允许其中任一个**（本版 A770 的 aimdo 就是四值） | kitchen `["0.2.41"]`；aimdo B 系列 `["0.6.0"]`、A770 `["0.5.5", "0.5.6", "0.6.0", "0.6.0+xpu.2.g7e7b686"]` |
 | ② PyTorch 版本 | 必须**精确等于** provider 清单里的 `torch_version` | `2.15.0+xpu` |
 
 **为什么要有锚**：provider 的 `_vendor/` 目录里装的是"某个官方版本对应的 XPU 实现"，而官方包提供的是 API 契约。官方换版本意味着契约可能变——这时**明确拒绝**比"看起来能跑"更安全。
@@ -1102,18 +1106,18 @@ A：可以试——bf16 + D128 + 长序列（实测 seq=4224）匹配，cross-at
 
 ```text
 ComfyUI\requirements.txt 固定了官方版本：
-    comfy-kitchen==0.2.40
+    comfy-kitchen==0.2.41
     comfy-aimdo==0.6.0
 ```
 
-**本版相对上一版（20261031）pin 没有变化**；下表是上上一版（20261026）→ 上一版（20261031）之间发生的 pin 变化，此处回溯说明：
+**本版（对齐 ComfyUI 0.45.2）pin 又动了一次**：`comfy-kitchen` `0.2.40` → **`0.2.41`**，`comfy-aimdo` 保持 `0.6.0`。下表把两次抬升都摊开：
 
-| 包 | 变化前（20261026 版） | 变化后（20261031 起沿用至今） | 说明 |
-|---|---|---|---|
-| comfy-kitchen | 0.2.39 | **0.2.40** | 随 ComfyUI 0.43.x 发布线抬升 |
-| comfy-aimdo | 0.5.6 | **0.6.0** | 随 ComfyUI 0.43.x 发布线抬升 |
+| 包 | 变化前（20261026 版） | 中间态（20261031 起） | 本版（对齐 0.45.2 起） | 说明 |
+|---|---|---|---|---|
+| comfy-kitchen | 0.2.39 | 0.2.40 | **0.2.41** | 0.43.x 那一跳抬到 0.2.40；**0.45.x 这一跳抬到 0.2.41** |
+| comfy-aimdo | 0.5.6 | 0.6.0 | **0.6.0（未变）** | 只在 0.43.x 抬过一次，0.45.x 没有动它 |
 
-> ✅ **上一版（20261031）已兑现这次预判**：20261026 版的前瞻提醒说「下一个正式发布会打破双锚」——**事后来看就是 0.43.x 那一跳**。ComfyUI 0.43.x 已把 pin 抬到 `comfy-kitchen==0.2.40` + `comfy-aimdo==0.6.0`，上一版三个组件就已全部跟上，本版沿用未变（见 6.1 / 6.7）。这也再次说明：**ComfyUI 每次抬依赖，provider 都要跟着重打**，不存在「装一次管很久」。
+> ✅ **这次又被验证一遍**：0.43.x 那一跳抬的是 `comfy-kitchen==0.2.40` + `comfy-aimdo==0.6.0`；到了 **0.45.x，`comfy-kitchen` 再抬到 `0.2.41`，kitchen provider 就得跟着重打一份**（本包这份就是，见第三部分第 5 节 / 6.4）。而 `comfy-aimdo` 仍然停在 `0.6.0`，**aimdo provider 一行没动、也无需重装**。这再次说明：**ComfyUI 每次抬依赖，provider 都要跟着重打**，不存在「装一次管很久」。
 
 > ⚠️ **别只看版本号**：这些是**独立于 ComfyUI 版本号**的提交（如 `Update comfy-kitchen version to 0.2.33`）。也就是说，**不必等到"升级到新版本号"**——一次普通的 `git pull` 就可能撞上。
 
@@ -1190,7 +1194,7 @@ F:\ComfyUI-aki-v3\python\python.exe -c "import torch; print(torch.__version__)"
 
 - **旧版问题**（≤20260901 的 0.2.31.post1 整包）：`requirements.txt` 固定官方 kitchen → 升级时被官方纯版覆盖（xpu 后端丢失）
 - **新版机制**（provider 架构）：官方 comfy-kitchen 由 pip 管理、XPU provider（`comfy_kitchen_xpu_runtime`）常驻 site-packages，二者解耦
-- **⚠️ 但版本三角要跟着走**：ComfyUI 抬高官方 pin（本版就是 0.2.39 → 0.2.40）时，provider 的 `compatible_versions` 锚会对不上 → provider 被明确拒绝、路由回落慢路径。**这是"响亮失败"，不崩**
+- **⚠️ 但版本三角要跟着走**：ComfyUI 抬高官方 pin（本版就是 0.2.40 → 0.2.41，ComfyUI 0.45.x 那一跳）时，provider 的 `compatible_versions` 锚会对不上 → provider 被明确拒绝、路由回落慢路径。**这是"响亮失败"，不崩**
 - **检查**：
 
 ```text
@@ -1237,21 +1241,21 @@ F:\ComfyUI-aki-v3\python\python.exe -c "import sys; sys.path.insert(0,'ComfyUI/c
     5. 启动 bat 里**没有**遗留的 `SOL_ATTN` / `SOL_ATTN_XPU_EXPERIMENTAL`（旧设置应删掉）
 - **恢复**：
     - adapter 被 skipped → 等 ComfyUI-OmniXPU 更新（上游改资格契约时必须跟）
-    - 节点缺失 → 确认 ComfyUI ≥ 0.35.0（本版基准 0.44.x）
+    - 节点缺失 → 确认 ComfyUI ≥ 0.35.0（本版基准 0.45.x）
     - 万不得已回退旧插件路线：把备份的插件放回 `custom_nodes` 并恢复 `SOL_ATTN_XPU_EXPERIMENTAL=1`（**不推荐**，上游已弃用）
 
 ### 6.7 comfy-aimdo：provider 架构（两线各一份）
 
 - **旧版问题**（`deploy.bat` 覆盖 `site-packages\comfy_aimdo`）：官方包一旦更新，覆盖内容即失效，需重新 deploy
-- **新版机制**：官方 `comfy-aimdo` 由 pip 管理（ComfyUI 0.44.x 对应 **0.6.0**），XPU provider（`comfy-aimdo-xpu-runtime`）独立常驻 → 二者解耦，升级互不影响
+- **新版机制**：官方 `comfy-aimdo` 由 pip 管理（ComfyUI 0.45.x 对应 **0.6.0**），XPU provider（`comfy-aimdo-xpu-runtime`）独立常驻 → 二者解耦，升级互不影响
 - ⚠️ **本版两线各一份**，按显卡装对应那份：
 
-| 线 | 文件 | provider 版本 | `xpu_targets` | `torch_version` | 锚定官方版本 | 与 0.44.x 的 pin（0.6.0） |
+| 线 | 文件 | provider 版本 | `xpu_targets` | `torch_version` | 锚定官方版本 | 与 0.45.x 的 pin（0.6.0） |
 |---|---|---|---|---|---|---|
 | B 系列（bmg） | `B系列(bmg)/comfy_aimdo_xpu_runtime-0.6.0+torch215.bmg.oneapi262-cp39-abi3-win_amd64.whl`（rev `6472c2dd`） | 0.6.0 | `["bmg"]` | `2.15.0+xpu` | `["0.6.0"]` | ✅ 精确一致 |
 | A770（dg2） | `A770(dg2)/comfy_aimdo_xpu_runtime-0.6.0+xpu.2.g7e7b686-cp39-abi3-win_amd64.whl`（rev `7e7b6863`） | 0.6.0+xpu.2.g7e7b686 | `["dg2"]` | `2.15.0+xpu` | `["0.5.5", "0.5.6", "0.6.0", "0.6.0+xpu.2.g7e7b686"]` | ✅ 命中 `0.6.0` |
 
-- ✅ **两线都对齐 0.44.x**：ComfyUI 0.44.x 把官方包 pin 到 `0.6.0`；B 系列锚严格等于 `["0.6.0"]`，A770 锚是四值集合、**同样含 `0.6.0`**；两份的 `torch_version` 都精确等于 `2.15.0+xpu`。
+- ✅ **两线都对齐 0.45.x**：ComfyUI 0.45.x 把官方包 pin 到 `0.6.0`；B 系列锚严格等于 `["0.6.0"]`，A770 锚是四值集合、**同样含 `0.6.0`**；两份的 `torch_version` 都精确等于 `2.15.0+xpu`。
     - 本版 B 系列 wheel 的 `provider.json` **实读核实**：`provider_distribution.version 0.6.0` / `compatible_versions ["0.6.0"]` / `source.revision 6472c2dd…` / `xpu_targets ["bmg"]` / `platforms ["linux","win32"]` / `native_artifacts` 1 个（`aimdo_xpu.dll` **253,440 B**，sha256 `A4D7FDB6…`，**89 个导出**，含 writable VBAR 三件）/ vendored 11 个文件 / 包内 19 条目。
     - A770 那份同样实读：`provider_distribution.version 0.6.0+xpu.2.g7e7b686` / `compatible_versions` 四值 / `source.revision 7e7b6863…` / `xpu_targets ["dg2"]` / `aimdo_xpu.dll` **262,144 B**，sha256 `236AB97B…`，**93 个导出**（同样有 writable VBAR 三件）/ vendored 11 个文件 / 包内 19 条目。⚠️ 它的 `source.repository` 仍是 `xiangyuT/comfy-aimdo-xpu`（fork 保留上游 URL），而 A770 插件的 provider 契约校验的正是这个字符串——**两者一致，不会报 `source repository is not the registered contract`**。
 
@@ -1262,7 +1266,7 @@ F:\ComfyUI-aki-v3\python\python.exe -c "import sys; sys.path.insert(0,'ComfyUI/c
 
 ```text
 python -m pip show comfy-aimdo-xpu-runtime   :: 有输出 = provider 已装
-python -c "import importlib.metadata as m; print(m.version('comfy-aimdo'))"   :: 两线都应为 0.6.0（0.44.x 自带）
+python -c "import importlib.metadata as m; print(m.version('comfy-aimdo'))"   :: 两线都应为 0.6.0（0.45.x 自带）
 :: 想确认装的是哪条线：pip show 的 Version 为 0.6.0 = B 系列；0.6.0+xpu.2.g7e7b686 = A770
 ```
 
@@ -1292,7 +1296,7 @@ python -c "import importlib.metadata as m; print(m.version('comfy-aimdo'))"   ::
 
 0. **先跑一次 provider 对齐自检**（见 6.2）→ 一屏看清两个 provider 的锚是否还成立，再决定要不要动别的地方
 1. **查 torch 版本** → 决定 kernel 是否需要重编译
-2. **检查 kitchen 后端**（必做）→ B 系列：`pip show comfy-kitchen-xpu-runtime` + 官方包版本是否与锚一致（0.2.40）+ OmniXPU provider active；A770：看启动日志有没有 `Kitchen XPU backend grafted onto comfy-kitchen 0.2.40 …` + `Kitchen backend priority: ['xpu', …]`
+2. **检查 kitchen 后端**（必做）→ B 系列：`pip show comfy-kitchen-xpu-runtime` + 官方包版本是否与锚一致（0.2.41）+ OmniXPU provider active；A770：看启动日志有没有 `Kitchen XPU backend grafted onto comfy-kitchen 0.2.41 …` + `Kitchen backend priority: ['xpu', …]`
 3. **看 OmniXPU 启动日志** → adapter applied 是否完整
 4. **查稀疏注意力**（B 系列）→ 内置 **Model Sparse Attention** 节点存在 + `sparse_attention_adapter` applied + 实跑输出可用；确认 `custom_nodes` 里没有旧 `ComfyUI-SolAttn*` 残留
 5. **检查 aimdo** → `pip show comfy-aimdo` 须为 `0.6.0`（provider 锚：B 系列仅 `0.6.0`，A770 锚四值也含 `0.6.0`）+ bat 有 `--enable-dynamic-vram` + 实测工作流
@@ -1305,7 +1309,7 @@ python -c "import importlib.metadata as m; print(m.version('comfy-aimdo'))"   ::
 
 > A770 与 B 系列在**内核、注意力引擎、adapter 集、第三件（kitchen/aimdo）**上都是两条独立路线。本节集中 A770 的差异点与开关。
 >
-> ✅ **本版（20261111）两线都发**：A 系列三件在 `A770(dg2)/`，与 B 系列同一套 **torch 2.15 / ComfyUI 0.44.x** 底座（详见 2.1 / 3.1）。下面所有数字均为**包内实读**；三件的运行情况由**社区作者在 A770 实机验证**，本指南维护者未做第三方复测。
+> ✅ **本版（20261111）两线都发**：A 系列三件在 `A770(dg2)/`，与 B 系列同一套 **torch 2.15 / ComfyUI 0.45.x** 底座（详见 2.1 / 3.1）。下面所有数字均为**包内实读**；三件的运行情况由**社区作者在 A770 实机验证**，本指南维护者未做第三方复测。⚠️ 那次社区验证是在 **ComfyUI 0.44.x** 基线上做的；本版口径改到 0.45.x 是按 pin 推导（`comfy-kitchen==0.2.41` / `comfy-aimdo==0.6.0`），**A770 在 0.45.2 上尚未复测**。
 
 **① 两线差异速查**
 
@@ -1318,9 +1322,9 @@ python -c "import importlib.metadata as m; print(m.version('comfy-aimdo'))"   ::
 | 注意力开关 | `OMNI_ATTN_BACKEND=esimd`（opt-in，**默认 torch**） | `OMNI_ATTN_BACKEND=cute` |
 | 插件规模 | **33 个 Component / 72 个文件**（179,892 B） | **20 个 Component / 36 个文件**（96,345 B） |
 | 专属 adapter | `a770_rms_rope_bridge`、`a770_kitchen_compat`、`a770_int8_native_gate`、`int4_gemm`、`sdp_cache_lifecycle`、`host_kv_cache`、`cast_buffer_lifetime`、`minimax_compat`、`moss_image_compat`、`qwen21_cache_compat`、`qwen3vl_compat` | `sparse_attention`、`h3_rms_modulation`、`qwen_image21_cache`、AIMDO memory compiler 诊断三件 |
-| kitchen 后端 | **插件自带 `vendor/kitchen` graft**（钉 `xiangyuT/comfy-kitchen-xpu@3a5728c`），**不需要** provider | `B系列(bmg)/` 的 `comfy_kitchen_xpu_runtime-0.2.40`（provider 架构） |
-| aimdo provider | `A770(dg2)/…0.6.0+xpu.2.g7e7b686…`（锚**四值**，含 `0.6.0` ✅ 对齐 0.44.x） | `B系列(bmg)/…0.6.0+torch215.bmg.oneapi262…`（锚 `["0.6.0"]` ✅ 严格对齐） |
-| 已知缺口 | `supports_group_norm_stats3d` 为 False（16 vs 17）→ kitchen 0.2.40 的 3D group-norm VAE 提速项会回落 eager（由能力门控推断，**未在 A770 实机复测**） | — |
+| kitchen 后端 | **插件自带 `vendor/kitchen` graft**（钉 `xiangyuT/comfy-kitchen-xpu@3a5728c`），**不需要** provider | `B系列(bmg)/` 的 `comfy_kitchen_xpu_runtime-0.2.41`（provider 架构） |
+| aimdo provider | `A770(dg2)/…0.6.0+xpu.2.g7e7b686…`（锚**四值**，含 `0.6.0` ✅ 对齐 0.45.x） | `B系列(bmg)/…0.6.0+torch215.bmg.oneapi262…`（锚 `["0.6.0"]` ✅ 严格对齐） |
+| 已知缺口 | `supports_group_norm_stats3d` 为 False（16 vs 17）→ kitchen 0.2.41 的 3D group-norm VAE 提速项会回落 eager（由能力门控推断，**未在 A770 实机复测**） | — |
 
 **② A770 专属开关**（默认值已逐条核对本版插件源码 `config.py` / `prestartup_script.py`）
 
@@ -1372,7 +1376,7 @@ python -c "import importlib.metadata as m; print(m.version('comfy-aimdo'))"   ::
 
 - 内核更新：https://github.com/Blackwood416/omni-xpu-kernel/releases
 - 插件更新：https://github.com/Blackwood416/ComfyUI-OmniXPU
-- ⚠️ **插件与 kitchen 后端的版本关系是"内嵌"的**：本版插件把 `xiangyuT/comfy-kitchen-xpu@3a5728c` 钉在 `vendor/kitchen/`，**与 B 系列 provider 0.2.40（`f083ed73`）不是同一份源码快照**。所以"B 系列升了 kitchen provider"并不意味着 A770 的厨房后端也升了——A770 要等插件更新；反过来，若强行给 A770 装 provider，graft 会自动让位、改用 provider 那份（此时就跟 B 系列同步了）。
+- ⚠️ **插件与 kitchen 后端的版本关系是"内嵌"的**：本版插件把 `xiangyuT/comfy-kitchen-xpu@3a5728c` 钉在 `vendor/kitchen/`，**与 B 系列 provider 0.2.41（`bf4392731fd6`）不是同一份源码快照**。所以"B 系列升了 kitchen provider"并不意味着 A770 的厨房后端也升了——A770 要等插件更新；反过来，若强行给 A770 装 provider，graft 会自动让位、改用 provider 那份（此时就跟 B 系列同步了）。
 
 ### 6.10 `pyzes`：一个会让 ComfyUI 直接起不来的多余包
 
@@ -1520,9 +1524,9 @@ IntelGPU-ComfyUI-系统优化指南-20261111/     ← 本版含 B 系列（BMG�
 │   │        （28,604,277 B / 108 条目；oneAPI 2026.2 全量重编，含 Windows CUTE + BMG AOT；
 │   │          内置 dnnl.dll 77,463,616 B（oneDNN 2026.1 = 3.13.2）；
 │   │          kitchen supports_* 17 项全 True；build tag 三段：日期.commit.oneapi262）
-│   ├── comfy_kitchen_xpu_runtime-0.2.40-20261111.oneapi262-py3-none-any.whl
-│   │     └─ SHA256: 81B77D46E81DAEB35C71E26C51530DA5314818FB2B28D663094EA444764C0CE1
-│   │        锚 ["0.2.40"]；fork rev f083ed73；torch_version = 2.15.0+xpu
+│   ├── comfy_kitchen_xpu_runtime-0.2.41-20261111.oneapi262-py3-none-any.whl
+│   │     └─ SHA256: 4A6D13E24DDD6041854483802A46D11A78A2D96EC0CD90C1B1662BBF6C92C0D6
+│   │        206,628 B / 71 条目；锚 ["0.2.41"]；fork rev bf4392731fd6；torch_version = 2.15.0+xpu
 │   │        xpu_targets = ["bmg","dg2"]（架构无关的纯 Python 包，A770 也可取用同一份）
 │   │        ⚠️ 包内 0 个 .pyd/.dll —— oneapi262 只是批次标记，不要求 2026.2 runtime
 │   ├── ComfyUI-OmniXPU.bmg-20261111.zip
@@ -1551,7 +1555,7 @@ IntelGPU-ComfyUI-系统优化指南-20261111/     ← 本版含 B 系列（BMG�
     └── comfy_aimdo_xpu_runtime-0.6.0+xpu.2.g7e7b686-cp39-abi3-win_amd64.whl
           └─ SHA256: C49819C05DF568C18963C5021357E954EB83AFC38B5EF2CA577A08FF35815B2A
              ← aimdo XPU provider（rev 7e7b6863；torch_version 2.15.0+xpu；xpu_targets ["dg2"]）
-               锚 ["0.5.5","0.5.6","0.6.0","0.6.0+xpu.2.g7e7b686"] → 命中 0.44.x 的 0.6.0
+               锚 ["0.5.5","0.5.6","0.6.0","0.6.0+xpu.2.g7e7b686"] → 命中 0.45.x 的 0.6.0
                aimdo_xpu.dll 262,144 B / sha256 236AB97B… / 93 个导出；vendored 11
 ```
 
@@ -1559,7 +1563,7 @@ IntelGPU-ComfyUI-系统优化指南-20261111/     ← 本版含 B 系列（BMG�
 
 注：
 - **本版的目录约定**：**两线各一个子目录**——`B系列(bmg)/`（4 件，含 kitchen provider）与 `A770(dg2)/`（3 件，不含 kitchen provider）；**包根目录只放自适应文件与文档**（GGUF 节点 + 自检脚本 + 本文档）。
-- **⭐ 本版的实质变化**：**编译工具链 oneAPI 2026.1 → 2026.2**。内核与 aimdo 全部重编并带 `oneapi262` 标记，**用户端必须同步升级 runtime 三包**（见 1.1）。ComfyUI 侧 0.43.1 → 0.44.2，但两个 provider 的版本锚没有变，所以不需要重打。A770 内核首次带构建号（`.dg2.1`）。
+- **⭐ 本版的实质变化**：**编译工具链 oneAPI 2026.1 → 2026.2**。内核与 aimdo 全部重编并带 `oneapi262` 标记，**用户端必须同步升级 runtime 三包**（见 1.1）。ComfyUI 侧 **0.43.1 → 0.45.2**：其中 **0.45.x 把 `comfy-kitchen` 的 pin 抬到 `0.2.41`**，所以 **kitchen provider 跟着重打（0.2.40 → 0.2.41）**；`comfy-aimdo` 的 pin 仍是 `0.6.0`，**aimdo provider 未动**。A770 内核首次带构建号（`.dg2.1`）。
 - **两个 `oneapi262` 含义不同**：kernel 的是**硬依赖**（真用 2026.2 编译、runtime 必须有 2026.2.0 三包）；kitchen 的是**批次标记**（纯 Python，不链接任何 oneAPI 库）。不要由 kitchen 的标记反推"必须升 2026.2"。
 - **不要与 20261031 版混装**：那一版整套是 oneAPI 2026.1 编译。**2026.2 组件 + 2026.1.2 runtime = `0xc0000139`**；反过来 2026.1 组件 + 2026.2 runtime 则正常。**两线之间也不要交叉装内核/插件。**
 - **A770 不含稀疏注意力包**——DG2 内核里没有 CUTE 二进制，也就没有 `cute.sol_attn`；B 系列也不再需要第三方 SolAttn 插件（改用 ComfyUI 内置节点，见第三部分第 4 节）。
