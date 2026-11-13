@@ -44,9 +44,10 @@ Tag: 社群
 ## llama-cpp-python-sycl-windows
 
 为 Intel Arc（Alchemist / Battlemage）预编译的 **llama-cpp-python SYCL** wheel 集合，Windows 免编译直接安装。
+2026.11.13之后，改用oneAPI2026.2编译，所以请安装对应的toolkit
 
 
-【[网盘下载](https://pan.quark.cn/s/e20e16cb7c4f) 】 【[提示词反推插件](https://github.com/allanmeng/comfyui-sg-llama-cpp)】  【[环境要求：OneAPI2026.1](https://pan.quark.cn/s/5c5292635ee1)】
+【[网盘下载](https://pan.quark.cn/s/e20e16cb7c4f) 】 【[提示词反推插件](https://github.com/allanmeng/comfyui-sg-llama-cpp)】  【[环境要求：OneAPI2026.2](https://pan.quark.cn/s/be61433cc224)】
 
 项目地址：https://github.com/allanmeng/llama-cpp-python-sycl-windows
 
