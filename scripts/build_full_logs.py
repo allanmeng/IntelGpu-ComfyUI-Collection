@@ -1122,6 +1122,8 @@ CSS = """
     --text: #24292f;
     --text-muted: #57606a;
     --border: #d0d7de;
+    /* 卡片之间的固定间距；筛选条与首张卡片的距离也用它，保证三处视觉节奏一致 */
+    --card-gap: 12px;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -1153,7 +1155,8 @@ CSS = """
   .filter-bar {
     display: flex; align-items: center; justify-content: space-between;
     gap: 10px 18px; flex-wrap: wrap;
-    margin: 32px 0; padding: 10px 18px;
+    /* 下方留白 = 卡片间距 --card-gap，筛选条到首卡的距离与卡片之间完全一致 */
+    margin: 32px 0 var(--card-gap); padding: 10px 18px;
     background: var(--card);
     border: 1px solid var(--border); border-radius: 14px;
     box-shadow: 0 1px 2px rgba(16, 42, 67, 0.05);
@@ -1189,7 +1192,7 @@ CSS = """
   .fl-empty { text-align: center; color: var(--text-muted); font-size: 14px; padding: 40px 0; }
   /* 这几处自己写了 display，会盖掉 [hidden] 的 UA 默认 display:none，必须显式声明 */
   .log-card[hidden], .filter-bar[hidden], .fl-empty[hidden] { display: none; }
-  .log-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 32px; }
+  .log-grid { display: grid; grid-template-columns: 1fr; gap: var(--card-gap); margin-top: 32px; }
   /* 有筛选条时由 .filter-bar 自己的 margin-bottom 负责间距，别叠加 */
   .filter-bar ~ .log-grid { margin-top: 0; }
   .log-card {
