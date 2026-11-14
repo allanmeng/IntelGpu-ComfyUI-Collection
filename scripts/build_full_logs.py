@@ -297,7 +297,9 @@ def stamp_of(base, rec):
 def title_of(base, rec=None):
     """卡片上那行大标题 = `<12位时间>_<工作流名>`（保留时间戳）。
 
-    档案名是手工可定义的，约定写法 `<12位时间>_<工作流名>[_<方案>_<卡>_<显存>_<类型>]`，
+    档案名是手工可定义的，约定写法 `<12位时间>_<工作流名>[_<方案>_<卡>_<内存>_<类型>]`，
+    ⚠️ 第 5 段是 psutil **物理内存**（如 16G），不是显存；显存在 `env.devices[].total_memory_mb`
+       （B580 上报 11946 MB），两者数值和含义都不同，别混。
     所以标题取「档案名的开头 + 第一个 _ 或 + 之前」那段：
         202611021124_ZIT基础文生图                          → 202611021124_ZIT基础文生图
         202611021127_ZIT文生图_omnixpu加速_B580_16G_重载    → 202611021127_ZIT文生图
@@ -564,7 +566,7 @@ def cmd_list(rows, src, max_video_mb, names=False):
         return
 
     # --names：只吐「序号 + 完整基名」两列，方便直接复制给 --sync / --rm。
-    # 宽表那一列「工作流」是被拆过的短名（方案/卡/显存各占一列），不是基名，
+    # 宽表那一列「工作流」是被拆过的短名（方案/卡/内存各占一列），不是基名，
     # 照抄过去匹配不上——要写进脚本时用这个，别用宽表。
     if names:
         for i, r in enumerate(rows, 1):
@@ -1276,7 +1278,7 @@ def card_html(r):
     attrs = ' class="log-card" href="%s"' % esc(href) if href else ' class="log-card is-flat"'
 
     tags = []
-    # 冷启/重载/热启 放在最前：它决定这张卡的性能基线，比方案/卡/显存更靠前读
+    # 冷启/重载/热启 放在最前：它决定这张卡的性能基线，比方案/卡/内存更靠前读
     if r["test"]:
         lcls = {"冷启": "tag-cold", "重载": "tag-reload", "热启": "tag-warm"}.get(r["test"], "tag")
         tags.append('<span class="tag %s" title="测试类型">%s</span>' % (lcls, esc(r["test"])))
