@@ -1144,12 +1144,20 @@ CSS = """
     border: 1px solid #c8e0f5; border-radius: 10px; padding: 10px 16px;
     font-size: 13px; color: var(--intel-blue-dark); text-align: center; line-height: 1.8;
   }
-  .sec-head {
-    display: flex; align-items: baseline; justify-content: space-between;
-    gap: 8px 16px; flex-wrap: wrap;
+  /* 筛选器一整行：左边下拉、右边「找到 x 条，共 N 条 + 清空」。
+     窄屏自然换行，靠 margin-left:auto 保证换行后状态仍贴右。 */
+  .filter-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px 18px; flex-wrap: wrap; margin: 32px 0 14px;
   }
-  .sec-title { font-size: 17px; font-weight: 600; margin: 32px 0 14px; }
-  /* 计数与「清空」：换行后仍靠右，靠 margin-left:auto（与 .updated 同一套踩坑结论） */
+  .filters { display: flex; flex-wrap: wrap; gap: 10px 18px; }
+  .f-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-muted); }
+  .f-item select {
+    font: inherit; font-size: 13px; padding: 4px 8px; min-width: 104px; max-width: 46vw;
+    border: 1px solid var(--border); border-radius: 8px; background: var(--card);
+    color: var(--text); cursor: pointer;
+  }
+  .f-item select:focus { outline: 2px solid #a8cff0; outline-offset: 1px; }
   .filter-state {
     display: flex; align-items: center; gap: 10px; margin-left: auto;
     font-size: 13px; color: var(--text-muted); font-variant-numeric: tabular-nums;
@@ -1161,18 +1169,12 @@ CSS = """
     background: #e8f1fb; color: var(--intel-blue-dark);
   }
   .f-clear:hover { background: #d8e8f8; }
-  .filters { display: flex; flex-wrap: wrap; gap: 10px 18px; margin: 0 0 14px; }
-  .f-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-muted); }
-  .f-item select {
-    font: inherit; font-size: 13px; padding: 4px 8px; min-width: 104px; max-width: 46vw;
-    border: 1px solid var(--border); border-radius: 8px; background: var(--card);
-    color: var(--text); cursor: pointer;
-  }
-  .f-item select:focus { outline: 2px solid #a8cff0; outline-offset: 1px; }
   .fl-empty { text-align: center; color: var(--text-muted); font-size: 14px; padding: 40px 0; }
   /* 这几处自己写了 display，会盖掉 [hidden] 的 UA 默认 display:none，必须显式声明 */
-  .log-card[hidden], .filters[hidden], .filter-state[hidden], .fl-empty[hidden] { display: none; }
-  .log-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+  .log-card[hidden], .filter-bar[hidden], .fl-empty[hidden] { display: none; }
+  .log-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 32px; }
+  /* 有筛选条时由 .filter-bar 自己的 margin-bottom 负责间距，别叠加 */
+  .filter-bar ~ .log-grid { margin-top: 0; }
   .log-card {
     display: grid; grid-template-columns: 88px minmax(0, 1fr) auto; gap: 0 16px;
     align-items: start;
@@ -1486,18 +1488,21 @@ SCRIPT = """(function () {
     apply();
   });
 
-  bar.hidden = false;
-  var state = document.getElementById('fl-state');
-  if (state) state.hidden = false;
+  // 整行一起放出来：没有 JS 时它一直是 hidden，页面直接从 sort-banner 跳到卡片
+  var wrap = document.getElementById('fl-wrap');
+  if (wrap) wrap.hidden = false;
   apply();
 })();"""
 
 
 def filters_html(rows):
-    """返回 (标题行右侧状态区, 筛选条)。没有维度达到 2 个取值时两者都是空串。
+    """返回筛选条整行（左下拉 + 右状态）。没有维度达到 2 个取值时返回空串。
 
-    只渲染取值 ≥2 的维度：只有一个值时下拉点开只有「全部 N」一项，
+    只渲染取值 ≥2 的维度：只有一个值时下拉点开只有「全部」一项，
     等于白点一次。现在只出「模型」，等插上 B70 或换内存条，另两个自动长出来。
+
+    下拉里**不写数量**（Allan 2026-11-14 定）：选项只放名字，条数统一由
+    右侧「找到 x 条，共 N 条」表达。排序仍按条数降序，常用的排前面。
     """
     parts = []
     for key, label in FACETS:
@@ -1508,23 +1513,24 @@ def filters_html(rows):
                 counts[v] = counts.get(v, 0) + 1
         if len(counts) < 2:
             continue
-        opts = ['<option value="">全部 %d</option>' % len(rows)]
+        opts = ['<option value="">全部</option>']
         for v in sorted(counts, key=lambda x: (-counts[x], x)):
-            opts.append('<option value="%s">%s (%d)</option>' % (esc(v), esc(v), counts[v]))
+            opts.append('<option value="%s">%s</option>' % (esc(v), esc(v)))
         parts.append(
             '<label class="f-item">%s<select data-f="%s" aria-label="按%s筛选">%s</select></label>'
             % (esc(label), key, esc(label), "".join(opts)))
     if not parts:
-        return "", ""
+        return ""
 
     n = len(rows)
-    state = ('\n    <div class="filter-state" id="fl-state" hidden>显示 '
-             '<b id="fl-cnt">%d</b> / %d<button type="button" class="f-clear" '
-             'id="fl-clear">清空</button></div>' % (n, n))
-    bar = ('  <div class="filters" id="fl-bar" hidden>%s</div>\n'
-           '  <div class="fl-empty" id="fl-empty" hidden>没有符合筛选条件的档案。</div>'
-           % "".join(parts))
-    return state, bar
+    # 整行一起 hidden：无 JS 时不留空白，也不留空 flex 容器的间距
+    return ('  <div class="filter-bar" id="fl-wrap" hidden>\n'
+            '    <div class="filters" id="fl-bar">%s</div>\n'
+            '    <div class="filter-state" id="fl-state">找到 <b id="fl-cnt">%d</b> 条，'
+            '共 %d 条<button type="button" class="f-clear" id="fl-clear">清空</button></div>\n'
+            '  </div>\n'
+            '  <div class="fl-empty" id="fl-empty" hidden>没有符合筛选条件的档案。</div>\n'
+            % ("".join(parts), n, n))
 
 
 def card_html(r):
@@ -1702,11 +1708,11 @@ def cmd_build(dry):
 
     if rows:
         body = '<div class="log-grid">\n%s  </div>' % "".join(card_html(r) for r in rows)
-        sec_state, fbar = filters_html(rows)
+        fbar = filters_html(rows)
     else:
         body = '<div class="empty">还没有任何档案。在 ComfyUI 里另存一份完整日志后，' \
                '用 <code>--sync</code> 同步进来。</div>'
-        sec_state, fbar = "", ""
+        fbar = ""
     # 没有筛选器就不插脚本：省得页面里挂一段必然 return 的死代码
     script_block = ("<script>\n%s\n</script>\n" % SCRIPT) if fbar else ""
 
@@ -1733,12 +1739,7 @@ def cmd_build(dry):
     共 %(n)d 份档案 · 按时间倒排（新 → 旧）· 由本地脚本从各档案的 <code>.full_log.json</code> 渲染，远端不参与生成 · 点击卡片进入完整档案
   </div>
 
-  <div class="sec-head">
-    <h2 class="sec-title">全部档案</h2>%(sec_state)s
-  </div>
-
-%(filters)s
-%(body)s
+%(filters)s%(body)s
 
   <footer>
     <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection" target="_blank">IntelGpu-ComfyUI-Collection</a> ·
@@ -1748,7 +1749,7 @@ def cmd_build(dry):
 </div>
 %(script)s</body>
 </html>
-""" % {"css": CSS, "chips": CHIPS, "n": len(rows), "sec_state": sec_state,
+""" % {"css": CSS, "chips": CHIPS, "n": len(rows),
        "filters": fbar, "body": body, "script": script_block}
 
     if dry:
