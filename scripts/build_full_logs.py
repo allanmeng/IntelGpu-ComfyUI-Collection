@@ -1144,31 +1144,42 @@ CSS = """
     border: 1px solid #c8e0f5; border-radius: 10px; padding: 10px 16px;
     font-size: 13px; color: var(--intel-blue-dark); text-align: center; line-height: 1.8;
   }
-  /* 筛选器一整行：左边下拉、右边「找到 x 条，共 N 条 + 清空」。
+  /* 筛选器：整条做成一张胶囊卡片（白底 / 细边 / 轻投影 / 大圆角）。
+     左侧「标签 + 下拉」三组，右侧「找到 x 条 共 N 条 + ↻ 重置」。
      窄屏自然换行，靠 margin-left:auto 保证换行后状态仍贴右。 */
   .filter-bar {
     display: flex; align-items: center; justify-content: space-between;
-    gap: 10px 18px; flex-wrap: wrap; margin: 32px 0 14px;
+    gap: 10px 18px; flex-wrap: wrap;
+    margin: 32px 0 16px; padding: 10px 18px;
+    background: var(--card);
+    border: 1px solid var(--border); border-radius: 14px;
+    box-shadow: 0 1px 2px rgba(16, 42, 67, 0.05);
   }
-  .filters { display: flex; flex-wrap: wrap; gap: 10px 18px; }
-  .f-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-muted); }
+  .filters { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 22px; }
+  .f-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); }
   .f-item select {
-    font: inherit; font-size: 13px; padding: 4px 8px; min-width: 104px; max-width: 46vw;
+    font: inherit; font-size: 13px; padding: 5px 10px; min-width: 100px; max-width: 46vw;
     border: 1px solid var(--border); border-radius: 8px; background: var(--card);
     color: var(--text); cursor: pointer;
   }
+  .f-item select:hover { border-color: #a8cff0; }
   .f-item select:focus { outline: 2px solid #a8cff0; outline-offset: 1px; }
+  /* 每段包一层 span：flex 会把裸文本切成独立的匿名 flex item，
+     10px gap 会插进「找到 / 6 / 条」中间，字距被撑开 */
   .filter-state {
     display: flex; align-items: center; gap: 10px; margin-left: auto;
     font-size: 13px; color: var(--text-muted); font-variant-numeric: tabular-nums;
   }
   .filter-state b { color: var(--intel-blue-dark); font-size: 14px; }
+  /* 「重置」按设计稿做成文字链接样式：无边框无底色，只有图标 + 蓝字，hover 才出浅底 */
   .f-clear {
-    font: inherit; font-size: 12px; line-height: 1.5; padding: 2px 10px; cursor: pointer;
-    border: 1px solid #c8e0f5; border-radius: 999px;
-    background: #e8f1fb; color: var(--intel-blue-dark);
+    display: inline-flex; align-items: center; gap: 4px; margin-left: 2px;
+    font: inherit; font-size: 13px; line-height: 1.5; padding: 3px 7px; cursor: pointer;
+    border: 0; border-radius: 8px; background: none; color: var(--intel-blue-dark);
   }
-  .f-clear:hover { background: #d8e8f8; }
+  .f-clear svg { display: block; }
+  .f-clear:hover { background: #eaf3fc; }
+  .f-clear:focus-visible { outline: 2px solid #a8cff0; outline-offset: 1px; }
   .fl-empty { text-align: center; color: var(--text-muted); font-size: 14px; padding: 40px 0; }
   /* 这几处自己写了 display，会盖掉 [hidden] 的 UA 默认 display:none，必须显式声明 */
   .log-card[hidden], .filter-bar[hidden], .fl-empty[hidden] { display: none; }
@@ -1274,6 +1285,9 @@ CSS = """
     font-family: "Cascadia Mono", Consolas, monospace; font-size: 11px; line-height: 1.5;
   }
   @media (max-width: 700px) {
+    /* 筛选条：胶囊卡片的内边距与栏距一起收紧，窄屏才放得下三组下拉 */
+    .filter-bar { padding: 10px 12px; gap: 8px 12px; }
+    .filters { gap: 8px 14px; }
     .log-card { grid-template-columns: 88px minmax(0, 1fr); }
     .log-side {
       grid-column: 1 / -1; flex-direction: row-reverse; align-items: center;
@@ -1434,6 +1448,14 @@ def num_cells(r):
 # 重载/热启是纯采样，混在一个筛选里对比耗时容易得出错误结论。
 FACETS = (("family", "模型"), ("card", "显卡"), ("memory", "内存"))
 
+# 「重置」按钮的 ↻ 图标（Feather rotate-ccw，viewBox 24 缩到 12px）。
+# 内联 SVG 而不是用文字字符「⟲」：字符在不同字体下大小/基线都不一样，
+# 会跟「重置」两个字对不齐。
+RESET_ICON = ('<svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true" '
+              'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" '
+              'stroke-linejoin="round"><path d="M1 4v6h6"/>'
+              '<path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>')
+
 # 前端只做「显隐开关」，不取数、不渲染：卡片内容照旧全部烘在 HTML 里，
 # 所以无 JS / 爬虫 / Ctrl+F 都照常工作。降级时筛选条整体不显示（hidden）。
 SCRIPT = """(function () {
@@ -1528,11 +1550,14 @@ def filters_html(rows):
     # 整行一起 hidden：无 JS 时不留空白，也不留空 flex 容器的间距
     return ('  <div class="filter-bar" id="fl-wrap" hidden>\n'
             '    <div class="filters" id="fl-bar">%s</div>\n'
-            '    <div class="filter-state" id="fl-state">找到 <b id="fl-cnt">%d</b> 条，'
-            '共 %d 条<button type="button" class="f-clear" id="fl-clear">清空</button></div>\n'
+            '    <div class="filter-state" id="fl-state">'
+            '<span>找到 <b id="fl-cnt">%d</b> 条</span>'
+            '<span>共 %d 条</span>'
+            '<button type="button" class="f-clear" id="fl-clear">%s重置</button>'
+            '</div>\n'
             '  </div>\n'
             '  <div class="fl-empty" id="fl-empty" hidden>没有符合筛选条件的档案。</div>\n'
-            % ("".join(parts), n, n))
+            % ("".join(parts), n, n, RESET_ICON))
 
 
 def card_html(r):
