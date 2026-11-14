@@ -211,7 +211,7 @@
   </div>
 
   <div class="filter-bar" id="fl-wrap" hidden>
-    <div class="filters" id="fl-bar"><label class="f-item">模型<select data-f="family" aria-label="按模型筛选"><option value="">全部</option><option value="QwenImage2.1">QwenImage2.1</option><option value="MOSS-Image">MOSS-Image</option><option value="MiniMax-H3-Image">MiniMax-H3-Image</option><option value="SDXL">SDXL</option><option value="Z-image-turbo">Z-image-turbo</option></select></label></div>
+    <div class="filters" id="fl-bar"><label class="f-item">模型<select data-f="family" aria-label="按模型筛选"><option value="">全部</option><option value="QwenImage2.1">QwenImage2.1</option><option value="MOSS-Image">MOSS-Image</option><option value="MiniMax-H3-Image">MiniMax-H3-Image</option><option value="SDXL">SDXL</option><option value="Z-image-turbo">Z-image-turbo</option></select></label><label class="f-item">显卡<select data-f="card" aria-label="按显卡筛选"><option value="">全部</option><option value="B580">B580</option></select></label><label class="f-item">内存<select data-f="memory" aria-label="按内存筛选"><option value="">全部</option><option value="16G">16G</option></select></label></div>
     <div class="filter-state" id="fl-state">找到 <b id="fl-cnt">6</b> 条，共 6 条<button type="button" class="f-clear" id="fl-clear">清空</button></div>
   </div>
   <div class="fl-empty" id="fl-empty" hidden>没有符合筛选条件的档案。</div>
@@ -287,7 +287,7 @@
 <script>
 (function () {
   var bar = document.getElementById('fl-bar');
-  if (!bar) return;                        // 没有任何维度达到 2 个取值 → 不启用
+  if (!bar) return;                        // 页面没有筛选条（空档案）→ 不启用
   var cards = [].slice.call(document.querySelectorAll('.log-card'));
   var sels = [].slice.call(bar.querySelectorAll('select'));
   var cnt = document.getElementById('fl-cnt');

@@ -1438,7 +1438,7 @@ FACETS = (("family", "模型"), ("card", "显卡"), ("memory", "内存"))
 # 所以无 JS / 爬虫 / Ctrl+F 都照常工作。降级时筛选条整体不显示（hidden）。
 SCRIPT = """(function () {
   var bar = document.getElementById('fl-bar');
-  if (!bar) return;                        // 没有任何维度达到 2 个取值 → 不启用
+  if (!bar) return;                        // 页面没有筛选条（空档案）→ 不启用
   var cards = [].slice.call(document.querySelectorAll('.log-card'));
   var sels = [].slice.call(bar.querySelectorAll('select'));
   var cnt = document.getElementById('fl-cnt');
@@ -1496,10 +1496,12 @@ SCRIPT = """(function () {
 
 
 def filters_html(rows):
-    """返回筛选条整行（左下拉 + 右状态）。没有维度达到 2 个取值时返回空串。
+    """返回筛选条整行（左下拉 + 右状态）。一行档案都没有时返回空串。
 
-    只渲染取值 ≥2 的维度：只有一个值时下拉点开只有「全部」一项，
-    等于白点一次。现在只出「模型」，等插上 B70 或换内存条，另两个自动长出来。
+    三个维度**始终都出**（Allan 2026-11-14 定：模型 / 显卡 / 内存 要固定三个）：
+    即使某项只有一个取值，下拉也照常渲染——位置固定、习惯稳定，用户不用每次
+    猜「今天哪几个下拉在」。唯一的例外是某维度一条取值都没有（字段全空），
+    这种下拉点开只有「全部」，替不了任何筛选，直接跳过。
 
     下拉里**不写数量**（Allan 2026-11-14 定）：选项只放名字，条数统一由
     右侧「找到 x 条，共 N 条」表达。排序仍按条数降序，常用的排前面。
@@ -1511,7 +1513,7 @@ def filters_html(rows):
             v = (r.get(key) or "").strip()
             if v:
                 counts[v] = counts.get(v, 0) + 1
-        if len(counts) < 2:
+        if not counts:
             continue
         opts = ['<option value="">全部</option>']
         for v in sorted(counts, key=lambda x: (-counts[x], x)):
