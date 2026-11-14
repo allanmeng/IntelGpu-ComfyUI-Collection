@@ -957,8 +957,18 @@ def chrome_block():
     <div class="chips">%s</div>
   </header>
   <hr class="rule">
-  <a class="back" href="../full-logs.html">&#8592; 返回档案列表</a>
+  <a class="back" href="../full-logs.html" id="fl-back">&#8592; 返回档案列表</a>
 </div>
+<script>
+/* 聚合页把当前筛选写进了卡片链接（?family=SDXL&card=B580），这里原样带回去，
+   否则点「返回档案列表」会落在无筛选的默认视图，用户的选择白丢一次 */
+(function () {
+  var q = location.search;
+  if (!q || q === '?') return;
+  var a = document.getElementById('fl-back');
+  if (a) a.setAttribute('href', a.getAttribute('href') + q);
+})();
+</script>
 %s""" % (CHROME_START, note_html, "".join(chips), CHROME_END)
 
 
@@ -1473,6 +1483,9 @@ SCRIPT = """(function () {
   var bar = document.getElementById('fl-bar');
   if (!bar) return;                        // 页面没有筛选条（空档案）→ 不启用
   var cards = [].slice.call(document.querySelectorAll('.log-card'));
+  // 带链接的卡片单独留一份原始 href：apply 时要往它后面接当前筛选参数
+  var links = [].slice.call(document.querySelectorAll('a.log-card[href]'));
+  links.forEach(function (a) { a.setAttribute('data-href', a.getAttribute('href')); });
   var sels = [].slice.call(bar.querySelectorAll('select'));
   var cnt = document.getElementById('fl-cnt');
   var empty = document.getElementById('fl-empty');
@@ -1498,9 +1511,12 @@ SCRIPT = """(function () {
     sels.forEach(function (s) {
       if (s.value) qs.push(encodeURIComponent(keyOf(s)) + '=' + encodeURIComponent(s.value));
     });
+    var q = qs.length ? '?' + qs.join('&') : '';
     try {
-      history.replaceState(null, '', location.pathname + (qs.length ? '?' + qs.join('&') : ''));
+      history.replaceState(null, '', location.pathname + q);
     } catch (e) {}
+    // 卡片链接同步带上同一个 q：点进详情页后，「返回档案列表」才能回到同样的筛选视图
+    links.forEach(function (a) { a.setAttribute('href', a.getAttribute('data-href') + q); });
   }
 
   // 从 URL 恢复：值必须真的在 <option> 里才采用，
