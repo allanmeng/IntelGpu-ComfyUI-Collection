@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "_doc": [
+    "底模文件名 → family 的对应表，只用于站点 full-logs.html 的筛选器。",
+    "插件 ComfyUI-FullLog 不读这张表，也不该知道它存在（产物里不带 family）。",
+    "",
+    "匹配规则（实现见 scripts/build_full_logs.py 的 norm_key / family_of）：",
+    "1. 比对键 = 完整相对路径（含子目录）小写化，然后删掉所有非字母数字字符。",
+    "     ext\\qwen_image_2.1-viggle-4-steps-turbo_Q4_K_M.gguf",
+    "       → extqwenimage21viggle4stepsturboq4kmgguf",
+    "   所以 match 写 `qwen image 2 1` 还是 `qwen_image_2.1` 都行，空格/下划线会被删掉。",
+    "   换量化（Q4_K_M → Q3_K_M）不用改表：词干不受影响。",
+    "2. 用整条相对路径比，不只看文件名：",
+    "   Illustrious\\IL-Gembyte_20Emerald.safetensors 的文件名里没有 Illustrious，",
+    "   全靠子目录名才认得出来。",
+    "3. exact 优先级最高（键同样是「删干净」的形式），用于例外；",
+    "   下面那条是 Format 示例，match 里的 illustrious 其实已经覆盖它。",
+    "4. families 按数组顺序命中第一个就停，所以具体写前面、泛化写后面。",
+    "5. 命中不了的归入「未归类」，--build / --families 都会打警告——",
+    "   遇到就补一行，不确定归属就先问，别猜。"
+  ],
+  "families": [
+    {"family": "MiniMax-H3-Image", "match": ["h3 image"]},
+    {"family": "Z-image-turbo", "match": ["zimage turbo"]},
+    {"family": "QwenImage2.1", "match": ["qwen image 2 1"]},
+    {"family": "MOSS-Image", "match": ["moss image"]},
+    {"family": "SDXL", "match": ["illustrious", "sdxl"]}
+  ],
+  "exact": {
+    "illustriousilgembyte20emeraldsafetensors": "SDXL"
+  }
+}

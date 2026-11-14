@@ -26,10 +26,11 @@ log-analysis/，也不碰 scripts/generate_pages.py。
     python scripts/build_full_logs.py --sync-all       # 同步全部，然后重建页面
     python scripts/build_full_logs.py --build          # 只重建聚合页
     python scripts/build_full_logs.py --restyle        # 只重灌详情页头部（返回 + 导航）
+    python scripts/build_full_logs.py --families       # 只读：审计「底模 → family」映射
     python scripts/build_full_logs.py --rm 1,3         # 预览：要从站点移除哪几份
     python scripts/build_full_logs.py --rm 1,3 --yes   # 真删（移到 _trash，可还原）
 
-五个命令的边界（容易混，写死在这里）：
+六个命令的边界（容易混，写死在这里）：
 
     --list   **只读**：列出源目录里的档案与同步状态，供挑选序号用。
              不写任何文件，聚合页一个字节都不变。
@@ -42,6 +43,9 @@ log-analysis/，也不碰 scripts/generate_pages.py。
              上不上站点本来就是人工决定的，删站内副本不该牵连源档案。
              文件不真删，移到 full-logs/_trash/<时间戳>/（已 gitignore），
              拷回 full-logs/ 再跑 --build 即可还原。不加 --yes 只打印清单。
+    --families **只读**：列站点每份档案的「底模 → family」以及未归类清单。
+             映射表是 scripts/model_families.json，只服务本站筛选器；
+             插件 ComfyUI-FullLog 不读它，产物里也不带 family。
 
 ⚠️ --rm 的序号来自**站点现存档案**，与 --list/--sync 的**插件源**列表不是一回事，
    两边档数常常不同（源里常有没发布的）。所以 --rm 与 --sync 不允许同时给。
@@ -329,6 +333,125 @@ def title_of(base, rec=None):
     return ("%s_%s" % (stamp, name)) if stamp else name
 
 
+# ------------------------------------------------------------------ 底模 family
+# 只给站点筛选器用：插件 ComfyUI-FullLog 不读这张表，产物里也不带 family。
+FAMILIES_JSON = os.path.join(ROOT, "scripts", "model_families.json")
+UNKNOWN_FAMILY = "未归类"
+_FAMILIES = None
+
+
+def norm_key(s):
+    """模型路径的比对键：小写 + **去掉所有非字母数字字符**（分隔符、下划线、点全删）。
+
+    `ext\\qwen_image_2.1-viggle-4-steps-turbo_Q4_K_M.gguf`
+      → `extqwenimage21viggle4stepsturboq4kmgguf`
+
+    为什么是「删干净」而不是「折成空格」：文件名里 CamelCase 和数字紧挨着，
+    折成空格后 `REDZimageTurbo2.0` 会变成 `redzimageturbo2 0`，与
+    `zimage turbo` 隔着 camelCase 边界对不上。删干净后 `redzimageturbo20…`
+    里直接含 `zimageturbo`，一条 match 就能命中。
+
+    - 量化后缀（Q4_K_M → Q3_K_M）删完分别是 q4km / q3km，词干不受影响
+    - 子目录名保留在键里：`Illustrious\\IL-Gembyte…` 的文件名不含 Illustrious，
+      全靠目录名命中
+    """
+    s = unicodedata.normalize("NFKC", (s or "").replace("\\", "/")).lower()
+    return re.sub(r"[^0-9a-z\u4e00-\u9fff]+", "", s)
+
+
+def load_families():
+    """读 model_families.json → (families, exact)。文件缺了只警告，不阻断发布。"""
+    global _FAMILIES
+    if _FAMILIES is not None:
+        return _FAMILIES
+    data = {}
+    if os.path.exists(FAMILIES_JSON):
+        try:
+            with open(FAMILIES_JSON, encoding="utf-8") as f:
+                data = json.load(f)
+        except (OSError, ValueError) as e:
+            print("⚠ %s 读取失败（%s）→ 本次全部按「%s」处理" % (FAMILIES_JSON, e, UNKNOWN_FAMILY))
+    else:
+        print("⚠ 找不到 %s → 全部按「%s」处理" % (FAMILIES_JSON, UNKNOWN_FAMILY))
+    fams = []
+    for x in data.get("families") or []:
+        name = (x.get("family") or "").strip()
+        if not name:
+            continue
+        phrases = [norm_key(p) for p in (x.get("match") or []) if p]
+        phrases = [p for p in phrases if p]
+        fams.append((name, phrases))
+    exact = {norm_key(k): v for k, v in (data.get("exact") or {}).items()}
+    _FAMILIES = (fams, exact)
+    return _FAMILIES
+
+
+def base_model_paths(rec):
+    """这份档案的底模文件（含子目录，相对 models/ 的写法原样保留）。
+
+    **图优先**：GGUF 工作流的 `metrics.models` 里 base 的 file 是空的
+    （policy 行 paths=[]），只有工作流结构里还剩 unet_name。
+    """
+    out = []
+    for x in graph_models(rec):
+        if x.get("role") == "base" and x.get("file"):
+            out.append(x["file"])
+    if not out:
+        for m in ((rec.get("metrics") or {}).get("models") or []):
+            if m.get("role") == "base" and m.get("file"):
+                out.append(m["file"])
+    seen, uniq = set(), []
+    for p in out:
+        k = norm_key(p)
+        if k and k not in seen:
+            seen.add(k)
+            uniq.append(p)
+    return uniq
+
+
+def family_of(paths):
+    """底模路径 → family 列表（去重保序）。命中不了就是空列表。"""
+    fams, exact = load_families()
+    out = []
+    for p in paths:
+        k = norm_key(p)
+        hit = exact.get(k)
+        if not hit:
+            for name, phrases in fams:      # 声明顺序即优先级，命中第一个就停
+                if any(ph in k for ph in phrases):
+                    hit = name
+                    break
+        if hit and hit not in out:
+            out.append(hit)
+    return out
+
+
+def unknown_base_models(rows):
+    """有底模文件、但一个 family 都没命中的路径（去重）。
+
+    只报「真的认不出来」的：完全没有底模记录的档案不在此列，免得每次构建刷屏。
+    """
+    bad = []
+    for r in rows:
+        if r.get("families"):
+            continue
+        for p in r.get("base_models") or []:
+            if p not in bad:
+                bad.append(p)
+    return bad
+
+
+def warn_unknown(rows):
+    bad = unknown_base_models(rows)
+    if not bad:
+        return
+    print()
+    print("⚠ 未归类的底模（不影响发布，筛选器里会落在「%s」）：" % UNKNOWN_FAMILY)
+    for p in bad:
+        print("    %s" % p)
+    print("  → 确认它属于哪个 family 后，加进 %s" % show_path(FAMILIES_JSON))
+
+
 def summarize(item, rec, max_video_mb):
     """把一份档案压成列表/卡片要用的字段。
 
@@ -375,6 +498,8 @@ def summarize(item, rec, max_video_mb):
     size = head["size"] if head else None
 
     date, clock, stamp = stamp_of(item["base"], rec)
+    base_files = base_model_paths(rec)
+    fams = family_of(base_files)
     return {
         "base": item["base"],
         "json": item["json"],
@@ -401,6 +526,11 @@ def summarize(item, rec, max_video_mb):
         "total_steps": m.get("total_steps"),
         "models": m.get("models") or [],
         "graph_models": graph_models(rec),
+        # 筛选器用的底模家族。families 是列表（理论上可能一次执行用两个底模），
+        # family 取第一个供卡片/下拉直接用；全认不出来落「未归类」。
+        "base_models": base_files,
+        "families": fams,
+        "family": fams[0] if fams else UNKNOWN_FAMILY,
         "deliverable_name": (head["name"] if head else ""),
         "deliverable_count": len(media_list),
     }
@@ -1364,6 +1494,63 @@ def dir_size(path):
     return total
 
 
+def _pad(s, width):
+    """按显示宽度补空格：CJK 字符占 2 列，`%-13s` 会把中文表格错位。"""
+    n = sum(2 if unicodedata.east_asian_width(c) in ("W", "F") else 1 for c in s)
+    return s + " " * max(0, width - n)
+
+
+def _cut(s, width):
+    """按显示宽度截断（不是字符数）：档案名里的中文按 2 列算。"""
+    out, n = [], 0
+    for ch in s:
+        w = 2 if unicodedata.east_asian_width(ch) in ("W", "F") else 1
+        if n + w > width:
+            return "".join(out) + "…" if out else ""
+        out.append(ch)
+        n += w
+    return "".join(out)
+
+
+def cmd_families():
+    """只读审计：站点每份档案的「底模 → family」，以及未归类清单。
+
+    这张映射表是筛选器的唯一依据，写错就会筛错，所以必须能一眼核完。
+    """
+    if not os.path.isdir(DST_DIR):
+        print("目录不存在：%s" % DST_DIR)
+        return 1
+    items, err = scan_src(DST_DIR)
+    if err:
+        print(err)
+        return 1
+    rows = []
+    for base, item in items.items():
+        rows.append(summarize(item, read_json(item["json"]), 20.0))
+    rows.sort(key=lambda r: (r["stamp"], r["base"]), reverse=True)
+
+    fams, exact = load_families()
+    print("family 表：%s（match %d 组 / exact %d 条）"
+          % (show_path(FAMILIES_JSON), len(fams), len(exact)))
+    print()
+    print("  %s%s%s" % (_pad("family", 20), _pad("档案", 52), "底模"))
+    print("  %s%s%s" % (_pad("-" * 18, 20), _pad("-" * 50, 52), "-" * 30))
+    for r in rows:
+        fam = r["family"] if r["families"] else UNKNOWN_FAMILY
+        files = " / ".join(r["base_models"]) or "(无底模记录)"
+        print("  %s%s%s" % (_pad(fam, 20), _pad(_cut(r["base"], 50), 52), files))
+
+    cnt = {}
+    for r in rows:
+        k = r["family"] if r["families"] else UNKNOWN_FAMILY
+        cnt[k] = cnt.get(k, 0) + 1
+    print()
+    print("汇总：%s" % " · ".join("%s %d" % (k, v)
+                                 for k, v in sorted(cnt.items(), key=lambda kv: (-kv[1], kv[0]))))
+    warn_unknown(rows)
+    return 0
+
+
 def cmd_build(dry):
     if not os.path.isdir(DST_DIR):
         print("目录不存在：%s（先跑 --sync 同步至少一份档案）" % DST_DIR)
@@ -1379,6 +1566,7 @@ def cmd_build(dry):
         rec = read_json(item["json"])
         rows.append(summarize(item, rec, 20.0))
     rows.sort(key=lambda r: (r["stamp"], r["base"]), reverse=True)
+    warn_unknown(rows)
 
     if rows:
         body = '<div class="log-grid">\n%s  </div>' % "".join(card_html(r) for r in rows)
@@ -1446,6 +1634,8 @@ def main(argv):
     ap.add_argument("--sync-all", action="store_true",
                     help="同步全部档案，末尾自动重建聚合页")
     ap.add_argument("--build", action="store_true", help="只重建 full-logs.html，不动档案")
+    ap.add_argument("--families", action="store_true",
+                    help="只读：审计「底模 → family」映射（含未归类清单），不写任何文件")
     # nargs="?"：裸 --rm 直接列站点清单（挑序号用），带参数才进预览/删除流程。
     # 少了这个，`--rm` 不带值会被 argparse 判成「缺少参数」直接报错退出。
     ap.add_argument("--rm", nargs="?", default=None, const="", metavar="1,3 或 完整档案名",
@@ -1461,6 +1651,9 @@ def main(argv):
                     help="视频超过该体积就不随档案发布（0 = 不限）")
     ap.add_argument("--dry-run", action="store_true", help="只打印计划，不写文件")
     a = ap.parse_args(argv)
+
+    if a.families:
+        return cmd_families()
 
     # --rm 最先处理：它走的是**站点**列表，与 --sync/--list 的源列表序号不是一回事，
     # 两者同时给容易把序号搞混，直接拒绝。
