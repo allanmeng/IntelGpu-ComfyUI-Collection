@@ -21,7 +21,7 @@
   ],
   "families": [
     {"family": "MiniMax-H3-Image", "match": ["h3 image"]},
-    {"family": "Z-image-turbo", "match": ["zimage turbo"]},
+    {"family": "Z-image-turbo", "match": ["zimage turbo", "zit"]},
     {"family": "QwenImage2.1", "match": ["qwen image 2 1"]},
     {"family": "MOSS-Image", "match": ["moss image"]},
     {"family": "SDXL", "match": ["illustrious", "sdxl"]}
