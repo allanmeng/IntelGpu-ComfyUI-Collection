@@ -1144,7 +1144,34 @@ CSS = """
     border: 1px solid #c8e0f5; border-radius: 10px; padding: 10px 16px;
     font-size: 13px; color: var(--intel-blue-dark); text-align: center; line-height: 1.8;
   }
+  .sec-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 8px 16px; flex-wrap: wrap;
+  }
   .sec-title { font-size: 17px; font-weight: 600; margin: 32px 0 14px; }
+  /* 计数与「清空」：换行后仍靠右，靠 margin-left:auto（与 .updated 同一套踩坑结论） */
+  .filter-state {
+    display: flex; align-items: center; gap: 10px; margin-left: auto;
+    font-size: 13px; color: var(--text-muted); font-variant-numeric: tabular-nums;
+  }
+  .filter-state b { color: var(--intel-blue-dark); font-size: 14px; }
+  .f-clear {
+    font: inherit; font-size: 12px; line-height: 1.5; padding: 2px 10px; cursor: pointer;
+    border: 1px solid #c8e0f5; border-radius: 999px;
+    background: #e8f1fb; color: var(--intel-blue-dark);
+  }
+  .f-clear:hover { background: #d8e8f8; }
+  .filters { display: flex; flex-wrap: wrap; gap: 10px 18px; margin: 0 0 14px; }
+  .f-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-muted); }
+  .f-item select {
+    font: inherit; font-size: 13px; padding: 4px 8px; min-width: 104px; max-width: 46vw;
+    border: 1px solid var(--border); border-radius: 8px; background: var(--card);
+    color: var(--text); cursor: pointer;
+  }
+  .f-item select:focus { outline: 2px solid #a8cff0; outline-offset: 1px; }
+  .fl-empty { text-align: center; color: var(--text-muted); font-size: 14px; padding: 40px 0; }
+  /* 这几处自己写了 display，会盖掉 [hidden] 的 UA 默认 display:none，必须显式声明 */
+  .log-card[hidden], .filters[hidden], .filter-state[hidden], .fl-empty[hidden] { display: none; }
   .log-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
   .log-card {
     display: grid; grid-template-columns: 88px minmax(0, 1fr) auto; gap: 0 16px;
@@ -1399,6 +1426,107 @@ def num_cells(r):
     )
 
 
+# ------------------------------------------------------------------ 筛选器
+# 维度 key 必须与 card_html 写进卡片的 data-f-* 一一对应。
+# 只有这三个（Allan 2026-11-14 定）；「测试类型」有意不做：冷启含加载、
+# 重载/热启是纯采样，混在一个筛选里对比耗时容易得出错误结论。
+FACETS = (("family", "模型"), ("card", "显卡"), ("memory", "内存"))
+
+# 前端只做「显隐开关」，不取数、不渲染：卡片内容照旧全部烘在 HTML 里，
+# 所以无 JS / 爬虫 / Ctrl+F 都照常工作。降级时筛选条整体不显示（hidden）。
+SCRIPT = """(function () {
+  var bar = document.getElementById('fl-bar');
+  if (!bar) return;                        // 没有任何维度达到 2 个取值 → 不启用
+  var cards = [].slice.call(document.querySelectorAll('.log-card'));
+  var sels = [].slice.call(bar.querySelectorAll('select'));
+  var cnt = document.getElementById('fl-cnt');
+  var empty = document.getElementById('fl-empty');
+
+  function keyOf(sel) { return sel.getAttribute('data-f'); }
+
+  function apply() {
+    var shown = 0;
+    cards.forEach(function (c) {
+      var ok = true;
+      for (var i = 0; i < sels.length; i++) {
+        var v = sels[i].value;
+        if (v && c.getAttribute('data-f-' + keyOf(sels[i])) !== v) { ok = false; break; }
+      }
+      c.hidden = !ok;
+      if (ok) shown++;
+    });
+    if (cnt) cnt.textContent = shown;
+    if (empty) empty.hidden = shown > 0;
+
+    // 反写地址栏：刷新不丢、链接可分享。file:// 下 replaceState 可能抛错，忽略即可。
+    var qs = [];
+    sels.forEach(function (s) {
+      if (s.value) qs.push(encodeURIComponent(keyOf(s)) + '=' + encodeURIComponent(s.value));
+    });
+    try {
+      history.replaceState(null, '', location.pathname + (qs.length ? '?' + qs.join('&') : ''));
+    } catch (e) {}
+  }
+
+  // 从 URL 恢复：值必须真的在 <option> 里才采用，
+  // 否则一个手改脏的参数会把筛选弄成 0 命中，看起来像页面坏了。
+  var qp = new URLSearchParams(location.search);
+  sels.forEach(function (s) {
+    var v = qp.get(keyOf(s));
+    if (!v) return;
+    for (var i = 0; i < s.options.length; i++) {
+      if (s.options[i].value === v) { s.value = v; break; }
+    }
+  });
+
+  sels.forEach(function (s) { s.addEventListener('change', apply); });
+  var clear = document.getElementById('fl-clear');
+  if (clear) clear.addEventListener('click', function () {
+    sels.forEach(function (s) { s.value = ''; });
+    apply();
+  });
+
+  bar.hidden = false;
+  var state = document.getElementById('fl-state');
+  if (state) state.hidden = false;
+  apply();
+})();"""
+
+
+def filters_html(rows):
+    """返回 (标题行右侧状态区, 筛选条)。没有维度达到 2 个取值时两者都是空串。
+
+    只渲染取值 ≥2 的维度：只有一个值时下拉点开只有「全部 N」一项，
+    等于白点一次。现在只出「模型」，等插上 B70 或换内存条，另两个自动长出来。
+    """
+    parts = []
+    for key, label in FACETS:
+        counts = {}
+        for r in rows:
+            v = (r.get(key) or "").strip()
+            if v:
+                counts[v] = counts.get(v, 0) + 1
+        if len(counts) < 2:
+            continue
+        opts = ['<option value="">全部 %d</option>' % len(rows)]
+        for v in sorted(counts, key=lambda x: (-counts[x], x)):
+            opts.append('<option value="%s">%s (%d)</option>' % (esc(v), esc(v), counts[v]))
+        parts.append(
+            '<label class="f-item">%s<select data-f="%s" aria-label="按%s筛选">%s</select></label>'
+            % (esc(label), key, esc(label), "".join(opts)))
+    if not parts:
+        return "", ""
+
+    n = len(rows)
+    state = ('\n    <div class="filter-state" id="fl-state" hidden>显示 '
+             '<b id="fl-cnt">%d</b> / %d<button type="button" class="f-clear" '
+             'id="fl-clear">清空</button></div>' % (n, n))
+    bar = ('  <div class="filters" id="fl-bar" hidden>%s</div>\n'
+           '  <div class="fl-empty" id="fl-empty" hidden>没有符合筛选条件的档案。</div>'
+           % "".join(parts))
+    return state, bar
+
+
 def card_html(r):
     base = r["base"]
     href = None
@@ -1406,6 +1534,10 @@ def card_html(r):
         href = "full-logs/" + url_of(base + HTML_SUFFIX)
     tag = "a" if href else "div"
     attrs = ' class="log-card" href="%s"' % esc(href) if href else ' class="log-card is-flat"'
+    # 筛选器的判据属性。JS 只按这几个 data-f-* 做显隐，不碰卡片内容本身：
+    # 内容照旧全部烘在 HTML 里，无 JS / 爬虫 / Ctrl+F 都不受影响。
+    attrs += ' data-f-family="%s" data-f-card="%s" data-f-memory="%s"' % (
+        esc(r.get("family") or ""), esc(r["card"]), esc(r["memory"]))
 
     tags = []
     # 冷启/重载/热启 放在最前：它决定这张卡的性能基线，比方案/卡/内存更靠前读
@@ -1570,9 +1702,13 @@ def cmd_build(dry):
 
     if rows:
         body = '<div class="log-grid">\n%s  </div>' % "".join(card_html(r) for r in rows)
+        sec_state, fbar = filters_html(rows)
     else:
         body = '<div class="empty">还没有任何档案。在 ComfyUI 里另存一份完整日志后，' \
                '用 <code>--sync</code> 同步进来。</div>'
+        sec_state, fbar = "", ""
+    # 没有筛选器就不插脚本：省得页面里挂一段必然 return 的死代码
+    script_block = ("<script>\n%s\n</script>\n" % SCRIPT) if fbar else ""
 
     page = """<!DOCTYPE html>
 <html lang="zh-CN">
@@ -1580,7 +1716,7 @@ def cmd_build(dry):
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>IntelGpu-ComfyUI-Collection - 完整日志</title>
-<style>%s</style>
+<style>%(css)s</style>
 </head>
 <body>
 <div class="container">
@@ -1589,16 +1725,20 @@ def cmd_build(dry):
     <h1>IntelGpu-ComfyUI-Collection</h1>
     <p class="note">每份档案 = 一次执行的完整上下文：运行环境、模型加载、时间轴、原始日志、工作流结构、产物</p>
     <div class="chips">
-%s
+%(chips)s
     </div>
   </header>
 
   <div class="sort-banner">
-    共 %d 份档案 · 按时间倒排（新 → 旧）· 由本地脚本从各档案的 <code>.full_log.json</code> 渲染，远端不参与生成 · 点击卡片进入完整档案
+    共 %(n)d 份档案 · 按时间倒排（新 → 旧）· 由本地脚本从各档案的 <code>.full_log.json</code> 渲染，远端不参与生成 · 点击卡片进入完整档案
   </div>
 
-  <h2 class="sec-title">全部档案</h2>
-%s
+  <div class="sec-head">
+    <h2 class="sec-title">全部档案</h2>%(sec_state)s
+  </div>
+
+%(filters)s
+%(body)s
 
   <footer>
     <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection" target="_blank">IntelGpu-ComfyUI-Collection</a> ·
@@ -1606,9 +1746,10 @@ def cmd_build(dry):
   </footer>
 
 </div>
-</body>
+%(script)s</body>
 </html>
-""" % (CSS, CHIPS, len(rows), body)
+""" % {"css": CSS, "chips": CHIPS, "n": len(rows), "sec_state": sec_state,
+       "filters": fbar, "body": body, "script": script_block}
 
     if dry:
         print("[dry-run] 将写入 %s（%d 份档案）" % (PAGE, len(rows)))

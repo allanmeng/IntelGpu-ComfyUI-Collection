@@ -35,7 +35,34 @@
     border: 1px solid #c8e0f5; border-radius: 10px; padding: 10px 16px;
     font-size: 13px; color: var(--intel-blue-dark); text-align: center; line-height: 1.8;
   }
+  .sec-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 8px 16px; flex-wrap: wrap;
+  }
   .sec-title { font-size: 17px; font-weight: 600; margin: 32px 0 14px; }
+  /* 计数与「清空」：换行后仍靠右，靠 margin-left:auto（与 .updated 同一套踩坑结论） */
+  .filter-state {
+    display: flex; align-items: center; gap: 10px; margin-left: auto;
+    font-size: 13px; color: var(--text-muted); font-variant-numeric: tabular-nums;
+  }
+  .filter-state b { color: var(--intel-blue-dark); font-size: 14px; }
+  .f-clear {
+    font: inherit; font-size: 12px; line-height: 1.5; padding: 2px 10px; cursor: pointer;
+    border: 1px solid #c8e0f5; border-radius: 999px;
+    background: #e8f1fb; color: var(--intel-blue-dark);
+  }
+  .f-clear:hover { background: #d8e8f8; }
+  .filters { display: flex; flex-wrap: wrap; gap: 10px 18px; margin: 0 0 14px; }
+  .f-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-muted); }
+  .f-item select {
+    font: inherit; font-size: 13px; padding: 4px 8px; min-width: 104px; max-width: 46vw;
+    border: 1px solid var(--border); border-radius: 8px; background: var(--card);
+    color: var(--text); cursor: pointer;
+  }
+  .f-item select:focus { outline: 2px solid #a8cff0; outline-offset: 1px; }
+  .fl-empty { text-align: center; color: var(--text-muted); font-size: 14px; padding: 40px 0; }
+  /* 这几处自己写了 display，会盖掉 [hidden] 的 UA 默认 display:none，必须显式声明 */
+  .log-card[hidden], .filters[hidden], .filter-state[hidden], .fl-empty[hidden] { display: none; }
   .log-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
   .log-card {
     display: grid; grid-template-columns: 88px minmax(0, 1fr) auto; gap: 0 16px;
@@ -181,9 +208,15 @@
     共 6 份档案 · 按时间倒排（新 → 旧）· 由本地脚本从各档案的 <code>.full_log.json</code> 渲染，远端不参与生成 · 点击卡片进入完整档案
   </div>
 
-  <h2 class="sec-title">全部档案</h2>
+  <div class="sec-head">
+    <h2 class="sec-title">全部档案</h2>
+    <div class="filter-state" id="fl-state" hidden>显示 <b id="fl-cnt">6</b> / 6<button type="button" class="f-clear" id="fl-clear">清空</button></div>
+  </div>
+
+  <div class="filters" id="fl-bar" hidden><label class="f-item">模型<select data-f="family" aria-label="按模型筛选"><option value="">全部 6</option><option value="QwenImage2.1">QwenImage2.1 (2)</option><option value="MOSS-Image">MOSS-Image (1)</option><option value="MiniMax-H3-Image">MiniMax-H3-Image (1)</option><option value="SDXL">SDXL (1)</option><option value="Z-image-turbo">Z-image-turbo (1)</option></select></label></div>
+  <div class="fl-empty" id="fl-empty" hidden>没有符合筛选条件的档案。</div>
 <div class="log-grid">
-    <a class="log-card" href="full-logs/202611112058_H3_image文生图+TE4b优化_omnixpu加速_B580_16G_冷启.full_log.html">
+    <a class="log-card" href="full-logs/202611112058_H3_image文生图+TE4b优化_omnixpu加速_B580_16G_冷启.full_log.html" data-f-family="MiniMax-H3-Image" data-f-card="B580" data-f-memory="16G">
       <div class="log-when"><span class="log-date">2026-11-11</span><span class="log-time">20:58</span><img class="log-gpu" src="assets/b580.jpg" alt="B580" title="B580" loading="lazy"></div>
       <div class="log-main">
         <div class="log-wf">202611112058_H3_image文生图+TE4b优化_omnixpu加速_B580_16G_冷启</div>
@@ -193,7 +226,7 @@
       </div>
       <div class="log-side"><div class="log-tags"><span class="tag tag-cold" title="测试类型">冷启</span><span class="tag tag-scheme" title="加速方案">omnixpu加速</span><span class="tag tag-card" title="显卡">B580</span><span class="tag tag-vram" title="内存">16G</span></div><div class="log-thumbs"><span class="thumb-wrap"><img class="log-thumb" src="full-logs/202611112058_H3_image文生图+TE4b优化_omnixpu加速_B580_16G_冷启_1.png" alt="minimax_h3_image_t2i_00001_.png" loading="lazy"></span></div></div>
     </a>
-    <a class="log-card" href="full-logs/202611031216_Moss文生图8步+TE2b优化.full_log.html">
+    <a class="log-card" href="full-logs/202611031216_Moss文生图8步+TE2b优化.full_log.html" data-f-family="MOSS-Image" data-f-card="B580" data-f-memory="16G">
       <div class="log-when"><span class="log-date">2026-11-03</span><span class="log-time">12:16</span><img class="log-gpu" src="assets/b580.jpg" alt="B580" title="B580" loading="lazy"></div>
       <div class="log-main">
         <div class="log-wf">202611031216_Moss文生图8步+TE2b优化</div>
@@ -203,7 +236,7 @@
       </div>
       <div class="log-side"><div class="log-tags"><span class="tag tag-reload" title="测试类型">重载</span><span class="tag tag-scheme" title="加速方案">omnixpu加速</span><span class="tag tag-card" title="显卡">B580</span><span class="tag tag-vram" title="内存">16G</span></div><div class="log-thumbs"><span class="thumb-wrap"><img class="log-thumb" src="full-logs/202611031216_Moss文生图8步+TE2b优化_1.png" alt="Moss-20261103121605_00001_.png" loading="lazy"><span class="thumb-count">3 张</span></span></div></div>
     </a>
-    <a class="log-card" href="full-logs/202611031055_Illustrious-XL文生图.full_log.html">
+    <a class="log-card" href="full-logs/202611031055_Illustrious-XL文生图.full_log.html" data-f-family="SDXL" data-f-card="B580" data-f-memory="16G">
       <div class="log-when"><span class="log-date">2026-11-03</span><span class="log-time">10:55</span><img class="log-gpu" src="assets/b580.jpg" alt="B580" title="B580" loading="lazy"></div>
       <div class="log-main">
         <div class="log-wf">202611031055_Illustrious-XL文生图</div>
@@ -213,7 +246,7 @@
       </div>
       <div class="log-side"><div class="log-tags"><span class="tag tag-cold" title="测试类型">冷启</span><span class="tag tag-scheme" title="加速方案">omnixpu加速</span><span class="tag tag-card" title="显卡">B580</span><span class="tag tag-vram" title="内存">16G</span></div><div class="log-thumbs"><span class="thumb-wrap"><img class="log-thumb" src="full-logs/202611031055_Illustrious-XL文生图.png" alt="ComfyUI_temp_mbzlu_00001_.png" loading="lazy"></span></div></div>
     </a>
-    <a class="log-card" href="full-logs/202611030251_QwenImage2.1文生图_viggle.full_log.html">
+    <a class="log-card" href="full-logs/202611030251_QwenImage2.1文生图_viggle.full_log.html" data-f-family="QwenImage2.1" data-f-card="B580" data-f-memory="16G">
       <div class="log-when"><span class="log-date">2026-11-03</span><span class="log-time">02:51</span><img class="log-gpu" src="assets/b580.jpg" alt="B580" title="B580" loading="lazy"></div>
       <div class="log-main">
         <div class="log-wf">202611030251_QwenImage2.1文生图_viggle</div>
@@ -223,7 +256,7 @@
       </div>
       <div class="log-side"><div class="log-tags"><span class="tag tag-reload" title="测试类型">重载</span><span class="tag tag-scheme" title="加速方案">omnixpu加速</span><span class="tag tag-card" title="显卡">B580</span><span class="tag tag-vram" title="内存">16G</span></div><div class="log-thumbs"><span class="thumb-wrap"><img class="log-thumb" src="full-logs/202611030251_QwenImage2.1文生图_viggle.png" alt="ComfyUI_1057334871997320_.png" loading="lazy"></span></div></div>
     </a>
-    <a class="log-card" href="full-logs/202611030246_QwenImage2.1文生图_viggle.full_log.html">
+    <a class="log-card" href="full-logs/202611030246_QwenImage2.1文生图_viggle.full_log.html" data-f-family="QwenImage2.1" data-f-card="B580" data-f-memory="16G">
       <div class="log-when"><span class="log-date">2026-11-03</span><span class="log-time">02:46</span><img class="log-gpu" src="assets/b580.jpg" alt="B580" title="B580" loading="lazy"></div>
       <div class="log-main">
         <div class="log-wf">202611030246_QwenImage2.1文生图_viggle</div>
@@ -233,7 +266,7 @@
       </div>
       <div class="log-side"><div class="log-tags"><span class="tag tag-cold" title="测试类型">冷启</span><span class="tag tag-scheme" title="加速方案">omnixpu加速</span><span class="tag tag-card" title="显卡">B580</span><span class="tag tag-vram" title="内存">16G</span></div><div class="log-thumbs"><span class="thumb-wrap"><img class="log-thumb" src="full-logs/202611030246_QwenImage2.1文生图_viggle.png" alt="ComfyUI_1057334871997319_.png" loading="lazy"></span></div></div>
     </a>
-    <a class="log-card" href="full-logs/202611021124_ZIT基础文生图.full_log.html">
+    <a class="log-card" href="full-logs/202611021124_ZIT基础文生图.full_log.html" data-f-family="Z-image-turbo" data-f-card="B580" data-f-memory="16G">
       <div class="log-when"><span class="log-date">2026-11-02</span><span class="log-time">11:24</span><img class="log-gpu" src="assets/b580.jpg" alt="B580" title="B580" loading="lazy"></div>
       <div class="log-main">
         <div class="log-wf">202611021124_ZIT基础文生图</div>
@@ -251,5 +284,64 @@
   </footer>
 
 </div>
+<script>
+(function () {
+  var bar = document.getElementById('fl-bar');
+  if (!bar) return;                        // 没有任何维度达到 2 个取值 → 不启用
+  var cards = [].slice.call(document.querySelectorAll('.log-card'));
+  var sels = [].slice.call(bar.querySelectorAll('select'));
+  var cnt = document.getElementById('fl-cnt');
+  var empty = document.getElementById('fl-empty');
+
+  function keyOf(sel) { return sel.getAttribute('data-f'); }
+
+  function apply() {
+    var shown = 0;
+    cards.forEach(function (c) {
+      var ok = true;
+      for (var i = 0; i < sels.length; i++) {
+        var v = sels[i].value;
+        if (v && c.getAttribute('data-f-' + keyOf(sels[i])) !== v) { ok = false; break; }
+      }
+      c.hidden = !ok;
+      if (ok) shown++;
+    });
+    if (cnt) cnt.textContent = shown;
+    if (empty) empty.hidden = shown > 0;
+
+    // 反写地址栏：刷新不丢、链接可分享。file:// 下 replaceState 可能抛错，忽略即可。
+    var qs = [];
+    sels.forEach(function (s) {
+      if (s.value) qs.push(encodeURIComponent(keyOf(s)) + '=' + encodeURIComponent(s.value));
+    });
+    try {
+      history.replaceState(null, '', location.pathname + (qs.length ? '?' + qs.join('&') : ''));
+    } catch (e) {}
+  }
+
+  // 从 URL 恢复：值必须真的在 <option> 里才采用，
+  // 否则一个手改脏的参数会把筛选弄成 0 命中，看起来像页面坏了。
+  var qp = new URLSearchParams(location.search);
+  sels.forEach(function (s) {
+    var v = qp.get(keyOf(s));
+    if (!v) return;
+    for (var i = 0; i < s.options.length; i++) {
+      if (s.options[i].value === v) { s.value = v; break; }
+    }
+  });
+
+  sels.forEach(function (s) { s.addEventListener('change', apply); });
+  var clear = document.getElementById('fl-clear');
+  if (clear) clear.addEventListener('click', function () {
+    sels.forEach(function (s) { s.value = ''; });
+    apply();
+  });
+
+  bar.hidden = false;
+  var state = document.getElementById('fl-state');
+  if (state) state.hidden = false;
+  apply();
+})();
+</script>
 </body>
 </html>
