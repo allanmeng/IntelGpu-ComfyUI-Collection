@@ -1128,6 +1128,9 @@ CSS = """
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
     background: var(--bg); color: var(--text); line-height: 1.6;
   }
+  /* 筛选后卡片变少 → 页面可能短到不出滚动条 → 视口宽度凭空多 15px，
+     整页会向右跳一下，重置后又跳回去。常驻预留滚动条槽位，消除这次位移。 */
+  html { scrollbar-gutter: stable; }
   .container { max-width: 1100px; margin: 0 auto; padding: 24px 20px 48px; }
   header { text-align: center; padding: 40px 0 24px; }
   header h1 { font-size: 30px; font-weight: 700; color: var(--intel-blue); }
@@ -1150,7 +1153,7 @@ CSS = """
   .filter-bar {
     display: flex; align-items: center; justify-content: space-between;
     gap: 10px 18px; flex-wrap: wrap;
-    margin: 32px 0 16px; padding: 10px 18px;
+    margin: 32px 0; padding: 10px 18px;
     background: var(--card);
     border: 1px solid var(--border); border-radius: 14px;
     box-shadow: 0 1px 2px rgba(16, 42, 67, 0.05);
@@ -1158,7 +1161,10 @@ CSS = """
   .filters { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 22px; }
   .f-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); }
   .f-item select {
-    font: inherit; font-size: 13px; padding: 5px 10px; min-width: 100px; max-width: 46vw;
+    font: inherit; font-size: 13px; padding: 5px 10px;
+    /* 三个下拉等宽：宽度随最长选项（MiniMax-H3-Image）自动伸缩时，三项宽度不一，
+       切换取值还会微调。160 是放下最长选项所需的最小整数宽度。窄屏另放开，见媒体查询 */
+    width: 160px; min-width: 100px; max-width: 46vw;
     border: 1px solid var(--border); border-radius: 8px; background: var(--card);
     color: var(--text); cursor: pointer;
   }
@@ -1288,6 +1294,8 @@ CSS = """
     /* 筛选条：胶囊卡片的内边距与栏距一起收紧，窄屏才放得下三组下拉 */
     .filter-bar { padding: 10px 12px; gap: 8px 12px; }
     .filters { gap: 8px 14px; }
+    /* 等宽在窄屏没意义（三项本来就折行），放开自然宽度，免得长选项被原生 select 截断 */
+    .f-item select { width: auto; }
     .log-card { grid-template-columns: 88px minmax(0, 1fr); }
     .log-side {
       grid-column: 1 / -1; flex-direction: row-reverse; align-items: center;
