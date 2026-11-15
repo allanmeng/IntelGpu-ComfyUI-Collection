@@ -386,6 +386,19 @@ def load_families():
     return _FAMILIES
 
 
+# 少数日志会把 VAE 误报成 role=base（SD 系的 ae.safetensors 就是典型：
+# 一体化 checkpoint 工作流里它和底模一起加载，日志把两条都记成 base）。
+# 底模行里出现它会读成「这次有三个底模」，判断上也是错的。
+# 只按**完整文件名**精确排除，不做「含 ae 就跳过」这类模糊匹配 ——
+# 那会误伤将来真叫 ae_xxx 的底模；新出现的误报再加一行即可。
+VAE_MISLABELED_AS_BASE = {"aesafetensors"}   # norm_key 形式（小写、去非字母数字）
+
+
+def is_real_base(name):
+    """role=base 的这条到底是不是真底模（不是被误标的 VAE）。"""
+    return bool(name) and norm_key(name) not in VAE_MISLABELED_AS_BASE
+
+
 def base_model_paths(rec):
     """这份档案的底模文件（含子目录，相对 models/ 的写法原样保留）。
 
@@ -394,11 +407,11 @@ def base_model_paths(rec):
     """
     out = []
     for x in graph_models(rec):
-        if x.get("role") == "base" and x.get("file"):
+        if x.get("role") == "base" and is_real_base(x.get("file")):
             out.append(x["file"])
     if not out:
         for m in ((rec.get("metrics") or {}).get("models") or []):
-            if m.get("role") == "base" and m.get("file"):
+            if m.get("role") == "base" and is_real_base(m.get("file")):
                 out.append(m["file"])
     seen, uniq = set(), []
     for p in out:
@@ -1408,6 +1421,10 @@ def model_rows(models, graph=None):
         name = os.path.basename((name or "").replace("\\", "/"))
         if not name:
             return
+        # 日志把 VAE 记成 base 的（见 VAE_MISLABELED_AS_BASE）：不丢信息，
+        # 挪到 VAE 行去 —— 它本来就是 VAE，留在底模行会读成三个底模。
+        if role == "base" and not is_real_base(name):
+            role = "vae"
         bucket = by_role.setdefault(role or "other", [])
         if name not in bucket:  # 同一文件被多个节点引用只算一次
             bucket.append(name)
