@@ -24,6 +24,7 @@
     {"family": "Z-image-turbo", "match": ["zimage turbo", "zit"]},
     {"family": "QwenImage2.1", "match": ["qwen image 2 1"]},
     {"family": "MOSS-Image", "match": ["moss image"]},
+    {"family": "Krea2", "match": ["krea2"]},
     {"family": "SDXL", "match": ["illustrious", "sdxl"]}
   ],
   "exact": {
