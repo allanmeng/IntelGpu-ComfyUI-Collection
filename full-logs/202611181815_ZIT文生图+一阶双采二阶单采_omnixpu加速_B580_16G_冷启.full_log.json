@@ -1,0 +1,3009 @@
+{
+  "schema": "comfy-full-log/1",
+  "id": "fulllog-8240fa2f-5a63-47d6-b5a2-4862fc7a07cf-ComfyUI_1057334871997360_.png",
+  "generated_at": "2026-11-18T18:24:51.614+08:00",
+  "run": {
+    "run_id": "8240fa2f-5a63-47d6-b5a2-4862fc7a07cf",
+    "session_id": "sess-20261118-181555",
+    "sequence": 1,
+    "started_at": "2026-11-18T18:15:55.927+08:00",
+    "ended_at": "2026-11-18T18:23:18.418+08:00",
+    "duration_s": 449.63,
+    "duration_event_s": 442.49,
+    "status": "success",
+    "error": null,
+    "label": "冷启",
+    "label_basis": "本会话首次加载：ZImageTEModel_、Lumina2、AutoencodingEngine",
+    "load_classes": [
+      "ZImageTEModel_",
+      "Lumina2",
+      "AutoencodingEngine"
+    ],
+    "deliverable_count": 1,
+    "log_ref": {
+      "file": "user/comfyui.log",
+      "line_count": 66,
+      "segment_seconds": 442.49,
+      "seconds_from_log": 449.63,
+      "mode": "file"
+    }
+  },
+  "deliverable": {
+    "filename": "ComfyUI_1057334871997360_.png",
+    "subfolder": "",
+    "type": "output",
+    "node_id": "34",
+    "batch_index": 0,
+    "format": null,
+    "media": "image",
+    "size_bytes": 4587925,
+    "mtime": "2026-11-18T18:23:18.404+08:00",
+    "fingerprint": {
+      "algo": "sha256",
+      "value": "89f66fc0b7bfead73326b654762a74ba3a25fcb064cdfb2d3b42cdcdd4009e76"
+    },
+    "present": true,
+    "media_meta": {
+      "width": 2304,
+      "height": 1792,
+      "pixels": 4128768,
+      "source": "header",
+      "kind": "image"
+    },
+    "archive_name": "202611181815_ZIT文生图+一阶双采二阶单采_omnixpu加速_B580_16G_冷启_1.png"
+  },
+  "deliverables": [
+    {
+      "filename": "ComfyUI_1057334871997360_.png",
+      "subfolder": "",
+      "type": "output",
+      "node_id": "34",
+      "batch_index": 0,
+      "format": null,
+      "media": "image",
+      "size_bytes": 4587925,
+      "mtime": "2026-11-18T18:23:18.404+08:00",
+      "fingerprint": {
+        "algo": "sha256",
+        "value": "89f66fc0b7bfead73326b654762a74ba3a25fcb064cdfb2d3b42cdcdd4009e76"
+      },
+      "present": true,
+      "media_meta": {
+        "width": 2304,
+        "height": 1792,
+        "pixels": 4128768,
+        "source": "header",
+        "kind": "image"
+      },
+      "archive_name": "202611181815_ZIT文生图+一阶双采二阶单采_omnixpu加速_B580_16G_冷启_1.png"
+    }
+  ],
+  "repro": {
+    "env_hash": "a48c5362c1233ec8",
+    "config_hash": "e3fe1bdb3d574c64",
+    "run_hash": "1798869a1d8db1d4",
+    "seed": 1022104194287450,
+    "note": "统计时按 run.run_id 去重：同一次执行的多份 full_log 共用同一 run_id，不是独立样本。"
+  },
+  "tags": {
+    "stamp": "202611181815",
+    "workflow": "ComfyUI",
+    "scheme": "omnixpu加速",
+    "card": "B580",
+    "memory": "16G",
+    "test": "冷启",
+    "suggested_name": "202611181815_ComfyUI_omnixpu加速_B580_16G_冷启",
+    "sources": {
+      "workflow": "输出节点 filename_prefix",
+      "scheme": "工作流执行日志中 omni_xpu_kernel 0.2.0b3+torch215.bmg 生效，且出现 [OmniXPU] 插件标记",
+      "card": "torch.xpu device_id",
+      "memory": "psutil 物理内存",
+      "test": "同一会话内模型加载顺序"
+    }
+  },
+  "accel": {
+    "scheme": "omnixpu加速",
+    "omnixpu": true,
+    "kernel": {
+      "active": true,
+      "version": "0.2.0b3+torch215.bmg",
+      "ops": "sdp, norm, rotary, linear_fp8, int8, layout",
+      "evidence": "omni_xpu_kernel 0.2.0b3+torch215.bmg - available: sdp, norm, rotary, linear_fp8, int8, layout"
+    },
+    "plugin": {
+      "active": true,
+      "installed": true,
+      "commit": null,
+      "adapters": {
+        "aimdo_memory_compiler_adapter": {
+          "state": "skipped",
+          "note": "disabled by env"
+        },
+        "quantized_matmul_adapter": {
+          "state": "applied",
+          "note": ""
+        },
+        "sparse_attention_adapter": {
+          "state": "applied",
+          "note": ""
+        },
+        "attention_adapter": {
+          "state": "applied",
+          "note": ""
+        },
+        "rotary_adapter": {
+          "state": "skipped",
+          "note": "LTX split-half RoPE function not available"
+        },
+        "norm_adapter": {
+          "state": "applied",
+          "note": ""
+        },
+        "h3_rms_modulation_adapter": {
+          "state": "applied",
+          "note": ""
+        },
+        "fp8_model_adapter": {
+          "state": "applied",
+          "note": ""
+        },
+        "int8_ffn_adapter": {
+          "state": "applied",
+          "note": ""
+        },
+        "dynamic_vram_boundary_trim": {
+          "state": "applied",
+          "note": ""
+        },
+        "xpu_ram_staging_adapter": {
+          "state": "applied",
+          "note": ""
+        },
+        "lora_memory_adapter": {
+          "state": "applied",
+          "note": ""
+        },
+        "writable_weight_adapter": {
+          "state": "applied",
+          "note": ""
+        },
+        "qwen_image21_qkv_adapter": {
+          "state": "applied",
+          "note": ""
+        },
+        "qwen_image21_cache_adapter": {
+          "state": "applied",
+          "note": ""
+        },
+        "seedvr_ada_reshape_patch": {
+          "state": "applied",
+          "note": ""
+        },
+        "seedvr_capacity_adapter": {
+          "state": "applied",
+          "note": ""
+        },
+        "large_video_preprocess_adapter": {
+          "state": "applied",
+          "note": ""
+        },
+        "legacy_interpolate_fix": {
+          "state": "skipped",
+          "note": "disabled by env"
+        },
+        "legacy_median_fix": {
+          "state": "skipped",
+          "note": "disabled by env"
+        }
+      },
+      "applied_count": 16,
+      "skipped_count": 4,
+      "evidence": "日志 54 行 [OmniXPU] 标记；日志有 ComfyUI-OmniXPU 加载耗时行"
+    },
+    "aimdo": {
+      "active": false,
+      "state": "skipped",
+      "version": "0.6.0",
+      "note": "disabled by env"
+    },
+    "kitchen": {
+      "active": true,
+      "state": "available",
+      "version": "0.2.41",
+      "backend": "xpu",
+      "caps": "adaln, apply_rope, apply_rope1, apply_rope1_…",
+      "caps_count": 50
+    },
+    "env_flag": "1",
+    "basis": "工作流执行日志中 omni_xpu_kernel 0.2.0b3+torch215.bmg 生效，且出现 [OmniXPU] 插件标记",
+    "log_file": "F:\\ComfyUI-aki-v3\\ComfyUI\\user\\comfyui.log"
+  },
+  "env": {
+    "os": {
+      "platform": "Windows-11-10.0.22000-SP0",
+      "machine": "AMD64",
+      "hostname": "DESKTOP-53P5FI9",
+      "windows_build": "10.0.22000"
+    },
+    "python": {
+      "version": "3.13.11",
+      "executable": "F:\\ComfyUI-aki-v3\\python\\python.exe"
+    },
+    "torch": {
+      "version": "2.15.0+xpu",
+      "xpu_available": true,
+      "xpu_device_count": 1,
+      "mkldnn_enabled": true
+    },
+    "devices": [
+      {
+        "index": 0,
+        "name": "Intel(R) Arc(TM) B580 Graphics",
+        "device_id": 57867,
+        "device_id_hex": "0xE20B",
+        "model": "B580",
+        "total_memory_mb": 11946.2,
+        "driver_version": "1.17.39894+6",
+        "platform_name": "Intel(R) oneAPI Unified Runtime over Level-Zero V2",
+        "max_compute_units": 160
+      }
+    ],
+    "memory": {
+      "total_gb": 15.9,
+      "total_mb": 16253,
+      "label": "16G"
+    },
+    "comfy": {
+      "version": "0.45.2",
+      "argv": [],
+      "cpu": false,
+      "highvram": false,
+      "preview_method": "Latent2RGB",
+      "packages": {
+        "torch": "2.15.0+xpu",
+        "torchvision": "0.29.2+xpu",
+        "torchaudio": "2.11.1+xpu",
+        "psutil": "6.0.0",
+        "numpy": "2.3.2",
+        "accelerate": "1.12.0",
+        "transformers": "5.21.0",
+        "safetensors": "0.8.0",
+        "comfyui-frontend-package": "1.58.5",
+        "comfyui-workflow-templates": "0.11.106",
+        "comfyui-embedded-docs": "0.5.16",
+        "pillow": "12.3.0",
+        "aiohttp": "3.13.3"
+      }
+    },
+    "custom_nodes": [
+      {
+        "name": ".disabled",
+        "commit": null,
+        "remote": null
+      },
+      {
+        "name": "ComfyUI-AdvancedLivePortrait",
+        "commit": "3bba732915e22f18af0d221b9c5c282990181f1b",
+        "remote": "https://github.com/PowerHouseMan/ComfyUI-AdvancedLivePortrait"
+      },
+      {
+        "name": "ComfyUI-Aila-XPU",
+        "commit": "740fcd50be35ab172e19f98db06f7a172a577cc5",
+        "remote": "https://github.com/allanmeng/ComfyUI-Aila-XPU.git"
+      },
+      {
+        "name": "ComfyUI-CacheDiT",
+        "commit": "1d92bbd86ec59aa6223fe2368849b7413a1acb93",
+        "remote": "https://github.com/Jasonzzt/ComfyUI-CacheDiT"
+      },
+      {
+        "name": "ComfyUI-ClipProj",
+        "commit": "c01ba8fb8f41b4f2094dbd0b185cdc238fb6134c",
+        "remote": "https://github.com/nicolab28/ComfyUI-ClipProj"
+      },
+      {
+        "name": "ComfyUI-ConditioningKrea2Rebalance",
+        "commit": "53c147c72c2fbd9444765af87118caee81a26d01",
+        "remote": "https://github.com/nova452/ComfyUI-ConditioningKrea2Rebalance"
+      },
+      {
+        "name": "ComfyUI-Custom-Scripts",
+        "commit": "609f3afaa74b2f88ef9ce8d939626065e3247469",
+        "remote": "https://github.com/pythongosssss/ComfyUI-Custom-Scripts"
+      },
+      {
+        "name": "ComfyUI-Easy-Use",
+        "commit": "b0b47ca1372117fce575d9e744655344ebff6bef",
+        "remote": "https://github.com/yolain/ComfyUI-Easy-Use"
+      },
+      {
+        "name": "ComfyUI-EasyColorCorrector",
+        "commit": null,
+        "remote": null
+      },
+      {
+        "name": "ComfyUI-Frame-Interpolation",
+        "commit": "26545cc2dd95bc3d27f056016300673bdeee78f5",
+        "remote": "https://github.com/Fannovel16/ComfyUI-Frame-Interpolation"
+      },
+      {
+        "name": "ComfyUI-FreeMemory",
+        "commit": "44fc13f97feec9fdb50ccf342ad64eeb52a95512",
+        "remote": "https://github.com/ShmuelRonen/ComfyUI-FreeMemory"
+      },
+      {
+        "name": "ComfyUI-FullLog",
+        "commit": null,
+        "remote": null
+      },
+      {
+        "name": "ComfyUI-GGUF",
+        "commit": "6ea2651e7df66d7585f6ffee804b20e92fb38b8a",
+        "remote": "https://github.com/city96/ComfyUI-GGUF"
+      },
+      {
+        "name": "ComfyUI-GGUF-XPU",
+        "commit": "39671fe73117ba97de7011e7e06e32599dcda06d",
+        "remote": "https://github.com/analytics-zoo/ComfyUI-GGUF-XPU"
+      },
+      {
+        "name": "ComfyUI-Image-Saver",
+        "commit": "dbf94571699d6750182821cfe7d90c4e8840257d",
+        "remote": "https://github.com/alexopus/ComfyUI-Image-Saver"
+      },
+      {
+        "name": "ComfyUI-Impact-Pack",
+        "commit": "ed1bd80650a1d9c9f5d17d6411455e65ad43b58b",
+        "remote": "https://github.com/ltdrdata/ComfyUI-Impact-Pack"
+      },
+      {
+        "name": "ComfyUI-Impact-Subpack",
+        "commit": "50c7b71a6a224734cc9b21963c6d1926816a97f1",
+        "remote": "https://github.com/ltdrdata/ComfyUI-Impact-Subpack"
+      },
+      {
+        "name": "ComfyUI-Inpaint-CropAndStitch",
+        "commit": "6005efc02f7745649118edd89cdd084c2b9bd3ae",
+        "remote": "https://github.com/lquesada/ComfyUI-Inpaint-CropAndStitch"
+      },
+      {
+        "name": "ComfyUI-Inspire-Pack",
+        "commit": "d23db9aa544de9a6d4c609cb7005fa9e0d42031d",
+        "remote": "https://github.com/ltdrdata/ComfyUI-Inspire-Pack"
+      },
+      {
+        "name": "ComfyUI-KJNodes",
+        "commit": "ab72eda7ffad6280422d71ab7d54d3fb87c0ba18",
+        "remote": "https://github.com/kijai/ComfyUI-KJNodes"
+      },
+      {
+        "name": "ComfyUI-LTXVideo",
+        "commit": "220e1d45aa0469f518e982102fca4dca92a61862",
+        "remote": "https://github.com/Lightricks/ComfyUI-LTXVideo"
+      },
+      {
+        "name": "ComfyUI-MMAudio",
+        "commit": "8eaeb72edc3aaf2059b57f2d96a1f6f689f19ae2",
+        "remote": "https://github.com/kijai/ComfyUI-MMAudio"
+      },
+      {
+        "name": "ComfyUI-Manager",
+        "commit": "15e49ea544a4b20627c2eec01341843e8c4b6d49",
+        "remote": "https://github.com/Comfy-Org/ComfyUI-Manager"
+      },
+      {
+        "name": "ComfyUI-MimoV2TTS",
+        "commit": "af5284d6967989d6de8dea7bd6051b4b05c93c9d",
+        "remote": "https://github.com/allanmeng/ComfyUI-MimoV2TTS.git"
+      },
+      {
+        "name": "ComfyUI-OmniXPU",
+        "commit": null,
+        "remote": null
+      },
+      {
+        "name": "ComfyUI-Qwen3TTS-XPU",
+        "commit": "26b7caef49e9fb0f0d82eec232e8280c02bcbad1",
+        "remote": "https://github.com/allanmeng/ComfyUI-Qwen3TTS-XPU.git"
+      },
+      {
+        "name": "ComfyUI-QwenVL",
+        "commit": "1b67b443918801f571714bab636edc1845b7002a",
+        "remote": "https://github.com/1038lab/ComfyUI-QwenVL"
+      },
+      {
+        "name": "ComfyUI-RMBG",
+        "commit": "a66a5e641a54988d80ed6aad18946081c85f309e",
+        "remote": "https://github.com/1038lab/ComfyUI-RMBG"
+      },
+      {
+        "name": "ComfyUI-ReActor",
+        "commit": "0763f707e3f791323f2e7450d100a25860df546c",
+        "remote": "https://github.com/Gourieff/ComfyUI-ReActor"
+      },
+      {
+        "name": "ComfyUI-ReservedVRAM",
+        "commit": "cd9f1911d960e3d31b3908867c638a19e5d42af3",
+        "remote": "https://github.com/Windecay/ComfyUI-ReservedVRAM"
+      },
+      {
+        "name": "ComfyUI-SAM2",
+        "commit": "1d29f4eda7ee00a639014f5e0833d4599276d2c0",
+        "remote": "https://github.com/neverbiasu/ComfyUI-SAM2"
+      },
+      {
+        "name": "ComfyUI-SeedVR2_VideoUpscaler",
+        "commit": "4490bd1f482e026674543386bb2a4d176da245b9",
+        "remote": "https://github.com/numz/ComfyUI-SeedVR2_VideoUpscaler"
+      },
+      {
+        "name": "ComfyUI-SolAttn",
+        "commit": "ba969bf03814506264e35ba02bcadbc889c814c0",
+        "remote": "https://github.com/xiangyuT/ComfyUI-SolAttn_xpu.git"
+      },
+      {
+        "name": "ComfyUI-TiledDiffusion",
+        "commit": "a155b1bac39147381aeaa52b9be42e545626a44f",
+        "remote": "https://github.com/shiimizu/ComfyUI-TiledDiffusion"
+      },
+      {
+        "name": "ComfyUI-UnetBnbModelLoader",
+        "commit": "af96deedad835cd11a502717b7d364e33a1d55a0",
+        "remote": "https://github.com/mengqin/ComfyUI-UnetBnbModelLoader"
+      },
+      {
+        "name": "ComfyUI-Unload-Model",
+        "commit": "ac5ffb4ed05546545ce7cf38e7b69b5152714eed",
+        "remote": "https://github.com/SeanScripts/ComfyUI-Unload-Model"
+      },
+      {
+        "name": "ComfyUI-VFI",
+        "commit": "6176a430f12cd16003f4664c1e3c6af8e96cc3c6",
+        "remote": "https://github.com/GACLove/ComfyUI-VFI.git"
+      },
+      {
+        "name": "ComfyUI-VideoHelperSuite",
+        "commit": "4d907bee61e92c2e65af3bd6383a4e4d356126d1",
+        "remote": "https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite"
+      },
+      {
+        "name": "ComfyUI-WD14-Tagger",
+        "commit": "9e0a6e700299182fc05c58b62e7ad9f72182a78b",
+        "remote": "https://github.com/pythongosssss/ComfyUI-WD14-Tagger.git"
+      },
+      {
+        "name": "ComfyUI-WanVideoWrapper",
+        "commit": "088128b224242e110d3906c6750e9a3a348a659b",
+        "remote": "https://github.com/kijai/ComfyUI-WanVideoWrapper"
+      },
+      {
+        "name": "ComfyUI-XPUSYS-Monitor",
+        "commit": "cbdf87c2a6354f4bdf2696b010697be2fccdcf49",
+        "remote": "https://github.com/allanmeng/ComfyUI-XPUSYS-Monitor.git"
+      },
+      {
+        "name": "ComfyUI-XeSS",
+        "commit": null,
+        "remote": null
+      },
+      {
+        "name": "ComfyUI-YarvixPA",
+        "commit": "2d87f9d4a66556a8de7596045d427348e2b830ff",
+        "remote": "https://github.com/YarvixPA/ComfyUI-YarvixPA"
+      },
+      {
+        "name": "ComfyUI_Comfyroll_CustomNodes",
+        "commit": "d78b780ae43fcf8c6b7c6505e6ffb4584281ceca",
+        "remote": "https://github.com/Suzie1/ComfyUI_Comfyroll_CustomNodes"
+      },
+      {
+        "name": "ComfyUI_Custom_Nodes_AlekPet",
+        "commit": "8111722784733b4d5d85096ae1fb3cdef32742ca",
+        "remote": "https://github.com/AlekPet/ComfyUI_Custom_Nodes_AlekPet"
+      },
+      {
+        "name": "ComfyUI_IPAdapter_plus",
+        "commit": "a0f451a5113cf9becb0847b92884cb10cbdec0ef",
+        "remote": "https://github.com/cubiq/ComfyUI_IPAdapter_plus"
+      },
+      {
+        "name": "ComfyUI_KV_Edit",
+        "commit": "7edc4823e6710d4cbd540c70e966ddfafef9843e",
+        "remote": "https://github.com/smthemex/ComfyUI_KV_Edit"
+      },
+      {
+        "name": "ComfyUI_LayerStyle",
+        "commit": "1f7edb65371526195621fdde274bf895e117120e",
+        "remote": "https://github.com/chflame163/ComfyUI_LayerStyle.git"
+      },
+      {
+        "name": "ComfyUI_TiledKSampler",
+        "commit": "2fd9b05d97ecffc604c642ffbb40220b182966b2",
+        "remote": "https://github.com/BlenderNeko/ComfyUI_TiledKSampler"
+      },
+      {
+        "name": "ComfyUI_UltimateSDUpscale",
+        "commit": "a5547db9e1d07d3318bb21e9e9c474f4c1e9c8df",
+        "remote": "https://github.com/ssitu/ComfyUI_UltimateSDUpscale"
+      },
+      {
+        "name": "ComfyUI_bnb_nf4_fp4_Loaders",
+        "commit": null,
+        "remote": null
+      },
+      {
+        "name": "ComfyUI_essentials",
+        "commit": "9d9f4bedfc9f0321c19faf71855e228c93bd0dc9",
+        "remote": "https://github.com/cubiq/ComfyUI_essentials"
+      },
+      {
+        "name": "Comfyui-Simple-Json-Node",
+        "commit": "7fd5864c1dcb16f3da267aea829ca32abff68b96",
+        "remote": "https://github.com/Q-Bug4/Comfyui-Simple-Json-Node"
+      },
+      {
+        "name": "ControlNet-LLLite-ComfyUI",
+        "commit": "103a4457d44fe0d3be586c6d6b32ec5ccdbd0793",
+        "remote": "https://github.com/kohya-ss/ControlNet-LLLite-ComfyUI"
+      },
+      {
+        "name": "HivisionIDPhotos-ComfyUI",
+        "commit": "dbff026bad34f1d68eb2a89705681488f68e7c5e",
+        "remote": "https://github.com/AIFSH/HivisionIDPhotos-ComfyUI"
+      },
+      {
+        "name": "TE-Speed-MiniMaxH3",
+        "commit": null,
+        "remote": null
+      },
+      {
+        "name": "anima_sampler_kit",
+        "commit": null,
+        "remote": null
+      },
+      {
+        "name": "comfy-mono-decode-xpu",
+        "commit": "73056ad59f446bd0f826052f59e22af5e4b3ee78",
+        "remote": "https://github.com/xiangyuT/comfy-mono-decode-xpu.git"
+      },
+      {
+        "name": "comfyui-krea2edit",
+        "commit": "13ef60f20828949becada815d3cbc371eb5ccaab",
+        "remote": "https://github.com/lbouaraba/comfyui-krea2edit"
+      },
+      {
+        "name": "comfyui-openvino",
+        "commit": null,
+        "remote": null
+      },
+      {
+        "name": "comfyui-sg-llama-cpp",
+        "commit": "9f4aca211680fec75627e168eb27a392da5f5c7f",
+        "remote": "https://github.com/allanmeng/comfyui-sg-llama-cpp.git"
+      },
+      {
+        "name": "comfyui_controlnet_aux",
+        "commit": "a587a4c1594524c1d2de5cd1a86cd868ff448e1c",
+        "remote": "https://github.com/Fannovel16/comfyui_controlnet_aux.git"
+      },
+      {
+        "name": "comfyui_memory_cleanup",
+        "commit": null,
+        "remote": null
+      },
+      {
+        "name": "comfyui_openvino",
+        "commit": "ff731d2f473219cb4b35d0c0c3d1fec4a7c98b38",
+        "remote": "https://github.com/openvino-dev-samples/comfyui_openvino"
+      },
+      {
+        "name": "comfyui_prompt_assistant",
+        "commit": "e0587e6d50939ae05e92922f1ed2fce008c7f622",
+        "remote": "https://github.com/yawiii/comfyui_prompt_assistant"
+      },
+      {
+        "name": "efficiency-nodes-comfyui",
+        "commit": "4579b7d6076b2870998a08f5d37883fbc8261ff2",
+        "remote": "https://github.com/jags111/efficiency-nodes-comfyui"
+      },
+      {
+        "name": "int4-omnixpu",
+        "commit": "6bd15fd0805e303c305cf04ae2a20b66a5cd2f7a",
+        "remote": "https://github.com/JWLHS/int4-omnixpu"
+      },
+      {
+        "name": "moss-image-mini-encoder",
+        "commit": "bf285735b1968d1980dac0712d55adc81117893d",
+        "remote": "https://github.com/1cyberlangke1/moss-image-mini-encoder"
+      },
+      {
+        "name": "rgthree-comfy",
+        "commit": "bc48c6aaeca87bedbc14245d89f9bc6be37a630e",
+        "remote": "https://github.com/rgthree/rgthree-comfy"
+      }
+    ],
+    "runtime": {
+      "env_vars": {
+        "OCL_ICD_FILENAMES": ";F:\\Intel-oneAPI\\compiler\\latest\\bin\\intelocl64.dll",
+        "OMNIXPU_DEBUG": "0",
+        "OMNIXPU_ENABLE": "1",
+        "OMNIXPU_QWEN_IMAGE21_QKV": "1",
+        "ONEAPI_CLANG_VERSION": "23",
+        "ONEAPI_DEVICE_SELECTOR": "level_zero:0",
+        "ONEAPI_PATH": "F:\\Intel-oneAPI",
+        "ONEAPI_ROOT": "F:\\Intel-oneAPI",
+        "SYCL_CACHE_MAX_SIZE": "8192",
+        "SYCL_CACHE_THRESHOLD": "7",
+        "SYCL_DEVICE_FILTER": "level_zero",
+        "SYCL_PI_LEVEL_ZERO_DEVICE_SCOPE_EVENTS": "0",
+        "SYCL_PI_LEVEL_ZERO_TRACK_INDIRECT_ACCESS_MEMORY": "1",
+        "SYCL_PI_LEVEL_ZERO_USE_IMMEDIATE_COMMANDLISTS": "1",
+        "UR_L0_ENABLE_RELAXED_ALLOCATION_LIMITS": "1",
+        "UR_L0_USE_IMMEDIATE_COMMANDLISTS": "1",
+        "ZES_ENABLE_SYSMAN": "1",
+        "ZE_DEVICE_SLEEP": "0",
+        "ZE_ENABLE_PCI_ID_DEVICE_ORDER": "1"
+      }
+    },
+    "captured_at": "2026-11-18T18:23:18.419+08:00",
+    "custom_nodes_total": 69,
+    "custom_nodes_with_commit": 59
+  },
+  "structure": {
+    "ui_node_count": 19,
+    "api_node_count": 19,
+    "mode_distribution": {
+      "active": 19,
+      "muted": 0,
+      "bypassed": 0
+    },
+    "bypassed_node_ids": [],
+    "muted_node_ids": [],
+    "stale_bypass_node_ids": [],
+    "stale_mute_node_ids": [],
+    "ui_only_node_ids": [],
+    "bypassed_titles": {},
+    "stale_titles": {},
+    "packages_used": [
+      {
+        "cnr_id": "comfy-core",
+        "version": "0.3.75",
+        "nodes": 5
+      },
+      {
+        "cnr_id": "rgthree-comfy",
+        "version": "8ff50e4521881eca1fe26aec9615fc9362474931",
+        "nodes": 3
+      },
+      {
+        "cnr_id": "comfy-core",
+        "version": "0.18.1",
+        "nodes": 1
+      },
+      {
+        "cnr_id": "comfy-core",
+        "version": "0.3.67",
+        "nodes": 1
+      },
+      {
+        "cnr_id": "comfyui-kjnodes",
+        "version": "9b565354e32a7061296ac598d9c7f445e10d31ed",
+        "nodes": 1
+      },
+      {
+        "cnr_id": "comfyui_essentials",
+        "version": "9d9f4bedfc9f0321c19faf71855e228c93bd0dc9",
+        "nodes": 1
+      },
+      {
+        "cnr_id": "comfy-core",
+        "version": "0.9.1",
+        "nodes": 1
+      },
+      {
+        "cnr_id": "ComfyUI_Comfyroll_CustomNodes",
+        "version": "d78b780ae43fcf8c6b7c6505e6ffb4584281ceca",
+        "nodes": 1
+      },
+      {
+        "cnr_id": "comfyui-kjnodes",
+        "version": "50a0837f9aea602b184bbf6dbabf66ed2c7a1d22",
+        "nodes": 1
+      },
+      {
+        "cnr_id": "comfyui-easy-use",
+        "version": "71c7865d2d3c934ccb99f24171e08ae5a81148ac",
+        "nodes": 1
+      },
+      {
+        "cnr_id": "ComfyUI-GGUF",
+        "version": "6ea2651e7df66d7585f6ffee804b20e92fb38b8a",
+        "nodes": 1
+      },
+      {
+        "cnr_id": "(local/unknown)",
+        "version": "39671fe73117ba97de7011e7e06e32599dcda06d",
+        "nodes": 1
+      },
+      {
+        "cnr_id": "comfy-core",
+        "version": "0.45.2",
+        "nodes": 1
+      }
+    ],
+    "workflow_format": {
+      "version": 0.4,
+      "revision": 0
+    }
+  },
+  "metrics": {
+    "steps": 15,
+    "total_steps": 15,
+    "sec_per_it": 17.0,
+    "sampling_s": 255,
+    "peak_model_mb": 5869.8,
+    "peak_model_src": "loaded",
+    "attention": [
+      {
+        "kernel": "CUTE",
+        "count": 3,
+        "heads": [
+          30
+        ],
+        "seq": [
+          512,
+          4032
+        ]
+      }
+    ],
+    "quantization": null,
+    "models": [
+      {
+        "role": "text_encoder",
+        "class": "ZImageTEModel_",
+        "file": null,
+        "path": null,
+        "mem_mb": 2813.5,
+        "mem_src": "loaded",
+        "load_s": 0.058,
+        "mb_per_s": 48508.6,
+        "path_source": "unknown"
+      },
+      {
+        "role": "base",
+        "class": "Lumina2",
+        "file": null,
+        "path": null,
+        "mem_mb": 4834.1,
+        "mem_src": "loaded",
+        "load_s": 15.625,
+        "mb_per_s": 309.4,
+        "path_source": "unknown"
+      },
+      {
+        "role": "base",
+        "class": "Lumina2",
+        "file": "moodyWildMix_v20Distilled10STEPS.safetensors",
+        "path": "E:\\\\model\\\\moodyWildMix_v20Distilled10STEPS.safetensors",
+        "mem_mb": 5869.8,
+        "mem_src": "loaded",
+        "load_s": 16.533,
+        "mb_per_s": 355.0,
+        "path_source": "policy-adjacent"
+      },
+      {
+        "role": "base",
+        "class": "Lumina2",
+        "file": null,
+        "path": null,
+        "mem_mb": 4834.1,
+        "mem_src": "loaded",
+        "load_s": 2.097,
+        "mb_per_s": 2305.2,
+        "path_source": "unknown"
+      },
+      {
+        "role": "vae",
+        "class": "AutoencodingEngine",
+        "file": "ae.safetensors",
+        "path": "F:\\\\ComfyUI-aki-v3\\\\ComfyUI\\\\models\\\\vae\\\\ae.safetensors",
+        "mem_mb": 159.9,
+        "mem_src": "loaded",
+        "load_s": 0.964,
+        "mb_per_s": 165.8,
+        "path_source": "policy-role"
+      }
+    ],
+    "model_count": 5,
+    "loaded_total_mb": 18511.4,
+    "omnixpu_markers": 22,
+    "timeline": [
+      {
+        "t": "2026-11-18 18:15:56.002",
+        "offset_s": 0.0,
+        "delta_s": 0.0,
+        "event": "下发存储策略 · ae.safetensors",
+        "kind": "policy"
+      },
+      {
+        "t": "2026-11-18 18:16:08.788",
+        "offset_s": 12.79,
+        "delta_s": 12.79,
+        "event": "请求加载 ZImageTEModel_",
+        "kind": "req"
+      },
+      {
+        "t": "2026-11-18 18:16:08.846",
+        "offset_s": 12.84,
+        "delta_s": 0.05,
+        "event": "ZImageTEModel_ 就绪（2813.50 MB）",
+        "kind": "loaded"
+      },
+      {
+        "t": "2026-11-18 18:16:08.873",
+        "offset_s": 12.87,
+        "delta_s": 0.03,
+        "event": "请求加载 ZImageTEModel_",
+        "kind": "req"
+      },
+      {
+        "t": "2026-11-18 18:16:54.731",
+        "offset_s": 58.73,
+        "delta_s": 45.86,
+        "event": "请求加载 Lumina2",
+        "kind": "req"
+      },
+      {
+        "t": "2026-11-18 18:17:10.356",
+        "offset_s": 74.35,
+        "delta_s": 15.62,
+        "event": "Lumina2 就绪（4834.06 MB）",
+        "kind": "loaded"
+      },
+      {
+        "t": "2026-11-18 18:17:28.683",
+        "offset_s": 92.68,
+        "delta_s": 18.33,
+        "event": "下发存储策略 · moodyWildMix_v20Distilled10STEPS.safetensors",
+        "kind": "policy"
+      },
+      {
+        "t": "2026-11-18 18:17:59.791",
+        "offset_s": 123.79,
+        "delta_s": 31.11,
+        "event": "请求加载 Lumina2",
+        "kind": "req"
+      },
+      {
+        "t": "2026-11-18 18:18:16.324",
+        "offset_s": 140.32,
+        "delta_s": 16.53,
+        "event": "Lumina2 就绪（5869.77 MB）",
+        "kind": "loaded"
+      },
+      {
+        "t": "2026-11-18 18:18:28.065",
+        "offset_s": 152.06,
+        "delta_s": 11.74,
+        "event": "请求加载 Lumina2",
+        "kind": "req"
+      },
+      {
+        "t": "2026-11-18 18:18:30.162",
+        "offset_s": 154.16,
+        "delta_s": 2.1,
+        "event": "Lumina2 就绪（4834.06 MB）",
+        "kind": "loaded"
+      },
+      {
+        "t": "2026-11-18 18:22:45.687",
+        "offset_s": 409.69,
+        "delta_s": 255.53,
+        "event": "请求加载 AutoencodingEngine",
+        "kind": "req"
+      },
+      {
+        "t": "2026-11-18 18:22:46.651",
+        "offset_s": 410.65,
+        "delta_s": 0.96,
+        "event": "ae.safetensors 就绪（159.87 MB）",
+        "kind": "loaded"
+      },
+      {
+        "t": "2026-11-18 18:23:25.554",
+        "offset_s": 449.55,
+        "delta_s": 38.9,
+        "event": "执行完成",
+        "kind": "done"
+      }
+    ]
+  },
+  "log": {
+    "file": "user/comfyui.log",
+    "mode": "file",
+    "line_count": 66,
+    "seconds_from_log": 449.63,
+    "text": "[2026-11-18 18:15:56.002] Model storage policy: fast_disk=False paths=['F:\\\\ComfyUI-aki-v3\\\\ComfyUI\\\\models\\\\vae\\\\ae.safetensors']\r\n[2026-11-18 18:15:56.015] Using pytorch attention in VAE\r\n[2026-11-18 18:15:56.017] Using pytorch attention in VAE\r\n[2026-11-18 18:15:57.007] VAE load device: xpu:0, offload device: cpu, dtype: torch.bfloat16\r\n[2026-11-18 18:16:05.947] gguf qtypes: F32 (145), Q6_K (37), Q4_K (216)\r\n[2026-11-18 18:16:06.080] Dequantizing token_embd.weight to prevent runtime OOM.\r\n[2026-11-18 18:16:08.734] Model storage policy: fast_disk=False paths=[]\r\n[2026-11-18 18:16:08.788] Requested to load ZImageTEModel_\r\n[2026-11-18 18:16:08.846] loaded completely;  2813.50 MB loaded, full load: True\r\n[2026-11-18 18:16:08.860] CLIP/text encoder model load device: cpu, offload device: cpu, current: cpu, dtype: torch.float16\r\n[2026-11-18 18:16:08.873] Requested to load ZImageTEModel_\r\n[2026-11-18 18:16:54.000] gguf qtypes: F32 (245), BF16 (28), Q4_K (120), Q5_K (30), Q6_K (30)\r\n[2026-11-18 18:16:54.038] model weight dtype torch.bfloat16, manual cast: None\r\n[2026-11-18 18:16:54.042] model_type FLOW\r\n[2026-11-18 18:16:54.044] Model storage policy: fast_disk=False paths=[]\r\n[2026-11-18 18:16:54.153] [rgthree-comfy][Power Lora Loader] Fuzzy-matched Lora input \"Kook_Zimage_瑶光.safetensors\" to \"ZIT_Kook_Zimage_瑶光.safetensors\".\r\n[2026-11-18 18:16:54.367] [OmniXPU] LoRA memory budget cached: source=302.8MiB/476 tensors model_added=302.8MiB model_budget=302.8MiB clip_added=0.0MiB clip_budget=0.0MiB\r\n[2026-11-18 18:16:54.507] [OmniXPU] LoRA memory budget cached: source=40.5MiB/480 tensors model_added=40.5MiB model_budget=343.4MiB clip_added=0.0MiB clip_budget=0.0MiB\r\n[2026-11-18 18:16:54.653] [OmniXPU] LoRA memory budget cached: source=40.0MiB/630 tensors model_added=39.8MiB model_budget=383.2MiB clip_added=0.0MiB clip_budget=0.0MiB\r\n[2026-11-18 18:16:54.731] [OmniXPU] LoRA model budget applied: cached=383.2MiB/1376 tensors requested=1806.3->2189.5MiB minimum=903.2->1286.3MiB xpu_memory=available xpu_allocated=0.0MiB xpu_reserved=2.0MiB xpu_free=10182.5MiB xpu_total=11946.2MiB\r\n[2026-11-18 18:16:54.731] Requested to load Lumina2\r\n[2026-11-18 18:17:10.356] loaded completely; 9635.86 MB usable, 4834.06 MB loaded, full load: True\r\n[2026-11-18 18:17:10.849] [OmniXPU] LoRA model load complete: xpu_memory=available xpu_allocated=4846.0MiB xpu_reserved=4942.0MiB xpu_free=5293.1MiB xpu_total=11946.2MiB\r\n[2026-11-18 18:17:12.192] [OmniXPU] norm first use: RMSNorm shape=torch.Size([1, 488, 2560])\r\n[2026-11-18 18:17:12.607] [OmniXPU] attention CUTE #1: heads=30 seq=512 dtype=torch.bfloat16\r\n[2026-11-18 18:17:12.956] [OmniXPU] attention CUTE #2: heads=30 seq=512 dtype=torch.bfloat16\r\n[2026-11-18 18:17:13.158] [OmniXPU] attention CUTE #3: heads=30 seq=4032 dtype=torch.bfloat16\r\n[2026-11-18 18:17:28.422] \r100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5/5 [00:16<00:00,  2.99s/it]\r100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 5/5 [00:16<00:00,  3.36s/it]\r\n[2026-11-18 18:17:28.456] Setting ext\\moodyWildMix_v20Distilled10STEPS.safetensors weight dtype to torch.float8_e4m3fn\r\n[2026-11-18 18:17:28.677] model weight dtype torch.float8_e4m3fn, manual cast: torch.bfloat16\r\n[2026-11-18 18:17:28.681] model_type FLOW\r\n[2026-11-18 18:17:28.683] Model storage policy: fast_disk=False paths=['E:\\\\model\\\\moodyWildMix_v20Distilled10STEPS.safetensors']\r\n[2026-11-18 18:17:58.854] Setting ext\\moodyWildMix_v20Distilled10STEPS.safetensors compute dtype to torch.float16\r\n[2026-11-18 18:17:59.191] [OmniXPU] LoRA memory budget cached: source=40.5MiB/480 tensors model_added=40.5MiB model_budget=40.5MiB clip_added=0.0MiB clip_budget=0.0MiB\r\n[2026-11-18 18:17:59.400] [OmniXPU] LoRA memory budget cached: source=133.8MiB/630 tensors model_added=133.6MiB model_budget=174.1MiB clip_added=0.0MiB clip_budget=0.0MiB\r\n[2026-11-18 18:17:59.573] [OmniXPU] LoRA memory budget cached: source=351.7MiB/450 tensors model_added=351.6MiB model_budget=525.7MiB clip_added=0.0MiB clip_budget=0.0MiB\r\n[2026-11-18 18:17:59.787] [OmniXPU] LoRA model budget applied: cached=525.7MiB/1200 tensors requested=1806.3->2332.0MiB minimum=903.2->1428.9MiB xpu_memory=available xpu_allocated=4846.0MiB xpu_reserved=5826.0MiB xpu_free=3922.2MiB xpu_total=11946.2MiB\r\n[2026-11-18 18:17:59.791] Requested to load Lumina2\r\n[2026-11-18 18:18:01.710] Unloaded partially: 2835.43 MB freed, 1998.65 MB remains loaded, 92.29 MB buffer reserved, lowvram patches: 162\r\n[2026-11-18 18:18:16.324] loaded completely; 7567.05 MB usable, 5869.77 MB loaded, full load: True\r\n[2026-11-18 18:18:16.331] [OmniXPU] LoRA model load complete: xpu_memory=available xpu_allocated=7845.4MiB xpu_reserved=7944.0MiB xpu_free=1446.1MiB xpu_total=11946.2MiB\r\n[2026-11-18 18:18:26.609] \r100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 10/10 [00:10<00:00,  1.06it/s]\r100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 10/10 [00:10<00:00,  1.02s/it]\r\n[2026-11-18 18:18:27.202] [rgthree-comfy][Power Lora Loader] Fuzzy-matched Lora input \"Kook_Zimage_瑶光.safetensors\" to \"ZIT_Kook_Zimage_瑶光.safetensors\".\r\n[2026-11-18 18:18:27.416] [OmniXPU] LoRA memory budget cached: source=302.8MiB/476 tensors model_added=302.8MiB model_budget=302.8MiB clip_added=0.0MiB clip_budget=0.0MiB\r\n[2026-11-18 18:18:27.479] [OmniXPU] LoRA memory budget cached: source=40.5MiB/480 tensors model_added=40.5MiB model_budget=343.4MiB clip_added=0.0MiB clip_budget=0.0MiB\r\n[2026-11-18 18:18:27.654] [OmniXPU] LoRA memory budget cached: source=1083.8MiB/340 tensors model_added=1083.8MiB model_budget=1427.1MiB clip_added=0.0MiB clip_budget=0.0MiB\r\n[2026-11-18 18:18:27.730] [OmniXPU] LoRA memory budget cached: source=351.7MiB/450 tensors model_added=351.6MiB model_budget=1778.7MiB clip_added=0.0MiB clip_budget=0.0MiB\r\n[2026-11-18 18:18:27.840] [OmniXPU] LoRA memory budget cached: source=133.8MiB/630 tensors model_added=133.6MiB model_budget=1912.3MiB clip_added=0.0MiB clip_budget=0.0MiB\r\n[2026-11-18 18:18:28.025] [OmniXPU] LoRA memory budget cached: source=40.0MiB/630 tensors model_added=39.8MiB model_budget=1952.1MiB clip_added=0.0MiB clip_budget=0.0MiB\r\n[2026-11-18 18:18:28.065] [OmniXPU] LoRA model budget applied: cached=1952.1MiB/2436 tensors requested=7225.3->9177.4MiB minimum=3612.7->5564.8MiB xpu_memory=available xpu_allocated=1926.3MiB xpu_reserved=8854.0MiB xpu_free=482.1MiB xpu_total=11946.2MiB\r\n[2026-11-18 18:18:28.065] Requested to load Lumina2\r\n[2026-11-18 18:18:30.162] loaded completely; 5429.82 MB usable, 4834.06 MB loaded, full load: True\r\n[2026-11-18 18:18:30.494] [OmniXPU] LoRA model load complete: xpu_memory=available xpu_allocated=4846.0MiB xpu_reserved=4942.0MiB xpu_free=4553.8MiB xpu_total=11946.2MiB\r\n[2026-11-18 18:22:45.664] \r100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 15/15 [04:15<00:00, 17.01s/it]\r100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 15/15 [04:15<00:00, 17.00s/it]\r\n[2026-11-18 18:22:45.687] Requested to load AutoencodingEngine\r\n[2026-11-18 18:22:46.651] loaded completely; 5257.02 MB usable, 159.87 MB loaded, full load: True\r\n[2026-11-18 18:23:07.439] VRAMdebug: free memory before: 7,275,137,024\r\n[2026-11-18 18:23:17.170] VRAMdebug: free memory after: 12,526,496,768\r\n[2026-11-18 18:23:17.171] VRAMdebug: freed memory: 5,251,359,744\r\n[2026-11-18 18:23:25.554] Prompt executed in 449.63 seconds"
+  },
+  "workflow": {
+    "id": "02d28193-ebcf-4d2c-bd18-05373e9be6ee",
+    "revision": 0,
+    "last_node_id": 34,
+    "last_link_id": 36,
+    "nodes": [
+      {
+        "id": 1,
+        "type": "VAEDecodeTiled",
+        "pos": [
+          506.7116619342364,
+          -416.3592862878303
+        ],
+        "size": [
+          229.05144211441848,
+          150.81899815023507
+        ],
+        "flags": {},
+        "order": 15,
+        "mode": 0,
+        "inputs": [
+          {
+            "name": "samples",
+            "type": "LATENT",
+            "link": 34
+          },
+          {
+            "name": "vae",
+            "type": "VAE",
+            "link": 2
+          }
+        ],
+        "outputs": [
+          {
+            "name": "IMAGE",
+            "type": "IMAGE",
+            "links": [
+              5
+            ]
+          }
+        ],
+        "properties": {
+          "cnr_id": "comfy-core",
+          "ver": "0.18.1",
+          "Node name for S&R": "VAEDecodeTiled"
+        },
+        "widgets_values": [
+          256,
+          32,
+          32,
+          8
+        ],
+        "widgets_values_named": {
+          "tile_size": 256,
+          "overlap": 32,
+          "temporal_size": 32,
+          "temporal_overlap": 8
+        }
+      },
+      {
+        "id": 3,
+        "type": "LatentUpscaleBy",
+        "pos": [
+          -287.44696175597585,
+          -285.3671832030341
+        ],
+        "size": [
+          210.1689792006905,
+          82
+        ],
+        "flags": {},
+        "order": 13,
+        "mode": 0,
+        "inputs": [
+          {
+            "name": "samples",
+            "type": "LATENT",
+            "link": 33
+          }
+        ],
+        "outputs": [
+          {
+            "name": "LATENT",
+            "type": "LATENT",
+            "links": [
+              12
+            ]
+          }
+        ],
+        "properties": {
+          "cnr_id": "comfy-core",
+          "ver": "0.3.67",
+          "Node name for S&R": "LatentUpscaleBy",
+          "ue_properties": {
+            "widget_ue_connectable": {},
+            "input_ue_unconnectable": {},
+            "version": "7.4"
+          }
+        },
+        "widgets_values": [
+          "bilinear",
+          2
+        ],
+        "widgets_values_named": {
+          "upscale_method": "bilinear",
+          "scale_by": 2
+        }
+      },
+      {
+        "id": 4,
+        "type": "VRAM_Debug",
+        "pos": [
+          512.2094778269725,
+          -192.9520114770859
+        ],
+        "size": [
+          305.677734375,
+          186
+        ],
+        "flags": {},
+        "order": 16,
+        "mode": 0,
+        "inputs": [
+          {
+            "name": "any_input",
+            "shape": 7,
+            "type": "*",
+            "link": 5
+          },
+          {
+            "name": "image_pass",
+            "shape": 7,
+            "type": "IMAGE",
+            "link": null
+          },
+          {
+            "name": "model_pass",
+            "shape": 7,
+            "type": "MODEL",
+            "link": null
+          }
+        ],
+        "outputs": [
+          {
+            "name": "any_output",
+            "type": "*",
+            "links": [
+              8
+            ]
+          },
+          {
+            "name": "image_pass",
+            "type": "IMAGE",
+            "links": []
+          },
+          {
+            "name": "model_pass",
+            "type": "MODEL",
+            "links": []
+          },
+          {
+            "label": "freemem_before",
+            "name": "freemem_before",
+            "type": "INT",
+            "links": []
+          },
+          {
+            "label": "freemem_after",
+            "name": "freemem_after",
+            "type": "INT",
+            "links": []
+          }
+        ],
+        "properties": {
+          "cnr_id": "comfyui-kjnodes",
+          "ver": "9b565354e32a7061296ac598d9c7f445e10d31ed",
+          "Node name for S&R": "VRAM_Debug"
+        },
+        "widgets_values": [
+          true,
+          true,
+          true
+        ],
+        "widgets_values_named": {
+          "empty_cache": true,
+          "gc_collect": true,
+          "unload_all_models": true
+        }
+      },
+      {
+        "id": 7,
+        "type": "ImageSmartSharpen+",
+        "pos": [
+          960.6428404992433,
+          -144.1716103135443
+        ],
+        "size": [
+          316.45851594211945,
+          148.98596232715101
+        ],
+        "flags": {},
+        "order": 17,
+        "mode": 0,
+        "inputs": [
+          {
+            "name": "image",
+            "type": "IMAGE",
+            "link": 8
+          }
+        ],
+        "outputs": [
+          {
+            "name": "IMAGE",
+            "type": "IMAGE",
+            "links": [
+              36
+            ]
+          }
+        ],
+        "properties": {
+          "cnr_id": "comfyui_essentials",
+          "ver": "9d9f4bedfc9f0321c19faf71855e228c93bd0dc9",
+          "Node name for S&R": "ImageSmartSharpen+",
+          "aux_id": "cubiq/ComfyUI_essentials"
+        },
+        "widgets_values": [
+          5,
+          0.5,
+          3,
+          0.3
+        ],
+        "widgets_values_named": {
+          "noise_radius": 5,
+          "preserve_edges": 0.5,
+          "sharpen": 3,
+          "ratio": 0.3
+        }
+      },
+      {
+        "id": 9,
+        "type": "KSampler",
+        "pos": [
+          207.39824701198367,
+          -1475.9558478189388
+        ],
+        "size": [
+          317.0750585598571,
+          474
+        ],
+        "flags": {},
+        "order": 14,
+        "mode": 0,
+        "inputs": [
+          {
+            "name": "model",
+            "type": "MODEL",
+            "link": 9
+          },
+          {
+            "name": "positive",
+            "type": "CONDITIONING",
+            "link": 10
+          },
+          {
+            "name": "negative",
+            "type": "CONDITIONING",
+            "link": 11
+          },
+          {
+            "name": "latent_image",
+            "type": "LATENT",
+            "link": 12
+          },
+          {
+            "name": "seed",
+            "type": "INT",
+            "widget": {
+              "name": "seed"
+            },
+            "link": 13
+          }
+        ],
+        "outputs": [
+          {
+            "name": "LATENT",
+            "type": "LATENT",
+            "links": [
+              34
+            ]
+          }
+        ],
+        "properties": {
+          "cnr_id": "comfy-core",
+          "ver": "0.9.1",
+          "Node name for S&R": "KSampler",
+          "ue_properties": {
+            "widget_ue_connectable": {},
+            "input_ue_unconnectable": {},
+            "version": "7.5.2"
+          }
+        },
+        "widgets_values": [
+          798413447850306,
+          "randomize",
+          15,
+          3,
+          "euler",
+          "simple",
+          0.4
+        ],
+        "widgets_values_named": {
+          "seed": 798413447850306,
+          "control_after_generate": "randomize",
+          "steps": 15,
+          "cfg": 3,
+          "sampler_name": "euler",
+          "scheduler": "simple",
+          "denoise": 0.4
+        }
+      },
+      {
+        "id": 10,
+        "type": "KSamplerAdvanced",
+        "pos": [
+          -1300.331755671685,
+          -406.20292635441376
+        ],
+        "size": [
+          270,
+          840
+        ],
+        "flags": {},
+        "order": 11,
+        "mode": 0,
+        "inputs": [
+          {
+            "name": "model",
+            "type": "MODEL",
+            "link": 14
+          },
+          {
+            "name": "positive",
+            "type": "CONDITIONING",
+            "link": 15
+          },
+          {
+            "name": "negative",
+            "type": "CONDITIONING",
+            "link": 16
+          },
+          {
+            "name": "latent_image",
+            "type": "LATENT",
+            "link": 17
+          },
+          {
+            "name": "noise_seed",
+            "type": "INT",
+            "widget": {
+              "name": "noise_seed"
+            },
+            "link": 18
+          }
+        ],
+        "outputs": [
+          {
+            "name": "LATENT",
+            "type": "LATENT",
+            "links": [
+              30
+            ]
+          }
+        ],
+        "properties": {
+          "cnr_id": "comfy-core",
+          "ver": "0.3.75",
+          "Node name for S&R": "KSamplerAdvanced",
+          "ue_properties": {
+            "widget_ue_connectable": {},
+            "input_ue_unconnectable": {},
+            "version": "7.3"
+          }
+        },
+        "widgets_values": [
+          "enable",
+          888888888888888,
+          "fixed",
+          5,
+          1,
+          "euler",
+          "simple",
+          0,
+          5,
+          "disable"
+        ],
+        "widgets_values_named": {
+          "add_noise": "enable",
+          "noise_seed": 888888888888888,
+          "control_after_generate": "fixed",
+          "steps": 5,
+          "cfg": 1,
+          "sampler_name": "euler",
+          "scheduler": "simple",
+          "start_at_step": 0,
+          "end_at_step": 5,
+          "return_with_leftover_noise": "disable"
+        }
+      },
+      {
+        "id": 11,
+        "type": "VAELoader",
+        "pos": [
+          -3221.7504101678164,
+          -493.25380363025454
+        ],
+        "size": [
+          380.5545068053784,
+          81.73016321436228
+        ],
+        "flags": {},
+        "order": 0,
+        "mode": 0,
+        "inputs": [],
+        "outputs": [
+          {
+            "name": "VAE",
+            "type": "VAE",
+            "links": [
+              2
+            ]
+          }
+        ],
+        "properties": {
+          "cnr_id": "comfy-core",
+          "ver": "0.3.75",
+          "Node name for S&R": "VAELoader",
+          "ue_properties": {
+            "widget_ue_connectable": {},
+            "version": "7.3",
+            "input_ue_unconnectable": {}
+          }
+        },
+        "widgets_values": [
+          "ae.safetensors"
+        ],
+        "widgets_values_named": {
+          "vae_name": "ae.safetensors"
+        }
+      },
+      {
+        "id": 12,
+        "type": "CLIPTextEncode",
+        "pos": [
+          -2578.8581997806677,
+          779.5228493995465
+        ],
+        "size": [
+          533.7502154242588,
+          128.66395707366712
+        ],
+        "flags": {
+          "collapsed": false
+        },
+        "order": 7,
+        "mode": 0,
+        "inputs": [
+          {
+            "name": "clip",
+            "type": "CLIP",
+            "link": 19
+          }
+        ],
+        "outputs": [
+          {
+            "name": "CONDITIONING",
+            "type": "CONDITIONING",
+            "slot_index": 0,
+            "links": [
+              11,
+              16,
+              29
+            ]
+          }
+        ],
+        "title": "CLIP Text Encode (Negative Prompt)",
+        "properties": {
+          "cnr_id": "comfy-core",
+          "ver": "0.3.75",
+          "Node name for S&R": "CLIPTextEncode",
+          "ue_properties": {
+            "widget_ue_connectable": {},
+            "version": "7.3",
+            "input_ue_unconnectable": {}
+          }
+        },
+        "widgets_values": [
+          "Low resolution, poor anatomy, poor hands, text, error, missing fingers, extra numbers, fewer numbers, cropping, worst quality, low quality, normal quality, JPEG artifacts, signature, watermark, username, blurry, naked, overexposed, (water drops, droplets, sweat, wet, moisture, raindrops, perspiration, wet skin, oil:1.2),heavy makeup, bright red cheeks, pink chin, sunburn look, over-saturated skin, clown blush"
+        ],
+        "widgets_values_named": {
+          "text": "Low resolution, poor anatomy, poor hands, text, error, missing fingers, extra numbers, fewer numbers, cropping, worst quality, low quality, normal quality, JPEG artifacts, signature, watermark, username, blurry, naked, overexposed, (water drops, droplets, sweat, wet, moisture, raindrops, perspiration, wet skin, oil:1.2),heavy makeup, bright red cheeks, pink chin, sunburn look, over-saturated skin, clown blush"
+        },
+        "color": "#322",
+        "bgcolor": "#533"
+      },
+      {
+        "id": 13,
+        "type": "CR Aspect Ratio",
+        "pos": [
+          -2029.619329918902,
+          -370.73062924590005
+        ],
+        "size": [
+          270,
+          322
+        ],
+        "flags": {},
+        "order": 1,
+        "mode": 0,
+        "inputs": [],
+        "outputs": [
+          {
+            "name": "width",
+            "type": "INT",
+            "links": []
+          },
+          {
+            "name": "height",
+            "type": "INT",
+            "links": []
+          },
+          {
+            "name": "upscale_factor",
+            "type": "FLOAT",
+            "links": []
+          },
+          {
+            "name": "prescale_factor",
+            "type": "FLOAT",
+            "links": []
+          },
+          {
+            "name": "batch_size",
+            "type": "INT",
+            "links": []
+          },
+          {
+            "name": "empty_latent",
+            "type": "LATENT",
+            "links": [
+              17
+            ]
+          },
+          {
+            "name": "show_help",
+            "type": "STRING",
+            "links": []
+          }
+        ],
+        "title": "🔳 CR Aspect Ratio ~ 空白输入",
+        "properties": {
+          "cnr_id": "ComfyUI_Comfyroll_CustomNodes",
+          "ver": "d78b780ae43fcf8c6b7c6505e6ffb4584281ceca",
+          "Node name for S&R": "CR Aspect Ratio"
+        },
+        "widgets_values": [
+          1024,
+          1024,
+          "SDXL - 4:3 landscape 1152x896",
+          "Off",
+          1,
+          1,
+          1
+        ],
+        "widgets_values_named": {
+          "width": 1024,
+          "height": 1024,
+          "aspect_ratio": "SDXL - 4:3 landscape 1152x896",
+          "swap_dimensions": "Off",
+          "upscale_factor": 1,
+          "prescale_factor": 1,
+          "batch_size": 1
+        }
+      },
+      {
+        "id": 19,
+        "type": "CLIPTextEncode",
+        "pos": [
+          -2592.9955466382826,
+          316.2099720949898
+        ],
+        "size": [
+          547.4328818427653,
+          325.5401180764407
+        ],
+        "flags": {},
+        "order": 8,
+        "mode": 0,
+        "inputs": [
+          {
+            "name": "clip",
+            "type": "CLIP",
+            "link": 20
+          }
+        ],
+        "outputs": [
+          {
+            "name": "CONDITIONING",
+            "type": "CONDITIONING",
+            "links": [
+              10,
+              15,
+              28
+            ]
+          }
+        ],
+        "properties": {
+          "cnr_id": "comfy-core",
+          "ver": "0.3.75",
+          "Node name for S&R": "CLIPTextEncode",
+          "ue_properties": {
+            "widget_ue_connectable": {
+              "text": true
+            },
+            "version": "7.3",
+            "input_ue_unconnectable": {}
+          }
+        },
+        "widgets_values": [
+          "一幅写实电影胶片风格的人像特写，画面中央是一位成年女性的面部，佟丽娅，浅肤色，浅棕偏红的短发自然蓬松，灰绿色眼睛望向镜头，神情平静而略带思索。面部保留真实肌肤纹理、细微雀斑与自然色泽，眉毛纤细柔和，睫毛清晰，嘴唇呈低饱和玫瑰色，轻轻闭合，不露齿。\n\n采用极近距离正面构图，面部几乎占满整个影像区域，额头上缘与下巴被画面裁切，嘴唇靠近底部边缘。画面左侧的眼睛完整清晰，是主要视觉焦点；另一只眼睛被掠过面部的发丝部分遮挡。鼻梁与鼻尖位于中央偏下，左右构图略微不对称，呈现自然抓拍感。\n\n微风吹动浅栗棕色头发，带有铜金色光泽的发束从画面上方斜向右侧横掠，形成柔和的弧线与轻微运动模糊。少量细发散落在额头、眉眼及脸颊前方，与清晰的眼睛、鼻翼和唇部形成虚实对比；发丝层次自然，避免整齐僵硬的造型。\n\n光线为柔和的暖色自然光，面部受光均匀，鼻侧与脸颊保留浅淡阴影，明暗过渡细腻，没有强烈硬光或明显轮廓光。整体采用温暖的琥珀棕、浅米色与低饱和灰绿色调，背景高度虚化，仅在面部两侧露出少量模糊色块，不出现可辨识的环境细节。\n\n呈现复古胶片影像截帧质感，低至中等反差，柔和高光，细微颗粒，轻微褪色与柔焦效果，保留眼神与皮肤的真实细节。影像边缘略带柔化，无文字、无水印、无标志。\n\n参数：整体画幅比例约16:9；内部影像比例约7:5；景别为面部极近特写；镜头焦距85—105mm；光圈f/2.0—f/2.8；浅景深；焦点位于画面左侧眼睛；暖色白平衡；低饱和度；柔和对比；细颗粒胶片质感；发丝轻微动态模糊；自然皮肤纹理；避免过度磨皮、过度锐化及高强度美颜。"
+        ],
+        "widgets_values_named": {
+          "text": "一幅写实电影胶片风格的人像特写，画面中央是一位成年女性的面部，佟丽娅，浅肤色，浅棕偏红的短发自然蓬松，灰绿色眼睛望向镜头，神情平静而略带思索。面部保留真实肌肤纹理、细微雀斑与自然色泽，眉毛纤细柔和，睫毛清晰，嘴唇呈低饱和玫瑰色，轻轻闭合，不露齿。\n\n采用极近距离正面构图，面部几乎占满整个影像区域，额头上缘与下巴被画面裁切，嘴唇靠近底部边缘。画面左侧的眼睛完整清晰，是主要视觉焦点；另一只眼睛被掠过面部的发丝部分遮挡。鼻梁与鼻尖位于中央偏下，左右构图略微不对称，呈现自然抓拍感。\n\n微风吹动浅栗棕色头发，带有铜金色光泽的发束从画面上方斜向右侧横掠，形成柔和的弧线与轻微运动模糊。少量细发散落在额头、眉眼及脸颊前方，与清晰的眼睛、鼻翼和唇部形成虚实对比；发丝层次自然，避免整齐僵硬的造型。\n\n光线为柔和的暖色自然光，面部受光均匀，鼻侧与脸颊保留浅淡阴影，明暗过渡细腻，没有强烈硬光或明显轮廓光。整体采用温暖的琥珀棕、浅米色与低饱和灰绿色调，背景高度虚化，仅在面部两侧露出少量模糊色块，不出现可辨识的环境细节。\n\n呈现复古胶片影像截帧质感，低至中等反差，柔和高光，细微颗粒，轻微褪色与柔焦效果，保留眼神与皮肤的真实细节。影像边缘略带柔化，无文字、无水印、无标志。\n\n参数：整体画幅比例约16:9；内部影像比例约7:5；景别为面部极近特写；镜头焦距85—105mm；光圈f/2.0—f/2.8；浅景深；焦点位于画面左侧眼睛；暖色白平衡；低饱和度；柔和对比；细颗粒胶片质感；发丝轻微动态模糊；自然皮肤纹理；避免过度磨皮、过度锐化及高强度美颜。"
+        }
+      },
+      {
+        "id": 21,
+        "type": "Power Lora Loader (rgthree)",
+        "pos": [
+          -606.4333324578581,
+          -1492.782096202618
+        ],
+        "size": [
+          533.1730623009909,
+          310
+        ],
+        "flags": {},
+        "order": 9,
+        "mode": 0,
+        "inputs": [
+          {
+            "dir": 3,
+            "name": "model",
+            "type": "MODEL",
+            "link": 22
+          },
+          {
+            "dir": 3,
+            "name": "clip",
+            "type": "CLIP",
+            "link": null
+          }
+        ],
+        "outputs": [
+          {
+            "dir": 4,
+            "name": "MODEL",
+            "shape": 3,
+            "type": "MODEL",
+            "links": [
+              9
+            ]
+          },
+          {
+            "dir": 4,
+            "name": "CLIP",
+            "shape": 3,
+            "type": "CLIP",
+            "links": []
+          }
+        ],
+        "properties": {
+          "cnr_id": "rgthree-comfy",
+          "ver": "8ff50e4521881eca1fe26aec9615fc9362474931",
+          "Show Strengths": "Single Strength",
+          "Match": ""
+        },
+        "widgets_values": [
+          {},
+          {
+            "type": "PowerLoraLoaderHeaderWidget"
+          },
+          {
+            "on": true,
+            "lora": "Kook_Zimage_瑶光.safetensors",
+            "strength": 0.5,
+            "strengthTwo": null
+          },
+          {
+            "on": true,
+            "lora": "ZIT_胸部调整_adazbsr_v2_0075.safetensors",
+            "strength": 1,
+            "strengthTwo": null
+          },
+          {
+            "on": true,
+            "lora": "ZITZIB_DarkBeastZ8_SDA@Fok_extracted_lora_r256.safetensors",
+            "strength": 0.5,
+            "strengthTwo": null
+          },
+          {
+            "on": false,
+            "lora": "ZIT_honghanfu_lora_v1.safetensors",
+            "strength": 0.4,
+            "strengthTwo": null
+          },
+          {
+            "on": false,
+            "lora": "xyy1.0_10.safetensors",
+            "strength": 1,
+            "strengthTwo": null
+          },
+          {
+            "on": true,
+            "lora": "ZITZIB_美术增强_Z-Image-Aesthetic-Base_v1.safetensors",
+            "strength": 0.8,
+            "strengthTwo": null
+          },
+          {
+            "on": true,
+            "lora": "ZITZIB_增加细节_REDZ15_DetailDaemonZ_lora_v1.1.safetensors",
+            "strength": 0.5,
+            "strengthTwo": null
+          },
+          {
+            "on": true,
+            "lora": "ZITZIB_tongliya佟丽娅.safetensors",
+            "strength": 1,
+            "strengthTwo": null
+          },
+          {},
+          ""
+        ],
+        "widgets_values_named": {
+          "divider": {},
+          "PowerLoraLoaderHeaderWidget": {
+            "type": "PowerLoraLoaderHeaderWidget"
+          },
+          "lora_1": {
+            "on": true,
+            "lora": "Kook_Zimage_瑶光.safetensors",
+            "strength": 0.5,
+            "strengthTwo": null
+          },
+          "lora_2": {
+            "on": true,
+            "lora": "ZIT_胸部调整_adazbsr_v2_0075.safetensors",
+            "strength": 1,
+            "strengthTwo": null
+          },
+          "lora_3": {
+            "on": true,
+            "lora": "ZITZIB_DarkBeastZ8_SDA@Fok_extracted_lora_r256.safetensors",
+            "strength": 0.5,
+            "strengthTwo": null
+          },
+          "lora_4": {
+            "on": false,
+            "lora": "ZIT_honghanfu_lora_v1.safetensors",
+            "strength": 0.4,
+            "strengthTwo": null
+          },
+          "lora_5": {
+            "on": false,
+            "lora": "xyy1.0_10.safetensors",
+            "strength": 1,
+            "strengthTwo": null
+          },
+          "lora_6": {
+            "on": true,
+            "lora": "ZITZIB_美术增强_Z-Image-Aesthetic-Base_v1.safetensors",
+            "strength": 0.8,
+            "strengthTwo": null
+          },
+          "lora_7": {
+            "on": true,
+            "lora": "ZITZIB_增加细节_REDZ15_DetailDaemonZ_lora_v1.1.safetensors",
+            "strength": 0.5,
+            "strengthTwo": null
+          },
+          "lora_8": {
+            "on": true,
+            "lora": "ZITZIB_tongliya佟丽娅.safetensors",
+            "strength": 1,
+            "strengthTwo": null
+          },
+          "divider#2": {},
+          "➕ Add Lora": ""
+        }
+      },
+      {
+        "id": 22,
+        "type": "Power Lora Loader (rgthree)",
+        "pos": [
+          -2524.724274344264,
+          -1167.9828012425903
+        ],
+        "size": [
+          340.519921875,
+          238
+        ],
+        "flags": {},
+        "order": 10,
+        "mode": 0,
+        "inputs": [
+          {
+            "dir": 3,
+            "name": "model",
+            "type": "MODEL",
+            "link": 23
+          },
+          {
+            "dir": 3,
+            "name": "clip",
+            "type": "CLIP",
+            "link": null
+          }
+        ],
+        "outputs": [
+          {
+            "dir": 4,
+            "name": "MODEL",
+            "shape": 3,
+            "type": "MODEL",
+            "links": [
+              14
+            ]
+          },
+          {
+            "dir": 4,
+            "name": "CLIP",
+            "shape": 3,
+            "type": "CLIP",
+            "links": []
+          }
+        ],
+        "properties": {
+          "cnr_id": "rgthree-comfy",
+          "ver": "8ff50e4521881eca1fe26aec9615fc9362474931",
+          "Show Strengths": "Single Strength",
+          "Match": ""
+        },
+        "widgets_values": [
+          {},
+          {
+            "type": "PowerLoraLoaderHeaderWidget"
+          },
+          {
+            "on": false,
+            "lora": "ZIT_honghanfu_lora_v1.safetensors",
+            "strength": 0.4,
+            "strengthTwo": null
+          },
+          {
+            "on": true,
+            "lora": "Kook_Zimage_瑶光.safetensors",
+            "strength": 0.5,
+            "strengthTwo": null
+          },
+          {
+            "on": true,
+            "lora": "ZIT_胸部调整_adazbsr_v2_0075.safetensors",
+            "strength": 1,
+            "strengthTwo": null
+          },
+          {
+            "on": false,
+            "lora": "xyy1.0_10.safetensors",
+            "strength": 1,
+            "strengthTwo": null
+          },
+          {
+            "on": true,
+            "lora": "ZITZIB_tongliya佟丽娅.safetensors",
+            "strength": 1,
+            "strengthTwo": null
+          },
+          {},
+          ""
+        ],
+        "widgets_values_named": {
+          "divider": {},
+          "PowerLoraLoaderHeaderWidget": {
+            "type": "PowerLoraLoaderHeaderWidget"
+          },
+          "lora_1": {
+            "on": false,
+            "lora": "ZIT_honghanfu_lora_v1.safetensors",
+            "strength": 0.4,
+            "strengthTwo": null
+          },
+          "lora_2": {
+            "on": true,
+            "lora": "Kook_Zimage_瑶光.safetensors",
+            "strength": 0.5,
+            "strengthTwo": null
+          },
+          "lora_3": {
+            "on": true,
+            "lora": "ZIT_胸部调整_adazbsr_v2_0075.safetensors",
+            "strength": 1,
+            "strengthTwo": null
+          },
+          "lora_4": {
+            "on": false,
+            "lora": "xyy1.0_10.safetensors",
+            "strength": 1,
+            "strengthTwo": null
+          },
+          "lora_5": {
+            "on": true,
+            "lora": "ZITZIB_tongliya佟丽娅.safetensors",
+            "strength": 1,
+            "strengthTwo": null
+          },
+          "divider#2": {},
+          "➕ Add Lora": ""
+        }
+      },
+      {
+        "id": 23,
+        "type": "Power Lora Loader (rgthree)",
+        "pos": [
+          -1756.3348708885408,
+          -1215.1412855246879
+        ],
+        "size": [
+          340.519921875,
+          214
+        ],
+        "flags": {},
+        "order": 6,
+        "mode": 0,
+        "inputs": [
+          {
+            "dir": 3,
+            "name": "model",
+            "type": "MODEL",
+            "link": 24
+          },
+          {
+            "dir": 3,
+            "name": "clip",
+            "type": "CLIP",
+            "link": null
+          }
+        ],
+        "outputs": [
+          {
+            "dir": 4,
+            "name": "MODEL",
+            "shape": 3,
+            "type": "MODEL",
+            "links": [
+              27
+            ]
+          },
+          {
+            "dir": 4,
+            "name": "CLIP",
+            "shape": 3,
+            "type": "CLIP",
+            "links": []
+          }
+        ],
+        "properties": {
+          "cnr_id": "rgthree-comfy",
+          "ver": "8ff50e4521881eca1fe26aec9615fc9362474931",
+          "Show Strengths": "Single Strength",
+          "Match": ""
+        },
+        "widgets_values": [
+          {},
+          {
+            "type": "PowerLoraLoaderHeaderWidget"
+          },
+          {
+            "on": false,
+            "lora": "xyy1.0_10.safetensors",
+            "strength": 1,
+            "strengthTwo": null
+          },
+          {
+            "on": true,
+            "lora": "ZIT_胸部调整_adazbsr_v2_0075.safetensors",
+            "strength": 1,
+            "strengthTwo": null
+          },
+          {
+            "on": true,
+            "lora": "ZITZIB_增加细节_REDZ15_DetailDaemonZ_lora_v1.1.safetensors",
+            "strength": 0.5,
+            "strengthTwo": null
+          },
+          {
+            "on": true,
+            "lora": "ZITZIB_美术增强_Z-Image-Aesthetic-Base_v1.safetensors",
+            "strength": 0.6,
+            "strengthTwo": null
+          },
+          {},
+          ""
+        ],
+        "widgets_values_named": {
+          "divider": {},
+          "PowerLoraLoaderHeaderWidget": {
+            "type": "PowerLoraLoaderHeaderWidget"
+          },
+          "lora_1": {
+            "on": false,
+            "lora": "xyy1.0_10.safetensors",
+            "strength": 1,
+            "strengthTwo": null
+          },
+          "lora_2": {
+            "on": true,
+            "lora": "ZIT_胸部调整_adazbsr_v2_0075.safetensors",
+            "strength": 1,
+            "strengthTwo": null
+          },
+          "lora_3": {
+            "on": true,
+            "lora": "ZITZIB_增加细节_REDZ15_DetailDaemonZ_lora_v1.1.safetensors",
+            "strength": 0.5,
+            "strengthTwo": null
+          },
+          "lora_4": {
+            "on": true,
+            "lora": "ZITZIB_美术增强_Z-Image-Aesthetic-Base_v1.safetensors",
+            "strength": 0.6,
+            "strengthTwo": null
+          },
+          "divider#2": {},
+          "➕ Add Lora": ""
+        }
+      },
+      {
+        "id": 25,
+        "type": "KSamplerAdvanced",
+        "pos": [
+          -970.6065888317573,
+          -404.7162568704157
+        ],
+        "size": [
+          270,
+          840
+        ],
+        "flags": {},
+        "order": 12,
+        "mode": 0,
+        "inputs": [
+          {
+            "name": "model",
+            "type": "MODEL",
+            "link": 27
+          },
+          {
+            "name": "positive",
+            "type": "CONDITIONING",
+            "link": 28
+          },
+          {
+            "name": "negative",
+            "type": "CONDITIONING",
+            "link": 29
+          },
+          {
+            "name": "latent_image",
+            "type": "LATENT",
+            "link": 30
+          },
+          {
+            "name": "noise_seed",
+            "type": "INT",
+            "widget": {
+              "name": "noise_seed"
+            },
+            "link": 31
+          }
+        ],
+        "outputs": [
+          {
+            "name": "LATENT",
+            "type": "LATENT",
+            "links": [
+              33
+            ]
+          }
+        ],
+        "properties": {
+          "cnr_id": "comfy-core",
+          "ver": "0.3.75",
+          "Node name for S&R": "KSamplerAdvanced",
+          "ue_properties": {
+            "widget_ue_connectable": {},
+            "input_ue_unconnectable": {},
+            "version": "7.3"
+          }
+        },
+        "widgets_values": [
+          "enable",
+          888888888888888,
+          "fixed",
+          15,
+          1,
+          "euler",
+          "simple",
+          5,
+          10000,
+          "disable"
+        ],
+        "widgets_values_named": {
+          "add_noise": "enable",
+          "noise_seed": 888888888888888,
+          "control_after_generate": "fixed",
+          "steps": 15,
+          "cfg": 1,
+          "sampler_name": "euler",
+          "scheduler": "simple",
+          "start_at_step": 5,
+          "end_at_step": 10000,
+          "return_with_leftover_noise": "disable"
+        }
+      },
+      {
+        "id": 26,
+        "type": "DiffusionModelLoaderKJ",
+        "pos": [
+          -2233.799358166113,
+          -1504.9118682102103
+        ],
+        "size": [
+          414.2111476434918,
+          184.92365499561544
+        ],
+        "flags": {},
+        "order": 2,
+        "mode": 0,
+        "inputs": [
+          {
+            "name": "extra_state_dict",
+            "shape": 7,
+            "type": "STRING",
+            "link": null
+          }
+        ],
+        "outputs": [
+          {
+            "name": "MODEL",
+            "type": "MODEL",
+            "links": [
+              24
+            ]
+          }
+        ],
+        "properties": {
+          "cnr_id": "comfyui-kjnodes",
+          "ver": "50a0837f9aea602b184bbf6dbabf66ed2c7a1d22",
+          "Node name for S&R": "DiffusionModelLoaderKJ"
+        },
+        "widgets_values": [
+          "ext\\moodyWildMix_v20Distilled10STEPS.safetensors",
+          "fp8_e4m3fn",
+          "fp16",
+          false,
+          "disabled",
+          false
+        ],
+        "widgets_values_named": {
+          "model_name": "ext\\moodyWildMix_v20Distilled10STEPS.safetensors",
+          "weight_dtype": "fp8_e4m3fn",
+          "compute_dtype": "fp16",
+          "patch_cublaslinear": false,
+          "sage_attention": "disabled",
+          "enable_fp16_accumulation": false
+        }
+      },
+      {
+        "id": 27,
+        "type": "easy seed",
+        "pos": [
+          -962.6720576449909,
+          -1025.1130953215927
+        ],
+        "size": [
+          210,
+          106
+        ],
+        "flags": {},
+        "order": 3,
+        "mode": 0,
+        "inputs": [
+          {
+            "label": "随机种子",
+            "name": "seed",
+            "type": "INT",
+            "widget": {
+              "name": "seed"
+            },
+            "link": null
+          }
+        ],
+        "outputs": [
+          {
+            "label": "随机种子",
+            "name": "seed",
+            "type": "INT",
+            "links": [
+              13,
+              18,
+              31
+            ]
+          }
+        ],
+        "title": "随机种子",
+        "properties": {
+          "cnr_id": "comfyui-easy-use",
+          "ver": "71c7865d2d3c934ccb99f24171e08ae5a81148ac",
+          "Node name for S&R": "easy seed",
+          "aux_id": "yolain/ComfyUI-Easy-Use",
+          "ue_properties": {
+            "widget_ue_connectable": {
+              "seed": true
+            },
+            "version": "7.3",
+            "input_ue_unconnectable": {}
+          }
+        },
+        "widgets_values": [
+          1022104194287450,
+          "fixed",
+          null
+        ],
+        "widgets_values_named": {
+          "seed": 1022104194287450,
+          "control_after_generate": "fixed",
+          "🎲 Manual Random Seed": null
+        }
+      },
+      {
+        "id": 29,
+        "type": "CLIPLoaderGGUF",
+        "pos": [
+          -3220.7675379121,
+          -261.2939592258783
+        ],
+        "size": [
+          391.6133578625563,
+          105.04479233233815
+        ],
+        "flags": {},
+        "order": 4,
+        "mode": 0,
+        "inputs": [],
+        "outputs": [
+          {
+            "name": "CLIP",
+            "type": "CLIP",
+            "links": [
+              19,
+              20
+            ]
+          }
+        ],
+        "properties": {
+          "aux_id": "analytics-zoo/ComfyUI-GGUF-XPU",
+          "ver": "6ea2651e7df66d7585f6ffee804b20e92fb38b8a",
+          "Node name for S&R": "CLIPLoaderGGUF",
+          "cnr_id": "ComfyUI-GGUF"
+        },
+        "widgets_values": [
+          "Qwen3-4B-Q4_K_M.gguf",
+          "qwen_image"
+        ],
+        "widgets_values_named": {
+          "clip_name": "Qwen3-4B-Q4_K_M.gguf",
+          "type": "qwen_image"
+        }
+      },
+      {
+        "id": 31,
+        "type": "UnetLoaderGGUFAdvanced",
+        "pos": [
+          -3158.089049037028,
+          -1540.2229837254124
+        ],
+        "size": [
+          306.97421875,
+          130
+        ],
+        "flags": {},
+        "order": 5,
+        "mode": 0,
+        "inputs": [],
+        "outputs": [
+          {
+            "name": "MODEL",
+            "type": "MODEL",
+            "links": [
+              22,
+              23
+            ]
+          }
+        ],
+        "properties": {
+          "aux_id": "analytics-zoo/ComfyUI-GGUF-XPU",
+          "ver": "39671fe73117ba97de7011e7e06e32599dcda06d",
+          "Node name for S&R": "UnetLoaderGGUFAdvanced"
+        },
+        "widgets_values": [
+          "ZIT\\z_image_turbo-Q4_K_M.gguf",
+          "default",
+          "default",
+          false
+        ],
+        "widgets_values_named": {
+          "unet_name": "ZIT\\z_image_turbo-Q4_K_M.gguf",
+          "dequant_dtype": "default",
+          "patch_dtype": "default",
+          "patch_on_device": false
+        }
+      },
+      {
+        "id": 34,
+        "type": "SaveImage",
+        "pos": [
+          -28.35047516058148,
+          136.89467268549245
+        ],
+        "size": [
+          270,
+          58
+        ],
+        "flags": {},
+        "order": 18,
+        "mode": 0,
+        "inputs": [
+          {
+            "name": "images",
+            "type": "IMAGE",
+            "link": 36
+          }
+        ],
+        "outputs": [
+          {
+            "name": "images",
+            "type": "IMAGE",
+            "links": null
+          }
+        ],
+        "properties": {
+          "cnr_id": "comfy-core",
+          "ver": "0.45.2",
+          "Node name for S&R": "SaveImage"
+        },
+        "widgets_values": [
+          "ComfyUI"
+        ],
+        "widgets_values_named": {
+          "filename_prefix": "ComfyUI"
+        }
+      }
+    ],
+    "links": [
+      [
+        2,
+        11,
+        0,
+        1,
+        1,
+        "VAE"
+      ],
+      [
+        5,
+        1,
+        0,
+        4,
+        0,
+        "IMAGE"
+      ],
+      [
+        8,
+        4,
+        0,
+        7,
+        0,
+        "IMAGE"
+      ],
+      [
+        9,
+        21,
+        0,
+        9,
+        0,
+        "MODEL"
+      ],
+      [
+        10,
+        19,
+        0,
+        9,
+        1,
+        "CONDITIONING"
+      ],
+      [
+        11,
+        12,
+        0,
+        9,
+        2,
+        "CONDITIONING"
+      ],
+      [
+        12,
+        3,
+        0,
+        9,
+        3,
+        "LATENT"
+      ],
+      [
+        13,
+        27,
+        0,
+        9,
+        4,
+        "INT"
+      ],
+      [
+        14,
+        22,
+        0,
+        10,
+        0,
+        "MODEL"
+      ],
+      [
+        15,
+        19,
+        0,
+        10,
+        1,
+        "CONDITIONING"
+      ],
+      [
+        16,
+        12,
+        0,
+        10,
+        2,
+        "CONDITIONING"
+      ],
+      [
+        17,
+        13,
+        5,
+        10,
+        3,
+        "LATENT"
+      ],
+      [
+        18,
+        27,
+        0,
+        10,
+        4,
+        "INT"
+      ],
+      [
+        19,
+        29,
+        0,
+        12,
+        0,
+        "CLIP"
+      ],
+      [
+        20,
+        29,
+        0,
+        19,
+        0,
+        "CLIP"
+      ],
+      [
+        22,
+        31,
+        0,
+        21,
+        0,
+        "MODEL"
+      ],
+      [
+        23,
+        31,
+        0,
+        22,
+        0,
+        "MODEL"
+      ],
+      [
+        24,
+        26,
+        0,
+        23,
+        0,
+        "MODEL"
+      ],
+      [
+        27,
+        23,
+        0,
+        25,
+        0,
+        "MODEL"
+      ],
+      [
+        28,
+        19,
+        0,
+        25,
+        1,
+        "CONDITIONING"
+      ],
+      [
+        29,
+        12,
+        0,
+        25,
+        2,
+        "CONDITIONING"
+      ],
+      [
+        30,
+        10,
+        0,
+        25,
+        3,
+        "LATENT"
+      ],
+      [
+        31,
+        27,
+        0,
+        25,
+        4,
+        "INT"
+      ],
+      [
+        33,
+        25,
+        0,
+        3,
+        0,
+        "LATENT"
+      ],
+      [
+        34,
+        9,
+        0,
+        1,
+        0,
+        "LATENT"
+      ],
+      [
+        36,
+        7,
+        0,
+        34,
+        0,
+        "IMAGE"
+      ]
+    ],
+    "groups": [],
+    "config": {},
+    "extra": {
+      "ds": {
+        "scale": 0.5730855330116816,
+        "offset": [
+          2797.9571375669902,
+          1671.56672705267
+        ]
+      },
+      "frontendVersion": "1.58.5",
+      "VHS_latentpreview": false,
+      "VHS_latentpreviewrate": 0,
+      "VHS_MetadataImage": true,
+      "VHS_KeepIntermediate": true
+    },
+    "version": 0.4,
+    "seed_widgets": {
+      "9": 0,
+      "10": 1,
+      "25": 1,
+      "27": 0
+    },
+    "widget_idx_map": {
+      "9": {
+        "seed": 0,
+        "sampler_name": 4,
+        "scheduler": 5
+      },
+      "10": {
+        "noise_seed": 1,
+        "sampler_name": 5,
+        "scheduler": 6
+      },
+      "25": {
+        "noise_seed": 1,
+        "sampler_name": 5,
+        "scheduler": 6
+      },
+      "27": {
+        "seed": 0
+      }
+    }
+  },
+  "prompt": {
+    "1": {
+      "inputs": {
+        "tile_size": 256,
+        "overlap": 32,
+        "temporal_size": 32,
+        "temporal_overlap": 8,
+        "samples": [
+          "9",
+          0
+        ],
+        "vae": [
+          "11",
+          0
+        ]
+      },
+      "class_type": "VAEDecodeTiled",
+      "_meta": {
+        "title": "VAE解码（分块）",
+        "cnr_id": "comfy-core",
+        "ver": "0.18.1"
+      }
+    },
+    "3": {
+      "inputs": {
+        "upscale_method": "bilinear",
+        "scale_by": 2.0,
+        "samples": [
+          "25",
+          0
+        ]
+      },
+      "class_type": "LatentUpscaleBy",
+      "_meta": {
+        "title": "缩放Latent（比例）",
+        "cnr_id": "comfy-core",
+        "ver": "0.3.67"
+      }
+    },
+    "4": {
+      "inputs": {
+        "empty_cache": true,
+        "gc_collect": true,
+        "unload_all_models": true,
+        "any_input": [
+          "1",
+          0
+        ]
+      },
+      "class_type": "VRAM_Debug",
+      "_meta": {
+        "title": "VRAM Debug",
+        "cnr_id": "comfyui-kjnodes",
+        "ver": "9b565354e32a7061296ac598d9c7f445e10d31ed"
+      }
+    },
+    "7": {
+      "inputs": {
+        "noise_radius": 5,
+        "preserve_edges": 0.5,
+        "sharpen": 3.0,
+        "ratio": 0.3,
+        "image": [
+          "4",
+          0
+        ]
+      },
+      "class_type": "ImageSmartSharpen+",
+      "_meta": {
+        "title": "🔧 Image Smart Sharpen",
+        "cnr_id": "comfyui_essentials",
+        "aux_id": "cubiq/ComfyUI_essentials",
+        "ver": "9d9f4bedfc9f0321c19faf71855e228c93bd0dc9"
+      }
+    },
+    "9": {
+      "inputs": {
+        "seed": [
+          "27",
+          0
+        ],
+        "steps": 15,
+        "cfg": 3.0,
+        "sampler_name": "euler",
+        "scheduler": "simple",
+        "denoise": 0.4,
+        "model": [
+          "21",
+          0
+        ],
+        "positive": [
+          "19",
+          0
+        ],
+        "negative": [
+          "12",
+          0
+        ],
+        "latent_image": [
+          "3",
+          0
+        ]
+      },
+      "class_type": "KSampler",
+      "_meta": {
+        "title": "K采样器",
+        "cnr_id": "comfy-core",
+        "ver": "0.9.1"
+      }
+    },
+    "10": {
+      "inputs": {
+        "add_noise": "enable",
+        "noise_seed": [
+          "27",
+          0
+        ],
+        "steps": 5,
+        "cfg": 1.0,
+        "sampler_name": "euler",
+        "scheduler": "simple",
+        "start_at_step": 0,
+        "end_at_step": 5,
+        "return_with_leftover_noise": "disable",
+        "model": [
+          "22",
+          0
+        ],
+        "positive": [
+          "19",
+          0
+        ],
+        "negative": [
+          "12",
+          0
+        ],
+        "latent_image": [
+          "13",
+          5
+        ]
+      },
+      "class_type": "KSamplerAdvanced",
+      "_meta": {
+        "title": "K采样器（高级）",
+        "cnr_id": "comfy-core",
+        "ver": "0.3.75"
+      }
+    },
+    "11": {
+      "inputs": {
+        "vae_name": "ae.safetensors"
+      },
+      "class_type": "VAELoader",
+      "_meta": {
+        "title": "加载VAE",
+        "cnr_id": "comfy-core",
+        "ver": "0.3.75"
+      }
+    },
+    "12": {
+      "inputs": {
+        "text": "Low resolution, poor anatomy, poor hands, text, error, missing fingers, extra numbers, fewer numbers, cropping, worst quality, low quality, normal quality, JPEG artifacts, signature, watermark, username, blurry, naked, overexposed, (water drops, droplets, sweat, wet, moisture, raindrops, perspiration, wet skin, oil:1.2),heavy makeup, bright red cheeks, pink chin, sunburn look, over-saturated skin, clown blush",
+        "clip": [
+          "29",
+          0
+        ]
+      },
+      "class_type": "CLIPTextEncode",
+      "_meta": {
+        "title": "CLIP Text Encode (Negative Prompt)",
+        "cnr_id": "comfy-core",
+        "ver": "0.3.75"
+      }
+    },
+    "13": {
+      "inputs": {
+        "width": 1024,
+        "height": 1024,
+        "aspect_ratio": "SDXL - 4:3 landscape 1152x896",
+        "swap_dimensions": "Off",
+        "upscale_factor": 1.0,
+        "prescale_factor": 1.0,
+        "batch_size": 1
+      },
+      "class_type": "CR Aspect Ratio",
+      "_meta": {
+        "title": "🔳 CR Aspect Ratio ~ 空白输入",
+        "cnr_id": "ComfyUI_Comfyroll_CustomNodes",
+        "ver": "d78b780ae43fcf8c6b7c6505e6ffb4584281ceca"
+      }
+    },
+    "19": {
+      "inputs": {
+        "text": "一幅写实电影胶片风格的人像特写，画面中央是一位成年女性的面部，佟丽娅，浅肤色，浅棕偏红的短发自然蓬松，灰绿色眼睛望向镜头，神情平静而略带思索。面部保留真实肌肤纹理、细微雀斑与自然色泽，眉毛纤细柔和，睫毛清晰，嘴唇呈低饱和玫瑰色，轻轻闭合，不露齿。\n\n采用极近距离正面构图，面部几乎占满整个影像区域，额头上缘与下巴被画面裁切，嘴唇靠近底部边缘。画面左侧的眼睛完整清晰，是主要视觉焦点；另一只眼睛被掠过面部的发丝部分遮挡。鼻梁与鼻尖位于中央偏下，左右构图略微不对称，呈现自然抓拍感。\n\n微风吹动浅栗棕色头发，带有铜金色光泽的发束从画面上方斜向右侧横掠，形成柔和的弧线与轻微运动模糊。少量细发散落在额头、眉眼及脸颊前方，与清晰的眼睛、鼻翼和唇部形成虚实对比；发丝层次自然，避免整齐僵硬的造型。\n\n光线为柔和的暖色自然光，面部受光均匀，鼻侧与脸颊保留浅淡阴影，明暗过渡细腻，没有强烈硬光或明显轮廓光。整体采用温暖的琥珀棕、浅米色与低饱和灰绿色调，背景高度虚化，仅在面部两侧露出少量模糊色块，不出现可辨识的环境细节。\n\n呈现复古胶片影像截帧质感，低至中等反差，柔和高光，细微颗粒，轻微褪色与柔焦效果，保留眼神与皮肤的真实细节。影像边缘略带柔化，无文字、无水印、无标志。\n\n参数：整体画幅比例约16:9；内部影像比例约7:5；景别为面部极近特写；镜头焦距85—105mm；光圈f/2.0—f/2.8；浅景深；焦点位于画面左侧眼睛；暖色白平衡；低饱和度；柔和对比；细颗粒胶片质感；发丝轻微动态模糊；自然皮肤纹理；避免过度磨皮、过度锐化及高强度美颜。",
+        "clip": [
+          "29",
+          0
+        ]
+      },
+      "class_type": "CLIPTextEncode",
+      "_meta": {
+        "title": "CLIP文本编码",
+        "cnr_id": "comfy-core",
+        "ver": "0.3.75"
+      }
+    },
+    "21": {
+      "inputs": {
+        "PowerLoraLoaderHeaderWidget": {
+          "type": "PowerLoraLoaderHeaderWidget"
+        },
+        "lora_1": {
+          "on": true,
+          "lora": "Kook_Zimage_瑶光.safetensors",
+          "strength": 0.5
+        },
+        "lora_2": {
+          "on": true,
+          "lora": "ZIT_胸部调整_adazbsr_v2_0075.safetensors",
+          "strength": 1
+        },
+        "lora_3": {
+          "on": true,
+          "lora": "ZITZIB_DarkBeastZ8_SDA@Fok_extracted_lora_r256.safetensors",
+          "strength": 0.5
+        },
+        "lora_4": {
+          "on": false,
+          "lora": "ZIT_honghanfu_lora_v1.safetensors",
+          "strength": 0.4
+        },
+        "lora_5": {
+          "on": false,
+          "lora": "xyy1.0_10.safetensors",
+          "strength": 1
+        },
+        "lora_6": {
+          "on": true,
+          "lora": "ZITZIB_美术增强_Z-Image-Aesthetic-Base_v1.safetensors",
+          "strength": 0.8
+        },
+        "lora_7": {
+          "on": true,
+          "lora": "ZITZIB_增加细节_REDZ15_DetailDaemonZ_lora_v1.1.safetensors",
+          "strength": 0.5
+        },
+        "lora_8": {
+          "on": true,
+          "lora": "ZITZIB_tongliya佟丽娅.safetensors",
+          "strength": 1
+        },
+        "➕ Add Lora": "",
+        "model": [
+          "31",
+          0
+        ]
+      },
+      "class_type": "Power Lora Loader (rgthree)",
+      "_meta": {
+        "title": "Power Lora Loader (rgthree)",
+        "cnr_id": "rgthree-comfy",
+        "ver": "8ff50e4521881eca1fe26aec9615fc9362474931"
+      }
+    },
+    "22": {
+      "inputs": {
+        "PowerLoraLoaderHeaderWidget": {
+          "type": "PowerLoraLoaderHeaderWidget"
+        },
+        "lora_1": {
+          "on": false,
+          "lora": "ZIT_honghanfu_lora_v1.safetensors",
+          "strength": 0.4
+        },
+        "lora_2": {
+          "on": true,
+          "lora": "Kook_Zimage_瑶光.safetensors",
+          "strength": 0.5
+        },
+        "lora_3": {
+          "on": true,
+          "lora": "ZIT_胸部调整_adazbsr_v2_0075.safetensors",
+          "strength": 1
+        },
+        "lora_4": {
+          "on": false,
+          "lora": "xyy1.0_10.safetensors",
+          "strength": 1
+        },
+        "lora_5": {
+          "on": true,
+          "lora": "ZITZIB_tongliya佟丽娅.safetensors",
+          "strength": 1
+        },
+        "➕ Add Lora": "",
+        "model": [
+          "31",
+          0
+        ]
+      },
+      "class_type": "Power Lora Loader (rgthree)",
+      "_meta": {
+        "title": "Power Lora Loader (rgthree)",
+        "cnr_id": "rgthree-comfy",
+        "ver": "8ff50e4521881eca1fe26aec9615fc9362474931"
+      }
+    },
+    "23": {
+      "inputs": {
+        "PowerLoraLoaderHeaderWidget": {
+          "type": "PowerLoraLoaderHeaderWidget"
+        },
+        "lora_1": {
+          "on": false,
+          "lora": "xyy1.0_10.safetensors",
+          "strength": 1
+        },
+        "lora_2": {
+          "on": true,
+          "lora": "ZIT_胸部调整_adazbsr_v2_0075.safetensors",
+          "strength": 1
+        },
+        "lora_3": {
+          "on": true,
+          "lora": "ZITZIB_增加细节_REDZ15_DetailDaemonZ_lora_v1.1.safetensors",
+          "strength": 0.5
+        },
+        "lora_4": {
+          "on": true,
+          "lora": "ZITZIB_美术增强_Z-Image-Aesthetic-Base_v1.safetensors",
+          "strength": 0.6
+        },
+        "➕ Add Lora": "",
+        "model": [
+          "26",
+          0
+        ]
+      },
+      "class_type": "Power Lora Loader (rgthree)",
+      "_meta": {
+        "title": "Power Lora Loader (rgthree)",
+        "cnr_id": "rgthree-comfy",
+        "ver": "8ff50e4521881eca1fe26aec9615fc9362474931"
+      }
+    },
+    "25": {
+      "inputs": {
+        "add_noise": "enable",
+        "noise_seed": [
+          "27",
+          0
+        ],
+        "steps": 15,
+        "cfg": 1.0,
+        "sampler_name": "euler",
+        "scheduler": "simple",
+        "start_at_step": 5,
+        "end_at_step": 10000,
+        "return_with_leftover_noise": "disable",
+        "model": [
+          "23",
+          0
+        ],
+        "positive": [
+          "19",
+          0
+        ],
+        "negative": [
+          "12",
+          0
+        ],
+        "latent_image": [
+          "10",
+          0
+        ]
+      },
+      "class_type": "KSamplerAdvanced",
+      "_meta": {
+        "title": "K采样器（高级）",
+        "cnr_id": "comfy-core",
+        "ver": "0.3.75"
+      }
+    },
+    "26": {
+      "inputs": {
+        "model_name": "ext\\moodyWildMix_v20Distilled10STEPS.safetensors",
+        "weight_dtype": "fp8_e4m3fn",
+        "compute_dtype": "fp16",
+        "patch_cublaslinear": false,
+        "sage_attention": "disabled",
+        "enable_fp16_accumulation": false
+      },
+      "class_type": "DiffusionModelLoaderKJ",
+      "_meta": {
+        "title": "Diffusion Model Loader KJ",
+        "cnr_id": "comfyui-kjnodes",
+        "ver": "50a0837f9aea602b184bbf6dbabf66ed2c7a1d22"
+      }
+    },
+    "27": {
+      "inputs": {
+        "seed": 1022104194287450
+      },
+      "class_type": "easy seed",
+      "_meta": {
+        "title": "随机种子",
+        "cnr_id": "comfyui-easy-use",
+        "aux_id": "yolain/ComfyUI-Easy-Use",
+        "ver": "71c7865d2d3c934ccb99f24171e08ae5a81148ac"
+      }
+    },
+    "29": {
+      "inputs": {
+        "clip_name": "Qwen3-4B-Q4_K_M.gguf",
+        "type": "qwen_image"
+      },
+      "class_type": "CLIPLoaderGGUF",
+      "_meta": {
+        "title": "CLIPLoader (GGUF)",
+        "cnr_id": "ComfyUI-GGUF",
+        "aux_id": "analytics-zoo/ComfyUI-GGUF-XPU",
+        "ver": "6ea2651e7df66d7585f6ffee804b20e92fb38b8a"
+      }
+    },
+    "31": {
+      "inputs": {
+        "unet_name": "ZIT\\z_image_turbo-Q4_K_M.gguf",
+        "dequant_dtype": "default",
+        "patch_dtype": "default",
+        "patch_on_device": false
+      },
+      "class_type": "UnetLoaderGGUFAdvanced",
+      "_meta": {
+        "title": "Unet Loader (GGUF/Advanced)",
+        "aux_id": "analytics-zoo/ComfyUI-GGUF-XPU",
+        "ver": "39671fe73117ba97de7011e7e06e32599dcda06d"
+      }
+    },
+    "34": {
+      "inputs": {
+        "filename_prefix": "ComfyUI",
+        "images": [
+          "7",
+          0
+        ]
+      },
+      "class_type": "SaveImage",
+      "_meta": {
+        "title": "保存图像",
+        "cnr_id": "comfy-core",
+        "ver": "0.45.2"
+      }
+    }
+  },
+  "degraded": []
+}
