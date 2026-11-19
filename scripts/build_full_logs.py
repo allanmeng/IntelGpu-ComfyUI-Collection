@@ -298,39 +298,50 @@ def stamp_of(base, rec):
     return "", "", ""
 
 
-def title_of(base, rec=None):
-    """卡片上那行大标题 = `<12位时间>_<工作流名>`（保留时间戳）。
+def display_name(base, rec=None):
+    """卡片标题 / --list 的工作流列：档案基名剥掉末尾「方案_卡_内存_类型」四段。
 
-    档案名是手工可定义的，约定写法 `<12位时间>_<工作流名>[_<方案>_<卡>_<内存>_<类型>]`，
-    ⚠️ 第 5 段是 psutil **物理内存**（如 16G），不是显存；显存在 `env.devices[].total_memory_mb`
-       （B580 上报 11946 MB），两者数值和含义都不同，别混。
-    所以标题取「档案名的开头 + 第一个 _ 或 + 之前」那段：
-        202611021124_ZIT基础文生图                          → 202611021124_ZIT基础文生图
-        202611021127_ZIT文生图_omnixpu加速_B580_16G_重载    → 202611021127_ZIT文生图
-        202611022310_Moss文生图8步+TE2b优化                 → 202611022310_Moss文生图8步
+    档案名约定 `<12位时间>_<工作流名>[_<方案>_<卡>_<内存>_<类型>]`，其中：
+    ⚠️ 第 5 段是 psutil **物理内存**（如 16G），不是显存；显存在
+       `env.devices[].total_memory_mb`（B580 上报 11946 MB），两者数值与含义都不同，别混。
 
-    保留时间戳是刻意的：卡片左侧的日期列只有 MM-DD，同名工作流跑多次时靠前缀
-    才能区分（例如 21:56 / 23:10 / 23:13 三份 Moss）。
+    这四段在卡片右侧已经有三色 tag（冷启 / omnixpu加速 / B580 / 16G）重复展示，
+    留在标题里只会把一行撑长 → 一律剥掉：
+        202611181815_ZIT文生图+一阶双采二阶单采_omnixpu加速_B580_16G_冷启
+            → 202611181815_ZIT文生图+一阶双采二阶单采
+        202611180044_MossEdit动漫转真人+TE4b优化_omnixpu加速_B580_16G_重载
+            → 202611180044_MossEdit动漫转真人+TE4b优化
+
+    只按 tags / run 里**实际记录到的值**做后缀精确匹配，不用通配猜：
+    早期档案名本来就没这四段（如 `202611030251_QwenImage2.1文生图_viggle`），
+    通配会把 `_viggle` 这种属于工作流名的部分一起吃掉。
+
+    时间戳前缀刻意保留：卡片左侧日期列只有 MM-DD，同名工作流跑多次靠它区分
+    （例如 21:56 / 23:10 / 23:13 三份 Moss）。
 
     为什么不读 json 的 tags.workflow：它来自 SaveImage 的 filename_prefix，
     默认前缀下几份档案全是 "ComfyUI"，与实际工作流完全脱节。
     """
     s = (base or "").strip()
-    # 先切出 12 位时间前缀（原样保留），只在余下部分找第一个分隔符，
-    # 否则时间戳后面的那个 _ 会直接把标题截成纯数字
-    m = re.match(r"^(\d{12})[_\-\s]+", s)
-    prefix, rest = (m.group(1) + "_", s[m.end():]) if m else ("", s)
-    for sep in ("_", "+", "（", "("):
-        i = rest.find(sep)
-        if i > 0:
-            rest = rest[:i]
-    rest = rest.strip()
-    if rest:
-        return prefix + rest
     tags = (rec or {}).get("tags") or {}
-    stamp = (tags.get("stamp") or "").strip()
-    name = (tags.get("workflow") or "").strip() or "未命名工作流"
-    return ("%s_%s" % (stamp, name)) if stamp else name
+    run = (rec or {}).get("run") or {}
+    segs = []
+    for x in ((run.get("label") or tags.get("test")), tags.get("memory"),
+              tags.get("card"), tags.get("scheme")):
+        x = (x or "").strip()
+        if x:
+            segs.append(x)
+    # 从尾部逐段剥，直到一轮下来没有任何变化（顺序差异也能兜住）
+    changed = True
+    while changed:
+        changed = False
+        for x in segs:
+            suf = "_" + x
+            # len(s) > len(suf)：别把整个名字剥空
+            if s.endswith(suf) and len(s) > len(suf):
+                s = s[:-len(suf)]
+                changed = True
+    return s or (base or "").strip()
 
 
 # ------------------------------------------------------------------ 底模 family
@@ -527,7 +538,7 @@ def summarize(item, rec, max_video_mb):
         "date": date,
         "clock": clock,
         "stamp": stamp,
-        "workflow": title_of(item["base"], rec),
+        "workflow": display_name(item["base"], rec),
         "scheme": (tags.get("scheme") or "").strip(),
         "card": (tags.get("card") or "").strip(),
         "memory": (tags.get("memory") or "").strip(),
@@ -1681,7 +1692,7 @@ def card_html(r):
     ) % (
         tag, attrs,
         esc(r["date"] or "—"), esc(r["clock"] or ""), gpu_tag,
-        esc(r["base"]), head_tags,
+        esc(r["workflow"]), head_tags,
         num_cells(r),
         models_block,
         esc(base + JSON_SUFFIX),
