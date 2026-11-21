@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>202611212333_H3_image_Edit_双图编辑int8_TE4b优化 · FullLog</title><style>
+:root{--bg:#f6f7f9;--card:#fff;--line:#e2e6ec;--fg:#1b1f24;--muted:#5b6470;--dim:#8a929d;
+--accent:#2f6fd0;--cold:#1f6feb;--coldbg:#e8f1fb;
+/* 冷启/热启/重载 用独立的一套冷热度色阶，与顶部 tags（方案/显卡/内存）无关：
+   冷启=蓝 · 重载=青绿（蓝与橘黄之间） · 热启=橘黄 */
+--warm:#b45309;--warmbg:#fff2dc;--reload:#0f766e;--reloadbg:#e3f4f2;
+--ok:#1a7f4b;--okbg:#e8f6ee;--err:#b3261e;--errbg:#fdecea}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);
+font:14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif}
+main{max-width:1040px;margin:0 auto;padding:28px 20px 56px}
+h1{font-size:22px;font-weight:600;margin:0 0 6px;letter-spacing:.2px}
+.sub{color:var(--muted);font-size:13px}
+.badges{margin:10px 0 0;display:flex;flex-wrap:wrap;gap:6px}
+.b{display:inline-block;padding:1px 9px;border-radius:11px;font-size:12px;line-height:20px;
+border:1px solid transparent;white-space:nowrap}
+.b.cold{background:var(--coldbg);color:var(--cold);border-color:#c9dffb}
+.b.warm{background:var(--warmbg);color:var(--warm);border-color:#f7d9a4}
+.b.reload{background:var(--reloadbg);color:var(--reload);border-color:#bfe3df}
+.b.ok{background:var(--okbg);color:var(--ok);border-color:#c6e8d5}
+.b.err{background:var(--errbg);color:var(--err);border-color:#f6cfcb}
+/* 三色区分：方案=蓝 / 显卡=紫 / 内存=琥珀。改动时注意与聚合卡片保持视觉一致 */
+.b.scheme{background:#e8f1fb;color:#005a99;border-color:#c8e0f5}
+.b.card{background:#f4efff;color:#6b3fc4;border-color:#ddd0fa}
+.b.mem{background:#fff5e2;color:#9a5b00;border-color:#f2dcaf}
+.b.plain{background:#eef1f5;color:var(--muted);border-color:#e0e5ec}
+h2{font-size:15px;font-weight:600;margin:30px 0 10px;padding-bottom:7px;border-bottom:1px solid var(--line);
+display:flex;flex-wrap:wrap;align-items:baseline;gap:0 8px}
+/* h2 用 flex 是为了让右上角的「导出」按钮参与行高计算：用 float 的话，
+   窄屏下按钮换行后会溢出到标题下边框外面。 */
+h2 .hint{font-weight:400;font-size:12px;color:var(--dim);margin-left:0}
+h2 .act{margin-left:auto;font-size:12.5px;font-weight:400;line-height:18px;padding:1px 12px;
+color:var(--cold);background:var(--coldbg);border:1px solid #c9dffb;border-radius:9px;
+text-decoration:none;white-space:nowrap;margin-bottom:4px}
+h2 .act:hover{background:#dbe9fb;border-color:#a9cbf5}
+.kpi{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(150px,100%),1fr));gap:10px;margin:18px 0 8px}
+.kpi>div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.kpi .k{font-size:11px;color:var(--muted)}
+.kpi .v{font-size:18px;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums}
+.kpi .u{font-size:18px;font-weight:700;color:inherit;margin-left:3px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+table{width:100%;border-collapse:collapse;font-size:13px;table-layout:auto}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top;
+overflow-wrap:anywhere;word-break:break-word}
+table code{word-break:break-all}
+th{font-weight:600;color:var(--muted);font-size:12px;background:#fafbfc}
+tr:last-child td{border-bottom:none}
+/* 键值表（工作流结构 / 运行环境）：字段名定宽，窄屏整段改成上下两行 */
+table.kv th.k{width:190px}
+/* 运行环境里的分组小标题（加速栈）：跨两列，和上面的基础环境分层 */
+tr.grp th{background:#fafbfc;color:var(--dim);font-size:11.5px;font-weight:600;
+letter-spacing:.4px;padding:10px 10px 6px}
+td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+th.num{white-space:nowrap}
+code,.mono{font-family:ui-monospace,SFMono-Regular,Consolas,"Courier New",monospace;font-size:12.5px}
+.muted{color:var(--muted)}
+.dim{color:var(--dim);font-size:12px}
+.art{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap}
+/* 图片列按图片本身宽度收缩，不再撑满整行（原图展示会把卡片拉得很高）。
+   用 .col 而不是 div:first-child：多产物 slide 会在 .art 最前面插 radio，
+   那时 div 已不是第一个子元素，:first-child 会整个失效（实测列宽退化成 1px）。 */
+.art>.col{flex:0 1 auto;min-width:0;max-width:62%}
+.art img{max-width:100%;width:auto;height:auto;max-height:340px;border-radius:10px;
+border:1px solid var(--line);background:#f0f2f5;display:block}
+.art video,.art audio{max-width:100%;border-radius:10px}
+.art .meta{flex:1 1 260px;min-width:240px}
+.art .meta dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:13px}
+.art .meta dt{color:var(--muted);white-space:nowrap}
+.art .meta dd{margin:0;word-break:break-all}
+/* 媒体参数分组：视频要分「视频 / 音频」两段，标题跨两列 */
+.art .meta dt.grp{grid-column:1/-1;margin-top:4px;padding-top:7px;border-top:1px dashed var(--line);
+color:var(--dim);font-size:11.5px;letter-spacing:.4px}
+.art .meta dt.grp:first-child{grid-column:auto;margin:0;padding:0;border:none;
+color:var(--muted);font-size:13px;letter-spacing:0}
+/* 只有线没有字的纯分隔线（媒体参数段收尾） */
+.art .meta dt.grp.sep{height:0;padding:0;margin:2px 0 0;line-height:0;overflow:hidden}
+/* 指纹：默认只露前 16 位，点开看完整 64 位。
+   ⚠️ 必须显式写 `details.fp:not([open]) code.fpv{display:none}`：
+   <details> 原生只隐藏「非 summary 的块」，一旦给内容设了 display:block
+   （下面那段就是），收起时它会照样显示 —— 实测踩过。 */
+.art .meta details.fp summary{cursor:pointer;list-style:none;display:inline}
+.art .meta details.fp summary::-webkit-details-marker{display:none}
+.art .meta details.fp summary::before{content:"▸ ";color:var(--dim);font-size:10px}
+.art .meta details.fp[open] summary::before{content:"▾ "}
+.art .meta details.fp summary:hover code{text-decoration:underline}
+.art .meta details.fp:not([open]) code.fpv{display:none}
+.art .meta details.fp code.fpv{
+  display:block;margin-top:4px;font-size:11px;line-height:1.5;
+  word-break:break-all;color:var(--muted);
+  background:#f6f7f9;border:1px solid var(--line);border-radius:6px;padding:6px 8px;
+  user-select:all;
+}
+/* ---- 多产物 slide：纯 CSS，靠 radio + label，不引入 JS ----
+   一次执行产出多张图时，一个舞台 + 图右下角的数字导航，右侧信息跟着切换。
+   radio 必须排在 .stage/.pager/.meta **之前**（兄弟选择器只能往后选）。
+   :checked 的图和对应信息块用 data-sl 对齐序号，互不依赖彼此的 DOM 顺序。 */
+.art.slide .slides{display:contents}
+.art.slide input[type="radio"]{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.art.slide .stage{position:relative}
+/* 默认把每个产物项藏起来，:checked 命中的那项才显示。
+   隐藏的是容器 .it 而不是里面的 img —— 藏 img 的话容器仍是 block，
+   选中项以外的图也会因为选择器没命中而全部不可见（一张都看不到）。 */
+.art.slide .stage .it{display:none}
+/* 数字导航浮在当前图的**右下角**，不再占一行缩略图的高度。
+   纯 CSS：label 就是 radio 的点击代理，无需 JS。 */
+.art.slide .stage .pager{
+  position:absolute;right:8px;bottom:8px;z-index:2;
+  display:flex;gap:5px;align-items:center;max-width:calc(100% - 16px);flex-wrap:wrap;
+  background:rgba(15,23,32,.62);border-radius:999px;padding:4px 6px;
+  box-shadow:0 1px 4px rgba(0,0,0,.22);
+  /* 图可能很亮：给整条导航一层轻模糊，白字才稳得住 */
+  backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
+}
+.art.slide .stage .pager label{
+  min-width:20px;height:20px;line-height:20px;padding:0 5px;text-align:center;
+  border-radius:999px;font-size:11px;font-variant-numeric:tabular-nums;
+  color:#eaf2fa;background:rgba(255,255,255,.16);cursor:pointer;
+  border:none;transition:background .12s;
+}
+.art.slide .stage .pager label:hover{background:rgba(255,255,255,.34);color:#fff}
+.art .meta .mv{display:none}
+.missing{border:1px dashed #d4b106;background:#fffbe6;color:#6b5300;border-radius:10px;
+padding:14px 16px;font-size:13px}
+.missing b{display:block;margin-bottom:4px}
+pre.log{background:#0f1720;color:#d6e2ee;border-radius:10px;padding:14px 16px;overflow:auto;
+font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px;line-height:1.55;margin:0;
+max-height:620px}
+pre.log .ln{display:block;white-space:pre}
+pre.log .hl{background:rgba(90,170,255,.14)}
+pre.log .hl2{background:rgba(255,190,80,.16)}
+pre.log .ts{color:#7f93a8}
+details summary{cursor:pointer;color:var(--accent);font-size:13px;margin:0 0 10px}
+details.fold{margin-top:14px;border-top:1px dashed var(--line);padding-top:12px}
+details.fold>summary{margin:0}
+details.fold[open]>summary{margin-bottom:10px}
+footer{margin-top:34px;padding-top:14px;border-top:1px solid var(--line);color:var(--dim);font-size:12px;
+display:flex;flex-wrap:wrap;gap:6px 18px}
+footer span{overflow-wrap:anywhere}
+@media print{body{background:#fff}main{padding:0}h2{page-break-after:avoid}pre.log{max-height:none;
+background:#f6f7f9;color:#1b1f24;border:1px solid #e2e6ec}pre.log .ts{color:#8a929d}
+details{display:block}details>summary{display:none}}
+/* 窄屏：三列的节点详情表在 390px 下会被 break-all 拆成 "CLIPLoa / der"，
+   改为按需断行（能整词放就整词放），并放开版本列的固定宽度 */
+th.v{width:190px}
+th.src{width:96px}
+th.node{width:200px}
+/* 模型表（table.stack）里「角色 / 模型文件 / 加载节点」三列的淡色标注
+   （base、text_encoder、ext/xxx、节点类名）**一律折到下一行**显示：
+   主信息一行读，补充信息一行读，不跟主文本抢行宽，也不受列宽影响。
+   只在 table.stack 上生效——键值表/节点详情表里的 .dim 是真正的行内补充。
+   窄屏那张卡片式布局里 td 是网格，直接子元素都会被"块化"并各占一格，
+   所以窄屏另用 grid-column:2 把它按回值那一列（见 @media max-width:560px）。 */
+table.stack td>span.dim{display:block}
+/* 模型表的文件名是唯一标识，break-all 会把 "…lora_r256.safetens / ors" 拆成两段；
+   改成「能整词放就整词放」，实在放不下再断（overflow-wrap:anywhere 保证不溢出）。 */
+table.stack code{word-break:normal;overflow-wrap:anywhere}
+/* 角色列下面那行英文（base / text_encoder）是一整个词，断成 "text_encode / r" 反而不认识，
+   这一列让它自己撑开就好。 */
+table.stack td:first-child>span.dim{white-space:nowrap}
+/* 时间轴：时刻/相对起点/增量是"顺着往下对"的序列值，数值列左对齐。
+   右对齐会让 0.00 这种短数字离时刻列很远，眼睛要多跳一次。 */
+td.numl,th.numl{text-align:left;font-variant-numeric:tabular-nums;white-space:nowrap}
+@media (max-width:560px){
+th.v{width:auto}
+/* 节点详情表（3 列）在 390px 下每列只剩 90px，插件名/类名会被 anywhere 拆成
+   "moss-image- / mini-encoder" 这种半截词。窄屏改成卡片式：字段名当左栏、
+   内容占右栏，和模型表（table.stack）同一套做法。 */
+table.nb{display:block}
+table.nb tr.hd{display:none}
+table.nb tr{display:block;padding:8px 2px;border-bottom:1px solid var(--line)}
+table.nb tr:last-child{border-bottom:none}
+table.nb td{display:grid;grid-template-columns:72px 1fr;gap:2px 10px;border:none;padding:3px 0}
+table.nb td:before{content:attr(data-l);color:var(--muted);font-size:12px}
+table.nb td>span.dim{grid-column:2}
+table.nb code{word-break:normal;overflow-wrap:anywhere}
+/* 键值表：190px 的字段名列在 390px 下会把值挤成一列几个字符，
+   改成「字段名一行、值一行」 */
+table.kv th.k{width:auto;display:block;background:transparent;border-bottom:none;
+padding:8px 6px 0;font-size:11.5px;color:var(--dim)}
+table.kv td{display:block;border-bottom:1px solid var(--line);padding:1px 6px 8px}
+table.kv tr{display:block}
+table.kv tr:last-child td{border-bottom:none}
+table.kv tr.grp{display:block;padding-top:4px}
+table.kv tr.grp th{display:block;padding:8px 6px 4px;border-bottom:1px solid var(--line)}}
+table.nb code{word-break:normal;overflow-wrap:anywhere}
+/* 7 列模型表在 390px 下每列只剩 35px，中文会被压成「一列一个字」。
+   窄屏改成卡片式：每行一个块，左侧 data-l 当字段名。 */
+@media (max-width:560px){
+table.stack{display:block}
+table.stack tr.hd{display:none}
+table.stack tr{display:block;padding:10px 2px;border-bottom:1px solid var(--line)}
+table.stack tr:last-child{border-bottom:none}
+table.stack td{display:grid;grid-template-columns:92px 1fr;gap:2px 10px;border:none;
+padding:3px 0;font-size:13px}
+table.stack td:before{content:attr(data-l);color:var(--muted);font-size:12px}
+table.stack td.num{text-align:left}
+/* 网格里直接子元素会被块化、各占一格：淡色标注若不管，会掉到下一行的
+   第 1 格（字段名那一列），看着像"字段名下面又挂了一行"。按回第 2 列，
+   正好排在值下面。 */
+table.stack td>span.dim{grid-column:2}
+/* 窄屏图片占满一行，但高度仍限制，避免一张图占完整个屏幕 */
+.art>.col{max-width:100%;flex-basis:100%}
+.art img{max-height:300px}
+}
+</style></head><body><main>
+<!--fl-chrome:start-->
+<style>
+/* 站点头部：照抄 exelog 详情页（居中 30px 蓝色站名 / 一行说明 / 胶囊 chips） */
+.fl-chrome header{text-align:center;padding:40px 0 24px}
+.fl-chrome h1{font-size:30px;font-weight:700;color:#0071c5;margin:0;letter-spacing:.2px}
+.fl-chrome .note{margin:12px 0 0;font-size:14px;color:#57606a;overflow-wrap:anywhere}
+.fl-chrome .chips{margin-top:14px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.fl-chrome .chip{
+  font-size:12px;padding:5px 12px;border-radius:999px;background:#e8f1fb;
+  color:#005a99;border:1px solid #c8e0f5;text-decoration:none;display:inline-block;white-space:nowrap;
+}
+.fl-chrome .chip:hover{background:#dbe9fb;border-color:#a9cff0}
+.fl-chrome .chip-active{background:#0071c5;color:#fff;border-color:#0071c5}
+/* 分割线：隔开「站点头部」与「档案正文」 */
+.fl-chrome .rule{border:0;height:1px;background:#d0d7de;margin:0 0 18px}
+/* 返回链接：位置与样式同 exelog 的 .back（头部下方、左对齐、13px 蓝色） */
+.fl-chrome .back{display:inline-block;margin-bottom:18px;font-size:13px;color:#0071c5;text-decoration:none}
+.fl-chrome .back:hover{text-decoration:underline}
+/* 不设窄屏断点：站名与全站一致固定 30px（窄屏折行是既有设计，别的页一样） */
+</style>
+<div class="fl-chrome">
+  <header>
+    <h1>IntelGpu-ComfyUI-Collection</h1>
+      <p class="note">每份档案 = 一次执行的完整上下文：运行环境、模型加载、时间轴、原始日志、工作流结构、产物</p>
+    <div class="chips"><a class="chip" href="../index.html">项目收集</a><a class="chip" href="../links.html">环境依赖</a><a class="chip" href="../cloud_drive_collection.html">资源聚合</a><a class="chip" href="../comfyui_opt.html">工作台优化</a><a class="chip" href="../logs.html">执行日志</a><span class="chip chip-active">完整日志</span><a class="chip" href="../group.html">互助社群</a><a class="chip" href="https://blog.blackwood.cv/news/latest" target="_blank" rel="noopener">Intel GPU生态日报 ↗</a><a class="chip" href="https://comfyui-wiki.com/zh/news" target="_blank" rel="noopener">ComfyUI新闻动态 ↗</a></div>
+  </header>
+  <hr class="rule">
+  <a class="back" href="../full-logs.html" id="fl-back">&#8592; 返回档案列表</a>
+</div>
+<script>
+/* 聚合页把当前筛选写进了卡片链接（?family=SDXL&card=B580），这里原样带回去，
+   否则点「返回档案列表」会落在无筛选的默认视图，用户的选择白丢一次 */
+(function () {
+  var q = location.search;
+  if (!q || q === '?') return;
+  var a = document.getElementById('fl-back');
+  if (a) a.setAttribute('href', a.getAttribute('href') + q);
+})();
+</script>
+<!--fl-chrome:end--><h1>202611212333_H3_image_Edit_双图编辑int8_TE4b优化</h1>
+<div class="sub">2026-11-21 23:33:17 · sess-20261121-233017 · 工作流 <b>minimax_h3_image_t2i</b></div>
+<div class="badges"><span class="b ok">success</span><span class="b cold">冷启</span><span class="b scheme">omnixpu加速</span><span class="b card">B580</span><span class="b mem">64G</span></div>
+<div class="kpi"><div><div class="k">总耗时</div><div class="v">151.23<span class="u">s</span></div></div><div><div class="k">采样耗时</div><div class="v">32<span class="u">s</span></div></div><div><div class="k">采样步数</div><div class="v">6 / 6<span class="u"></span></div></div><div><div class="k">每步采样</div><div class="v">5.45<span class="u">s/it</span></div></div><div><div class="k">模型载入</div><div class="v">26.23<span class="u">GB</span></div></div><div><div class="k">单次峰值</div><div class="v">19.53<span class="u">GB</span></div></div></div>
+<h2>生成物</h2><div class="panel"><div class="art"><div class="col"><img src="202611212333_H3_image_Edit_双图编辑int8_TE4b优化_1.png" alt="minimax_h3_image_t2i_00029_.png"></div><div class="meta"><dl><dt>文件名</dt><dd><code>minimax_h3_image_t2i_00029_.png</code></dd><dt>同目录副本</dt><dd><code>202611212333_H3_image_Edit_双图编辑int8_TE4b优化_1.png</code></dd><dt>类型</dt><dd>image</dd><dt>分辨率</dt><dd>1200 × 1600</dd><dt>像素数</dt><dd>1,920,000（1.92 MP）</dd><dt class="grp sep"></dt><dt>大小</dt><dd>2.7 MB</dd><dt>修改时间</dt><dd>2026-11-21 23:35:49</dd><dt>batch 序号</dt><dd>0</dd><dt>指纹</dt><dd><details class="fp"><summary><code>917a207b069482c2…</code> <span class="dim">(sha256 · 64 位，点开看全文)</span></summary><code class="fpv">917a207b069482c2422a0705ef9c0a900d3e39fe96c87e9f885c02e1421aa4ec</code></details></dd><dt>来源节点</dt><dd><code>#16</code></dd></dl></div></div></div>
+<h2>模型加载<span class="hint">模型文件 / 加载节点来自工作流结构（API 图）；载入 MB / 耗时 / MB/s / 路径来源来自执行日志</span></h2><div class="panel"><table class="stack"><tr class="hd"><th>角色</th><th>模型文件</th><th class="node">加载节点</th><th class="num">载入 MB</th><th class="num">耗时 s</th><th class="num">MB/s</th><th class="src">路径来源</th></tr><tr><td data-l="角色">底模 <span class="dim">base</span></td><td data-l="模型文件"><code>minimax_h3_image_pruned_int8_convrot.safetensors</code> <span class="dim">ext/H3_diff/minimax_h3_image_pruned_int8_convrot.safetensors</span></td><td data-l="加载节点"><code>#2 DiffusionModelLoaderKJ</code> <span class="dim">MiniMaxH3Image</span></td><td class="num" data-l="载入 MB">19999.0</td><td class="num" data-l="耗时 s">0.156</td><td class="num" data-l="MB/s">128199</td><td class="dim" data-l="路径来源">未识别</td></tr><tr><td data-l="角色">文本编码器 <span class="dim">text_encoder</span></td><td data-l="模型文件"><code>qwen3vl_4b_int8_convrot.safetensors</code> <span class="dim">ext/qwen3vl_4b_int8_convrot.safetensors</span></td><td data-l="加载节点"><code>#1 CLIPLoader</code> <span class="dim">Qwen3VLTEModel_</span></td><td class="num" data-l="载入 MB">4632.0</td><td class="num" data-l="耗时 s">0.149</td><td class="num" data-l="MB/s">31087</td><td class="dim" data-l="路径来源">未识别</td></tr><tr><td data-l="角色">文本编码器 <span class="dim">text_encoder</span></td><td data-l="模型文件"><code>mmh3-4b-ClipProj-v3.1.safetensors</code></td><td data-l="加载节点"><code>#4 ClipProjApply</code></td><td class="num" data-l="载入 MB">—</td><td class="num" data-l="耗时 s">—</td><td class="num" data-l="MB/s">—</td><td class="dim" data-l="路径来源">—</td></tr><tr><td data-l="角色">VAE <span class="dim">vae</span></td><td data-l="模型文件"><code>minimax_h3_image_vae_fp16.safetensors</code> <span class="dim">H3_vae/minimax_h3_image_vae_fp16.safetensors</span></td><td data-l="加载节点"><code>#3 VAELoaderKJ</code> <span class="dim">MiniMaxH3ImageVAE</span></td><td class="num" data-l="载入 MB">1114.0</td><td class="num" data-l="耗时 s">0.042</td><td class="num" data-l="MB/s">26524</td><td class="dim" data-l="路径来源">按角色匹配</td></tr><tr><td data-l="角色">VAE <span class="dim">vae</span></td><td data-l="模型文件"><span class="dim">（工作流执行日志未记录文件名）</span></td><td data-l="加载节点"><span class="dim">图中无对应加载节点（间接加载）</span> <span class="dim">MiniMaxH3ImageVAE</span></td><td class="num" data-l="载入 MB">1114.0</td><td class="num" data-l="耗时 s">0.065</td><td class="num" data-l="MB/s">17138</td><td class="dim" data-l="路径来源">未识别</td></tr></table><div class="dim" style="margin-top:8px">共 5 行：底模 1 · 文本编码器 2 · VAE 2。模型文件 / 加载节点来自工作流结构（API 图）。载入 MB / 耗时 / MB/s 来自工作流执行日志（`Requested to load` → `loaded completely`）；同一文件一次执行里加载多次时合并为一行、数值是累计值，相加仍等于 KPI 的「模型载入」。<br>MB/s 用于区分「内存回迁」（GB/s 级）与「磁盘重读」（数百 MB/s）。text_encoder 在某些栈上 device_to=cpu，它的加载耗时接近 0，不代表省了显存搬运。</div></div>
+<h2>工作流结构<span class="hint">UI 图含 bypass 节点，API 图是真正执行的子集</span><a class="act" download="H3_Comfyui-FullLog.json" href="data:application/json;base64,eyJpZCI6IjBmZDhmZTdhLTJkMjEtNGU2OS1iMTUxLWFkNmNmNGExYjMwZiIsInJldmlzaW9uIjowLCJsYXN0X25vZGVfaWQiOjE3LCJsYXN0X2xpbmtfaWQiOjIwLCJub2RlcyI6W3siaWQiOjEsInR5cGUiOiJDTElQTG9hZGVyIiwicG9zIjpbLTEyNTUuNzkyMjY4ODExMDQwNywyNjM0LjM2NTY4MTM4MjMyNTRdLCJzaXplIjpbMzgwLjM0ODM1MjQ1Nzk3MDgsMTQ4LjcxNTUwMzI4ODU1NzMzXSwiZmxhZ3MiOnt9LCJvcmRlciI6MCwibW9kZSI6MCwiaW5wdXRzIjpbXSwib3V0cHV0cyI6W3sibmFtZSI6IkNMSVAiLCJ0eXBlIjoiQ0xJUCIsImxpbmtzIjpbMV19XSwicHJvcGVydGllcyI6eyJjbnJfaWQiOiJjb21meS1jb3JlIiwidmVyIjoiMC40Mi41IiwiTm9kZSBuYW1lIGZvciBTJlIiOiJDTElQTG9hZGVyIn0sIndpZGdldHNfdmFsdWVzIjpbImV4dFxccXdlbjN2bF80Yl9pbnQ4X2NvbnZyb3Quc2FmZXRlbnNvcnMiLCJtaW5pbWF4IiwiZGVmYXVsdCJdLCJ3aWRnZXRzX3ZhbHVlc19uYW1lZCI6eyJjbGlwX25hbWUiOiJleHRcXHF3ZW4zdmxfNGJfaW50OF9jb252cm90LnNhZmV0ZW5zb3JzIiwidHlwZSI6Im1pbmltYXgiLCJkZXZpY2UiOiJkZWZhdWx0In19LHsiaWQiOjIsInR5cGUiOiJEaWZmdXNpb25Nb2RlbExvYWRlcktKIiwicG9zIjpbLTEyNzQuOTAzOTU1NzE4MjQyMywyMzAxLjI3NTY5NzgyOTA0MTNdLCJzaXplIjpbNDU0LjcxODcwMjA1MDcwMDY0LDE5MC4xMDk0OTk5MDg3ODU5XSwiZmxhZ3MiOnt9LCJvcmRlciI6MSwibW9kZSI6MCwiaW5wdXRzIjpbeyJuYW1lIjoiZXh0cmFfc3RhdGVfZGljdCIsInNoYXBlIjo3LCJ0eXBlIjoiU1RSSU5HIiwibGluayI6bnVsbH1dLCJvdXRwdXRzIjpbeyJuYW1lIjoiTU9ERUwiLCJ0eXBlIjoiTU9ERUwiLCJsaW5rcyI6WzhdfV0sInByb3BlcnRpZXMiOnsiY25yX2lkIjoiY29tZnl1aS1ram5vZGVzIiwidmVyIjoiYWEyYjVlYTVlN2Y2MWI1MWY1ZDI2ZDcyNmYyM2MxZDc0ZTk1MTAxNiIsIk5vZGUgbmFtZSBmb3IgUyZSIjoiRGlmZnVzaW9uTW9kZWxMb2FkZXJLSiJ9LCJ3aWRnZXRzX3ZhbHVlcyI6WyJleHRcXEgzX2RpZmZcXG1pbmltYXhfaDNfaW1hZ2VfcHJ1bmVkX2ludDhfY29udnJvdC5zYWZldGVuc29ycyIsImRlZmF1bHQiLCJkZWZhdWx0IixmYWxzZSwiZGlzYWJsZWQiLGZhbHNlXSwid2lkZ2V0c192YWx1ZXNfbmFtZWQiOnsibW9kZWxfbmFtZSI6ImV4dFxcSDNfZGlmZlxcbWluaW1heF9oM19pbWFnZV9wcnVuZWRfaW50OF9jb252cm90LnNhZmV0ZW5zb3JzIiwid2VpZ2h0X2R0eXBlIjoiZGVmYXVsdCIsImNvbXB1dGVfZHR5cGUiOiJkZWZhdWx0IiwicGF0Y2hfY3VibGFzbGluZWFyIjpmYWxzZSwic2FnZV9hdHRlbnRpb24iOiJkaXNhYmxlZCIsImVuYWJsZV9mcDE2X2FjY3VtdWxhdGlvbiI6ZmFsc2V9fSx7ImlkIjozLCJ0eXBlIjoiVkFFTG9hZGVyS0oiLCJwb3MiOlstMTI3NC45OTMyMzIxMTczMDE3LDI4OTEuMjk0Mjg5ODI1MDc1M10sInNpemUiOlszODAuMTk0MTkxMjg0MTc5NzQsMTQwLjM4NjY5MTI4NDE3OTczXSwiZmxhZ3MiOnt9LCJvcmRlciI6MiwibW9kZSI6MCwiaW5wdXRzIjpbXSwib3V0cHV0cyI6W3sibmFtZSI6IlZBRSIsInR5cGUiOiJWQUUiLCJsaW5rcyI6WzQsMTRdfV0sInByb3BlcnRpZXMiOnsiY25yX2lkIjoiY29tZnl1aS1ram5vZGVzIiwidmVyIjoiNTBhMDgzN2Y5YWVhNjAyYjE4NGJiZjZkYmFiZjY2ZWQyYzdhMWQyMiIsIk5vZGUgbmFtZSBmb3IgUyZSIjoiVkFFTG9hZGVyS0oifSwid2lkZ2V0c192YWx1ZXMiOlsiSDNfdmFlXFxtaW5pbWF4X2gzX2ltYWdlX3ZhZV9mcDE2LnNhZmV0ZW5zb3JzIiwibWFpbl9kZXZpY2UiLCJmcDE2Il0sIndpZGdldHNfdmFsdWVzX25hbWVkIjp7InZhZV9uYW1lIjoiSDNfdmFlXFxtaW5pbWF4X2gzX2ltYWdlX3ZhZV9mcDE2LnNhZmV0ZW5zb3JzIiwiZGV2aWNlIjoibWFpbl9kZXZpY2UiLCJ3ZWlnaHRfZHR5cGUiOiJmcDE2In19LHsiaWQiOjQsInR5cGUiOiJDbGlwUHJvakFwcGx5IiwicG9zIjpbLTc4Ny42NDcyMjAxMDU3MDg5LDI2MjguNjE2Nzk3ODc2MzYzOF0sInNpemUiOlszNDguMjAwODM1MDQwNjU3LDY2Ljk1NDMwMjQzMjU1MjM3XSwiZmxhZ3MiOnt9LCJvcmRlciI6NywibW9kZSI6MCwiaW5wdXRzIjpbeyJuYW1lIjoiY2xpcCIsInR5cGUiOiJDTElQIiwibGluayI6MX1dLCJvdXRwdXRzIjpbeyJuYW1lIjoiY2xpcCIsInR5cGUiOiJDTElQIiwibGlua3MiOlszXX1dLCJwcm9wZXJ0aWVzIjp7ImF1eF9pZCI6Im5pY29sYWIyOC9Db21meVVJLUNsaXBQcm9qIiwidmVyIjoiYzAxYmE4ZmI4ZjQxYjRmMjA5NGRiZDBiMTg1Y2RjMjM4ZmI2MTM0YyIsIk5vZGUgbmFtZSBmb3IgUyZSIjoiQ2xpcFByb2pBcHBseSJ9LCJ3aWRnZXRzX3ZhbHVlcyI6WyJtbWgzLTRiLUNsaXBQcm9qLXYzLjEuc2FmZXRlbnNvcnMiXSwid2lkZ2V0c192YWx1ZXNfbmFtZWQiOnsicHJvamVjdGlvbiI6Im1taDMtNGItQ2xpcFByb2otdjMuMS5zYWZldGVuc29ycyJ9fSx7ImlkIjo1LCJ0eXBlIjoiUHJpbWl0aXZlU3RyaW5nTXVsdGlsaW5lIiwicG9zIjpbLTEzMDYuOTU5MDkzNzk4NjExOCwzMTQzLjQyMzU5MzY1MzgzNV0sInNpemUiOls0NjkuMTkyMzMxOTYyMTI0ODUsMjQ0Ljk4MjU5OTgxNDgyNzE1XSwiZmxhZ3MiOnt9LCJvcmRlciI6MywibW9kZSI6MCwiaW5wdXRzIjpbXSwib3V0cHV0cyI6W3sibmFtZSI6IlNUUklORyIsInR5cGUiOiJTVFJJTkciLCJsaW5rcyI6WzE3XX1dLCJ0aXRsZSI6IlRleHQgKHVzZXJfcHJvbXB0KSIsInByb3BlcnRpZXMiOnsiY25yX2lkIjoiY29tZnktY29yZSIsInZlciI6IjAuNDUuMiIsIk5vZGUgbmFtZSBmb3IgUyZSIjoiUHJpbWl0aXZlU3RyaW5nTXVsdGlsaW5lIn0sIndpZGdldHNfdmFsdWVzIjpbIuiuqeWbvjHnmoTkurrnianluKbkuIrlm74y55qE5bi95a2Q77yM5L+d5oyB5Zu+MeS6uueJqeeahOWnv+WKv+S4jeWPmCJdLCJ3aWRnZXRzX3ZhbHVlc19uYW1lZCI6eyJ2YWx1ZSI6IuiuqeWbvjHnmoTkurrnianluKbkuIrlm74y55qE5bi95a2Q77yM5L+d5oyB5Zu+MeS6uueJqeeahOWnv+WKv+S4jeWPmCJ9LCJjb2xvciI6IiMyMzIiLCJiZ2NvbG9yIjoiIzM1MyJ9LHsiaWQiOjYsInR5cGUiOiJMYXllclV0aWxpdHk6IEltYWdlU2NhbGVCeUFzcGVjdFJhdGlvIFYyIiwicG9zIjpbLTY1Mi41OTU1MDIzODg0MTE3LDM0ODIuODkyNTU3NjY0ODU4XSwic2l6ZSI6WzI1MC43NjUzNDk0OTgxNTY3NSwzMzBdLCJmbGFncyI6e30sIm9yZGVyIjo4LCJtb2RlIjowLCJpbnB1dHMiOlt7Im5hbWUiOiJpbWFnZSIsInNoYXBlIjo3LCJ0eXBlIjoiSU1BR0UiLCJsaW5rIjoyfSx7Im5hbWUiOiJtYXNrIiwic2hhcGUiOjcsInR5cGUiOiJNQVNLIiwibGluayI6bnVsbH1dLCJvdXRwdXRzIjpbeyJuYW1lIjoiaW1hZ2UiLCJ0eXBlIjoiSU1BR0UiLCJsaW5rcyI6WzVdfSx7Im5hbWUiOiJtYXNrIiwidHlwZSI6Ik1BU0siLCJsaW5rcyI6W119LHsibmFtZSI6Im9yaWdpbmFsX3NpemUiLCJ0eXBlIjoiQk9YIiwibGlua3MiOltdfSx7Im5hbWUiOiJ3aWR0aCIsInR5cGUiOiJJTlQiLCJsaW5rcyI6WzE4XX0seyJuYW1lIjoiaGVpZ2h0IiwidHlwZSI6IklOVCIsImxpbmtzIjpbMTldfV0sInByb3BlcnRpZXMiOnsiY25yX2lkIjoiY29tZnl1aV9sYXllcnN0eWxlIiwidmVyIjoiZDk0YmVmMWVlNWVkMzY1NmY1ZmYxYmIyODMwYTRmZmQ5NGY0MDkzNSIsIk5vZGUgbmFtZSBmb3IgUyZSIjoiTGF5ZXJVdGlsaXR5OiBJbWFnZVNjYWxlQnlBc3BlY3RSYXRpbyBWMiJ9LCJ3aWRnZXRzX3ZhbHVlcyI6WyJvcmlnaW5hbCIsMSwxLCJsZXR0ZXJib3giLCJsYW5jem9zIiwiOCIsImxvbmdlc3QiLDE2MDAsIiMwMDAwMDAiXSwid2lkZ2V0c192YWx1ZXNfbmFtZWQiOnsiYXNwZWN0X3JhdGlvIjoib3JpZ2luYWwiLCJwcm9wb3J0aW9uYWxfd2lkdGgiOjEsInByb3BvcnRpb25hbF9oZWlnaHQiOjEsImZpdCI6ImxldHRlcmJveCIsIm1ldGhvZCI6ImxhbmN6b3MiLCJyb3VuZF90b19tdWx0aXBsZSI6IjgiLCJzY2FsZV90b19zaWRlIjoibG9uZ2VzdCIsInNjYWxlX3RvX2xlbmd0aCI6MTYwMCwiYmFja2dyb3VuZF9jb2xvciI6IiMwMDAwMDAifSwiY29sb3IiOiJyZ2JhKDM4LCA3MywgMTE2LCAwLjcpIn0seyJpZCI6NywidHlwZSI6IkxvYWRJbWFnZSIsInBvcyI6Wy0xMDM3Ljg3NDE1NDkwMTg3NDgsMzQ4Ni44NjY4NTc0NTMyNDM1XSwic2l6ZSI6WzI3MCwzMTRdLCJmbGFncyI6e30sIm9yZGVyIjo0LCJtb2RlIjowLCJpbnB1dHMiOltdLCJvdXRwdXRzIjpbeyJuYW1lIjoiSU1BR0UiLCJ0eXBlIjoiSU1BR0UiLCJsaW5rcyI6WzJdfSx7Im5hbWUiOiJNQVNLIiwidHlwZSI6Ik1BU0siLCJsaW5rcyI6W119XSwicHJvcGVydGllcyI6eyJjbnJfaWQiOiJjb21meS1jb3JlIiwidmVyIjoiMC40Ni4wIiwiTm9kZSBuYW1lIGZvciBTJlIiOiJMb2FkSW1hZ2UifSwid2lkZ2V0c192YWx1ZXMiOlsi5p2O5Y2D5qyiX+ihqOaDhTMuanBnIiwiaW1hZ2UiXSwid2lkZ2V0c192YWx1ZXNfbmFtZWQiOnsiaW1hZ2UiOiLmnY7ljYPmrKJf6KGo5oOFMy5qcGciLCJ1cGxvYWQiOiJpbWFnZSJ9fSx7ImlkIjo4LCJ0eXBlIjoiTWluaU1heEgzSW1hZ2VDb25kaXRpb25pbmciLCJwb3MiOlsxNi4zOTAyMDc5NDIyNjEzODQsMjcwNi41MzA5ODc2NDgzNTVdLCJzaXplIjpbNDQwLDQwMF0sImZsYWdzIjp7fSwib3JkZXIiOjEwLCJtb2RlIjowLCJpbnB1dHMiOlt7Im5hbWUiOiJjbGlwIiwidHlwZSI6IkNMSVAiLCJsaW5rIjozfSx7Im5hbWUiOiJ2YWUiLCJzaGFwZSI6NywidHlwZSI6IlZBRSIsImxpbmsiOjR9LHsibmFtZSI6ImltYWdlcy5pbWFnZV8wIiwic2hhcGUiOjcsInR5cGUiOiJJTUFHRSIsImxpbmsiOjV9LHsibmFtZSI6ImltYWdlcy5pbWFnZV8xIiwic2hhcGUiOjcsInR5cGUiOiJJTUFHRSIsImxpbmsiOjIwfSx7Im5hbWUiOiJpbWFnZXMuaW1hZ2VfMiIsInNoYXBlIjo3LCJ0eXBlIjoiSU1BR0UiLCJsaW5rIjpudWxsfSx7Im5hbWUiOiJpbWFnZXMuaW1hZ2VfMyIsInNoYXBlIjo3LCJ0eXBlIjoiSU1BR0UiLCJsaW5rIjpudWxsfSx7Im5hbWUiOiJpbWFnZXMuaW1hZ2VfNCIsInNoYXBlIjo3LCJ0eXBlIjoiSU1BR0UiLCJsaW5rIjpudWxsfSx7Im5hbWUiOiJpbWFnZXMuaW1hZ2VfNSIsInNoYXBlIjo3LCJ0eXBlIjoiSU1BR0UiLCJsaW5rIjpudWxsfSx7Im5hbWUiOiJwcm9tcHQiLCJ0eXBlIjoiU1RSSU5HIiwid2lkZ2V0Ijp7Im5hbWUiOiJwcm9tcHQifSwibGluayI6MTd9LHsibmFtZSI6IndpZHRoIiwidHlwZSI6IklOVCIsIndpZGdldCI6eyJuYW1lIjoid2lkdGgifSwibGluayI6MTh9LHsibmFtZSI6ImhlaWdodCIsInR5cGUiOiJJTlQiLCJ3aWRnZXQiOnsibmFtZSI6ImhlaWdodCJ9LCJsaW5rIjoxOX1dLCJvdXRwdXRzIjpbeyJuYW1lIjoicG9zaXRpdmUiLCJ0eXBlIjoiQ09ORElUSU9OSU5HIiwibGlua3MiOls2LDldfSx7Im5hbWUiOiJMQVRFTlQiLCJ0eXBlIjoiTEFURU5UIiwibGlua3MiOlsxMV19XSwicHJvcGVydGllcyI6eyJjbnJfaWQiOiJjb21meS1jb3JlIiwidmVyIjoiMC40NS4yIiwiTm9kZSBuYW1lIGZvciBTJlIiOiJNaW5pTWF4SDNJbWFnZUNvbmRpdGlvbmluZyJ9LCJ3aWRnZXRzX3ZhbHVlcyI6WyIiLDMxMDQsMzEwNF0sIndpZGdldHNfdmFsdWVzX25hbWVkIjp7InByb21wdCI6IiIsIndpZHRoIjozMTA0LCJoZWlnaHQiOjMxMDR9fSx7ImlkIjo5LCJ0eXBlIjoiQ29uZGl0aW9uaW5nWmVyb091dCIsInBvcyI6WzM4Ljc4NTk4NTA2NTEzMTE0LDMyNDkuNzIzNDMwNDExNzg4M10sInNpemUiOlszMDAsNTBdLCJmbGFncyI6e30sIm9yZGVyIjoxMSwibW9kZSI6MCwiaW5wdXRzIjpbeyJuYW1lIjoiY29uZGl0aW9uaW5nIiwidHlwZSI6IkNPTkRJVElPTklORyIsImxpbmsiOjZ9XSwib3V0cHV0cyI6W3sibmFtZSI6IkNPTkRJVElPTklORyIsInR5cGUiOiJDT05ESVRJT05JTkciLCJsaW5rcyI6WzEwXX1dLCJwcm9wZXJ0aWVzIjp7ImNucl9pZCI6ImNvbWZ5LWNvcmUiLCJ2ZXIiOiIwLjQ1LjIiLCJOb2RlIG5hbWUgZm9yIFMmUiI6IkNvbmRpdGlvbmluZ1plcm9PdXQifX0seyJpZCI6MTAsInR5cGUiOiJMb2FkSW1hZ2UiLCJwb3MiOlstMTAyNi45NzEyOTI2ODcxODQsMzkxMi4zNzM2MzAzODcxMDZdLCJzaXplIjpbMjcwLDMxNC4wMDAwMDAwMDAwMDA0NV0sImZsYWdzIjp7fSwib3JkZXIiOjUsIm1vZGUiOjAsImlucHV0cyI6W10sIm91dHB1dHMiOlt7Im5hbWUiOiJJTUFHRSIsInR5cGUiOiJJTUFHRSIsImxpbmtzIjpbN119LHsibmFtZSI6Ik1BU0siLCJ0eXBlIjoiTUFTSyIsImxpbmtzIjpbXX1dLCJwcm9wZXJ0aWVzIjp7ImNucl9pZCI6ImNvbWZ5LWNvcmUiLCJ2ZXIiOiIwLjQ2LjAiLCJOb2RlIG5hbWUgZm9yIFMmUiI6IkxvYWRJbWFnZSJ9LCJ3aWRnZXRzX3ZhbHVlcyI6WyJRUTIwMjYwOTA0LTIwMzkwMi5wbmciLCJpbWFnZSJdLCJ3aWRnZXRzX3ZhbHVlc19uYW1lZCI6eyJpbWFnZSI6IlFRMjAyNjA5MDQtMjAzOTAyLnBuZyIsInVwbG9hZCI6ImltYWdlIn19LHsiaWQiOjExLCJ0eXBlIjoiTGF5ZXJVdGlsaXR5OiBJbWFnZVNjYWxlQnlBc3BlY3RSYXRpbyBWMiIsInBvcyI6Wy03MDAuMTYzMzMwMjg4MzI5MiwzOTEwLjYwMDY4MTY5MjAzNzZdLCJzaXplIjpbMjUwLjc2NTM0OTQ5ODE1Njc1LDMzMF0sImZsYWdzIjp7fSwib3JkZXIiOjksIm1vZGUiOjAsImlucHV0cyI6W3sibmFtZSI6ImltYWdlIiwic2hhcGUiOjcsInR5cGUiOiJJTUFHRSIsImxpbmsiOjd9LHsibmFtZSI6Im1hc2siLCJzaGFwZSI6NywidHlwZSI6Ik1BU0siLCJsaW5rIjpudWxsfV0sIm91dHB1dHMiOlt7Im5hbWUiOiJpbWFnZSIsInR5cGUiOiJJTUFHRSIsImxpbmtzIjpbMjBdfSx7Im5hbWUiOiJtYXNrIiwidHlwZSI6Ik1BU0siLCJsaW5rcyI6W119LHsibmFtZSI6Im9yaWdpbmFsX3NpemUiLCJ0eXBlIjoiQk9YIiwibGlua3MiOltdfSx7Im5hbWUiOiJ3aWR0aCIsInR5cGUiOiJJTlQiLCJsaW5rcyI6W119LHsibmFtZSI6ImhlaWdodCIsInR5cGUiOiJJTlQiLCJsaW5rcyI6W119XSwicHJvcGVydGllcyI6eyJjbnJfaWQiOiJjb21meXVpX2xheWVyc3R5bGUiLCJ2ZXIiOiJkOTRiZWYxZWU1ZWQzNjU2ZjVmZjFiYjI4MzBhNGZmZDk0ZjQwOTM1IiwiTm9kZSBuYW1lIGZvciBTJlIiOiJMYXllclV0aWxpdHk6IEltYWdlU2NhbGVCeUFzcGVjdFJhdGlvIFYyIn0sIndpZGdldHNfdmFsdWVzIjpbIm9yaWdpbmFsIiwxLDEsImxldHRlcmJveCIsImxhbmN6b3MiLCI4IiwibG9uZ2VzdCIsMTAyNCwiIzAwMDAwMCJdLCJ3aWRnZXRzX3ZhbHVlc19uYW1lZCI6eyJhc3BlY3RfcmF0aW8iOiJvcmlnaW5hbCIsInByb3BvcnRpb25hbF93aWR0aCI6MSwicHJvcG9ydGlvbmFsX2hlaWdodCI6MSwiZml0IjoibGV0dGVyYm94IiwibWV0aG9kIjoibGFuY3pvcyIsInJvdW5kX3RvX211bHRpcGxlIjoiOCIsInNjYWxlX3RvX3NpZGUiOiJsb25nZXN0Iiwic2NhbGVfdG9fbGVuZ3RoIjoxMDI0LCJiYWNrZ3JvdW5kX2NvbG9yIjoiIzAwMDAwMCJ9LCJjb2xvciI6InJnYmEoMzgsIDczLCAxMTYsIDAuNykifSx7ImlkIjoxMiwidHlwZSI6IktTYW1wbGVyIiwicG9zIjpbNjE2LjM5NDIzOTA4NjgxODYsMjcwMi4wNjc0NTI1MzgzMjQ3XSwic2l6ZSI6WzMyMCw0ODBdLCJmbGFncyI6e30sIm9yZGVyIjoxMiwibW9kZSI6MCwiaW5wdXRzIjpbeyJuYW1lIjoibW9kZWwiLCJ0eXBlIjoiTU9ERUwiLCJsaW5rIjo4fSx7Im5hbWUiOiJwb3NpdGl2ZSIsInR5cGUiOiJDT05ESVRJT05JTkciLCJsaW5rIjo5fSx7Im5hbWUiOiJuZWdhdGl2ZSIsInR5cGUiOiJDT05ESVRJT05JTkciLCJsaW5rIjoxMH0seyJuYW1lIjoibGF0ZW50X2ltYWdlIiwidHlwZSI6IkxBVEVOVCIsImxpbmsiOjExfV0sIm91dHB1dHMiOlt7Im5hbWUiOiJMQVRFTlQiLCJ0eXBlIjoiTEFURU5UIiwibGlua3MiOlsxMl19XSwicHJvcGVydGllcyI6eyJjbnJfaWQiOiJjb21meS1jb3JlIiwidmVyIjoiMC40NS4yIiwiTm9kZSBuYW1lIGZvciBTJlIiOiJLU2FtcGxlciJ9LCJ3aWRnZXRzX3ZhbHVlcyI6WzQyNjcyOTIzODYxMzA5MSwicmFuZG9taXplIiw2LDEsImV1bGVyIiwic2ltcGxlIiwxXSwid2lkZ2V0c192YWx1ZXNfbmFtZWQiOnsic2VlZCI6NDI2NzI5MjM4NjEzMDkxLCJjb250cm9sX2FmdGVyX2dlbmVyYXRlIjoicmFuZG9taXplIiwic3RlcHMiOjYsImNmZyI6MSwic2FtcGxlcl9uYW1lIjoiZXVsZXIiLCJzY2hlZHVsZXIiOiJzaW1wbGUiLCJkZW5vaXNlIjoxfX0seyJpZCI6MTMsInR5cGUiOiJWUkFNQ2xlYW51cCIsInBvcyI6WzExMjQuNjQ4MzM0MzEzMDQ2NSwyNzUxLjg5ODUxMTM1ODk2Nl0sInNpemUiOlszNDIuMzUxMzM1NjA5NzIzNyw4Ml0sImZsYWdzIjp7ImNvbGxhcHNlZCI6ZmFsc2V9LCJvcmRlciI6MTMsIm1vZGUiOjAsImlucHV0cyI6W3sibmFtZSI6ImFueXRoaW5nIiwic2hhcGUiOjcsInR5cGUiOiIqIiwibGluayI6MTJ9XSwib3V0cHV0cyI6W3sibmFtZSI6Im91dHB1dCIsInR5cGUiOiIqIiwibGlua3MiOlsxM119XSwicHJvcGVydGllcyI6eyJjbnJfaWQiOiJjb21meXVpX21lbW9yeV9jbGVhbnVwIiwidmVyIjoiMS4xLjMiLCJOb2RlIG5hbWUgZm9yIFMmUiI6IlZSQU1DbGVhbnVwIn0sIndpZGdldHNfdmFsdWVzIjpbdHJ1ZSx0cnVlXSwid2lkZ2V0c192YWx1ZXNfbmFtZWQiOnsib2ZmbG9hZF9tb2RlbCI6dHJ1ZSwib2ZmbG9hZF9jYWNoZSI6dHJ1ZX19LHsiaWQiOjE0LCJ0eXBlIjoiVkFFRGVjb2RlVGlsZWQiLCJwb3MiOlsxMTI5LjI1NjQ0NzQ5NjEyOTgsMjkwNC40OTY4MzYxODk3NDVdLCJzaXplIjpbMjUzLjA2MDYwMjM2MTUwNTk3LDE3Mi40MjQyMDU0MzMyMzg1XSwiZmxhZ3MiOnt9LCJvcmRlciI6MTQsIm1vZGUiOjAsImlucHV0cyI6W3sibmFtZSI6InNhbXBsZXMiLCJ0eXBlIjoiTEFURU5UIiwibGluayI6MTN9LHsibmFtZSI6InZhZSIsInR5cGUiOiJWQUUiLCJsaW5rIjoxNH1dLCJvdXRwdXRzIjpbeyJuYW1lIjoiSU1BR0UiLCJ0eXBlIjoiSU1BR0UiLCJsaW5rcyI6WzE1XX1dLCJwcm9wZXJ0aWVzIjp7ImNucl9pZCI6ImNvbWZ5LWNvcmUiLCJ2ZXIiOiIwLjExLjEiLCJOb2RlIG5hbWUgZm9yIFMmUiI6IlZBRURlY29kZVRpbGVkIn0sIndpZGdldHNfdmFsdWVzIjpbMjU2LDMyLDMyLDhdLCJ3aWRnZXRzX3ZhbHVlc19uYW1lZCI6eyJ0aWxlX3NpemUiOjI1Niwib3ZlcmxhcCI6MzIsInRlbXBvcmFsX3NpemUiOjMyLCJ0ZW1wb3JhbF9vdmVybGFwIjo4fX0seyJpZCI6MTUsInR5cGUiOiJWUkFNX0RlYnVnIiwicG9zIjpbMTEzNS41MzYwNDc3MjkzODIzLDMxMzMuMjg1Mjg2NjQ0OTQ3NV0sInNpemUiOlszMTAuMTIxMjQ5MTEyMjE2LDE4Nl0sImZsYWdzIjp7fSwib3JkZXIiOjE1LCJtb2RlIjowLCJpbnB1dHMiOlt7Im5hbWUiOiJhbnlfaW5wdXQiLCJzaGFwZSI6NywidHlwZSI6IioiLCJsaW5rIjoxNX0seyJuYW1lIjoiaW1hZ2VfcGFzcyIsInNoYXBlIjo3LCJ0eXBlIjoiSU1BR0UiLCJsaW5rIjpudWxsfSx7Im5hbWUiOiJtb2RlbF9wYXNzIiwic2hhcGUiOjcsInR5cGUiOiJNT0RFTCIsImxpbmsiOm51bGx9XSwib3V0cHV0cyI6W3sibmFtZSI6ImFueV9vdXRwdXQiLCJ0eXBlIjoiKiIsImxpbmtzIjpbMTZdfSx7Im5hbWUiOiJpbWFnZV9wYXNzIiwidHlwZSI6IklNQUdFIiwibGlua3MiOltdfSx7Im5hbWUiOiJtb2RlbF9wYXNzIiwidHlwZSI6Ik1PREVMIiwibGlua3MiOltdfSx7ImxhYmVsIjoiMTIsNTIzLDU3OSw5MDQgICBmcmVlbWVtX2JlZm9yZSIsIm5hbWUiOiJmcmVlbWVtX2JlZm9yZSIsInR5cGUiOiJJTlQiLCJsaW5rcyI6W119LHsibGFiZWwiOiIxMiw1MjMsNzUyLDQ0OCAgICAgIGZyZWVtZW1fYWZ0ZXIiLCJuYW1lIjoiZnJlZW1lbV9hZnRlciIsInR5cGUiOiJJTlQiLCJsaW5rcyI6W119XSwicHJvcGVydGllcyI6eyJjbnJfaWQiOiJjb21meXVpLWtqbm9kZXMiLCJ2ZXIiOiI5YjU2NTM1NGUzMmE3MDYxMjk2YWM1OThkOWM3ZjQ0NWUxMGQzMWVkIiwiTm9kZSBuYW1lIGZvciBTJlIiOiJWUkFNX0RlYnVnIn0sIndpZGdldHNfdmFsdWVzIjpbdHJ1ZSx0cnVlLHRydWVdLCJ3aWRnZXRzX3ZhbHVlc19uYW1lZCI6eyJlbXB0eV9jYWNoZSI6dHJ1ZSwiZ2NfY29sbGVjdCI6dHJ1ZSwidW5sb2FkX2FsbF9tb2RlbHMiOnRydWV9fSx7ImlkIjoxNiwidHlwZSI6IlNhdmVJbWFnZSIsInBvcyI6WzE1NjguNDMxNzgzNTQ4MzQ4MiwyNzQ1LjE0MTY2MzIyNzkwOF0sInNpemUiOls1NjAsNTQwXSwiZmxhZ3MiOnt9LCJvcmRlciI6MTYsIm1vZGUiOjAsImlucHV0cyI6W3sibmFtZSI6ImltYWdlcyIsInR5cGUiOiJJTUFHRSIsImxpbmsiOjE2fV0sIm91dHB1dHMiOlt7Im5hbWUiOiJpbWFnZXMiLCJ0eXBlIjoiSU1BR0UiLCJsaW5rcyI6W119XSwicHJvcGVydGllcyI6eyJjbnJfaWQiOiJjb21meS1jb3JlIiwidmVyIjoiMC40NS4yIiwiTm9kZSBuYW1lIGZvciBTJlIiOiJTYXZlSW1hZ2UifSwid2lkZ2V0c192YWx1ZXMiOlsibWluaW1heF9oM19pbWFnZV90MmkiXSwid2lkZ2V0c192YWx1ZXNfbmFtZWQiOnsiZmlsZW5hbWVfcHJlZml4IjoibWluaW1heF9oM19pbWFnZV90MmkifX1dLCJsaW5rcyI6W1sxLDEsMCw0LDAsIkNMSVAiXSxbMiw3LDAsNiwwLCJJTUFHRSJdLFs2LDgsMCw5LDAsIkNPTkRJVElPTklORyJdLFs3LDEwLDAsMTEsMCwiSU1BR0UiXSxbOCwyLDAsMTIsMCwiTU9ERUwiXSxbOSw4LDAsMTIsMSwiQ09ORElUSU9OSU5HIl0sWzEwLDksMCwxMiwyLCJDT05ESVRJT05JTkciXSxbMTEsOCwxLDEyLDMsIkxBVEVOVCJdLFsxMiwxMiwwLDEzLDAsIkxBVEVOVCJdLFsxMywxMywwLDE0LDAsIkxBVEVOVCJdLFsxNCwzLDAsMTQsMSwiVkFFIl0sWzE1LDE0LDAsMTUsMCwiSU1BR0UiXSxbMTYsMTUsMCwxNiwwLCJJTUFHRSJdLFszLDQsMCw4LDAsIkNMSVAiXSxbNCwzLDAsOCwxLCJWQUUiXSxbNSw2LDAsOCwyLCJJTUFHRSJdLFsyMCwxMSwwLDgsMywiSU1BR0UiXSxbMTcsNSwwLDgsOCwiU1RSSU5HIl0sWzE4LDYsMyw4LDksIklOVCJdLFsxOSw2LDQsOCwxMCwiSU5UIl1dLCJncm91cHMiOltdLCJjb25maWciOnt9LCJleHRyYSI6eyJkcyI6eyJzY2FsZSI6MC41NzMwODU1MzMwMTE2ODIsIm9mZnNldCI6WzE1NzkuNDMzMjU0NzQwMDQ0LC0yMjgxLjI1MjE4NTYwNDI2XX0sImZyb250ZW5kVmVyc2lvbiI6IjEuNTkuNiIsIlZIU19sYXRlbnRwcmV2aWV3IjpmYWxzZSwiVkhTX2xhdGVudHByZXZpZXdyYXRlIjowLCJWSFNfTWV0YWRhdGFJbWFnZSI6dHJ1ZSwiVkhTX0tlZXBJbnRlcm1lZGlhdGUiOnRydWV9LCJ2ZXJzaW9uIjowLjQsInNlZWRfd2lkZ2V0cyI6eyIxMiI6MH0sIndpZGdldF9pZHhfbWFwIjp7IjEyIjp7InNlZWQiOjAsInNhbXBsZXJfbmFtZSI6NCwic2NoZWR1bGVyIjo1fX19" title="导出 UI 工作流 JSON（16 个节点，已剔除 LogCollection），拖回 ComfyUI 画布即可展开">工作流导出</a></h2><div class="panel"><table class="kv"><tr><th class="k">画布节点数（UI 图）</th><td>17</td></tr><tr><th class="k">实际执行节点数（API 图）</th><td>17</td></tr><tr><th class="k">节点状态分布（UI 图 mode）</th><td>active 17 · muted 0 · bypassed 0</td></tr><tr><th class="k">被 bypass 的节点</th><td>无</td></tr><tr><th class="k">被 mute 的节点</th><td>无</td></tr></table><details class="fold"><summary>节点详情 <span class="dim">17 个节点 · 6 个插件</span></summary><table class="nb"><tr class="hd"><th>节点名</th><th>插件名</th><th class="v">插件版本</th></tr><tr><td data-l="节点名"><code>CLIPLoader</code> <span class="dim">加载CLIP</span></td><td data-l="插件名"><code>comfy-core</code></td><td data-l="插件版本"><code>0.42.5</code></td></tr><tr><td data-l="节点名"><code>ConditioningZeroOut</code> <span class="dim">条件零化</span></td><td data-l="插件名"><code>comfy-core</code></td><td data-l="插件版本"><code>0.45.2</code></td></tr><tr><td data-l="节点名"><code>KSampler</code> <span class="dim">K采样器</span></td><td data-l="插件名"><code>comfy-core</code></td><td data-l="插件版本"><code>0.45.2</code></td></tr><tr><td data-l="节点名"><code>LoadImage</code> <span class="dim">加载图像</span></td><td data-l="插件名"><code>comfy-core</code></td><td data-l="插件版本"><code>0.46.0</code></td></tr><tr><td data-l="节点名"><code>LoadImage</code> <span class="dim">加载图像</span></td><td data-l="插件名"><code>comfy-core</code></td><td data-l="插件版本"><code>0.46.0</code></td></tr><tr><td data-l="节点名"><code>MiniMaxH3ImageConditioning</code> <span class="dim">MiniMax H3 图像条件化</span></td><td data-l="插件名"><code>comfy-core</code></td><td data-l="插件版本"><code>0.45.2</code></td></tr><tr><td data-l="节点名"><code>PrimitiveStringMultiline</code> <span class="dim">Text (user_prompt)</span></td><td data-l="插件名"><code>comfy-core</code></td><td data-l="插件版本"><code>0.45.2</code></td></tr><tr><td data-l="节点名"><code>SaveImage</code> <span class="dim">保存图像</span></td><td data-l="插件名"><code>comfy-core</code></td><td data-l="插件版本"><code>0.45.2</code></td></tr><tr><td data-l="节点名"><code>VAEDecodeTiled</code> <span class="dim">VAE解码（分块）</span></td><td data-l="插件名"><code>comfy-core</code></td><td data-l="插件版本"><code>0.11.1</code></td></tr><tr><td data-l="节点名"><code>ClipProjApply</code></td><td data-l="插件名"><code>ComfyUI-ClipProj</code> <span class="dim">nicolab28</span></td><td data-l="插件版本"><code title="c01ba8fb8f41b4f2094dbd0b185cdc238fb6134c">c01ba8fb8f41…</code></td></tr><tr><td data-l="节点名"><code>LogCollection</code></td><td data-l="插件名"><code>ComfyUI-FullLog</code></td><td data-l="插件版本"><span class="dim">—</span></td></tr><tr><td data-l="节点名"><code>DiffusionModelLoaderKJ</code></td><td data-l="插件名"><code>comfyui-kjnodes</code></td><td data-l="插件版本"><code title="aa2b5ea5e7f61b51f5d26d726f23c1d74e951016">aa2b5ea5e7f6…</code></td></tr><tr><td data-l="节点名"><code>VAELoaderKJ</code></td><td data-l="插件名"><code>comfyui-kjnodes</code></td><td data-l="插件版本"><code title="50a0837f9aea602b184bbf6dbabf66ed2c7a1d22">50a0837f9aea…</code></td></tr><tr><td data-l="节点名"><code>VRAM_Debug</code></td><td data-l="插件名"><code>comfyui-kjnodes</code></td><td data-l="插件版本"><code title="9b565354e32a7061296ac598d9c7f445e10d31ed">9b565354e32a…</code></td></tr><tr><td data-l="节点名"><code>LayerUtility: ImageScaleByAspectRatio V2</code> <span class="dim">图层工具：按宽高比缩放 V2</span></td><td data-l="插件名"><code>comfyui_layerstyle</code></td><td data-l="插件版本"><code title="d94bef1ee5ed3656f5ff1bb2830a4ffd94f40935">d94bef1ee5ed…</code></td></tr><tr><td data-l="节点名"><code>LayerUtility: ImageScaleByAspectRatio V2</code> <span class="dim">图层工具：按宽高比缩放 V2</span></td><td data-l="插件名"><code>comfyui_layerstyle</code></td><td data-l="插件版本"><code title="d94bef1ee5ed3656f5ff1bb2830a4ffd94f40935">d94bef1ee5ed…</code></td></tr><tr><td data-l="节点名"><code>VRAMCleanup</code></td><td data-l="插件名"><code>comfyui_memory_cleanup</code></td><td data-l="插件版本"><code>1.1.3</code></td></tr></table></details></div>
+<h2>运行环境</h2><div class="panel"><table class="kv"><tr><th class="k">系统</th><td>Windows-11-10.0.22000-SP0 · AMD64 · build 10.0.22000</td></tr><tr><th class="k">物理内存</th><td>63.9 GB <span class="dim">(64G)</span></td></tr><tr><th class="k">GPU</th><td>Intel(R) Arc(TM) B580 Graphics <span class="dim">(0xE20B, 11946.2 MB, driver 1.17.39894+6)</span></td></tr><tr><th class="k">平台</th><td>Intel(R) oneAPI Unified Runtime over Level-Zero V2</td></tr><tr><th class="k">计算单元</th><td>160</td></tr><tr><th class="k">Python</th><td>3.13.11</td></tr><tr><th class="k">torch</th><td>2.15.0+xpu <span class="dim">(xpu available: True, devices: 1)</span></td></tr><tr><th class="k">ComfyUI</th><td>0.46.0 <span class="dim">preview=Latent2RGB</span></td></tr><tr><th class="k">插件数</th><td>69</td></tr><tr class="grp"><th colspan="2">加速栈</th></tr><tr><th>加速方案</th><td><b>omnixpu加速</b> <span class="dim">（工作流执行日志中 omni_xpu_kernel 0.2.0b3+torch215.bmg 生效，且出现 [OmniXPU] 插件标记）</span></td></tr><tr><th>OmniXPU 内核</th><td><code>omni_xpu_kernel 0.2.0b3+torch215.bmg</code> <span class="dim">已生效：sdp, norm, rotary, linear_fp8, int8, layout</span></td></tr><tr><th>OmniXPU 插件</th><td><code>ComfyUI-OmniXPU</code> <span class="dim">16 个 adapter applied、4 个 skipped</span></td></tr><tr><th>aimdo</th><td><code>comfy-aimdo 0.6.0</code> <span class="muted">未启用</span> <span class="dim">（disabled by env）</span></td></tr><tr><th>kitchen XPU</th><td><code>comfy-kitchen 0.2.41</code> <span class="muted">xpu 后端可用</span> <span class="dim">（adaln, apply_rope, apply_rope1, apply_rope1_… 共 50 项）</span></td></tr></table><div class="dim" style="margin-top:8px">加速方案 = 内核生效行 + 插件 <code>[OmniXPU]</code> 标记，两处都在工作流执行日志里才判「omnixpu加速」；aimdo / kitchen 是可选栈，不影响方案判定，也不进文件名。</div><details class="fold"><summary>运行时环境变量 <span class="dim">18 项</span></summary><table><tr><th style="width:230px">变量名</th><th>值</th></tr><tr><td><code>OCL_ICD_FILENAMES</code></td><td class="mono">;F:\Intel-oneAPI\compiler\latest\bin\intelocl64.dll</td></tr><tr><td><code>OMNIXPU_DEBUG</code></td><td class="mono">0</td></tr><tr><td><code>OMNIXPU_ENABLE</code></td><td class="mono">1</td></tr><tr><td><code>OMNIXPU_QWEN_IMAGE21_QKV</code></td><td class="mono">1</td></tr><tr><td><code>ONEAPI_CLANG_VERSION</code></td><td class="mono">23</td></tr><tr><td><code>ONEAPI_DEVICE_SELECTOR</code></td><td class="mono">level_zero:0</td></tr><tr><td><code>ONEAPI_PATH</code></td><td class="mono">F:\Intel-oneAPI</td></tr><tr><td><code>ONEAPI_ROOT</code></td><td class="mono">F:\Intel-oneAPI</td></tr><tr><td><code>SYCL_CACHE_MAX_SIZE</code></td><td class="mono">8192</td></tr><tr><td><code>SYCL_CACHE_THRESHOLD</code></td><td class="mono">7</td></tr><tr><td><code>SYCL_DEVICE_FILTER</code></td><td class="mono">level_zero</td></tr><tr><td><code>SYCL_PI_LEVEL_ZERO_DEVICE_SCOPE_EVENTS</code></td><td class="mono">0</td></tr><tr><td><code>SYCL_PI_LEVEL_ZERO_TRACK_INDIRECT_ACCESS_MEMORY</code></td><td class="mono">1</td></tr><tr><td><code>SYCL_PI_LEVEL_ZERO_USE_IMMEDIATE_COMMANDLISTS</code></td><td class="mono">1</td></tr><tr><td><code>UR_L0_ENABLE_RELAXED_ALLOCATION_LIMITS</code></td><td class="mono">1</td></tr><tr><td><code>UR_L0_USE_IMMEDIATE_COMMANDLISTS</code></td><td class="mono">1</td></tr><tr><td><code>ZE_DEVICE_SLEEP</code></td><td class="mono">0</td></tr><tr><td><code>ZE_ENABLE_PCI_ID_DEVICE_ORDER</code></td><td class="mono">1</td></tr></table></details></div>
+<h2>时间轴</h2><div class="panel"><table><tr><th>时刻</th><th class="numl">相对起点 s</th><th class="numl">增量 s</th><th>事件</th></tr><tr><td class="mono">23:33:18.162</td><td class="numl">0.03</td><td class="numl">0.03</td><td class="dim">下发存储策略 · minimax_h3_image_pruned_int8_convrot.safetensors</td></tr><tr><td class="mono">23:33:19.150</td><td class="numl">1.01</td><td class="numl">0.98</td><td class="dim">下发存储策略 · minimax_h3_image_vae_fp16.safetensors</td></tr><tr><td class="mono">23:33:19.825</td><td class="numl">1.69</td><td class="numl">0.68</td><td class="dim">下发存储策略 · qwen3vl_4b_int8_convrot.safetensors</td></tr><tr><td class="mono">23:33:20.102</td><td class="numl">1.97</td><td class="numl">0.28</td><td class="">请求加载 MiniMaxH3ImageVAE</td></tr><tr><td class="mono">23:33:20.167</td><td class="numl">2.03</td><td class="numl">0.06</td><td class="dim">minimax_h3_image_vae_fp16.safetensors 就绪（1114 MB）</td></tr><tr><td class="mono">23:33:26.248</td><td class="numl">8.11</td><td class="numl">6.08</td><td class="dim">minimax_h3_image_vae_fp16.safetensors 就绪（1114 MB）</td></tr><tr><td class="mono">23:33:26.821</td><td class="numl">8.68</td><td class="numl">0.57</td><td class="">请求加载 Qwen3VLTEModel_</td></tr><tr><td class="mono">23:33:26.970</td><td class="numl">8.83</td><td class="numl">0.15</td><td class="dim">qwen3vl_4b_int8_convrot.safetensors 就绪（4632 MB）</td></tr><tr><td class="mono">23:33:55.490</td><td class="numl">37.35</td><td class="numl">28.52</td><td class="">请求加载 MiniMaxH3Image</td></tr><tr><td class="mono">23:33:55.646</td><td class="numl">37.51</td><td class="numl">0.16</td><td class="dim">MiniMaxH3Image 就绪（19999 MB）</td></tr><tr><td class="mono">23:35:39.486</td><td class="numl">141.35</td><td class="numl">103.84</td><td class="">请求加载 MiniMaxH3ImageVAE</td></tr><tr><td class="mono">23:35:39.528</td><td class="numl">141.39</td><td class="numl">0.04</td><td class="dim">minimax_h3_image_vae_fp16.safetensors 就绪（1114 MB）</td></tr><tr><td class="mono">23:35:49.173</td><td class="numl">151.04</td><td class="numl">9.65</td><td class="dim">执行完成</td></tr></table></div>
+<h2>原始日志<span class="hint">内嵌，不依赖 user/comfyui.log</span></h2><div class="panel"><div class="dim" style="margin-bottom:8px">来源 <code>user/comfyui.log</code> · 46 行 · 日志自报耗时 151.23 s</div><details open><summary>原始日志全文</summary><pre class="log"><span class="ln ">[2026-11-21 23:33:18.137] Found quantization metadata version 1</span><span class="ln ">[2026-11-21 23:33:18.138] Detected mixed precision quantization</span><span class="ln ">[2026-11-21 23:33:18.138] Using mixed precision operations</span><span class="ln ">[2026-11-21 23:33:18.138] Native ops: int8_tensorwise, asym_w4a8_int8 , emulated ops: convrot_w4a4, float8_e5m2, w6a8_int8, nvfp4, mxfp8, float8_e4m3fn</span><span class="ln ">[2026-11-21 23:33:18.157] model weight dtype torch.bfloat16, manual cast: torch.bfloat16</span><span class="ln ">[2026-11-21 23:33:18.161] model_type FLOW</span><span class="ln ">[2026-11-21 23:33:18.162] Model storage policy: fast_disk=False paths=[&#x27;E:\\model\\H3_diff\\minimax_h3_image_pruned_int8_convrot.safetensors&#x27;]</span><span class="ln ">[2026-11-21 23:33:18.887] # 😺dzNodes: LayerStyle -&gt; ImageScaleByAspectRatio V2 Processed 1 image(s).</span><span class="ln ">[2026-11-21 23:33:19.122] # 😺dzNodes: LayerStyle -&gt; ImageScaleByAspectRatio V2 Processed 1 image(s).</span><span class="ln ">[2026-11-21 23:33:19.150] Model storage policy: fast_disk=False paths=[&#x27;E:\\model\\H3_vae\\minimax_h3_image_vae_fp16.safetensors&#x27;]</span><span class="ln ">[2026-11-21 23:33:19.414] VAE load device: xpu:0, offload device: cpu, dtype: torch.float16</span><span class="ln ">[2026-11-21 23:33:19.459] Found quantization metadata version 1</span><span class="ln ">[2026-11-21 23:33:19.460] Using MixedPrecisionOps for text encoder</span><span class="ln ">[2026-11-21 23:33:19.825] Model storage policy: fast_disk=False paths=[&#x27;E:\\model\\qwen3vl_4b_int8_convrot.safetensors&#x27;]</span><span class="ln ">[2026-11-21 23:33:19.889] CLIP/text encoder model load device: xpu:0, offload device: cpu, current: cpu, dtype: torch.float16</span><span class="ln ">[2026-11-21 23:33:19.911] [ClipProj] mmh3-4b-ClipProj-v3.1.safetensors | tap 24 | 2560 -&gt; 5120 | cos_test 0.6874</span><span class="ln ">[2026-11-21 23:33:20.101] [OmniXPU] AIMDO inference budget: devices=0 minimum=242.9MiB</span><span class="ln hl">[2026-11-21 23:33:20.102] Requested to load MiniMaxH3ImageVAE</span><span class="ln ">[2026-11-21 23:33:20.167] Model MiniMaxH3ImageVAE prepared for dynamic VRAM loading. 1114MB Staged. 0 patches attached. Force pre-loaded 104 weights: 153 KB.</span><span class="ln ">[2026-11-21 23:33:26.179] [OmniXPU] AIMDO inference budget: devices=0 minimum=235.9MiB</span><span class="ln ">[2026-11-21 23:33:26.248] Model MiniMaxH3ImageVAE prepared for dynamic VRAM loading. 1114MB Staged. 0 patches attached. Force pre-loaded 104 weights: 153 KB.</span><span class="ln hl">[2026-11-21 23:33:26.821] Requested to load Qwen3VLTEModel_</span><span class="ln ">[2026-11-21 23:33:26.970] Model Qwen3VLTEModel_ prepared for dynamic VRAM loading. 4632MB Staged. 0 patches attached. Force pre-loaded 249 weights: 627 KB.</span><span class="ln ">[2026-11-21 23:33:55.490] [OmniXPU] AIMDO inference budget: devices=0 minimum=17.1MiB</span><span class="ln hl">[2026-11-21 23:33:55.490] Requested to load MiniMaxH3Image</span><span class="ln ">[2026-11-21 23:33:55.646] Model MiniMaxH3Image prepared for dynamic VRAM loading. 19999MB Staged. 0 patches attached. Force pre-loaded 210 weights: 1175 KB.</span><span class="ln ">[2026-11-21 23:33:55.981] [OmniXPU] experimental capability-driven BMG D128 CUTE route enabled; set OMNI_ATTN_BACKEND=torch to disable it if this workflow shows an issue</span><span class="ln ">[2026-11-21 23:33:55.981] [OmniXPU] attention CUTE_BHLD_D128 #1: heads=56 q=2817 kv=2817 dtype=torch.bfloat16</span><span class="ln ">[2026-11-21 23:33:56.417] [OmniXPU] attention CUTE_BHLD_D128 #2: heads=56 q=2817 kv=2817 dtype=torch.bfloat16</span><span class="ln ">[2026-11-21 23:33:56.663] [OmniXPU] attention CUTE_BHLD_D128 #3: heads=56 q=2817 kv=2817 dtype=torch.bfloat16</span><span class="ln ">[2026-11-21 23:35:37.509] 100%|████████████████████████████████████████████████████████████████████████████████████| 6/6 [00:32&lt;00:00,  5.39s/it]100%|████████████████████████████████████████████████████████████████████████████████████| 6/6 [00:32&lt;00:00,  5.45s/it]</span><span class="ln ">[2026-11-21 23:35:39.475] VRAM清理完成 [卸载模型: True, 清空缓存: True]</span><span class="ln ">[2026-11-21 23:35:39.486] [OmniXPU] AIMDO inference budget: devices=0 minimum=217.3MiB</span><span class="ln hl">[2026-11-21 23:35:39.486] Requested to load MiniMaxH3ImageVAE</span><span class="ln ">[2026-11-21 23:35:39.528] Model MiniMaxH3ImageVAE prepared for dynamic VRAM loading. 1114MB Staged. 0 patches attached. Force pre-loaded 104 weights: 153 KB.</span><span class="ln ">[2026-11-21 23:35:39.713] [OmniXPU] attention fallback: batch=4 (seq=261)</span><span class="ln ">[2026-11-21 23:35:40.970] [OmniXPU] attention fallback: batch=4 (seq=261)</span><span class="ln ">[2026-11-21 23:35:41.273] [OmniXPU] attention fallback: batch=4 (seq=261)</span><span class="ln ">[2026-11-21 23:35:41.566] [OmniXPU] attention fallback: batch=4 (seq=261)</span><span class="ln ">[2026-11-21 23:35:41.851] [OmniXPU] attention fallback: batch=4 (seq=261)</span><span class="ln ">[2026-11-21 23:35:48.554] VRAMdebug: free memory before: 12,523,579,904</span><span class="ln ">[2026-11-21 23:35:48.944] VRAMdebug: free memory after: 12,523,752,448</span><span class="ln ">[2026-11-21 23:35:48.944] VRAMdebug: freed memory: 172,544</span><span class="ln hl2">[2026-11-21 23:35:49.173] Prompt executed in 151.23 seconds</span></pre></details></div>
+<footer><span>schema comfy-full-log/1</span><span>id <code>fulllog-9d32d804-e99a-4513-825e-1ed5fb2ae6dc-minimax_h3_image_t2i_00029_.png</code></span><span>run_id <code>9d32d804-e99a-4513-825e-1ed5fb2ae6dc</code></span><span>生成于 2026-11-21 23:42:28</span><span>env_hash <code>dd09d1469478d87b</code></span><span>config_hash <code>95317dd61bc0b014</code></span><span>点此返回同目录 JSON：<code>202611212333_H3_image_Edit_双图编辑int8_TE4b优化.full_log.json</code></span></footer></main></body></html>
