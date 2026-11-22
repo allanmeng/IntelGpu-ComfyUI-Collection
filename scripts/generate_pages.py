@@ -168,27 +168,52 @@ def nav_html(active, prefix=""):
     return "\n".join(out)
 
 
-def badge_html(tags):
-    """Tag → 徽章。
+# ---------------------------------------------------------------------------
+# index.html —— Tag 三维度体系（2026-11-22 改版）
+# ---------------------------------------------------------------------------
+# 三维度：项目派生 / 维护方 / 适用架构。**同维度同色**（Allan 定：fork 与原始同色、
+# 官方/社群/第三方同色、通用/bmg/dg2 同色），所以颜色按「维度」给，不按取值给。
+#
+# 显式标注制：README 必须写全三个维度的取值。没写的维度就没有对应 data-f-*，
+# 筛选器选中该值时这张卡不显示（Allan 明确否掉了「缺省即归类」）。
+INDEX_FACETS = (
+    # (data-f 键, 中文名, 该维度合法取值（顺序即 <option> 顺序）, 徽章 class)
+    ("derive", "项目派生", ("原始", "fork"), "badge-derive"),
+    ("owner", "维护方", ("官方", "社群", "第三方"), "badge-owner"),
+    ("arch", "适用架构", ("通用", "bmg", "dg2"), "badge-arch"),
+)
 
-    dg2 / bmg 属同一类「指定卡（特定架构）」标签，沿用原 badge-card 浅红样式。
+# 取值 → (维度键, 规范写法, 徽章 class)。比对用小写，兼容 fork/FORK/Bmg 等手写差异。
+_INDEX_FACET_OF = {}
+for _fkey, _flabel, _fvals, _fcls in INDEX_FACETS:
+    for _fv in _fvals:
+        _INDEX_FACET_OF[_fv.lower()] = (_fkey, _fv, _fcls)
+# 旧写法兼容（README 历史遗留）：指定卡 → 架构维度
+_INDEX_FACET_OF["指定卡"] = ("arch", "指定卡", "badge-arch")
+
+
+def _index_norm_tag(t):
+    """归一化单个 tag：去空白、大小写归一到规范写法；未登记的原样返回（稍后 warn）。"""
+    t = t.strip()
+    hit = _INDEX_FACET_OF.get(t.lower())
+    return hit[1] if hit else t
+
+
+def badge_html(tags):
+    """Tag → 徽章（按维度配色）。
+
     注意：此处**不可**用 `if t in cls` 过滤——曾因过滤导致 README 里的 dg2/bmg
     徽章被静默丢弃（2026-10-23 修复）。未知标签改为按默认样式渲染并打 warn。
     """
-    cls = {
-        "官方": "badge-official",
-        "社群": "badge-community",
-        "fork": "badge-fork",
-        "dg2": "badge-card",   # A 系列 / DG2
-        "bmg": "badge-card",   # B 系列 / Battlemage
-        "指定卡": "badge-card",  # 旧写法，保留兼容
-    }
     out = []
     for t in tags:
-        if t not in cls:
-            print("[warn] 未登记的 Tag：%r（已按默认样式渲染，建议补进 badge_html 映射）" % t,
+        hit = _INDEX_FACET_OF.get(t.lower())
+        if hit:
+            out.append('<span class="badge %s">%s</span>' % (hit[2], t))
+        else:
+            print("[warn] 未登记的 Tag：%r（已按默认样式渲染，建议补进 INDEX_FACETS）" % t,
                   file=sys.stderr)
-        out.append('<span class="badge %s">%s</span>' % (cls.get(t, "badge-fork"), t))
+            out.append('<span class="badge badge-unknown">%s</span>' % t)
     return "".join(out)
 
 
@@ -211,10 +236,12 @@ def _index_extract_author(body):
 
 
 def _index_extract_tags(body):
+    """抽 Tag 行。分隔符容错：半角逗号 / 中文逗号 / 顿号 / 斜杠（手写 md 易混）。"""
     for line in body:
-        m = re.match(r"^\s*Tag\s*[：:]\s*(.+?)\s*$", line)
+        m = re.match(r"^\s*Tags?\s*[：:]\s*(.+?)\s*$", line, re.I)
         if m:
-            return [t.strip() for t in m.group(1).split(",") if t.strip()]
+            parts = re.split(r"[,，、/]", m.group(1))
+            return [_index_norm_tag(t) for t in parts if t.strip()]
     return []
 
 
@@ -247,7 +274,7 @@ def _index_render_desc(body):
             continue
         if s.startswith("|"):
             continue
-        if re.match(r"^\s*(项目地址|地址|作者|维护者|Tag)\s*[：:]", s):
+        if re.match(r"^\s*(项目地址|地址|作者|维护者|Tags?)\s*[：:]", s, re.I):
             break
         if re.match(r"^[^：:\s][^：:]*?[：:]\s*https?://\S+$", s):
             break
@@ -262,6 +289,17 @@ def _index_render_desc(body):
 def _index_card(item):
     tags = item["tags"]
     updated = item.get("updated") or "—"
+    # 三个维度各出一个 data-f-<key>：该维度没有标注就不输出这个属性，
+    # 筛选器选中该值时自然跳过这张卡（显式标注制，无缺省归类）。
+    facet_attr = ""
+    for fkey, _lbl, _vals, _cls in INDEX_FACETS:
+        for t in tags:
+            hit = _INDEX_FACET_OF.get(t.lower())
+            if hit and hit[0] == fkey:
+                facet_attr += ' data-f-%s="%s"' % (fkey, _esc(hit[1]))
+                break
+    # tags 独立成行、靠右；一个 tag 都没有时整行不渲染，省掉一段空白间距
+    tags_html = ('\n      <div class="card-tags">%s</div>' % badge_html(tags)) if tags else ""
     author_html = ""
     if item.get("author"):
         name, url, label = item["author"]
@@ -270,11 +308,11 @@ def _index_card(item):
                            % (label, url, name))
         else:
             author_html = '<div class="author">%s：@%s</div>' % (label, name)
-    return """    <article class="card" data-repo="%(repo)s" data-name="%(name)s">
+    return """    <article class="card" data-repo="%(repo)s" data-name="%(name)s"%(facet)s>
       <div class="card-top">
-        <div class="card-name"><a href="%(link)s" target="_blank">%(display)s</a>%(badges)s</div>
+        <div class="card-name"><a href="%(link)s" target="_blank">%(display)s</a></div>
         <span class="updated">更新：<span class="upd-time">%(updated)s</span></span>
-      </div>
+      </div>%(tagsrow)s
       <div class="card-desc">%(desc)s</div>
       <div class="card-footer">
         %(author)s
@@ -287,11 +325,38 @@ def _index_card(item):
         "name": item["name"],
         "display": item["display"],
         "link": item["link"],
-        "badges": badge_html(tags),
+        "facet": facet_attr,
+        "tagsrow": tags_html,
         "updated": updated,
         "desc": item["desc"],
         "author": author_html,
     }
+
+
+def _index_filter_html(items):
+    """生成筛选条。三个维度**固定全出**——取值域写死在 INDEX_FACETS，不随数据漂移。
+
+    Allan 2026-11-22 定：显式标注制，某取值当前 0 命中时选项照常列出（选中即 0 条），
+    不做「取值 <2 就隐藏」。
+    """
+    groups = []
+    for fkey, flabel, fvals, _cls in INDEX_FACETS:
+        opts = ['<option value="">全部</option>']
+        for v in fvals:
+            opts.append('<option value="%s">%s</option>' % (_esc(v), _esc(v)))
+        groups.append(
+            '<label class="f-item"><span class="f-label">%s</span>'
+            '<select data-f="%s" aria-label="按%s筛选">%s</select></label>'
+            % (_esc(flabel), fkey, _esc(flabel), "".join(opts)))
+    total = len(items)
+    reset_icon = ('<svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true" '
+                  'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" '
+                  'stroke-linejoin="round"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 '
+                  '2.13-9.36L1 10"/></svg>')
+    return ('''  <div class="filter-bar" id="ix-wrap" hidden>
+    <div class="filters" id="ix-bar">%s</div>
+    <div class="filter-state" id="ix-state"><span>找到 <b id="ix-cnt">%d</b> 条</span><span>共 %d 条</span><button type="button" class="f-clear" id="ix-clear">%s重置</button></div>
+  </div>''' % ("".join(groups), total, total, reset_icon))
 
 
 INDEX_HTML = """<!DOCTYPE html>
@@ -339,7 +404,7 @@ INDEX_HTML = """<!DOCTYPE html>
   }
 
   .sort-banner {
-    margin: 28px 0 18px;
+    margin: 28px 0 16px;
     background: linear-gradient(90deg, #e8f1fb, #f0f7fd);
     border: 1px solid #c8e0f5; border-radius: 10px;
     padding: 10px 16px; font-size: 13px; color: var(--intel-blue-dark);
@@ -348,6 +413,55 @@ INDEX_HTML = """<!DOCTYPE html>
   .sort-banner .dot {
     width: 8px; height: 8px; border-radius: 50%; background: #2da44e;
     display: inline-block; vertical-align: middle; margin-right: 6px;
+  }
+
+  /* ---------- 筛选条（形态照搬 full-logs.html，三组「标签 + 下拉」+ 右侧状态） ---------- */
+  .filter-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px 18px; flex-wrap: wrap;
+    /* 下边距 = 卡片间距 16px：筛选条到首卡的距离与卡片之间完全一致 */
+    margin: 0 0 16px; padding: 10px 18px;
+    background: var(--card);
+    border: 1px solid var(--border); border-radius: 14px;
+    box-shadow: 0 1px 2px rgba(16, 42, 67, 0.05);
+  }
+  .filters { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 22px; }
+  .f-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); }
+  /* 三组标签文字等宽（4em = 4 个汉字），保证三个下拉左边缘对齐 */
+  .f-label { width: 4em; flex: none; }
+  .f-item select {
+    font: inherit; font-size: 13px; padding: 5px 10px;
+    /* 三个下拉等宽：随内容伸缩会让三项宽度不一、切值还微调 */
+    width: 108px; min-width: 88px; max-width: 40vw;
+    border: 1px solid var(--border); border-radius: 8px; background: var(--card);
+    color: var(--text); cursor: pointer;
+  }
+  .f-item select:hover { border-color: #a8cff0; }
+  .f-item select:focus { outline: 2px solid #a8cff0; outline-offset: 1px; }
+  /* 每段必须包一层 span：裸文本会成匿名 flex item，10px gap 会插进「找到 / 19 / 条」中间 */
+  .filter-state {
+    display: flex; align-items: center; gap: 10px; margin-left: auto;
+    font-size: 13px; color: var(--text-muted); font-variant-numeric: tabular-nums;
+  }
+  .filter-state b { color: var(--intel-blue-dark); font-size: 14px; }
+  /* 「重置」按 full-logs 的设计做成文字链接：无边框无底色，hover 才出浅底 */
+  .f-clear {
+    display: inline-flex; align-items: center; gap: 4px; margin-left: 2px;
+    font: inherit; font-size: 13px; line-height: 1.5; padding: 3px 7px; cursor: pointer;
+    border: 0; border-radius: 8px; background: none; color: var(--intel-blue-dark);
+  }
+  .f-clear svg { display: block; }
+  .f-clear:hover { background: #eaf3fc; }
+  .f-clear:focus-visible { outline: 2px solid #a8cff0; outline-offset: 1px; }
+  .ix-empty { text-align: center; color: var(--text-muted); font-size: 14px; padding: 40px 0; }
+  /* 这三处自己声明了 display（card=flex / filter-bar=flex / grid=grid），
+     会盖掉 [hidden] 的 UA 默认 display:none，必须显式写回来 */
+  .card[hidden], .filter-bar[hidden], .ix-empty[hidden] { display: none; }
+  /* 窄屏：下拉放开固定宽度，按内容自适应，避免 3×108px 横向挤爆 */
+  @media (max-width: 700px) {
+    .filter-bar { padding: 10px 12px; gap: 8px 12px; }
+    .filters { gap: 8px 14px; }
+    .f-item select { width: auto; max-width: 40vw; }
   }
 
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(460px, 100%), 1fr)); gap: 16px; }
@@ -368,10 +482,14 @@ INDEX_HTML = """<!DOCTYPE html>
     font-size: 11px; padding: 2px 8px; border-radius: 999px; font-weight: 500;
     white-space: nowrap;
   }
-  .badge-official { background: #e8f1fb; color: #0c447c; border: 1px solid #c8e0f5; }
-  .badge-community { background: #e6f4ea; color: #1a7f37; border: 1px solid #c3e6cb; }
-  .badge-fork { background: var(--amber-bg); color: var(--amber-text); border: 1px solid #ead9b8; }
-  .badge-card { background: #fdecea; color: #b3261e; border: 1px solid #f5c6c2; }
+  /* tags 独占一行、靠右；上下间距靠 .card 的统一 gap（10px），不单独加 margin */
+  .card-tags { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+  /* 同维度同色：颜色只用来区分「维度」，同一维度里的具体取值靠文字分辨（2026-11-22 定）
+     派生（原始/fork）→ 琥珀 · 维护方（官方/社群/第三方）→ 蓝 · 架构（通用/bmg/dg2）→ 浅红 */
+  .badge-derive { background: var(--amber-bg); color: var(--amber-text); border: 1px solid #ead9b8; }
+  .badge-owner  { background: #e8f1fb; color: #0c447c; border: 1px solid #c8e0f5; }
+  .badge-arch   { background: #fdecea; color: #b3261e; border: 1px solid #f5c6c2; }
+  .badge-unknown { background: #f3f4f6; color: var(--text-muted); border: 1px solid var(--border); }
   .updated {
     font-size: 12px; color: var(--text-muted); white-space: nowrap;
     background: #f3f4f6; border-radius: 6px; padding: 3px 8px;
@@ -418,11 +536,15 @@ __NAV__
     <span class="dot"></span> 项目按「最后更新时间」自动排序，每 2 小时刷新，下次刷新时间：<span id="next-refresh">—</span>
   </div>
 
+__FILTER__
+
   <div class="grid">
 
 __CARDS__
 
   </div>
+
+  <div class="ix-empty" id="ix-empty" hidden>没有符合筛选条件的项目。</div>
 
   <footer>
     由 <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection" target="_blank">IntelGpu-ComfyUI-Collection</a> 自动生成 ·
@@ -443,6 +565,67 @@ __CARDS__
     document.getElementById("next-refresh").textContent =
       next.getFullYear() + "年" + pad(next.getMonth() + 1) + "月" + pad(next.getDate()) +
       "日  " + pad(next.getHours()) + "时 : " + pad(next.getMinutes()) + "分 : " + pad(next.getSeconds()) + "秒";
+  })();
+</script>
+<script>
+  /* 三维度筛选：只切 hidden，不取数不渲染。无 JS 时筛选条整体 hidden、19 张卡全显示。 */
+  (function () {
+    var bar = document.getElementById('ix-bar');
+    if (!bar) return;                       // 页面没有筛选条 → 不启用
+    var cards = [].slice.call(document.querySelectorAll('.card'));
+    var sels = [].slice.call(bar.querySelectorAll('select'));
+    var cnt = document.getElementById('ix-cnt');
+    var empty = document.getElementById('ix-empty');
+
+    function keyOf(sel) { return sel.getAttribute('data-f'); }
+
+    function apply() {
+      var shown = 0;
+      cards.forEach(function (c) {
+        var ok = true;
+        for (var i = 0; i < sels.length; i++) {
+          var v = sels[i].value;
+          // 显式标注制：卡片若没有该维度的 data-f-*，选中任何取值都不命中
+          if (v && c.getAttribute('data-f-' + keyOf(sels[i])) !== v) { ok = false; break; }
+        }
+        c.hidden = !ok;
+        if (ok) shown++;
+      });
+      if (cnt) cnt.textContent = shown;
+      if (empty) empty.hidden = shown > 0;
+
+      // 反写地址栏：刷新不丢、链接可分享。file:// 下 replaceState 可能抛错，忽略即可。
+      var qs = [];
+      sels.forEach(function (s) {
+        if (s.value) qs.push(encodeURIComponent(keyOf(s)) + '=' + encodeURIComponent(s.value));
+      });
+      try {
+        history.replaceState(null, '', location.pathname + (qs.length ? '?' + qs.join('&') : ''));
+      } catch (e) {}
+    }
+
+    // 从 URL 恢复：值必须真的在 <option> 里才采用，
+    // 否则一个手改脏的参数会把筛选弄成 0 命中，看起来像页面坏了。
+    var qp = new URLSearchParams(location.search);
+    sels.forEach(function (s) {
+      var v = qp.get(keyOf(s));
+      if (!v) return;
+      for (var i = 0; i < s.options.length; i++) {
+        if (s.options[i].value === v) { s.value = v; break; }
+      }
+    });
+
+    sels.forEach(function (s) { s.addEventListener('change', apply); });
+    var clear = document.getElementById('ix-clear');
+    if (clear) clear.addEventListener('click', function () {
+      sels.forEach(function (s) { s.value = ''; });
+      apply();
+    });
+
+    // 整条一起放出来：没有 JS 时它一直是 hidden，页面直接从 sort-banner 跳到卡片
+    var wrap = document.getElementById('ix-wrap');
+    if (wrap) wrap.hidden = false;
+    apply();
   })();
 </script>
 </body>
@@ -487,6 +670,7 @@ def build_index(readme_path, token):
     gen_time = datetime.now(TZ_CN).strftime("%Y/%m/%d %H:%M:%S")
     return (INDEX_HTML
             .replace("__NAV__", nav_html("index.html"))
+            .replace("__FILTER__", _index_filter_html(items))
             .replace("__CARDS__", cards)
             .replace("__GEN_TIME__", gen_time))
 
