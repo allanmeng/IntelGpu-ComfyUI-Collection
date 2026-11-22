@@ -66,8 +66,11 @@
   }
   .filters { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 22px; }
   .f-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); }
-  /* 四组标签文字等宽（4em = 4 个汉字），保证四个下拉左边缘对齐 */
-  .f-label { width: 4em; flex: none; }
+  /* 标签宽度自适应：绝不能固定 4em。四个标签是 4/3/4/2 个汉字，
+     固定宽度会给「维护方」「特征」后面留下 1em / 2em 空白，
+     导致组内「标题 → 下拉」的视觉间隔分别为 8/21/8/34px（Allan 2026-11-22 指出）。
+     自适应后四组组内间隔统一 8px，组与组之间统一 22px（.filters column-gap）。 */
+  .f-label { flex: none; white-space: nowrap; }
   .f-item select {
     font: inherit; font-size: 13px; padding: 5px 10px;
     /* 四个下拉等宽：随内容伸缩会让各项宽度不一、切值还微调。
@@ -499,7 +502,7 @@
   <footer>
     由 <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection" target="_blank">IntelGpu-ComfyUI-Collection</a> 自动生成 ·
     <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/README.md" target="_blank">README 源文件</a> ·
-    最新生成时间：2026/11/22 18:45:59
+    最新生成时间：2026/11/22 18:51:43
   </footer>
 
 </div>
