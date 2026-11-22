@@ -176,18 +176,6 @@ Tag: 原始,社群,通用,ComfyUI插件,独立程序
 
 ---
 
-## LLM Scaler Omni
-
-LLM Scaler Omni 为生成式媒体（多媒体）工作负载提供Intel XPU 镜像。其默认镜像是一个单 XPU 的 ComfyUI 环境，其中集成了针对特定硬件目标优化的 omni_xpu_kernel 二进制文件、支持 XPU 加速的 Comfy Kitchen 后端，以及一个轻量级的 ComfyUI 接入/集成层。
-
-项目地址：https://github.com/intel/llm-scaler/tree/main/omni
-
-作者：[@xiangyuT](https://github.com/xiangyuT)
-
-Tag: 原始,官方,bmg,综合方案
-
----
-
 ## ComfyUI-OmniXPU
 
 用于激活并调度 Intel XPU (**Xe2 / BMG, Arc Pro B70**) 内核中专用的算子。作为插件，它随 ComfyUI 一同启动，在 prestartup 阶段完成 XPU 加速后端的初始化与算子路由登记，使 ComfyUI 中原本走通用路径的注意力、归一化、量化矩阵乘等计算，自动交由 XPU 专用算子执行。
