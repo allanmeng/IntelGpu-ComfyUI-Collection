@@ -185,7 +185,7 @@
 
   <div class="filter-bar" id="ix-wrap" hidden>
     <div class="filters" id="ix-bar"><label class="f-item"><span class="f-label">项目派生</span><select data-f="derive" aria-label="按项目派生筛选"><option value="">全部</option><option value="原始">原始</option><option value="fork">fork</option></select></label><label class="f-item"><span class="f-label">维护方</span><select data-f="owner" aria-label="按维护方筛选"><option value="">全部</option><option value="官方">官方</option><option value="社群">社群</option><option value="第三方">第三方</option></select></label><label class="f-item"><span class="f-label">适用架构</span><select data-f="arch" aria-label="按适用架构筛选"><option value="">全部</option><option value="通用">通用</option><option value="bmg">bmg</option><option value="dg2">dg2</option></select></label></div>
-    <div class="filter-state" id="ix-state"><span>找到 <b id="ix-cnt">19</b> 条</span><span>共 19 条</span><button type="button" class="f-clear" id="ix-clear"><svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>重置</button></div>
+    <div class="filter-state" id="ix-state"><span>找到 <b id="ix-cnt">21</b> 条</span><span>共 21 条</span><button type="button" class="f-clear" id="ix-clear"><svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>重置</button></div>
   </div>
 
   <div class="grid">
@@ -195,12 +195,42 @@
         <div class="card-name"><a href="https://github.com/intel/llm-scaler/tree/main/omni" target="_blank">LLM Scaler Omni</a></div>
         <span class="updated">更新：<span class="upd-time">2026/11/18-14:00:41</span></span>
       </div>
-      <div class="card-tags"><span class="badge badge-derive">原始</span><span class="badge badge-owner">官方</span><span class="badge badge-arch">bmg</span><span class="badge badge-unknown">ComfyUI组件</span><span class="badge badge-unknown">ComfyUI插件</span><span class="badge badge-unknown">综合方案</span></div>
+      <div class="card-tags"><span class="badge badge-derive">原始</span><span class="badge badge-owner">官方</span><span class="badge badge-arch">bmg</span><span class="badge badge-unknown">综合方案</span></div>
       <div class="card-desc">LLM Scaler Omni 为生成式媒体（多媒体）工作负载提供Intel XPU 镜像。其默认镜像是一个单 XPU 的 ComfyUI 环境，其中集成了针对特定硬件目标优化的 omni_xpu_kernel 二进制文件、支持 XPU 加速的 Comfy Kitchen 后端，以及一个轻量级的 ComfyUI 接入/集成层。</div>
       <div class="card-footer">
         <div class="author">作者：<a href="https://github.com/xiangyuT" target="_blank">@xiangyuT</a></div>
         <div class="links">
           <a class="btn btn-primary" href="https://github.com/intel/llm-scaler/tree/main/omni" target="_blank">项目地址</a>
+        </div>
+      </div>
+    </article>
+
+    <article class="card" data-repo="intel/llm-scaler" data-name="ComfyUI-OmniXPU" data-f-derive="原始" data-f-owner="官方" data-f-arch="bmg">
+      <div class="card-top">
+        <div class="card-name"><a href="https://github.com/intel/llm-scaler/tree/main/omni/ComfyUI-OmniXPU" target="_blank">ComfyUI-OmniXPU</a></div>
+        <span class="updated">更新：<span class="upd-time">2026/11/18-14:00:41</span></span>
+      </div>
+      <div class="card-tags"><span class="badge badge-derive">原始</span><span class="badge badge-owner">官方</span><span class="badge badge-arch">bmg</span><span class="badge badge-unknown">ComfyUI插件</span></div>
+      <div class="card-desc">用于激活并调度 Intel XPU (<b>Xe2 / BMG, Arc Pro B70</b>) 内核中专用的算子。作为插件，它随 ComfyUI 一同启动，在 prestartup 阶段完成 XPU 加速后端的初始化与算子路由登记，使 ComfyUI 中原本走通用路径的注意力、归一化、量化矩阵乘等计算，自动交由 XPU 专用算子执行。</div>
+      <div class="card-footer">
+        <div class="author">作者：<a href="https://github.com/xiangyuT" target="_blank">@xiangyuT</a></div>
+        <div class="links">
+          <a class="btn btn-primary" href="https://github.com/intel/llm-scaler/tree/main/omni/ComfyUI-OmniXPU" target="_blank">项目地址</a>
+        </div>
+      </div>
+    </article>
+
+    <article class="card" data-repo="intel/llm-scaler" data-name="omni-xpu-kernel" data-f-derive="原始" data-f-owner="官方" data-f-arch="bmg">
+      <div class="card-top">
+        <div class="card-name"><a href="https://github.com/intel/llm-scaler/tree/main/omni/omni_xpu_kernel" target="_blank">omni-xpu-kernel</a></div>
+        <span class="updated">更新：<span class="upd-time">2026/11/18-14:00:41</span></span>
+      </div>
+      <div class="card-tags"><span class="badge badge-derive">原始</span><span class="badge badge-owner">官方</span><span class="badge badge-arch">bmg</span><span class="badge badge-unknown">ComfyUI组件</span></div>
+      <div class="card-desc">供 llm-scaler 项目使用的原生 Intel XPU (<b>Xe2 / BMG, Arc Pro B70</b>) 内核。该软件包在精简的 PyTorch API 之下融合了 SYCL/ESIMD 内核、基于 oneDNN 的量化 GEMM，以及基于 CUTLASS-SYCL 的注意力后端。</div>
+      <div class="card-footer">
+        <div class="author">作者：<a href="https://github.com/xiangyuT" target="_blank">@xiangyuT</a></div>
+        <div class="links">
+          <a class="btn btn-primary" href="https://github.com/intel/llm-scaler/tree/main/omni/omni_xpu_kernel" target="_blank">项目地址</a>
         </div>
       </div>
     </article>
@@ -482,7 +512,7 @@
   <footer>
     由 <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection" target="_blank">IntelGpu-ComfyUI-Collection</a> 自动生成 ·
     <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/README.md" target="_blank">README 源文件</a> ·
-    最新生成时间：2026/11/22 18:00:46
+    最新生成时间：2026/11/22 18:33:15
   </footer>
 
 </div>
