@@ -252,3 +252,25 @@ Tag: fork,社群
 Tag: fork,社群,dg2
 
 ---
+
+## comfy-mono-decode-xpu
+
+Decode kernels for ComfyUI prompt enhance (TextGenerate / TextGenerateV2 with MTP) on Intel XPU (**A770（DG2 架构）**), for Qwen3.5-9B W4A8 text encoders.
+
+项目地址：https://github.com/Blackwood416/comfy-mono-decode-xpu
+
+作者：[@Blackwood416](https://github.com/Blackwood416)
+
+Tag: fork,社群,dg2
+
+---
+
+## comfy-mono-decode-xpu
+
+Decode kernels for ComfyUI prompt enhance (TextGenerate / TextGenerateV2 with MTP) on Intel XPU (**Xe2 / BMG, Arc Pro B70**), for Qwen3.5-9B W4A8 text encoders.
+
+项目地址：https://github.com/xiangyuT/comfy-mono-decode-xpu
+
+作者：[@xiangyuT](https://github.com/xiangyuT)
+
+Tag: 官方,bmg
