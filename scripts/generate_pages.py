@@ -174,14 +174,23 @@ def nav_html(active, prefix=""):
 # 三维度：项目派生 / 维护方 / 适用架构。**同维度同色**（Allan 定：fork 与原始同色、
 # 官方/社群/第三方同色、通用/bmg/dg2 同色），所以颜色按「维度」给，不按取值给。
 #
-# 显式标注制：README 必须写全三个维度的取值。没写的维度就没有对应 data-f-*，
+# 显式标注制：README 必须写全各维度的取值。没写的维度就没有对应 data-f-*，
 # 筛选器选中该值时这张卡不显示（Allan 明确否掉了「缺省即归类」）。
+#
+# 前三个维度语义互斥（一个项目只能有一个派生/维护方/架构），第四个「特征」不同：
+# 一个项目可以有多个特征（如 XeSS = ComfyUI插件 + 独立程序），所以 data-f-feature
+# 存的是 `|` 分隔的多值，筛选侧用「整词包含」判断。筛选器本身仍是单选。
 INDEX_FACETS = (
     # (data-f 键, 中文名, 该维度合法取值（顺序即 <option> 顺序）, 徽章 class)
     ("derive", "项目派生", ("原始", "fork"), "badge-derive"),
     ("owner", "维护方", ("官方", "社群", "第三方"), "badge-owner"),
     ("arch", "适用架构", ("通用", "bmg", "dg2"), "badge-arch"),
+    ("feature", "特征", ("ComfyUI插件", "ComfyUI组件", "独立程序",
+                         "综合方案", "LLM推理", "模型训练"), "badge-feature"),
 )
+
+# 允许同一维度多值的维度键。其余维度即使 README 写多了也只取第一个（保持原行为）。
+INDEX_MULTI_FACETS = ("feature",)
 
 # 取值 → (维度键, 规范写法, 徽章 class)。比对用小写，兼容 fork/FORK/Bmg 等手写差异。
 _INDEX_FACET_OF = {}
@@ -289,15 +298,24 @@ def _index_render_desc(body):
 def _index_card(item):
     tags = item["tags"]
     updated = item.get("updated") or "—"
-    # 三个维度各出一个 data-f-<key>：该维度没有标注就不输出这个属性，
+    # 各维度各出一个 data-f-<key>：该维度没有标注就不输出这个属性，
     # 筛选器选中该值时自然跳过这张卡（显式标注制，无缺省归类）。
+    # 多值维度（特征）用 `|` 拼在一起，筛选侧做整词包含判断。
     facet_attr = ""
     for fkey, _lbl, _vals, _cls in INDEX_FACETS:
+        hits = []
         for t in tags:
             hit = _INDEX_FACET_OF.get(t.lower())
-            if hit and hit[0] == fkey:
-                facet_attr += ' data-f-%s="%s"' % (fkey, _esc(hit[1]))
-                break
+            if hit and hit[0] == fkey and hit[1] not in hits:
+                hits.append(hit[1])
+                if fkey not in INDEX_MULTI_FACETS:
+                    break
+        if not hits:
+            continue
+        if len(hits) > 3:
+            print("[warn] %r 的「%s」有 %d 个取值（%s），多值易稀释筛选语义，建议收紧"
+                  % (item["name"], _lbl, len(hits), "|".join(hits)), file=sys.stderr)
+        facet_attr += ' data-f-%s="%s"' % (fkey, _esc("|".join(hits)))
     # tags 独立成行、靠右；一个 tag 都没有时整行不渲染，省掉一段空白间距
     tags_html = ('\n      <div class="card-tags">%s</div>' % badge_html(tags)) if tags else ""
     author_html = ""
@@ -334,7 +352,7 @@ def _index_card(item):
 
 
 def _index_filter_html(items):
-    """生成筛选条。三个维度**固定全出**——取值域写死在 INDEX_FACETS，不随数据漂移。
+    """生成筛选条。各维度**固定全出**——取值域写死在 INDEX_FACETS，不随数据漂移。
 
     Allan 2026-11-22 定：显式标注制，某取值当前 0 命中时选项照常列出（选中即 0 条），
     不做「取值 <2 就隐藏」。
@@ -415,7 +433,7 @@ INDEX_HTML = """<!DOCTYPE html>
     display: inline-block; vertical-align: middle; margin-right: 6px;
   }
 
-  /* ---------- 筛选条（形态照搬 full-logs.html，三组「标签 + 下拉」+ 右侧状态） ---------- */
+  /* ---------- 筛选条（形态照搬 full-logs.html，四组「标签 + 下拉」+ 右侧状态） ---------- */
   .filter-bar {
     display: flex; align-items: center; justify-content: space-between;
     gap: 10px 18px; flex-wrap: wrap;
@@ -427,12 +445,13 @@ INDEX_HTML = """<!DOCTYPE html>
   }
   .filters { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 22px; }
   .f-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); }
-  /* 三组标签文字等宽（4em = 4 个汉字），保证三个下拉左边缘对齐 */
+  /* 四组标签文字等宽（4em = 4 个汉字），保证四个下拉左边缘对齐 */
   .f-label { width: 4em; flex: none; }
   .f-item select {
     font: inherit; font-size: 13px; padding: 5px 10px;
-    /* 三个下拉等宽：随内容伸缩会让三项宽度不一、切值还微调 */
-    width: 108px; min-width: 88px; max-width: 40vw;
+    /* 四个下拉等宽：随内容伸缩会让各项宽度不一、切值还微调。
+       124px 是能放下最长取值「ComfyUI插件」且四组仍与右侧状态同行的上限 */
+    width: 124px; min-width: 88px; max-width: 40vw;
     border: 1px solid var(--border); border-radius: 8px; background: var(--card);
     color: var(--text); cursor: pointer;
   }
@@ -457,7 +476,7 @@ INDEX_HTML = """<!DOCTYPE html>
   /* 这三处自己声明了 display（card=flex / filter-bar=flex / grid=grid），
      会盖掉 [hidden] 的 UA 默认 display:none，必须显式写回来 */
   .card[hidden], .filter-bar[hidden], .ix-empty[hidden] { display: none; }
-  /* 窄屏：下拉放开固定宽度，按内容自适应，避免 3×108px 横向挤爆 */
+  /* 窄屏：下拉放开固定宽度，按内容自适应，避免 4×124px 横向挤爆 */
   @media (max-width: 700px) {
     .filter-bar { padding: 10px 12px; gap: 8px 12px; }
     .filters { gap: 8px 14px; }
@@ -489,6 +508,7 @@ INDEX_HTML = """<!DOCTYPE html>
   .badge-derive { background: var(--amber-bg); color: var(--amber-text); border: 1px solid #ead9b8; }
   .badge-owner  { background: #e8f1fb; color: #0c447c; border: 1px solid #c8e0f5; }
   .badge-arch   { background: #fdecea; color: #b3261e; border: 1px solid #f5c6c2; }
+  .badge-feature { background: #f4efff; color: #6b3fc4; border: 1px solid #ded0f7; }
   .badge-unknown { background: #f3f4f6; color: var(--text-muted); border: 1px solid var(--border); }
   .updated {
     font-size: 12px; color: var(--text-muted); white-space: nowrap;
@@ -585,8 +605,10 @@ __CARDS__
         var ok = true;
         for (var i = 0; i < sels.length; i++) {
           var v = sels[i].value;
-          // 显式标注制：卡片若没有该维度的 data-f-*，选中任何取值都不命中
-          if (v && c.getAttribute('data-f-' + keyOf(sels[i])) !== v) { ok = false; break; }
+          // 显式标注制：卡片若没有该维度的 data-f-*，选中任何取值都不命中。
+          // 多值维度（特征）用 | 分隔，这里做整词包含判断；单值也走同一条路径。
+          var fv = c.getAttribute('data-f-' + keyOf(sels[i])) || '';
+          if (v && ('|' + fv + '|').indexOf('|' + v + '|') < 0) { ok = false; break; }
         }
         c.hidden = !ok;
         if (ok) shown++;
