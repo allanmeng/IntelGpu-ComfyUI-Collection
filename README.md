@@ -22,7 +22,7 @@
 
 作者：[@allanmeng](https://github.com/allanmeng)
 
-Tag: 社群
+Tag: 原始,社群,通用
 
 ---
 
@@ -37,7 +37,7 @@ ComfyUI-XPUSYS-Monitor 是一款以 Intel Arc 为核心的 ComfyUI 硬件监控�
 
 作者：[@allanmeng](https://github.com/allanmeng)
 
-Tag: 社群
+Tag: 原始,社群,通用
 
 ---
 
@@ -53,7 +53,7 @@ Tag: 社群
 
 作者：[@allanmeng](https://github.com/allanmeng)
 
-Tag: 社群
+Tag: fork,社群,通用
 
 ---
 
@@ -65,7 +65,7 @@ MFV是一个无偏、交叉验证的模型量化格式逆向分析工具。 它�
 
 作者：[@allanmeng](https://github.com/allanmeng)
 
-Tag: 社群
+Tag: 原始,社群,通用
 
 ---
 
@@ -80,7 +80,7 @@ Tag: 社群
 
 作者：[@allanmeng](https://github.com/allanmeng)
 
-Tag: 社群
+Tag: 原始,社群,通用
 
 ---
 
@@ -95,7 +95,7 @@ Tag: 社群
 
 作者：[@allanmeng](https://github.com/allanmeng)
 
-Tag: fork,社群
+Tag: fork,社群,通用
 
 ---
 
@@ -110,7 +110,7 @@ Blackwood416 开发的 **Intel Arc 原生推理引擎**：SYCL + oneDNN + Level 
 
 作者：[@Blackwood416](https://github.com/Blackwood416)
 
-Tag: 社群
+Tag: 原始,社群,通用
 
 ---
 
@@ -160,7 +160,7 @@ Tag: fork,社群,dg2
 
 作者：[@JWLHS](https://github.com/JWLHS)
 
-Tag: 社群
+Tag: 原始,社群,通用
 
 ---
 
@@ -172,7 +172,7 @@ Tag: 社群
 
 作者：[@gggz114514-oss](https://github.com/gggz114514-oss)
 
-Tag: 社群
+Tag: 原始,社群,通用
 
 ---
 
@@ -184,7 +184,7 @@ LLM Scaler Omni 为生成式媒体（多媒体）工作负载提供Intel XPU 镜
 
 作者：[@xiangyuT](https://github.com/xiangyuT)
 
-Tag: 官方,bmg
+Tag: 原始,官方,bmg
 
 ---
 
@@ -211,7 +211,7 @@ Tag: fork,官方,bmg
 
 作者：[@Blackwood416](https://github.com/Blackwood416)
 
-Tag: 社群
+Tag: 原始,社群,通用
 
 ---
 
@@ -235,7 +235,7 @@ ai-toolkit-xpu 是 ostris/ai-toolkit 的 Intel Arc XPU 适配版，让这套开�
 
 作者：[@JWLHS](https://github.com/JWLHS)
 
-Tag: fork,社群
+Tag: fork,社群,通用
 
 ---
 
@@ -273,4 +273,4 @@ Tag: fork,社群,dg2
 
 作者：[@xiangyuT](https://github.com/xiangyuT)
 
-Tag: 官方,bmg
+Tag: 原始,官方,bmg
