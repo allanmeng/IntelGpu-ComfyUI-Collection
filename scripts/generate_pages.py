@@ -53,7 +53,8 @@ def fetch_repo_updated(repo, path, token, retries=3):
     """
     url = "https://api.github.com/repos/%s/commits?per_page=1" % repo
     if path:
-        url += "&path=%s" % path
+        # 子目录路径含 /，query 里合法但空格/#/& 会拆坏 URL，统一交给 quote
+        url += "&path=%s" % urllib.parse.quote(path, safe="/")
     headers = {"Accept": "application/vnd.github+json"}
     if token:
         headers["Authorization"] = "Bearer %s" % token
@@ -125,11 +126,20 @@ def repo_from_url(url):
 
 
 def repo_path_from_url(url):
-    """Return (owner/repo, subpath) from a github.com URL."""
-    m = re.match(r"https?://github\.com/([^/]+)/([^/#?]+)(?:/tree/[^/]+/(.+?))?(?:[/#?].*)?$", url or "")
+    """Return (owner/repo, subpath) from a github.com URL.
+
+    subpath 必须支持**多段**（如 intel/llm-scaler/tree/main/omni/ComfyUI-OmniXPU
+    -> "omni/ComfyUI-OmniXPU"）。旧正则用 `(.+?)` + 可选 `(?:[/#?].*)?$`，
+    非贪婪会只吃第一段，把剩余部分交给尾部可选组吞掉 —— 于是所有多段子目录
+    都被截成第一段（曾导致 intel/llm-scaler 三个条目全部查询 "omni" 的时间，
+    三张卡显示同一个更新时间）。现改为 `([^#?]+)` 贪婪到路径末尾，
+    再用 rstrip("/") 去掉尾部斜杠。
+    """
+    m = re.match(r"https?://github\.com/([^/]+)/([^/#?]+)(?:/(?:tree|blob)/[^/]+/([^#?]+))?(?:[/#?].*)?$",
+                 url or "")
     if m:
         repo = "%s/%s" % (m.group(1), m.group(2))
-        path = (m.group(3) or "").rstrip("/")
+        path = (m.group(3) or "").strip().rstrip("/")
         return repo, path
     return "", ""
 
