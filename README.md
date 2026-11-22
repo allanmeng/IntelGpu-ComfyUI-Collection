@@ -184,7 +184,31 @@ LLM Scaler Omni 为生成式媒体（多媒体）工作负载提供Intel XPU 镜
 
 作者：[@xiangyuT](https://github.com/xiangyuT)
 
-Tag: 原始,官方,bmg,ComfyUI组件,ComfyUI插件,综合方案
+Tag: 原始,官方,bmg,综合方案
+
+---
+
+## ComfyUI-OmniXPU
+
+用于激活并调度 Intel XPU (**Xe2 / BMG, Arc Pro B70**) 内核中专用的算子。作为插件，它随 ComfyUI 一同启动，在 prestartup 阶段完成 XPU 加速后端的初始化与算子路由登记，使 ComfyUI 中原本走通用路径的注意力、归一化、量化矩阵乘等计算，自动交由 XPU 专用算子执行。
+
+项目地址：https://github.com/intel/llm-scaler/tree/main/omni/ComfyUI-OmniXPU
+
+作者：[@xiangyuT](https://github.com/xiangyuT)
+
+Tag: 原始,官方,bmg,ComfyUI插件
+
+---
+
+## omni-xpu-kernel
+
+供 llm-scaler 项目使用的原生 Intel XPU (**Xe2 / BMG, Arc Pro B70**) 内核。该软件包在精简的 PyTorch API 之下融合了 SYCL/ESIMD 内核、基于 oneDNN 的量化 GEMM，以及基于 CUTLASS-SYCL 的注意力后端。
+
+项目地址：https://github.com/intel/llm-scaler/tree/main/omni/omni_xpu_kernel
+
+作者：[@xiangyuT](https://github.com/xiangyuT)
+
+Tag: 原始,官方,bmg,ComfyUI组件
 
 ---
 
