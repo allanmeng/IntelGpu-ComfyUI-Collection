@@ -286,3 +286,15 @@ Tag: fork,社群,dg2,ComfyUI插件
 作者：[@xiangyuT](https://github.com/xiangyuT)
 
 Tag: 原始,官方,bmg,ComfyUI插件
+
+---
+
+## inferzero
+
+inferzero 是一个用 C++ 从零编写、走 Level Zero 后端的 Intel GPU 本地 LLM 推理引擎，直接加载 GGUF，自带 OpenAI / Anthropic / Ollama 兼容 API 和 Web UI。以笔记本集显起家（Meteor Lake / Lunar Lake / Panther Lake 的 Arc Graphics），2026 年 10 月底起已实测覆盖 Arc 独显（B580 / Pro B60 / Pro B70 / A770 / A750 / A580），支持单卡运行与 --gpus N 多卡切分；同文件下 prompt 处理是 llama.cpp Vulkan / SYCL 的 2.7-7.4 倍。
+
+项目地址：https://github.com/rizagp/inferzero
+
+作者：[@rizagp](https://github.com/rizagp)
+
+Tag: 原始,第三方,通用,LLM推理,独立程序
