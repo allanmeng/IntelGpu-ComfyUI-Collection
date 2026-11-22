@@ -255,7 +255,7 @@ Tag: fork,社群,dg2
 
 ## comfy-mono-decode-xpu
 
-Decode kernels for ComfyUI prompt enhance (TextGenerate / TextGenerateV2 with MTP) on Intel XPU (**A770（DG2 架构）**), for Qwen3.5-9B W4A8 text encoders.
+该项目为 ComfyUI 的提示词增强（prompt enhance）功能在 Intel XPU (**A770（DG2 架构）**)平台上提供了定制解码内核，通过替换 Qwen3.5-9B W4A8 文本编码器的解码步骤，在不引入新节点的前提下将官方工作流的提示增强解码速度提升至约 140–149 tok/s
 
 项目地址：https://github.com/Blackwood416/comfy-mono-decode-xpu
 
@@ -267,7 +267,7 @@ Tag: fork,社群,dg2
 
 ## comfy-mono-decode-xpu
 
-Decode kernels for ComfyUI prompt enhance (TextGenerate / TextGenerateV2 with MTP) on Intel XPU (**Xe2 / BMG, Arc Pro B70**), for Qwen3.5-9B W4A8 text encoders.
+该项目为 ComfyUI 的提示词增强（prompt enhance）功能在 Intel XPU (**Xe2 / BMG, Arc Pro B70**)平台上提供了定制解码内核，通过替换 Qwen3.5-9B W4A8 文本编码器的解码步骤，在不引入新节点的前提下将官方工作流的提示增强解码速度提升至约 140–149 tok/s。
 
 项目地址：https://github.com/xiangyuT/comfy-mono-decode-xpu
 
