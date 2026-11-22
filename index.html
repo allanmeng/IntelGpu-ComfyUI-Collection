@@ -190,10 +190,25 @@
 
   <div class="filter-bar" id="ix-wrap" hidden>
     <div class="filters" id="ix-bar"><label class="f-item"><span class="f-label">项目派生</span><select data-f="derive" aria-label="按项目派生筛选"><option value="">全部</option><option value="原始">原始</option><option value="fork">fork</option></select></label><label class="f-item"><span class="f-label">维护方</span><select data-f="owner" aria-label="按维护方筛选"><option value="">全部</option><option value="官方">官方</option><option value="社群">社群</option><option value="第三方">第三方</option></select></label><label class="f-item"><span class="f-label">适用架构</span><select data-f="arch" aria-label="按适用架构筛选"><option value="">全部</option><option value="通用">通用</option><option value="bmg">bmg</option><option value="dg2">dg2</option></select></label><label class="f-item"><span class="f-label">特征</span><select data-f="feature" aria-label="按特征筛选"><option value="">全部</option><option value="ComfyUI插件">ComfyUI插件</option><option value="ComfyUI组件">ComfyUI组件</option><option value="独立程序">独立程序</option><option value="综合方案">综合方案</option><option value="LLM推理">LLM推理</option><option value="模型训练">模型训练</option></select></label></div>
-    <div class="filter-state" id="ix-state"><span>找到 <b id="ix-cnt">20</b> 条</span><span>共 20 条</span><button type="button" class="f-clear" id="ix-clear"><svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>重置</button></div>
+    <div class="filter-state" id="ix-state"><span>找到 <b id="ix-cnt">21</b> 条</span><span>共 21 条</span><button type="button" class="f-clear" id="ix-clear"><svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>重置</button></div>
   </div>
 
   <div class="grid">
+
+    <article class="card" data-repo="rizagp/inferzero" data-name="inferzero" data-f-derive="原始" data-f-owner="第三方" data-f-arch="通用" data-f-feature="LLM推理|独立程序">
+      <div class="card-top">
+        <div class="card-name"><a href="https://github.com/rizagp/inferzero" target="_blank">inferzero</a></div>
+        <span class="updated">更新：<span class="upd-time">2026/11/22-19:02:57</span></span>
+      </div>
+      <div class="card-tags"><span class="badge badge-derive">原始</span><span class="badge badge-owner">第三方</span><span class="badge badge-arch">通用</span><span class="badge badge-feature">LLM推理</span><span class="badge badge-feature">独立程序</span></div>
+      <div class="card-desc">inferzero 是一个用 C++ 从零编写、走 Level Zero 后端的 Intel GPU 本地 LLM 推理引擎，直接加载 GGUF，自带 OpenAI / Anthropic / Ollama 兼容 API 和 Web UI。以笔记本集显起家（Meteor Lake / Lunar Lake / Panther Lake 的 Arc Graphics），2026 年 10 月底起已实测覆盖 Arc 独显（B580 / Pro B60 / Pro B70 / A770 / A750 / A580），支持单卡运行与 --gpus N 多卡切分；同文件下 prompt 处理是 llama.cpp Vulkan / SYCL 的 2.7-7.4 倍。</div>
+      <div class="card-footer">
+        <div class="author">作者：<a href="https://github.com/rizagp" target="_blank">@rizagp</a></div>
+        <div class="links">
+          <a class="btn btn-primary" href="https://github.com/rizagp/inferzero" target="_blank">项目地址</a>
+        </div>
+      </div>
+    </article>
 
     <article class="card" data-repo="intel/llm-scaler" data-name="omni-xpu-kernel" data-f-derive="原始" data-f-owner="官方" data-f-arch="bmg" data-f-feature="ComfyUI组件">
       <div class="card-top">
@@ -502,7 +517,7 @@
   <footer>
     由 <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection" target="_blank">IntelGpu-ComfyUI-Collection</a> 自动生成 ·
     <a href="https://github.com/allanmeng/IntelGpu-ComfyUI-Collection/blob/main/README.md" target="_blank">README 源文件</a> ·
-    最新生成时间：2026/11/22 18:51:43
+    最新生成时间：2026/11/22 19:10:05
   </footer>
 
 </div>
