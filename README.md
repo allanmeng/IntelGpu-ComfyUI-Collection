@@ -22,7 +22,7 @@
 
 作者：[@allanmeng](https://github.com/allanmeng)
 
-Tag: 原始,社群,通用
+Tag: 原始,社群,通用,ComfyUI组件,综合方案
 
 ---
 
@@ -37,7 +37,7 @@ ComfyUI-XPUSYS-Monitor 是一款以 Intel Arc 为核心的 ComfyUI 硬件监控�
 
 作者：[@allanmeng](https://github.com/allanmeng)
 
-Tag: 原始,社群,通用
+Tag: 原始,社群,通用,ComfyUI插件
 
 ---
 
@@ -53,7 +53,7 @@ Tag: 原始,社群,通用
 
 作者：[@allanmeng](https://github.com/allanmeng)
 
-Tag: fork,社群,通用
+Tag: fork,社群,通用,ComfyUI组件,LLM推理
 
 ---
 
@@ -65,7 +65,7 @@ MFV是一个无偏、交叉验证的模型量化格式逆向分析工具。 它�
 
 作者：[@allanmeng](https://github.com/allanmeng)
 
-Tag: 原始,社群,通用
+Tag: 原始,社群,通用,独立程序
 
 ---
 
@@ -80,7 +80,7 @@ Tag: 原始,社群,通用
 
 作者：[@allanmeng](https://github.com/allanmeng)
 
-Tag: 原始,社群,通用
+Tag: 原始,社群,通用,ComfyUI插件,LLM推理
 
 ---
 
@@ -95,7 +95,7 @@ Tag: 原始,社群,通用
 
 作者：[@allanmeng](https://github.com/allanmeng)
 
-Tag: fork,社群,通用
+Tag: fork,社群,通用,ComfyUI插件,LLM推理
 
 ---
 
@@ -110,7 +110,7 @@ Blackwood416 开发的 **Intel Arc 原生推理引擎**：SYCL + oneDNN + Level 
 
 作者：[@Blackwood416](https://github.com/Blackwood416)
 
-Tag: 原始,社群,通用
+Tag: 原始,社群,通用,LLM推理,独立程序
 
 ---
 
@@ -127,7 +127,7 @@ Intel llm-scaler-omni 官方套件的独立 fork，为 **Arc A770 / DG2** 补齐
 
 作者：[@Blackwood416](https://github.com/Blackwood416)
 
-Tag: fork,社群,dg2
+Tag: fork,社群,dg2,ComfyUI插件
 
 ---
 
@@ -145,7 +145,7 @@ pip install --no-deps intel-cmplr-lib-rt==2026.2.0
 
 作者：[@Blackwood416](https://github.com/Blackwood416)
 
-Tag: fork,社群,dg2
+Tag: fork,社群,dg2,ComfyUI组件
 
 ---
 
@@ -160,7 +160,7 @@ Tag: fork,社群,dg2
 
 作者：[@JWLHS](https://github.com/JWLHS)
 
-Tag: 原始,社群,通用
+Tag: 原始,社群,通用,ComfyUI插件
 
 ---
 
@@ -172,7 +172,7 @@ Tag: 原始,社群,通用
 
 作者：[@gggz114514-oss](https://github.com/gggz114514-oss)
 
-Tag: 原始,社群,通用
+Tag: 原始,社群,通用,ComfyUI插件,独立程序
 
 ---
 
@@ -184,7 +184,7 @@ LLM Scaler Omni 为生成式媒体（多媒体）工作负载提供Intel XPU 镜
 
 作者：[@xiangyuT](https://github.com/xiangyuT)
 
-Tag: 原始,官方,bmg
+Tag: 原始,官方,bmg,ComfyUI组件,ComfyUI插件,综合方案
 
 ---
 
@@ -199,7 +199,7 @@ AI 模型动态卸载器 (AI Model Dynamic Offloader)该项目是一款 PyTorch 
 
 作者：[@xiangyuT](https://github.com/xiangyuT)
 
-Tag: fork,官方,bmg
+Tag: fork,官方,bmg,ComfyUI组件
 
 ---
 
@@ -211,7 +211,7 @@ Tag: fork,官方,bmg
 
 作者：[@Blackwood416](https://github.com/Blackwood416)
 
-Tag: 原始,社群,通用
+Tag: 原始,社群,通用,独立程序
 
 ---
 
@@ -223,7 +223,7 @@ Intel XPU 集成适用于 Comfy-Org/comfy-kitchen，并由可选的 omni_xpu_ker
 
 作者：[@xiangyuT](https://github.com/xiangyuT)
 
-Tag: fork,官方,bmg
+Tag: fork,官方,bmg,ComfyUI组件
 
 ---
 
@@ -235,7 +235,7 @@ ai-toolkit-xpu 是 ostris/ai-toolkit 的 Intel Arc XPU 适配版，让这套开�
 
 作者：[@JWLHS](https://github.com/JWLHS)
 
-Tag: fork,社群,通用
+Tag: fork,社群,通用,独立程序,模型训练
 
 ---
 
@@ -249,7 +249,7 @@ Tag: fork,社群,通用
 
 作者：[@Blackwood416](https://github.com/Blackwood416)
 
-Tag: fork,社群,dg2
+Tag: fork,社群,dg2,ComfyUI组件
 
 ---
 
@@ -261,7 +261,7 @@ Tag: fork,社群,dg2
 
 作者：[@Blackwood416](https://github.com/Blackwood416)
 
-Tag: fork,社群,dg2
+Tag: fork,社群,dg2,ComfyUI插件
 
 ---
 
@@ -273,4 +273,4 @@ Tag: fork,社群,dg2
 
 作者：[@xiangyuT](https://github.com/xiangyuT)
 
-Tag: 原始,官方,bmg
+Tag: 原始,官方,bmg,ComfyUI插件
