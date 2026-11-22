@@ -305,6 +305,21 @@ def _index_render_desc(body):
     return text
 
 
+# 标题前的 GitHub 标记（octicon mark-github 16，viewBox 16 按 14px 显示）。
+# 站内卡片标题全部指向 GitHub 仓库/子目录，统一标记不重复 badge 的特征信息。
+_INDEX_GH_ICON = (
+    '<span class="ic-gh" aria-hidden="true">'
+    '<svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">'
+    '<path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 '
+    '0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 '
+    '1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 '
+    '0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 '
+    '1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 '
+    '3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 '
+    '8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></span>'
+)
+
+
 def _index_card(item):
     tags = item["tags"]
     updated = item.get("updated") or "—"
@@ -326,8 +341,9 @@ def _index_card(item):
             print("[warn] %r 的「%s」有 %d 个取值（%s），多值易稀释筛选语义，建议收紧"
                   % (item["name"], _lbl, len(hits), "|".join(hits)), file=sys.stderr)
         facet_attr += ' data-f-%s="%s"' % (fkey, _esc("|".join(hits)))
-    # tags 独立成行、靠右；一个 tag 都没有时整行不渲染，省掉一段空白间距
-    tags_html = ('\n      <div class="card-tags">%s</div>' % badge_html(tags)) if tags else ""
+    # tags 放 footer 右侧（原「项目地址」按钮的位置）；一个 tag 都没有时整块不渲染，
+    # 此时 footer 只剩作者，不会有空白占位
+    tags_html = ('\n        <div class="card-tags">%s</div>' % badge_html(tags)) if tags else ""
     author_html = ""
     if item.get("author"):
         name, url, label = item["author"]
@@ -338,15 +354,12 @@ def _index_card(item):
             author_html = '<div class="author">%s：@%s</div>' % (label, name)
     return """    <article class="card" data-repo="%(repo)s" data-name="%(name)s"%(facet)s>
       <div class="card-top">
-        <div class="card-name"><a href="%(link)s" target="_blank">%(display)s</a></div>
+        <div class="card-name">%(icon)s<a href="%(link)s" target="_blank">%(display)s</a></div>
         <span class="updated">更新：<span class="upd-time">%(updated)s</span></span>
-      </div>%(tagsrow)s
+      </div>
       <div class="card-desc">%(desc)s</div>
       <div class="card-footer">
-        %(author)s
-        <div class="links">
-          <a class="btn btn-primary" href="%(link)s" target="_blank">项目地址</a>
-        </div>
+        %(author)s%(tags)s
       </div>
     </article>""" % {
         "repo": item["repo"],
@@ -354,10 +367,11 @@ def _index_card(item):
         "display": item["display"],
         "link": item["link"],
         "facet": facet_attr,
-        "tagsrow": tags_html,
+        "icon": _INDEX_GH_ICON,
         "updated": updated,
         "desc": item["desc"],
         "author": author_html,
+        "tags": tags_html,
     }
 
 
@@ -506,16 +520,33 @@ INDEX_HTML = """<!DOCTYPE html>
   }
   .card:hover { box-shadow: 0 4px 12px rgba(31,35,40,0.12); }
 
-  .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
-  .card-name { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  /* 标题行：icon + 标题（标题即链接） + 右侧更新时间，垂直居中 */
+  .card-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .card-name { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
   .card-name a { color: var(--text); text-decoration: none; }
-  .card-name a:hover { color: var(--intel-blue); }
+  /* 「项目地址」按钮已去掉，标题是卡片里唯一的入口 → hover 必须给出可点反馈。
+     下划线用 text-decoration（不占布局空间），offset 3px 让它贴近字底而不是压在字上 */
+  .card-name a:hover {
+    color: var(--intel-blue); text-decoration: underline;
+    text-underline-offset: 3px; text-decoration-thickness: 1px;
+  }
+  .card-name a:focus-visible { outline: 2px solid #a8cff0; outline-offset: 2px; border-radius: 3px; }
+  /* 标题前的 GitHub 标记（26px 圆角灰块）。卡片标题全部指向 GitHub，
+     统一标记不会重复 badge 已表达的特征信息，同时暗示「标题可点」。
+     icon 在 <a> 外面：避免把 .card-name 的 flex gap 布局改成 a 内部行内布局 */
+  .ic-gh {
+    flex: none; width: 26px; height: 26px; border-radius: 8px;
+    background: #f3f4f6; color: var(--text-muted); border: 1px solid #e5e7eb;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .ic-gh svg { display: block; }
   .badge {
     font-size: 11px; padding: 2px 8px; border-radius: 999px; font-weight: 500;
     white-space: nowrap;
   }
-  /* tags 独占一行、靠右；上下间距靠 .card 的统一 gap（10px），不单独加 margin */
-  .card-tags { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+  /* tags 移到 footer 右侧（原「项目地址」按钮的位置）。
+     margin-left:auto 让 tags 贴右，且窄屏换行成独立一行后依然贴右 */
+  .card-tags { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; margin-left: auto; }
   /* 同维度同色：颜色只用来区分「维度」，同一维度里的具体取值靠文字分辨（2026-11-22 定）
      派生（原始/fork）→ 琥珀 · 维护方（官方/社群/第三方）→ 蓝 · 架构（通用/bmg/dg2）→ 浅红 */
   .badge-derive { background: var(--amber-bg); color: var(--amber-text); border: 1px solid #ead9b8; }
@@ -532,22 +563,14 @@ INDEX_HTML = """<!DOCTYPE html>
   .card-desc a { color: var(--intel-blue); text-decoration: none; }
   .card-desc a:hover { text-decoration: underline; }
 
+  /* footer：左「作者」右「tags」。行间距 8（换行时）列间距 12（作者与 tags 之间） */
   .card-footer {
     display: flex; align-items: center; justify-content: space-between;
-    gap: 8px; flex-wrap: wrap;
+    gap: 8px 12px; flex-wrap: wrap;
     padding-top: 10px; border-top: 1px solid #eef0f2;
   }
   .author { font-size: 13px; color: var(--text-muted); }
   .author a { color: var(--intel-blue); text-decoration: none; font-weight: 600; }
-  .links { display: flex; gap: 8px; flex-wrap: wrap; }
-  .btn {
-    font-size: 12px; text-decoration: none; padding: 5px 12px; border-radius: 8px;
-    border: 1px solid var(--border); color: var(--text); background: #fff;
-    transition: all 0.12s ease;
-  }
-  .btn:hover { border-color: var(--intel-blue); color: var(--intel-blue); }
-  .btn-primary { background: var(--intel-blue); border-color: var(--intel-blue); color: #fff; }
-  .btn-primary:hover { background: var(--intel-blue-dark); color: #fff; }
   footer { text-align: center; margin-top: 40px; font-size: 12px; color: var(--text-muted); }
   footer a { color: var(--intel-blue); text-decoration: none; }
 </style>
