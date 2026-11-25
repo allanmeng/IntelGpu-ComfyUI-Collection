@@ -89,7 +89,7 @@ Tag: 原始,社群,通用,ComfyUI插件,LLM推理
 与 llama-cpp-python-sycl 搭配，让用户能够在 ComfyUI 工作流中直接调用 llama.cpp 进行本地大语言模型推理。该节点核心功能是从提示词生成文本响应，并原生支持视觉模型与多模态输入（图像），因此常被用于 ComfyUI 中的提示词反推、提示词增强等场景。
 
 
-【[搭配引擎 llama-cpp-python-sycl](https://pan.quark.cn/s/e20e16cb7c4f) 】  【[环境要求：OneAPI2026.1](https://pan.quark.cn/s/5c5292635ee1)】
+【[搭配引擎 llama-cpp-python-sycl](https://github.com/allanmeng/llama-cpp-python-sycl-windows)】  【[环境要求：OneAPI2026.2](https://pan.quark.cn/s/be61433cc224)】
 
 项目地址：https://github.com/allanmeng/comfyui-sg-llama-cpp
 
