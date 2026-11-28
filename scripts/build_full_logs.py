@@ -1366,28 +1366,42 @@ CHIPS = """      <a class="chip" href="index.html">项目收集</a>
       <a class="chip" href="https://comfyui-wiki.com/zh/news" target="_blank" rel="noopener">ComfyUI新闻动态 ↗</a>"""
 
 
-def role_by_key(key, value):
-    """按输入键名 + 文件名猜角色。与插件 fulllog_html._role_by_key 保持同一套规则。
+def role_by_key(key, value, cls=""):
+    """按输入键名 + 加载器类名 + 文件名猜角色。与插件 fulllog_html._role_by_key 同一套规则。
 
     键名优先：「lora_name」比文件名可靠得多（很多 LoRA 文件名里根本没有 lora 字样）。
+    类名次之：KJNodes 的 DiffusionModelLoaderKJ 用的键名只是泛泛的 `model_name`，
+    文件名又带 `qwen_image_2.1` 厂商前缀，光看键名 + 文件名会判成文本编码器
+    （2026-11-28 实证：底模那一行的文件名被挂到了 TE 行上）—— 类名里明写着
+    Diffusion，就该是底模。
     """
     k = (key or "").lower()
-    blob = ("%s %s" % (key or "", value or "")).lower()
+    c = (cls or "").lower()
+    blob = ("%s %s %s" % (key or "", cls or "", value or "")).lower()
     if "lora" in blob:
         return "lora"
     if "control" in blob:
         return "controlnet"
     if "vae" in blob:
         return "vae"
+    # 解码头：Qwen-Image 2.1 的 PixelHead（`QwenImage21PixelHeadLoader` + `head_name`）
+    # 把 latent 直接解成像素喂 `QwenImage21PixelDecode`，工作流里根本没有 VAE 节点
+    # —— 它就是占 VAE 那个位置的解码模型（档案标题即「PixelHead-VAE优化」）。
+    if any(k2 in blob for k2 in ("pixel_head", "pixelhead", "pixel_decode", "pixeldecode")):
+        return "vae"
+    # 放大模型：键名多半只是泛泛的 model_name，靠文件名特征认。
     if any(k2 in blob for k2 in ("upscal", "esrgan", "ultrasharp", "swinir", "realesr")):
         return "upscaler"
-    # 底模的**强信号键名**排在 TE 关键词之前：`unet_name = ext\qwen_image_2.1-...gguf`
-    # 同时含 "unet"（底模）与 "qwen"（TE 关键词），先判 TE 会把底模说成文本编码器。
-    # 键名是加载器自己声明的，比文件名里的厂商前缀可靠。
-    if any(k2 in k for k2 in ("unet", "ckpt", "diffusion")):
+    # 底模的**强信号**要排在 TE 关键词之前：`unet_name = ext\qwen_image_2.1-...gguf`
+    # 同时含 "unet"（底模）和 "qwen"（TE 关键词），先判 TE 就把底模说成文本编码器了。
+    # 键名是加载器自己声明的，比文件名里的厂商前缀可靠；类名同理。
+    if (any(k2 in k for k2 in ("unet", "ckpt", "diffusion"))
+            or any(k2 in c for k2 in ("diffusion", "unet", "checkpoint", "ckpt"))):
         return "base"
-    if any(k2 in blob for k2 in ("clip", "text_encoder", "temodel", " t5", "_t5", "umt5",
-                                 "qwen", "llama", "gemma")):
+    # TE 只认**结构词**（clip / temodel / t5 …）。文件名里的厂商前缀（qwen / llama /
+    # gemma）单独不足以定 TE：`qwen_image_2.1_pixel_head_v03_bf16.safetensors` 是
+    # Qwen-Image 的 pixel 解码头，叫它文本编码器是错的。
+    if any(k2 in (k + " " + c) for k2 in ("clip", "text_encoder", "temodel", "t5", "umt5")):
         return "text_encoder"
     if any(k2 in blob for k2 in ("model", "unet", "diffusion")):
         return "base"
@@ -1415,7 +1429,7 @@ def graph_models(rec):
                 continue
             if not s.lower().endswith(MODEL_EXTS):
                 continue
-            out.append({"role": role_by_key(k, s), "file": s, "node": nid, "loader": cls,
+            out.append({"role": role_by_key(k, s, cls), "file": s, "node": nid, "loader": cls,
                         "key": k})
     return out
 

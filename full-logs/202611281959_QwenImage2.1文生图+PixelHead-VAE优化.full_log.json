@@ -794,21 +794,10 @@
         "load_s": 0.5,
         "mb_per_s": 13840.0,
         "path_source": "policy-adjacent"
-      },
-      {
-        "role": "base",
-        "class": "KVCacheModel",
-        "file": null,
-        "path": null,
-        "mem_mb": 6920,
-        "mem_src": "staged",
-        "load_s": 0.046,
-        "mb_per_s": 150434.8,
-        "path_source": "unknown"
       }
     ],
-    "model_count": 3,
-    "loaded_total_mb": 19858,
+    "model_count": 2,
+    "loaded_total_mb": 12938,
     "omnixpu_markers": 17,
     "timeline": [
       {
@@ -857,7 +846,7 @@
         "t": "2026-11-28 19:59:36.751",
         "offset_s": 24.93,
         "delta_s": 0.5,
-        "event": "QwenImage21 就绪（6920 MB）",
+        "event": "qwen_image_2.1_int8_convrot.safetensors 就绪（6920 MB）",
         "kind": "loaded"
       },
       {
@@ -871,7 +860,7 @@
         "t": "2026-11-28 19:59:37.173",
         "offset_s": 25.35,
         "delta_s": 0.05,
-        "event": "KVCacheModel 就绪（6920 MB）",
+        "event": "qwen_image_2.1_int8_convrot.safetensors 就绪（6920 MB）",
         "kind": "loaded"
       },
       {
@@ -887,6 +876,15 @@
         "delta_s": 77.51,
         "event": "执行完成",
         "kind": "done"
+      }
+    ],
+    "virtual_models": [
+      {
+        "class": "KVCacheModel",
+        "mem_mb": 274,
+        "mem_src": "staged",
+        "load_s": 0.051,
+        "mb_per_s": 5372.5
       }
     ]
   },
